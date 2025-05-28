@@ -115,7 +115,7 @@ pub fn Anchor(props: AnchorProps) -> Element {
     let update_active_link = use_callback({
         let links = props.links.clone();
         move |_| {
-            if let Some(document) = window().unwrap().document() {
+            if let Some(_document) = window().unwrap().document() {
                 let scroll_top = if let Some(target_fn) = props.target {
                     if let Some(container) = target_fn() {
                         container.scroll_top()

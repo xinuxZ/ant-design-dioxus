@@ -9,13 +9,10 @@
 
 use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{
-    window, Element as WebElement, ScrollBehavior as WebScrollBehavior, ScrollToOptions,
-};
+use web_sys::{window, Element as WebElement, ScrollToOptions};
 
 use crate::components::icon::Icon;
 use crate::prelude::conditional_class_names_array;
-use crate::utils::class_names::class_names;
 
 /// BackTop 组件属性
 #[derive(Props, Clone, PartialEq)]

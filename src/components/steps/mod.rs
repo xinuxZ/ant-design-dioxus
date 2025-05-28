@@ -6,7 +6,7 @@
 //!
 //! 当任务复杂或者存在先后关系时，将其分解成一系列步骤，从而简化任务。
 
-use crate::utils::class_names::{class_names, conditional_class_names_array};
+use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 
 /// 步骤状态
@@ -292,32 +292,32 @@ pub fn Steps(props: StepsProps) -> Element {
     }
 }
 
-/// Step 单个步骤组件属性
-#[derive(Props, Clone, PartialEq)]
-pub struct StepProps {
-    /// 标题
-    pub title: String,
-    /// 子标题
-    pub subtitle: Option<String>,
-    /// 描述
-    pub description: Option<String>,
-    /// 图标
-    pub icon: Option<String>,
-    /// 状态
-    pub status: Option<StepStatus>,
-    /// 是否禁用
-    #[props(default = false)]
-    pub disabled: bool,
-}
+// /// Step 单个步骤组件属性
+// #[derive(Props, Clone, PartialEq)]
+// pub struct StepProps {
+//     /// 标题
+//     pub title: String,
+//     /// 子标题
+//     pub subtitle: Option<String>,
+//     /// 描述
+//     pub description: Option<String>,
+//     /// 图标
+//     pub icon: Option<String>,
+//     /// 状态
+//     pub status: Option<StepStatus>,
+//     /// 是否禁用
+//     #[props(default = false)]
+//     pub disabled: bool,
+// }
 
-/// Step 单个步骤组件
-#[component]
-pub fn Step(props: StepProps) -> Element {
-    // 这个组件主要用于 JSX 风格的声明，实际渲染由 Steps 组件处理
-    rsx! {
-        div { "Step component should be used within Steps" }
-    }
-}
+// /// Step 单个步骤组件
+// #[component]
+// pub fn Step(props: StepProps) -> Element {
+//     // 这个组件主要用于 JSX 风格的声明，实际渲染由 Steps 组件处理
+//     rsx! {
+//         div { "Step component should be used within Steps" }
+//     }
+// }
 
 /// 步骤项构建器
 pub struct StepItemBuilder {
