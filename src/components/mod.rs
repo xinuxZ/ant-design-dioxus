@@ -19,12 +19,14 @@ pub use dioxus::prelude::*;
 pub mod button;
 pub mod grid;
 pub mod icon;
+pub mod layout;
 pub mod typography;
 
 // 重新导出组件
 pub use button::*;
 pub use grid::*;
 pub use icon::*;
+pub use layout::*;
 pub use typography::*;
 
 // 组件模块声明（后续逐步实现）

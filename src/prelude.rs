@@ -107,6 +107,10 @@ pub use crate::components::button::{
 pub use crate::components::grid::Align as GridAlign;
 pub use crate::components::grid::{Col, ColProps, Justify, ResponsiveConfig, Row, RowProps};
 pub use crate::components::icon::{Icon, IconProps, IconRotate, IconTheme};
+pub use crate::components::layout::{
+    Content, ContentProps, Footer, FooterProps, Header, HeaderProps, Layout, LayoutProps, Sider,
+    SiderBreakpoint, SiderProps, SiderTheme,
+};
 pub use crate::components::typography::{
     HeadingLevel, Paragraph, ParagraphProps, Text, TextProps, TextType, Title, TitleProps,
 };
