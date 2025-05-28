@@ -17,11 +17,13 @@ pub use dioxus::prelude::*;
 
 // 通用组件
 pub mod button;
+pub mod grid;
 pub mod icon;
 pub mod typography;
 
 // 重新导出组件
 pub use button::*;
+pub use grid::*;
 pub use icon::*;
 pub use typography::*;
 

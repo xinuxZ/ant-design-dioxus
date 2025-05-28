@@ -27,6 +27,10 @@ use serde::{Deserialize, Serialize};
 // 引入按钮样式
 const BUTTON_STYLE: &str = include_str!("style.css");
 
+// 导出按钮组模块
+mod button_group;
+pub use button_group::*;
+
 /// 按钮类型
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ButtonType {

@@ -65,6 +65,88 @@
   margin-bottom: 1em;
 }
 
+/* 链接样式 */
+.ant-typography.ant-typography-link {
+  color: #1677ff;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  touch-action: manipulation;
+}
+
+.ant-typography.ant-typography-link:hover {
+  color: #69b1ff;
+}
+
+.ant-typography.ant-typography-link:active {
+  color: #0958d9;
+}
+
+.ant-typography.ant-typography-link:focus {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+
+.ant-typography.ant-typography-link.ant-typography-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ant-typography.ant-typography-link.ant-typography-disabled:hover {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 链接在不同文本类型下的颜色 */
+.ant-typography.ant-typography-link.ant-typography-success {
+  color: #52c41a;
+}
+
+.ant-typography.ant-typography-link.ant-typography-success:hover {
+  color: #95de64;
+}
+
+.ant-typography.ant-typography-link.ant-typography-success:active {
+  color: #389e0d;
+}
+
+.ant-typography.ant-typography-link.ant-typography-warning {
+  color: #faad14;
+}
+
+.ant-typography.ant-typography-link.ant-typography-warning:hover {
+  color: #ffd666;
+}
+
+.ant-typography.ant-typography-link.ant-typography-warning:active {
+  color: #d48806;
+}
+
+.ant-typography.ant-typography-link.ant-typography-danger {
+  color: #ff4d4f;
+}
+
+.ant-typography.ant-typography-link.ant-typography-danger:hover {
+  color: #ff7875;
+}
+
+.ant-typography.ant-typography-link.ant-typography-danger:active {
+  color: #d9363e;
+}
+
+.ant-typography.ant-typography-link.ant-typography-caption {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-typography.ant-typography-link.ant-typography-caption:hover {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.ant-typography.ant-typography-link.ant-typography-caption:active {
+  color: rgba(0, 0, 0, 0.25);
+}
+
 /* 文本类型样式 */
 .ant-typography.ant-typography-caption {
   color: rgba(0, 0, 0, 0.45);

@@ -174,6 +174,64 @@ pub struct TextProps {
     children: Element,
 }
 
+/// 链接属性
+#[derive(Props, Clone, PartialEq)]
+pub struct LinkProps {
+    /// 链接地址
+    #[props(default)]
+    pub href: Option<String>,
+    /// 链接目标
+    #[props(default)]
+    pub target: Option<String>,
+    /// 是否可复制
+    #[props(default)]
+    pub copyable: bool,
+    /// 是否可编辑
+    #[props(default)]
+    pub editable: bool,
+    /// 是否省略
+    #[props(default)]
+    pub ellipsis: bool,
+    /// 省略行数
+    #[props(default)]
+    pub ellipsis_rows: Option<u32>,
+    /// 文本类型
+    #[props(default)]
+    pub text_type: TextType,
+    /// 是否禁用
+    #[props(default)]
+    pub disabled: bool,
+    /// 是否删除线
+    #[props(default)]
+    pub delete: bool,
+    /// 是否下划线
+    #[props(default)]
+    pub underline: bool,
+    /// 是否强调
+    #[props(default)]
+    pub strong: bool,
+    /// 是否斜体
+    #[props(default)]
+    pub italic: bool,
+    /// 是否标记
+    #[props(default)]
+    pub mark: bool,
+    /// 是否代码
+    #[props(default)]
+    pub code: bool,
+    /// 自定义类名
+    #[props(default)]
+    pub class: Option<String>,
+    /// 自定义样式
+    #[props(default)]
+    pub style: Option<String>,
+    /// 点击事件处理器
+    #[props(default)]
+    pub onclick: Option<EventHandler<MouseEvent>>,
+    /// 子元素
+    children: Element,
+}
+
 /// 段落属性
 #[derive(Props, Clone, PartialEq)]
 pub struct ParagraphProps {
@@ -506,6 +564,77 @@ pub fn Paragraph(props: ParagraphProps) -> Element {
     }
 }
 
+/// 链接组件
+///
+/// # 参数
+///
+/// * `props` - 链接属性
+///
+/// # 示例
+///
+/// ```rust
+/// use dioxus::prelude::*;
+/// use ant_design_dioxus::Link;
+///
+/// fn app() -> Element {
+///     rsx! {
+///         Link {
+///             href: "https://ant.design",
+///             target: "_blank",
+///             "Ant Design"
+///         }
+///     }
+/// }
+/// ```
+#[component]
+pub fn Link(props: LinkProps) -> Element {
+    let class_name = get_typography_class_name(&props.text_type, &props.class, false, &props);
+    let typography_style = get_typography_style(&props.style, &props.ellipsis_rows);
+
+    // 添加链接特有的类名
+    let link_class = if class_name.contains("ant-typography") {
+        format!("{} ant-typography-link", class_name)
+    } else {
+        "ant-typography ant-typography-link".to_string()
+    };
+
+    rsx! {
+        // 注入排版样式
+        style { {TYPOGRAPHY_STYLE} }
+
+        a {
+            class: "{link_class}",
+            style: "{typography_style}",
+            href: props.href.as_deref().unwrap_or("#"),
+            target: props.target.as_deref(),
+            onclick: move |evt| {
+                if props.disabled {
+                    evt.prevent_default();
+                    return;
+                }
+                if let Some(handler) = &props.onclick {
+                    handler.call(evt);
+                }
+            },
+            {if props.strong {
+                rsx! { strong { {props.children} } }
+            } else if props.italic {
+                rsx! { em { {props.children} } }
+            } else if props.mark {
+                rsx! { mark { {props.children} } }
+            } else if props.code {
+                rsx! { code { {props.children} } }
+            } else if props.delete {
+                rsx! { del { {props.children} } }
+            } else if props.underline {
+                rsx! { u { {props.children} } }
+            } else {
+                props.children
+            }}
+        }
+    }
+}
+
 /// 获取排版组件的类名
 ///
 /// # 参数
@@ -691,6 +820,43 @@ impl TypographyProps for TitleProps {
 
 // 为 TextProps 实现 TypographyProps
 impl TypographyProps for TextProps {
+    fn get_disabled(&self) -> bool {
+        self.disabled
+    }
+    fn get_delete(&self) -> bool {
+        self.delete
+    }
+    fn get_underline(&self) -> bool {
+        self.underline
+    }
+    fn get_strong(&self) -> bool {
+        self.strong
+    }
+    fn get_italic(&self) -> bool {
+        self.italic
+    }
+    fn get_mark(&self) -> bool {
+        self.mark
+    }
+    fn get_code(&self) -> bool {
+        self.code
+    }
+    fn get_copyable(&self) -> bool {
+        self.copyable
+    }
+    fn get_editable(&self) -> bool {
+        self.editable
+    }
+    fn get_ellipsis(&self) -> bool {
+        self.ellipsis
+    }
+    fn get_ellipsis_rows(&self) -> &Option<u32> {
+        &self.ellipsis_rows
+    }
+}
+
+// 为 LinkProps 实现 TypographyProps
+impl TypographyProps for LinkProps {
     fn get_disabled(&self) -> bool {
         self.disabled
     }

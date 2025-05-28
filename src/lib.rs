@@ -37,6 +37,10 @@ use serde_json as _;
 #[allow(unused_imports)]
 use web_sys as _;
 
+// 引用dev-dependencies以避免未使用警告
+#[cfg(test)]
+extern crate wasm_bindgen_test;
+
 // 核心模块
 pub mod config_provider;
 pub mod locale;

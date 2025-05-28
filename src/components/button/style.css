@@ -364,14 +364,121 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
-/* 块级按钮 */
+/* 块级按钮样式 */
 .ant-btn-block {
   width: 100%;
+}
+
+/* 按钮组样式 */
+.ant-btn-group {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.ant-btn-group>.ant-btn {
+  position: relative;
+  z-index: 1;
+}
+
+.ant-btn-group>.ant-btn:hover,
+.ant-btn-group>.ant-btn:focus,
+.ant-btn-group>.ant-btn:active {
+  z-index: 2;
+}
+
+.ant-btn-group>.ant-btn:disabled {
+  z-index: 0;
+}
+
+/* 按钮组中的按钮边框处理 */
+.ant-btn-group>.ant-btn:not(:first-child):not(:last-child) {
+  border-radius: 0;
+  border-left-width: 0;
+}
+
+.ant-btn-group>.ant-btn:first-child:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right-width: 0;
+}
+
+.ant-btn-group>.ant-btn:last-child:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-width: 0;
+}
+
+.ant-btn-group>.ant-btn:only-child {
+  border-radius: 6px;
+}
+
+/* 按钮组大尺寸 */
+.ant-btn-group-lg>.ant-btn {
+  height: 40px;
+  padding: 6.4px 15px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.ant-btn-group-lg>.ant-btn:first-child:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.ant-btn-group-lg>.ant-btn:last-child:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.ant-btn-group-lg>.ant-btn:only-child {
+  border-radius: 8px;
+}
+
+/* 按钮组小尺寸 */
+.ant-btn-group-sm>.ant-btn {
+  height: 24px;
+  padding: 0px 7px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.ant-btn-group-sm>.ant-btn:first-child:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.ant-btn-group-sm>.ant-btn:last-child:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.ant-btn-group-sm>.ant-btn:only-child {
+  border-radius: 4px;
+}
+
+/* 按钮组中主按钮的特殊处理 */
+.ant-btn-group>.ant-btn-primary:not(:first-child) {
+  border-left-color: #0958d9;
+}
+
+.ant-btn-group>.ant-btn-primary:not(:last-child) {
+  border-right-color: #0958d9;
+}
+
+/* 按钮组中危险按钮的特殊处理 */
+.ant-btn-group>.ant-btn-dangerous:not(:first-child) {
+  border-left-color: #d9363e;
+}
+
+.ant-btn-group>.ant-btn-dangerous:not(:last-child) {
+  border-right-color: #d9363e;
 }
 
 /* 按钮内容 */
@@ -380,12 +487,12 @@
 }
 
 /* 按钮组合间距 */
-.ant-btn + .ant-btn {
+.ant-btn+.ant-btn {
   margin-left: 8px;
 }
 
 /* RTL 支持 */
-[dir="rtl"] .ant-btn + .ant-btn {
+[dir="rtl"] .ant-btn+.ant-btn {
   margin-left: 0;
   margin-right: 8px;
 }
