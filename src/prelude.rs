@@ -101,12 +101,11 @@ pub use crate::components::utils::{
 // 目前先注释掉，等组件实现后再启用
 
 // 通用组件
-// pub use crate::components::button::{Button, ButtonProps, ButtonType};
-// pub use crate::components::icon::{Icon, IconProps};
-// pub use crate::components::typography::{
-//     Typography, TypographyProps, Title, TitleProps, Text, TextProps,
-//     Paragraph, ParagraphProps,
-// };
+pub use crate::components::button::{Button, ButtonProps, ButtonSize, ButtonType};
+pub use crate::components::icon::{Icon, IconProps, IconRotate, IconTheme};
+pub use crate::components::typography::{
+    HeadingLevel, Paragraph, ParagraphProps, Text, TextProps, TextType, Title, TitleProps,
+};
 
 // 布局组件
 // pub use crate::components::grid::{Row, RowProps, Col, ColProps};

@@ -17,6 +17,13 @@ pub use dioxus::prelude::*;
 
 // 通用组件
 pub mod button;
+pub mod icon;
+pub mod typography;
+
+// 重新导出组件
+pub use button::*;
+pub use icon::*;
+pub use typography::*;
 
 // 组件模块声明（后续逐步实现）
 

@@ -24,6 +24,9 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+// 引入按钮样式
+const BUTTON_STYLE: &str = include_str!("style.css");
+
 /// 按钮类型
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ButtonType {
@@ -181,6 +184,9 @@ pub fn Button(props: ButtonProps) -> Element {
     let button_style = get_button_style(&props);
 
     rsx! {
+        // 注入按钮样式
+        style { {BUTTON_STYLE} }
+
         button {
             class: "{class_name}",
             style: "{button_style}",
