@@ -2,20 +2,16 @@
 //!
 //! 展示 Spin 组件的各种用法，包括基础用法、尺寸变体、延迟显示、自定义指示器等。
 
-use ant_design_dioxus::{Spin, SpinSize};
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
-fn main() {
-    dioxus::launch(App);
-}
-
 #[component]
-fn App() -> Element {
+pub fn SpinDemo() -> Element {
     let mut loading = use_signal(|| false);
     let mut delay_loading = use_signal(|| false);
 
     rsx! {
-        style { include_str!("../src/components/spin/style.css") }
+        // style { include_str!("../src/components/spin/style.css") }
 
         div {
             style: "padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",
@@ -23,7 +19,7 @@ fn App() -> Element {
             h1 { "Spin 组件示例" }
 
             // 基础用法
-            section {
+            div {
                 style: "margin-bottom: 40px;",
                 h2 { "基础用法" }
                 p { "一个简单的 loading 状态。" }
@@ -35,7 +31,7 @@ fn App() -> Element {
             }
 
             // 各种尺寸
-            section {
+            div {
                 style: "margin-bottom: 40px;",
                 h2 { "各种尺寸" }
                 p { "小的用于文本加载，默认用于卡片容器级加载，大的用于页面级加载。" }
@@ -64,7 +60,7 @@ fn App() -> Element {
             }
 
             // 包含描述
-            section {
+            div {
                 style: "margin-bottom: 40px;",
                 h2 { "包含描述" }
                 p { "可以自定义描述文案。" }
@@ -79,7 +75,7 @@ fn App() -> Element {
             }
 
             // 卡片加载中
-            section {
+            div {
                 style: "margin-bottom: 40px;",
                 h2 { "卡片加载中" }
                 p { "可以直接把内容内嵌到 Spin 中，将现有容器变为加载状态。" }
@@ -119,7 +115,7 @@ fn App() -> Element {
             }
 
             // 延迟显示
-            section {
+            div {
                 style: "margin-bottom: 40px;",
                 h2 { "延迟显示" }
                 p { "延迟 300ms 显示 loading，避免闪烁。" }
@@ -145,7 +141,7 @@ fn App() -> Element {
             }
 
             // 自定义指示器
-            section {
+            div {
                 style: "margin-bottom: 40px;",
                 h2 { "自定义指示器" }
                 p { "使用自定义指示器。" }
@@ -164,7 +160,7 @@ fn App() -> Element {
             }
 
             // 各种场景
-            section {
+            div {
                 h2 { "各种场景" }
                 p { "在不同场景下的应用示例。" }
 

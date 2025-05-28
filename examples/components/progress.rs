@@ -2,15 +2,11 @@
 //!
 //! 展示 Progress 组件的各种用法，包括线形、圆形、仪表盘进度条，以及不同状态和尺寸。
 
-use ant_design_dioxus::{Progress, ProgressSize, ProgressStatus, ProgressType};
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
-fn main() {
-    dioxus::launch(App);
-}
-
 #[component]
-fn App() -> Element {
+pub fn ProgressDemo() -> Element {
     let mut percent = use_signal(|| 30);
     let mut circle_percent = use_signal(|| 75);
     let mut dynamic_percent = use_signal(|| 0);
@@ -26,7 +22,7 @@ fn App() -> Element {
     });
 
     rsx! {
-        style { include_str!("../src/components/progress/style.css") }
+        // style { include_str!("../src/components/progress/style.css") }
 
         div {
             style: "padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",
@@ -202,13 +198,13 @@ fn App() -> Element {
 
                     Progress {
                         percent: 75,
-                        format: |percent| format!("{}天", percent)
+                        // format: Some(|percent| format!("{}天", percent))
                     }
 
                     Progress {
                         progress_type: ProgressType::Circle,
                         percent: 75,
-                        format: |percent| format!("{}°C", percent)
+                        // format: |percent| format!("{}°C", percent)
                     }
                 }
             }

@@ -22,6 +22,7 @@ pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
             vec!["Button", "Icon", "Typography", "TypographyComplete"],
         ),
         ("布局", vec!["Grid", "Layout", "Flex", "Space", "Divider"]),
+        ("表单", vec!["Checkbox", "Input", "Select"]),
         ("导航", vec!["Breadcrumb", "Menu"]),
         ("数据录入", vec![]),
         (
@@ -30,7 +31,7 @@ pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
                 "Avatar", "Badge", "Card", "Empty", "Table", "Tag", "Tooltip", "Tree",
             ],
         ),
-        ("反馈", vec![]),
+        ("反馈", vec!["Alert", "Progress", "Spin"]),
     ];
 
     rsx! {

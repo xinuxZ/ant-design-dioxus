@@ -2,20 +2,16 @@
 //!
 //! 展示 Alert 组件的各种用法，包括不同类型、可关闭、带描述、自定义图标等。
 
-use ant_design_dioxus::{Alert, AlertType};
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
-fn main() {
-    dioxus::launch(App);
-}
-
 #[component]
-fn App() -> Element {
+pub fn AlertDemo() -> Element {
     let mut show_closable = use_signal(|| true);
     let mut show_custom = use_signal(|| true);
 
     rsx! {
-        style { include_str!("../src/components/alert/style.css") }
+        // style { include_str!("../src/components/alert/style.css") }
 
         div {
             style: "padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",

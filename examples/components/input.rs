@@ -5,17 +5,13 @@
 use dioxus::prelude::*;
 
 // 引入组件样式
-const STYLE: &str = include_str!("../src/components/input/style.css");
+// const STYLE: &str = include_str!("../src/components/input/style.css");
 
 // 引入 Input 组件
-use ant_design_dioxus::{Input, InputSize, InputStatus};
-
-fn main() {
-    launch(App);
-}
+use ant_design_dioxus::prelude::*;
 
 #[component]
-fn App() -> Element {
+pub fn InputDemo() -> Element {
     // 基础用法状态
     let mut basic_value = use_signal(String::new);
 
@@ -45,7 +41,7 @@ fn App() -> Element {
 
     // 密码输入
     let mut password_value = use_signal(String::new);
-    let mut show_password = use_signal(false);
+    let mut show_password = use_signal(|| false);
 
     // 搜索框
     let mut search_value = use_signal(String::new);
@@ -56,7 +52,7 @@ fn App() -> Element {
     let mut phone = use_signal(String::new);
 
     rsx! {
-        style { {STYLE} }
+        // style { {STYLE} }
 
         div {
             style: "padding: 24px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",

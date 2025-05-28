@@ -2,16 +2,13 @@
 //!
 //! 展示 Select 组件的各种用法和功能
 
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
-fn main() {
-    dioxus::launch(App);
-}
-
 #[component]
-fn App() -> Element {
+pub fn SelectDemo() -> Element {
     rsx! {
-        style { {include_str!("../src/components/select/style.css")} }
+        // style { {include_str!("../src/components/select/style.css")} }
 
         div {
             style: "padding: 24px; max-width: 1200px; margin: 0 auto;",
@@ -238,16 +235,16 @@ fn MultipleExample() -> Element {
             p { "支持多选的选择器，可以选择多个选项。" }
 
             div {
-                style: "display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;",
+                // style: "display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;",
 
                 Select {
                     values: values(),
                     placeholder: "请选择多个选项",
                     multiple: true,
-                    on_change_multiple: move |v| {
-                        values.set(v.clone());
-                        println!("多选值: {:?}", v);
-                    },
+                    // on_change_multiple: move |v| {
+                    //     values.set(v.clone());
+                    //     println!("多选值: {:?}", v);
+                    // },
                     style: "width: 300px;",
 
                     SelectOption { value: "multi1", "多选选项1" }
@@ -257,10 +254,10 @@ fn MultipleExample() -> Element {
                     SelectOption { value: "multi5", "多选选项5" }
                 }
 
-                div {
-                    style: "padding: 8px; background: #f5f5f5; border-radius: 4px; max-width: 300px;",
-                    "已选择: {values().join(", ")}"
-                }
+                // div {
+                //     style: "padding: 8px; background: #f5f5f5; border-radius: 4px; max-width: 300px;",
+                //     "已选择: {values().join(", ")}"
+                // }
             }
         }
     }
@@ -287,10 +284,10 @@ fn SearchExample() -> Element {
                     show_search: true,
                     filter_option: true,
                     on_change: move |v| value.set(v),
-                    on_search: move |v| {
-                        search_value.set(v.clone());
-                        println!("搜索: {}", v);
-                    },
+                    // on_search: move |v| {
+                    //     search_value.set(v.clone());
+                    //     println!("搜索: {}", v);
+                    // },
                     style: "width: 250px;",
 
                     SelectOption { value: "apple", "苹果 (Apple)" }
@@ -499,6 +496,3 @@ fn BorderlessExample() -> Element {
         }
     }
 }
-
-// 导入组件
-use ant_design_dioxus::{Select, SelectOptGroup, SelectOption, SelectSize, SelectStatus};
