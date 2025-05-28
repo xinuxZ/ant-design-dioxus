@@ -73,6 +73,11 @@ fn App() -> Element {
                     "Badge" => rsx! { BadgeDemo {} },
                     "Tag" => rsx! { TagDemo {} },
                     "Empty" => rsx! { components::empty::EmptyExample {} },
+                    // "Table" => rsx! { TableDemo {} },
+                    "Tooltip" => rsx! { TooltipDemo {} },
+                    "Tree" => rsx! { TreeDemo {} },
+                    "Breadcrumb" => rsx! { BreadcrumbDemo {} },
+                    "Menu" => rsx! { MenuDemo {} },
                     _ => rsx! {
                         div {
                             style: "text-align: center; padding: 48px; color: #999;",
@@ -87,6 +92,11 @@ fn App() -> Element {
                                     li { "Icon - 图标组件" }
                                     li { "Typography - 排版组件" }
                                     li { "Layout - 布局组件" }
+                                    li { "Table - 表格组件" }
+                                    li { "Tooltip - 文字提示" }
+                                    li { "Tree - 树形控件" }
+                                    li { "Breadcrumb - 面包屑" }
+                                    li { "Menu - 导航菜单" }
                                 }
                             }
                         }
