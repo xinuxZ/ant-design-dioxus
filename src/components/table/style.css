@@ -1,0 +1,349 @@
+/* Table 表格组件样式 */
+
+.ant-table-wrapper {
+  clear: both;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.ant-table {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  position: relative;
+  z-index: 0;
+  clear: both;
+  font-size: 14px;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.ant-table-title {
+  padding: 16px 16px 0 16px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.ant-table-container {
+  position: relative;
+}
+
+.ant-table-table {
+  width: 100%;
+  text-align: left;
+  border-radius: 8px 8px 0 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ant-table-thead>tr>th {
+  position: relative;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  text-align: left;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.3s ease;
+}
+
+.ant-table-thead>tr>th:before {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0;
+  width: 1px;
+  height: 1.6em;
+  background-color: rgba(0, 0, 0, 0.06);
+  transform: translateY(-50%);
+  transition: background-color 0.3s;
+  content: '';
+}
+
+.ant-table-thead>tr>th:last-child:before {
+  display: none;
+}
+
+.ant-table-cell {
+  position: relative;
+  padding: 16px;
+  overflow-wrap: break-word;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.ant-table-cell-left {
+  text-align: left;
+}
+
+.ant-table-cell-center {
+  text-align: center;
+}
+
+.ant-table-cell-right {
+  text-align: right;
+}
+
+.ant-table-tbody>tr>td {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.ant-table-tbody>tr:hover>td {
+  background: #fafafa;
+}
+
+.ant-table-tbody>tr:last-child>td {
+  border-bottom: none;
+}
+
+.ant-table-column-title {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ant-table-column-sorters {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.ant-table-column-sorter {
+  margin-left: 4px;
+  color: #bfbfbf;
+  font-size: 12px;
+  transition: color 0.3s;
+}
+
+.ant-table-column-sorter:hover {
+  color: #1890ff;
+}
+
+.ant-table-column-sorter-up,
+.ant-table-column-sorter-down {
+  display: block;
+  line-height: 1;
+}
+
+.ant-table-column-sorter-up {
+  margin-bottom: -0.3em;
+}
+
+.ant-table-column-sorter-down {
+  margin-top: -0.3em;
+}
+
+.ant-table-selection-column {
+  width: 32px;
+  min-width: 32px;
+}
+
+.ant-table-selection-column .ant-checkbox-input {
+  cursor: pointer;
+}
+
+.ant-table-placeholder {
+  text-align: center;
+}
+
+.ant-table-placeholder .ant-empty {
+  margin: 32px 0;
+}
+
+.ant-table-footer {
+  padding: 16px;
+  color: rgba(0, 0, 0, 0.88);
+  background: #fafafa;
+  border-radius: 0 0 8px 8px;
+}
+
+.ant-table-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  justify-content: flex-end;
+  margin: 16px 0;
+}
+
+.ant-table-pagination .ant-pagination-total-text {
+  display: inline-block;
+  height: 32px;
+  margin-right: 8px;
+  line-height: 30px;
+  vertical-align: middle;
+}
+
+.ant-table-pagination .ant-pagination-list {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ant-table-pagination .ant-pagination-list li {
+  display: inline-block;
+  min-width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  font-family: Arial;
+  line-height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  outline: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s;
+}
+
+.ant-table-pagination .ant-pagination-list li:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.ant-table-pagination .ant-pagination-item-active {
+  font-weight: 600;
+  background: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+}
+
+.ant-table-pagination .ant-pagination-item-active:hover {
+  border-color: #40a9ff;
+  background: #40a9ff;
+}
+
+/* 表格尺寸变体 */
+.ant-table-middle .ant-table-cell {
+  padding: 12px 8px;
+}
+
+.ant-table-small .ant-table-cell {
+  padding: 8px;
+}
+
+.ant-table-small .ant-table-title {
+  padding: 8px 8px 0 8px;
+}
+
+.ant-table-small .ant-table-footer {
+  padding: 8px;
+}
+
+/* 滚动表格 */
+.ant-table-scroll {
+  overflow: auto;
+}
+
+.ant-table-scroll .ant-table-table {
+  min-width: 100%;
+}
+
+/* 空状态样式 */
+.ant-empty {
+  margin: 0 8px;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.ant-empty-normal {
+  margin: 32px 0;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-empty-image {
+  height: 40px;
+  margin-bottom: 8px;
+  opacity: 1;
+  font-size: 24px;
+  line-height: 40px;
+}
+
+.ant-empty-description {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 复选框样式 */
+.ant-checkbox-input {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  color: #1890ff;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.ant-checkbox-input:hover {
+  border-color: #1890ff;
+}
+
+.ant-checkbox-input:checked {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+
+/* 响应式设计 */
+@media (max-width: 767px) {
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-cell {
+    padding: 8px;
+  }
+
+  .ant-table-title {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .ant-table-pagination {
+    justify-content: center;
+  }
+}
+
+/* 加载状态 */
+.ant-table-loading {
+  position: relative;
+}
+
+.ant-table-loading::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  content: '';
+  z-index: 1;
+}
+
+/* 固定列样式 */
+.ant-table-fixed-left {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: inherit;
+}
+
+.ant-table-fixed-right {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: inherit;
+}

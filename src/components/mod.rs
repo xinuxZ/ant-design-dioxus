@@ -24,6 +24,8 @@ pub mod typography;
 // 重新导出所有组件
 pub use avatar::*;
 pub use badge::*;
+
+pub use breadcrumb::*;
 pub use button::*;
 pub use card::*;
 pub use carousel::*;
@@ -37,12 +39,16 @@ pub use icon::*;
 pub use image::*;
 pub use layout::*;
 pub use list::*;
+pub use menu::*;
 pub use popover::*;
 pub use space::*;
 pub use statistic::*;
+pub use table::*;
 pub use tabs::*;
 pub use tag::*;
 pub use timeline::*;
+pub use tooltip::*;
+pub use tree::*;
 pub use typography::*;
 
 // 组件模块声明（后续逐步实现）
@@ -61,9 +67,9 @@ pub mod space;
 
 // 导航组件
 // pub mod affix;
-// pub mod breadcrumb;
+pub mod breadcrumb;
 // pub mod dropdown;
-// pub mod menu;
+pub mod menu;
 // pub mod pagination;
 // pub mod steps;
 
@@ -101,13 +107,13 @@ pub mod list;
 pub mod popover;
 // pub mod segmented;
 pub mod statistic;
-// pub mod table;
+pub mod table;
 pub mod tabs;
 pub mod tag;
 pub mod timeline;
-// pub mod tooltip;
+pub mod tooltip;
 // pub mod tour;
-// pub mod tree;
+pub mod tree;
 
 // 反馈组件
 // pub mod alert;
