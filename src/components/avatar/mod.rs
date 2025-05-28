@@ -2,7 +2,6 @@
 //!
 //! 用来代表用户或事物，支持图片、图标以及字符展示。
 
-use crate::utils::Size;
 use dioxus::prelude::*;
 
 mod style;

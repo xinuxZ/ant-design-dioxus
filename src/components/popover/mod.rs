@@ -117,7 +117,7 @@ pub fn Popover(props: PopoverProps) -> Element {
     let mut mouse_enter_timer = use_signal(|| None::<gloo_timers::callback::Timeout>);
     let mut mouse_leave_timer = use_signal(|| None::<gloo_timers::callback::Timeout>);
 
-    /// 显示气泡卡片
+    // 显示气泡卡片
     let mut show_popover = move || {
         // 清除隐藏定时器
         if let Some(timer) = mouse_leave_timer.take() {
@@ -143,7 +143,7 @@ pub fn Popover(props: PopoverProps) -> Element {
         }
     };
 
-    /// 隐藏气泡卡片
+    // 隐藏气泡卡片
     let mut hide_popover = move || {
         // 清除显示定时器
         if let Some(timer) = mouse_enter_timer.take() {
@@ -169,7 +169,7 @@ pub fn Popover(props: PopoverProps) -> Element {
         }
     };
 
-    /// 切换显示状态
+    // 切换显示状态
     let mut toggle_popover = move || {
         let new_visible = !visible();
         visible.set(new_visible);
