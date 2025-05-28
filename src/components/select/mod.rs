@@ -242,7 +242,7 @@ pub fn Select(props: SelectProps) -> Element {
         }
     };
 
-    let handle_option_click = move |value: String| {
+    let _handle_option_click = move |value: String| {
         if props.multiple {
             let mut current_values = selected_values();
             if current_values.contains(&value) {
