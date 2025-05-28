@@ -12,6 +12,8 @@ use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
+const CASCADER_STYLE: &str = include_str!("./style.css");
+
 /// 级联选择器选项
 #[derive(Debug, Clone, PartialEq)]
 pub struct CascaderOption {
@@ -360,6 +362,8 @@ pub fn Cascader(
     ]);
 
     rsx! {
+        style { {CASCADER_STYLE} }
+
         div {
             class: "{container_class}",
             style: "{style.as_ref().map_or(\"\", |s| s)}",

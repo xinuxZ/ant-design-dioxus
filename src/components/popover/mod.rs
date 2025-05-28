@@ -10,6 +10,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const POPOVER_STYLES: &str = include_str!("./style.css");
+
 /// Popover 气泡卡片组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct PopoverProps {
@@ -207,6 +209,8 @@ pub fn Popover(props: PopoverProps) -> Element {
     );
 
     rsx! {
+        style { {POPOVER_STYLES} }
+
         div {
             class: class_name.clone(),
             style: props.style.clone(),

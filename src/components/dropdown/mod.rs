@@ -15,6 +15,8 @@ use wasm_bindgen::JsCast;
 use web_sys::{window, Element as WebElement};
 // use web_sys::MouseEvent; // 暂时注释掉未使用的导入
 
+const DROPDOWN_STYLE: &str = include_str!("./style.css");
+
 /// 下拉菜单触发方式
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum DropdownTrigger {
@@ -293,6 +295,8 @@ pub fn Dropdown(props: DropdownProps) -> Element {
     }
 
     rsx! {
+        style { {DROPDOWN_STYLE} }
+
         div {
             class: "{dropdown_class} {placement_class}",
             style: "{props.style}",

@@ -48,6 +48,8 @@
 use dioxus::prelude::*;
 use std::collections::HashSet;
 
+const TREE_STYLES: &str = include_str!("./style.css");
+
 /// TreeNodeComponent 组件属性
 #[derive(Props, PartialEq, Clone)]
 struct TreeNodeComponentProps {
@@ -80,6 +82,8 @@ fn TreeNodeComponent(props: TreeNodeComponentProps) -> Element {
     let is_leaf = props.node.is_leaf || !has_children;
 
     rsx! {
+        style { {TREE_STYLES} }
+
         div {
             class: format!(
                 "ant-tree-treenode ant-tree-treenode-switcher-{} {}",

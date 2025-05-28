@@ -43,6 +43,8 @@
 use dioxus::prelude::*;
 use std::collections::HashSet;
 
+const MENU_STYLE: &str = include_str!("./style.css");
+
 /// 菜单模式
 #[derive(Debug, Clone, PartialEq)]
 pub enum MenuMode {
@@ -500,6 +502,8 @@ pub fn Menu(props: MenuProps) -> Element {
     };
 
     rsx! {
+        style { {MENU_STYLE} }
+
         ul {
             class: format!(
                 "ant-menu ant-menu-root {} {} {}",

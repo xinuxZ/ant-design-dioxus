@@ -11,6 +11,8 @@ use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
+const AUTO_STYLE: &str = include_str!("./style.css");
+
 /// 自动完成选项
 #[derive(Debug, Clone, PartialEq)]
 pub struct AutoCompleteOption {
@@ -351,6 +353,8 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
     ]);
 
     rsx! {
+        style { {AUTO_STYLE} }
+
         div {
             class: container_class,
             style: props.style,

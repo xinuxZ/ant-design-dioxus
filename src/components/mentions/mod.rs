@@ -35,6 +35,8 @@ use dioxus::events::Key;
 use dioxus::prelude::*;
 use std::fmt;
 
+const MENTIONS_STYLE: &str = include_str!("./style.css");
+
 /// 提及选项
 #[derive(Debug, Clone, PartialEq)]
 pub struct MentionOption {
@@ -430,6 +432,8 @@ pub fn Mentions(props: MentionsProps) -> Element {
     };
 
     rsx! {
+        style { {MENTIONS_STYLE} }
+
         div {
             class: class_name,
             style: props.style.as_deref().unwrap_or(""),

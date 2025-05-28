@@ -27,6 +27,8 @@
 
 use dioxus::prelude::*;
 
+const TOOLTIP_STYLES: &str = include_str!("./style.css");
+
 /// Tooltip 触发方式
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TooltipTrigger {
@@ -274,6 +276,8 @@ pub fn Tooltip(props: TooltipProps) -> Element {
     };
 
     rsx! {
+        style { {TOOLTIP_STYLES} }
+
         div {
             class: format!("ant-tooltip-wrapper {}", props.class),
             style: props.style.clone(),

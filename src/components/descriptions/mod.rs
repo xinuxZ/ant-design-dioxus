@@ -9,6 +9,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const DESC_STYLE: &str = include_str!("./style.css");
+
 /// Descriptions 描述列表组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct DescriptionsProps {
@@ -102,6 +104,8 @@ pub fn Descriptions(props: DescriptionsProps) -> Element {
     );
 
     rsx! {
+        style { {DESC_STYLE} }
+
         div {
             class: class_name.clone(),
             style: props.style.clone(),

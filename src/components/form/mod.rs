@@ -12,6 +12,8 @@ use dioxus::prelude::*;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+const FORM_STYLE: &str = include_str!("./style.css");
+
 /// 表单布局类型
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FormLayout {
@@ -372,6 +374,8 @@ pub fn Form(props: FormProps) -> Element {
     ]);
 
     rsx! {
+        style { {FORM_STYLE} }
+
         form {
             class: "{form_class}",
             style: "{props.style}",

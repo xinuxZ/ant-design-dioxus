@@ -28,6 +28,8 @@
 
 use dioxus::prelude::*;
 
+const SPIN_STYLES: &str = include_str!("./style.css");
+
 /// Spin 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SpinSize {
@@ -167,6 +169,8 @@ pub fn Spin(props: SpinProps) -> Element {
     // 如果有包裹内容，渲染为容器模式
     if let Some(children) = props.children {
         rsx! {
+            style { {SPIN_STYLES} }
+
             div {
                 class: "ant-spin-container",
                 style: props.style,
@@ -203,6 +207,8 @@ pub fn Spin(props: SpinProps) -> Element {
         // 独立的加载指示器
         if is_visible() {
             rsx! {
+                style { {SPIN_STYLES} }
+
                 div {
                     class: spin_class,
                     style: props.style,

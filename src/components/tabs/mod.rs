@@ -13,6 +13,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const TABS_STYLES: &str = include_str!("./style.css");
+
 /// Tabs 标签页组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct TabsProps {
@@ -193,6 +195,8 @@ pub fn Tabs(props: TabsProps) -> Element {
     );
 
     rsx! {
+        style { {TABS_STYLES} }
+
         div {
             class: class_name.clone(),
             style: props.style.clone(),

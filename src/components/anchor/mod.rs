@@ -12,6 +12,8 @@ use web_sys::{window, Element as WebElement, ScrollToOptions};
 
 use crate::utils::class_names::conditional_class_names_array;
 
+const ANCHOR_STYLE: &str = include_str!("./style.css");
+
 /// 锚点链接项
 #[derive(Debug, Clone, PartialEq)]
 pub struct AnchorLink {
@@ -217,6 +219,8 @@ pub fn Anchor(props: AnchorProps) -> Element {
         handle_click: impl Fn(String) + Clone + 'static,
     ) -> Element {
         rsx! {
+            style { {ANCHOR_STYLE} }
+
             for link in links {
                 div {
                     class: conditional_class_names_array(&[

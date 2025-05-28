@@ -11,6 +11,8 @@ use crate::utils::class_names::conditional_class_names_array;
 use dioxus::events::Key;
 use dioxus::prelude::*;
 
+const PAGINATION_STYLE: &str = include_str!("./style.css");
+
 /// 分页大小选择器选项
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageSizeOption {
@@ -280,6 +282,8 @@ pub fn Pagination(props: PaginationProps) -> Element {
     let end_index = (current * page_size).min(props.total);
 
     rsx! {
+        style { {PAGINATION_STYLE} }
+
         ul {
             class: "{pagination_class}",
             style: "{props.style}",

@@ -4,6 +4,8 @@
 
 use dioxus::prelude::*;
 
+const EMPTY_STYLE: &str = include_str!("./style.css");
+
 /// Empty 组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct EmptyProps {
@@ -76,6 +78,8 @@ pub fn Empty(props: EmptyProps) -> Element {
     });
 
     rsx! {
+        style { {EMPTY_STYLE} }
+
         div {
             class: class_str.clone(),
             style: props.style.clone().unwrap_or_default(),

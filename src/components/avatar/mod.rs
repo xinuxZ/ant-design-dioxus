@@ -7,6 +7,8 @@ use dioxus::prelude::*;
 mod style;
 pub use style::*;
 
+const AVATAR_STYLE: &str = include_str!("./style.css");
+
 /// Avatar 形状
 #[derive(Debug, Clone, PartialEq)]
 pub enum AvatarShape {
@@ -198,6 +200,8 @@ pub fn Avatar(props: AvatarProps) -> Element {
     };
 
     rsx! {
+        style { {AVATAR_STYLE} }
+
         div {
             class: class_name.clone(),
             style: style_attr,

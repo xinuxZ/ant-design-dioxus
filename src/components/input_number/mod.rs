@@ -30,6 +30,8 @@
 use dioxus::prelude::*;
 use std::fmt;
 
+const IN_STYLE: &str = include_str!("style.css");
+
 /// 数字输入框尺寸
 #[derive(Debug, Clone, PartialEq)]
 pub enum InputNumberSize {
@@ -370,6 +372,7 @@ pub fn InputNumber(props: InputNumberProps) -> Element {
     let can_down = current_value().map_or(true, |v| props.min.map_or(true, |min| v > min));
 
     rsx! {
+        style { {IN_STYLE} }
         div {
             class: class_name,
             style: props.style.as_deref().unwrap_or(""),

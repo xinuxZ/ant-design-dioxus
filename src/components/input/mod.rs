@@ -29,6 +29,8 @@
 
 use dioxus::prelude::*;
 
+const INPUT_STYLE: &str = include_str!("./style.css");
+
 /// Input 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InputSize {
@@ -316,6 +318,8 @@ pub fn Input(props: InputProps) -> Element {
     // 如果有 addon，使用 group 包装
     if props.addon_before.is_some() || props.addon_after.is_some() {
         rsx! {
+            style { {INPUT_STYLE} }
+
             div {
                 class: group_class,
                 style: props.style,
@@ -413,6 +417,8 @@ pub fn Input(props: InputProps) -> Element {
     } else if !wrapper_class.is_empty() {
         // 有前缀或后缀的情况
         rsx! {
+            style { {INPUT_STYLE} }
+
             div {
                 div {
                     class: wrapper_class,
@@ -474,6 +480,8 @@ pub fn Input(props: InputProps) -> Element {
     } else {
         // 基础输入框
         rsx! {
+            style { {INPUT_STYLE} }
+
             div {
                 input {
                     class: format!("{} {}", input_class, props.class.as_deref().unwrap_or("")),

@@ -12,6 +12,8 @@ use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{window, Element as WebElement};
 
+const AFFIX_STYLE: &str = include_str!("./style.css");
+
 /// 固钉位置
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AffixPosition {
@@ -156,6 +158,8 @@ pub fn Affix(props: AffixProps) -> Element {
     };
 
     rsx! {
+        style { {AFFIX_STYLE} }
+
         if is_fixed.read().clone() {
             div {
                 class: "ant-affix-placeholder",

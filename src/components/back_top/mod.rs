@@ -14,6 +14,8 @@ use web_sys::{window, Element as WebElement, ScrollToOptions};
 use crate::components::icon::Icon;
 use crate::prelude::conditional_class_names_array;
 
+const BACK_TOP_STYLE: &str = include_str!("./style.css");
+
 /// BackTop 组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct BackTopProps {
@@ -118,6 +120,8 @@ pub fn BackTop(props: BackTopProps) -> Element {
     );
 
     rsx! {
+        style { {BACK_TOP_STYLE} }
+
         if visible.read().clone() {
             div {
                 class: "{back_top_class}",

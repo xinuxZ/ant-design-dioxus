@@ -9,6 +9,8 @@
 use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 
+const STEPS_STYLES: &str = include_str!("./style.css");
+
 /// 步骤状态
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum StepStatus {
@@ -215,6 +217,8 @@ pub fn Steps(props: StepsProps) -> Element {
     };
 
     rsx! {
+        style { {STEPS_STYLES} }
+
         div {
             class: steps_class,
             style: props.style,

@@ -30,6 +30,8 @@ use dioxus::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
 
+const SLIDER_STYLES: &str = include_str!("./style.css");
+
 /// 滑块标记
 #[derive(Debug, Clone, PartialEq)]
 pub struct SliderMark {
@@ -459,6 +461,8 @@ pub fn Slider(props: SliderProps) -> Element {
     };
 
     rsx! {
+        style { {SLIDER_STYLES} }
+
         div {
             class: class_name,
             style: props.style.as_deref().unwrap_or(""),

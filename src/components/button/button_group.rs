@@ -13,6 +13,8 @@ use serde::{Deserialize, Serialize};
 
 use super::{ButtonSize, ButtonType};
 
+const BUTTON_GROUP_STYLE: &str = include_str!("./style.css");
+
 /// 按钮组尺寸
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ButtonGroupSize {
@@ -97,6 +99,8 @@ pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
     let group_style = get_button_group_style(&props);
 
     rsx! {
+        style { {BUTTON_GROUP_STYLE} }
+
         div {
             class: class_name.clone(),
             style: group_style.clone(),

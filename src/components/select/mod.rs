@@ -38,6 +38,8 @@
 
 use dioxus::prelude::*;
 
+const SELECT_STYLES: &str = include_str!("./style.css");
+
 /// Select 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SelectSize {
@@ -370,6 +372,8 @@ pub fn Select(props: SelectProps) -> Element {
     let has_value = !selected_values().is_empty();
 
     rsx! {
+        style { {SELECT_STYLES} }
+
         div {
             class: select_class,
             style: props.style,

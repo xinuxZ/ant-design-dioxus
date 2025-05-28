@@ -28,6 +28,8 @@
 use dioxus::prelude::*;
 use std::fmt;
 
+const RATE_STYLES: &str = include_str!("./style.css");
+
 /// 评分组件尺寸
 #[derive(Debug, Clone, PartialEq)]
 pub enum RateSize {
@@ -294,6 +296,8 @@ pub fn Rate(props: RateProps) -> Element {
     };
 
     rsx! {
+        style { {RATE_STYLES} }
+
         div {
             class: class_name,
             style: props.style.as_deref().unwrap_or(""),

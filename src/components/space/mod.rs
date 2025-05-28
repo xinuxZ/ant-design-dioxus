@@ -29,6 +29,8 @@ use crate::utils::SpaceSize;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const SPACE_STYLES: &str = include_str!("./style.css");
+
 /// Space 组件的方向
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SpaceDirection {
@@ -197,6 +199,8 @@ pub fn Space(props: SpaceProps) -> Element {
     };
 
     rsx! {
+        style { {SPACE_STYLES} }
+
         div {
             class: class_str.clone(),
             style: style_str,

@@ -10,6 +10,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const TIMELINE_STYLES: &str = include_str!("./style.css");
+
 /// Timeline 时间轴组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct TimelineProps {
@@ -70,6 +72,8 @@ pub fn Timeline(props: TimelineProps) -> Element {
     };
 
     rsx! {
+        style { {TIMELINE_STYLES} }
+
         div {
             class: class.clone(),
             style: props.style.clone(),

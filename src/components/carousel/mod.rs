@@ -11,6 +11,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const CAROUSEL_STYLE: &str = include_str!("./style.css");
+
 /// Carousel 走马灯组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct CarouselProps {
@@ -170,6 +172,8 @@ pub fn Carousel(props: CarouselProps) -> Element {
     );
 
     rsx! {
+        style { {CAROUSEL_STYLE} }
+
         div {
             class: class_name.clone(),
             style: props.style.clone(),

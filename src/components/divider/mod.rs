@@ -71,6 +71,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const DIVIDER_STYLE: &str = include_str!("./style.css");
+
 /// 分割线类型
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum DividerType {
@@ -236,6 +238,8 @@ pub fn Divider(props: DividerProps) -> Element {
         DividerType::Horizontal => {
             if let Some(children) = props.children {
                 rsx! {
+                    style { {DIVIDER_STYLE} }
+
                     div {
                         class: class_name.clone(),
                         style: props.style,
@@ -248,6 +252,8 @@ pub fn Divider(props: DividerProps) -> Element {
                 }
             } else {
                 rsx! {
+                    style { {DIVIDER_STYLE} }
+
                     hr {
                         class: class_name.clone(),
                         style: props.style,
@@ -258,6 +264,8 @@ pub fn Divider(props: DividerProps) -> Element {
         }
         DividerType::Vertical => {
             rsx! {
+                style { {DIVIDER_STYLE} }
+
                 span {
                     class: class_name.clone(),
                     style: props.style,

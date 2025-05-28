@@ -29,6 +29,8 @@
 
 use dioxus::prelude::*;
 
+const CHECKBOX_STYLE: &str = include_str!("./style.css");
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CheckboxSize {
     /// 大尺寸
@@ -177,6 +179,8 @@ pub fn Checkbox(props: CheckboxProps) -> Element {
     };
 
     rsx! {
+        style { {CHECKBOX_STYLE} }
+
         label {
             class: checkbox_class,
             style: props.style,

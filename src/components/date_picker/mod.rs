@@ -27,6 +27,8 @@
 use dioxus::prelude::*;
 use std::fmt;
 
+const DATE_PICKER_STYLE: &str = include_str!("./style.css");
+
 /// 日期选择器尺寸
 #[derive(Debug, Clone, PartialEq)]
 pub enum DatePickerSize {
@@ -283,6 +285,8 @@ pub fn DatePicker(props: DatePickerProps) -> Element {
     };
 
     rsx! {
+        style { {DATE_PICKER_STYLE} }
+
         div {
             class: class_name,
             style: props.style.as_deref().unwrap_or(""),

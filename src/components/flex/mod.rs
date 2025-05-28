@@ -69,6 +69,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
+const FLEX_STYLE: &str = include_str!("./style.css");
+
 /// Flex 主轴对齐方式
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum FlexJustify {
@@ -343,6 +345,8 @@ pub fn Flex(props: FlexProps) -> Element {
     };
 
     rsx! {
+        style { {FLEX_STYLE} }
+
         div {
             class: class_name.clone(),
             style: style_attr,

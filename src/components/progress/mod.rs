@@ -28,6 +28,8 @@
 
 use dioxus::prelude::*;
 
+const PROGRESS_STYLES: &str = include_str!("./style.css");
+
 /// Progress 组件类型
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ProgressType {
@@ -196,6 +198,8 @@ fn LineProgress(props: ProgressProps) -> Element {
     let trail_color = props.trail_color.as_deref().unwrap_or("#f5f5f5");
 
     rsx! {
+        style { {PROGRESS_STYLES} }
+
         div {
             class: progress_class,
             style: props.style,
@@ -298,6 +302,8 @@ fn CircleProgress(props: ProgressProps) -> Element {
     let trail_color = props.trail_color.as_deref().unwrap_or("#f5f5f5");
 
     rsx! {
+        style { {PROGRESS_STYLES} }
+
         div {
             class: progress_class,
             style: format!("width: {}px; height: {}px; {}", props.width, props.width, props.style.as_deref().unwrap_or("")),
@@ -399,6 +405,8 @@ fn DashboardProgress(props: ProgressProps) -> Element {
     let trail_color = props.trail_color.as_deref().unwrap_or("#f5f5f5");
 
     rsx! {
+        style { {PROGRESS_STYLES} }
+
         div {
             class: progress_class,
             style: format!("width: {}px; height: {}px; {}", props.width, props.width, props.style.as_deref().unwrap_or("")),

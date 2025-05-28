@@ -36,6 +36,8 @@
 
 use dioxus::prelude::*;
 
+const BREADCRUMB_STYLE: &str = include_str!("./style.css");
+
 /// 面包屑项数据结构
 #[derive(Debug, Clone, PartialEq)]
 pub struct BreadcrumbItemData {
@@ -106,6 +108,7 @@ pub fn BreadcrumbItem(props: BreadcrumbItemProps) -> Element {
     };
 
     rsx! {
+
         li {
             class: format!(
                 "ant-breadcrumb-item {}",
@@ -217,6 +220,8 @@ pub fn Breadcrumb(props: BreadcrumbProps) -> Element {
     };
 
     rsx! {
+        style { {BREADCRUMB_STYLE} }
+
         div {
             class: "ant-breadcrumb",
             style: props.style.clone(),

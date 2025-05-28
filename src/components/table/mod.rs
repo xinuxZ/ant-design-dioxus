@@ -43,6 +43,8 @@ use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+const TABLE_STYLES: &str = include_str!("./style.css");
+
 /// 表格列配置
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TableColumn {
@@ -210,6 +212,8 @@ pub fn Table(props: TableProps) -> Element {
     };
 
     rsx! {
+        style { {TABLE_STYLES} }
+
         div {
             class: "ant-table-wrapper",
             style: props.style.clone(),
