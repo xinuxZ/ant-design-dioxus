@@ -7,8 +7,11 @@ name = "ant-design-dioxus"
 version = "0.1.0"
 dependencies = [
  "dioxus",
+ "once_cell",
  "serde",
+ "serde_json",
  "wasm-bindgen-test",
+ "web-sys",
 ]
 
 [[package]]
@@ -409,6 +412,7 @@ dependencies = [
  "serde",
  "server_fn",
  "tracing",
+ "web-sys",
 ]
 
 [[package]]

@@ -1,12 +1,24 @@
 //! Ant Design Dioxus 组件库
 //!
-//! 提供完整的企业级 UI 组件集合，包括通用组件、布局组件、导航组件、
-//! 数据录入组件、数据展示组件和反馈组件等。
+//! 这个模块包含了所有的 UI 组件实现
+//!
+//! ## 组件分类
+//!
+//! - **通用组件**: Button, Icon, Typography
+//! - **布局组件**: Grid, Layout, Space, Divider
+//! - **导航组件**: Affix, Breadcrumb, Dropdown, Menu, Pagination, Steps
+//! - **数据录入**: AutoComplete, Cascader, Checkbox, DatePicker, Form, Input, InputNumber, Mentions, Radio, Rate, Select, Slider, Switch, TimePicker, Transfer, TreeSelect, Upload
+//! - **数据展示**: Avatar, Badge, Calendar, Card, Carousel, Collapse, Comment, Descriptions, Empty, Image, List, Popover, Segmented, Statistic, Table, Tabs, Tag, Timeline, Tooltip, Tour, Tree
+//! - **反馈**: Alert, Drawer, Message, Modal, Notification, Popconfirm, Progress, Result, Skeleton, Spin
+//! - **其他**: Anchor, BackTop, ConfigProvider, FloatButton, QRCode, Theme, Watermark
 
 // 重新导出 Dioxus 核心类型
 pub use dioxus::prelude::*;
 
-// 组件模块声明（暂时注释掉，后续逐步实现）
+// 通用组件
+pub mod button;
+
+// 组件模块声明（后续逐步实现）
 
 // 通用组件
 // pub mod button;
