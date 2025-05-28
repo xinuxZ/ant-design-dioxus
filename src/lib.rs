@@ -54,8 +54,8 @@ pub mod components;
 pub mod prelude {
     //! 常用类型和组件的预导入模块
 
-    // 重新导出 Dioxus 核心类型
-    pub use dioxus::prelude::*;
+    // 重新导出 Dioxus 核心类型（避免命名冲突）
+    pub use dioxus::prelude::{component, rsx, Element, EventHandler, MouseEvent, Props};
 
     // 配置和主题
     pub use crate::config_provider::{ConfigProvider, ConfigProviderProps};

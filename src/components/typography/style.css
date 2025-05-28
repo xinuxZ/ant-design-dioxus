@@ -65,6 +65,120 @@
   margin-bottom: 1em;
 }
 
+.ant-typography-paragraph {
+  margin-bottom: 1em;
+}
+
+.ant-typography-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* 链接样式 */
+.ant-typography-link {
+  color: #1677ff;
+  text-decoration: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.ant-typography-link:hover {
+  color: #4096ff;
+}
+
+.ant-typography-link:active {
+  color: #0958d9;
+}
+
+.ant-typography-link:focus {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+
+/* 链接类型 */
+.ant-typography-link-default {
+  color: #1677ff;
+}
+
+.ant-typography-link-default:hover {
+  color: #4096ff;
+}
+
+.ant-typography-link-secondary {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-typography-link-secondary:hover {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.ant-typography-link-success {
+  color: #52c41a;
+}
+
+.ant-typography-link-success:hover {
+  color: #73d13d;
+}
+
+.ant-typography-link-warning {
+  color: #faad14;
+}
+
+.ant-typography-link-warning:hover {
+  color: #ffc53d;
+}
+
+.ant-typography-link-danger {
+  color: #ff4d4f;
+}
+
+.ant-typography-link-danger:hover {
+  color: #ff7875;
+}
+
+/* 链接状态 */
+.ant-typography-link-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ant-typography-link-disabled:hover {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 下划线样式 */
+.ant-typography-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
+}
+
+.ant-typography-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.ant-typography-link-no-underline {
+  text-decoration: none;
+}
+
+.ant-typography-link-strong {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+/* 块级链接 */
+.ant-typography-link-block {
+  display: block;
+  width: 100%;
+}
+
 /* 链接样式 */
 .ant-typography.ant-typography-link {
   color: #1677ff;

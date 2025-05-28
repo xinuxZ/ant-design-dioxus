@@ -17,6 +17,11 @@
 //! 正文文本的默认字体大小为 14px，行高为 1.5715。
 //! 在大多数业务情况下，我们建议使用默认文本大小。
 
+pub mod link;
+
+// 重新导出所有组件
+pub use link::*;
+
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 

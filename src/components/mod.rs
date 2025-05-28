@@ -12,8 +12,7 @@
 //! - **反馈**: Alert, Drawer, Message, Modal, Notification, Popconfirm, Progress, Result, Skeleton, Spin
 //! - **其他**: Anchor, BackTop, ConfigProvider, FloatButton, QRCode, Theme, Watermark
 
-// 重新导出 Dioxus 核心类型
-pub use dioxus::prelude::*;
+// 基础导入在各个组件中按需引入
 
 // 通用组件
 pub mod button;
@@ -22,11 +21,14 @@ pub mod icon;
 pub mod layout;
 pub mod typography;
 
-// 重新导出组件
+// 重新导出所有组件
 pub use button::*;
+pub use divider::*;
+pub use flex::*;
 pub use grid::*;
 pub use icon::*;
 pub use layout::*;
+pub use space::*;
 pub use typography::*;
 
 // 组件模块声明（后续逐步实现）
@@ -37,10 +39,11 @@ pub use typography::*;
 // pub mod typography;
 
 // 布局组件
-// pub mod divider;
+pub mod divider;
 // pub mod grid;
 // pub mod layout;
-// pub mod space;
+pub mod flex;
+pub mod space;
 
 // 导航组件
 // pub mod affix;
