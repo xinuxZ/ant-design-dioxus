@@ -23,6 +23,7 @@ pub mod typography;
 
 // 重新导出所有组件
 pub use avatar::*;
+pub use badge::*;
 pub use button::*;
 pub use divider::*;
 pub use empty::*;
@@ -77,7 +78,7 @@ pub mod space;
 
 // 数据展示
 pub mod avatar;
-// pub mod badge;
+pub mod badge;
 // pub mod calendar;
 // pub mod card;
 // pub mod carousel;

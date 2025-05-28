@@ -66,6 +66,7 @@ fn App() -> Element {
                     "Flex" => rsx! { FlexDemo {} },
                     "Space" => rsx! { SpaceDemo {} },
                     "Divider" => rsx! { DividerDemo {} },
+                    "Badge" => rsx! { BadgeDemo {} },
                     "Tag" => rsx! { TagDemo {} },
                     "Empty" => rsx! { components::empty::EmptyExample {} },
                     _ => rsx! {

@@ -3,6 +3,7 @@
 //! 包含所有已实现组件的演示页面
 
 pub mod avatar;
+pub mod badge;
 pub mod button;
 pub mod divider;
 pub mod empty;
@@ -16,6 +17,7 @@ pub mod typography;
 pub mod typography_complete;
 
 pub use avatar::*;
+pub use badge::*;
 pub use button::*;
 pub use divider::*;
 pub use flex::*;
