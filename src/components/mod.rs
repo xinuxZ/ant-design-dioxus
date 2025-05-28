@@ -29,6 +29,7 @@ pub use breadcrumb::*;
 pub use button::*;
 pub use card::*;
 pub use carousel::*;
+pub use checkbox::*;
 pub use collapse::*;
 pub use descriptions::*;
 pub use divider::*;
@@ -41,7 +42,9 @@ pub use layout::*;
 pub use list::*;
 pub use menu::*;
 pub use popover::*;
+pub use select::*;
 pub use space::*;
+pub use spin::*;
 pub use statistic::*;
 pub use table::*;
 pub use tabs::*;
@@ -50,6 +53,19 @@ pub use timeline::*;
 pub use tooltip::*;
 pub use tree::*;
 pub use typography::*;
+
+pub mod alert;
+pub use alert::*;
+
+pub mod checkbox;
+
+pub mod input;
+pub use input::*;
+
+pub mod progress;
+pub use progress::*;
+
+pub mod select;
 
 // 组件模块声明（后续逐步实现）
 
@@ -125,7 +141,7 @@ pub mod tree;
 // pub mod progress;
 // pub mod result;
 // pub mod skeleton;
-// pub mod spin;
+pub mod spin;
 
 // 其他组件
 // pub mod anchor;

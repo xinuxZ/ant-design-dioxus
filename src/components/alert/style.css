@@ -1,0 +1,286 @@
+/* Alert 警告提示组件样式 */
+
+/* 基础样式 */
+.ant-alert {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 15px;
+  word-wrap: break-word;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+/* 类型样式 */
+.ant-alert-success {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.ant-alert-success .ant-alert-icon {
+  color: #52c41a;
+}
+
+.ant-alert-info {
+  background-color: #e6f4ff;
+  border: 1px solid #91caff;
+}
+
+.ant-alert-info .ant-alert-icon {
+  color: #1677ff;
+}
+
+.ant-alert-warning {
+  background-color: #fffbe6;
+  border: 1px solid #ffe58f;
+}
+
+.ant-alert-warning .ant-alert-icon {
+  color: #faad14;
+}
+
+.ant-alert-error {
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+}
+
+.ant-alert-error .ant-alert-icon {
+  color: #ff4d4f;
+}
+
+/* 图标样式 */
+.ant-alert-icon {
+  margin-right: 8px;
+  margin-top: 1px;
+  line-height: 0;
+}
+
+.ant-alert-icon-default {
+  font-size: 14px;
+  line-height: 1;
+  display: inline-block;
+}
+
+/* 内容区域 */
+.ant-alert-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ant-alert-message {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+}
+
+.ant-alert-description {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  margin-top: 4px;
+}
+
+/* 带图标的样式调整 */
+.ant-alert-with-icon {
+  padding: 8px 15px;
+}
+
+.ant-alert-with-icon .ant-alert-message {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+}
+
+.ant-alert-with-icon .ant-alert-description {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  margin-top: 4px;
+}
+
+/* 带描述的样式调整 */
+.ant-alert-with-description {
+  align-items: flex-start;
+  padding: 15px 15px 15px 64px;
+}
+
+.ant-alert-with-description.ant-alert-with-icon {
+  padding: 15px 15px 15px 64px;
+}
+
+.ant-alert-with-description .ant-alert-icon {
+  margin-right: 15px;
+  margin-top: 3px;
+  font-size: 24px;
+}
+
+.ant-alert-with-description .ant-alert-message {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.ant-alert-with-description .ant-alert-description {
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+}
+
+/* 关闭按钮 */
+.ant-alert-close-icon {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  padding: 0;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 12px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.45);
+  transition: color 0.3s;
+}
+
+.ant-alert-close-icon:hover {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.ant-alert-close-icon-default {
+  font-size: 12px;
+  line-height: 12px;
+  font-weight: 700;
+}
+
+.ant-alert-close-text {
+  color: rgba(0, 0, 0, 0.45);
+  transition: color 0.3s;
+}
+
+.ant-alert-close-icon:hover .ant-alert-close-text {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+/* 可关闭的样式调整 */
+.ant-alert-closable {
+  padding-right: 37px;
+}
+
+.ant-alert-with-description.ant-alert-closable {
+  padding-right: 37px;
+}
+
+/* Banner 样式 */
+.ant-alert-banner {
+  margin-bottom: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* 操作区域 */
+.ant-alert-action {
+  margin-left: 8px;
+  margin-right: -4px;
+}
+
+.ant-alert-with-description .ant-alert-action {
+  margin-left: 24px;
+  margin-top: -4px;
+}
+
+/* 动画效果 */
+.ant-alert {
+  transition: all 0.3s;
+}
+
+/* 无边框样式 */
+.ant-alert-no-border {
+  border: none;
+}
+
+/* RTL 支持 */
+.ant-alert-rtl {
+  direction: rtl;
+}
+
+.ant-alert-rtl .ant-alert-icon {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+.ant-alert-rtl .ant-alert-close-icon {
+  right: auto;
+  left: 16px;
+}
+
+.ant-alert-rtl .ant-alert-action {
+  margin-left: -4px;
+  margin-right: 8px;
+}
+
+.ant-alert-rtl.ant-alert-with-description .ant-alert-action {
+  margin-left: -4px;
+  margin-right: 24px;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-alert {
+    padding: 8px 12px;
+  }
+
+  .ant-alert-with-description {
+    padding: 12px 12px 12px 52px;
+  }
+
+  .ant-alert-with-description.ant-alert-with-icon {
+    padding: 12px 12px 12px 52px;
+  }
+
+  .ant-alert-with-description .ant-alert-icon {
+    margin-right: 12px;
+  }
+
+  .ant-alert-closable {
+    padding-right: 32px;
+  }
+
+  .ant-alert-close-icon {
+    right: 12px;
+  }
+}
+
+/* 自定义主题支持 */
+.ant-alert-outlined {
+  background-color: transparent;
+}
+
+.ant-alert-outlined.ant-alert-success {
+  border-color: #52c41a;
+  color: #52c41a;
+}
+
+.ant-alert-outlined.ant-alert-info {
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+.ant-alert-outlined.ant-alert-warning {
+  border-color: #faad14;
+  color: #faad14;
+}
+
+.ant-alert-outlined.ant-alert-error {
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}

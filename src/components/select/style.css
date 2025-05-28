@@ -1,0 +1,492 @@
+/* Select 选择器样式 */
+
+/* 基础样式 */
+.ant-select {
+  position: relative;
+  display: inline-block;
+  min-width: 120px;
+  font-size: 14px;
+  line-height: 1.5715;
+  color: rgba(0, 0, 0, 0.88);
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  cursor: pointer;
+}
+
+.ant-select:hover {
+  border-color: #4096ff;
+}
+
+.ant-select-focused {
+  border-color: #4096ff;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  outline: 0;
+}
+
+.ant-select-open {
+  border-color: #4096ff;
+}
+
+/* 选择器容器 */
+.ant-select-selector {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 4px 11px;
+  min-height: 32px;
+  outline: none;
+}
+
+/* 选择项显示 */
+.ant-select-selection-item {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+/* 占位符 */
+.ant-select-selection-placeholder {
+  flex: 1;
+  color: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* 搜索框 */
+.ant-select-selection-search {
+  position: relative;
+  flex: 1;
+  max-width: 100%;
+}
+
+.ant-select-selection-search-input {
+  width: 100%;
+  min-width: 4px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  appearance: none;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* 多选样式 */
+.ant-select-multiple .ant-select-selector {
+  padding: 1px 11px 1px 4px;
+}
+
+.ant-select-selection-overflow {
+  position: relative;
+  display: flex;
+  flex: auto;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.ant-select-selection-overflow-item {
+  flex: none;
+  max-width: 100%;
+  margin: 2px 4px 2px 0;
+}
+
+.ant-select-multiple .ant-select-selection-item {
+  position: relative;
+  display: flex;
+  flex: none;
+  box-sizing: border-box;
+  max-width: 100%;
+  height: 24px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  line-height: 22px;
+  background: #f5f5f5;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  cursor: default;
+  transition: font-size 0.3s, line-height 0.3s, height 0.3s;
+  user-select: none;
+  margin-inline-end: 4px;
+  padding-inline-start: 8px;
+  padding-inline-end: 4px;
+}
+
+.ant-select-selection-item-content {
+  display: inline-block;
+  margin-inline-end: 4px;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+}
+
+.ant-select-selection-item-remove {
+  display: inline-block;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: bold;
+  font-size: 12px;
+  line-height: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ant-select-selection-item-remove:hover {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+/* 清除按钮 */
+.ant-select-clear {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 25px;
+  z-index: 1;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 12px;
+  text-align: center;
+  text-transform: none;
+  background: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: color 0.3s ease, opacity 0.15s ease;
+  text-rendering: auto;
+}
+
+.ant-select:hover .ant-select-clear {
+  opacity: 1;
+}
+
+.ant-select-clear:hover {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* 箭头 */
+.ant-select-arrow {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 11px;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+}
+
+.ant-select-suffix {
+  display: flex;
+  flex: none;
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* 下拉菜单 */
+.ant-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 4px 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-variant: initial;
+  background-color: #fff;
+  border-radius: 6px;
+  outline: none;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ant-select-dropdown-menu {
+  max-height: 256px;
+  overflow-y: auto;
+  outline: none;
+}
+
+/* 选项样式 */
+.ant-select-item {
+  position: relative;
+  display: block;
+  min-height: 32px;
+  padding: 5px 12px;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ant-select-item:hover {
+  background-color: #f5f5f5;
+}
+
+.ant-select-item-option {
+  display: flex;
+  align-items: center;
+}
+
+.ant-select-item-option-content {
+  flex: auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ant-select-item-option-selected {
+  color: #1677ff;
+  background-color: #e6f4ff;
+  font-weight: 600;
+}
+
+.ant-select-item-option-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+}
+
+.ant-select-item-option-disabled:hover {
+  background-color: transparent;
+}
+
+/* 选项组 */
+.ant-select-item-group {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  cursor: default;
+}
+
+.ant-select-item-group-label {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* 尺寸变体 */
+.ant-select-lg {
+  font-size: 16px;
+}
+
+.ant-select-lg .ant-select-selector {
+  min-height: 40px;
+  padding: 6px 11px;
+  font-size: 16px;
+}
+
+.ant-select-lg .ant-select-selection-item {
+  height: 28px;
+  line-height: 26px;
+}
+
+.ant-select-sm {
+  font-size: 14px;
+}
+
+.ant-select-sm .ant-select-selector {
+  min-height: 24px;
+  padding: 0 7px;
+  font-size: 14px;
+}
+
+.ant-select-sm .ant-select-selection-item {
+  height: 16px;
+  line-height: 14px;
+}
+
+.ant-select-sm .ant-select-arrow {
+  inset-inline-end: 7px;
+}
+
+.ant-select-sm .ant-select-clear {
+  inset-inline-end: 17px;
+}
+
+/* 状态样式 */
+.ant-select-status-error {
+  border-color: #ff4d4f;
+}
+
+.ant-select-status-error:hover {
+  border-color: #ff7875;
+}
+
+.ant-select-status-error.ant-select-focused {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
+}
+
+.ant-select-status-warning {
+  border-color: #faad14;
+}
+
+.ant-select-status-warning:hover {
+  border-color: #ffc53d;
+}
+
+.ant-select-status-warning.ant-select-focused {
+  border-color: #faad14;
+  box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.1);
+}
+
+/* 禁用状态 */
+.ant-select-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.ant-select-disabled:hover {
+  border-color: #d9d9d9;
+}
+
+.ant-select-disabled .ant-select-selector {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+}
+
+.ant-select-disabled .ant-select-arrow {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 无边框样式 */
+.ant-select-borderless {
+  border-color: transparent;
+  background-color: transparent;
+}
+
+.ant-select-borderless:hover {
+  border-color: transparent;
+}
+
+.ant-select-borderless.ant-select-focused {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* 搜索模式 */
+.ant-select-show-search .ant-select-selection-item {
+  color: rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.ant-select-show-search .ant-select-selection-search {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.ant-select-show-search .ant-select-selection-search-input {
+  height: 100%;
+}
+
+/* RTL 支持 */
+.ant-select[dir="rtl"] .ant-select-arrow {
+  left: 11px;
+  right: auto;
+}
+
+.ant-select[dir="rtl"] .ant-select-clear {
+  left: 25px;
+  right: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-select {
+    min-width: 100px;
+  }
+
+  .ant-select-dropdown {
+    max-height: 200px;
+  }
+}
+
+/* 动画效果 */
+@keyframes ant-select-dropdown-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ant-select-dropdown {
+  animation: ant-select-dropdown-slide-up 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .ant-select {
+    border-color: #000;
+  }
+
+  .ant-select-focused {
+    border-color: #000;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .ant-select {
+    color: rgba(255, 255, 255, 0.85);
+    background-color: #141414;
+    border-color: #434343;
+  }
+
+  .ant-select:hover {
+    border-color: #177ddc;
+  }
+
+  .ant-select-focused {
+    border-color: #177ddc;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+
+  .ant-select-dropdown {
+    background-color: #1f1f1f;
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.32),
+      0 3px 6px -4px rgba(0, 0, 0, 0.32),
+      0 9px 28px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .ant-select-item {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-select-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ant-select-selection-placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .ant-select-disabled {
+    color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: #434343;
+  }
+}
