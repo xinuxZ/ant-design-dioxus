@@ -148,7 +148,7 @@ pub use crate::components::typography::{
 // pub use crate::components::tabs::{Tabs, TabsProps, TabPane, TabPaneProps};
 // pub use crate::components::tag::{Tag, TagProps};
 // pub use crate::components::badge::{Badge, BadgeProps};
-// pub use crate::components::avatar::{Avatar, AvatarProps};
+pub use crate::components::avatar::{Avatar, AvatarProps, AvatarShape, AvatarSize};
 // pub use crate::components::tooltip::{Tooltip, TooltipProps};
 // pub use crate::components::popover::{Popover, PopoverProps};
 // pub use crate::components::empty::{Empty, EmptyProps};

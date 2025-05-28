@@ -56,6 +56,7 @@ fn App() -> Element {
                 style: "flex: 1; padding: 24px; overflow-y: auto;",
 
                 match selected_component.read().as_str() {
+                    "Avatar" => rsx! { AvatarDemo {} },
                     "Button" => rsx! { ButtonDemo {} },
                     "Icon" => rsx! { IconDemo {} },
                     "Typography" => rsx! { TypographyDemo {} },
@@ -65,6 +66,7 @@ fn App() -> Element {
                     "Flex" => rsx! { FlexDemo {} },
                     "Space" => rsx! { SpaceDemo {} },
                     "Divider" => rsx! { DividerDemo {} },
+                    "Tag" => rsx! { TagDemo {} },
                     _ => rsx! {
                         div {
                             style: "text-align: center; padding: 48px; color: #999;",

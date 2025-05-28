@@ -22,6 +22,7 @@ pub mod layout;
 pub mod typography;
 
 // 重新导出所有组件
+pub use avatar::*;
 pub use button::*;
 pub use divider::*;
 pub use flex::*;
@@ -29,6 +30,7 @@ pub use grid::*;
 pub use icon::*;
 pub use layout::*;
 pub use space::*;
+pub use tag::*;
 pub use typography::*;
 
 // 组件模块声明（后续逐步实现）
@@ -72,8 +74,8 @@ pub mod space;
 // pub mod tree_select;
 // pub mod upload;
 
-// 数据展示组件
-// pub mod avatar;
+// 数据展示
+pub mod avatar;
 // pub mod badge;
 // pub mod calendar;
 // pub mod card;
@@ -89,7 +91,7 @@ pub mod space;
 // pub mod statistic;
 // pub mod table;
 // pub mod tabs;
-// pub mod tag;
+pub mod tag;
 // pub mod timeline;
 // pub mod tooltip;
 // pub mod tour;
