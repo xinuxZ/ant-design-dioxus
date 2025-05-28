@@ -150,7 +150,7 @@ pub fn Collapse(props: CollapseProps) -> Element {
     let class_str = class_list.join(" ");
 
     // 处理面板切换
-    let handle_panel_click = move |key: String| {
+    let _handle_panel_click = move |key: String| {
         let mut current_keys = active_keys.read().clone();
 
         if props.accordion {

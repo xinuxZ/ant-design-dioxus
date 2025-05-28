@@ -1,0 +1,345 @@
+/* Descriptions 描述列表组件样式 */
+
+.ant-descriptions {
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: 'tnum';
+  box-sizing: border-box;
+}
+
+.ant-descriptions-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.ant-descriptions-title {
+  flex: auto;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.ant-descriptions-extra {
+  margin-left: auto;
+}
+
+.ant-descriptions-view {
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.ant-descriptions-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.ant-descriptions-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-descriptions-row:last-child {
+  border-bottom: none;
+}
+
+.ant-descriptions-item {
+  padding-bottom: 16px;
+  vertical-align: top;
+}
+
+.ant-descriptions-item-label {
+  padding-right: 24px;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 1.5715;
+  text-align: start;
+  vertical-align: top;
+}
+
+.ant-descriptions-item-label-content {
+  display: inline-block;
+}
+
+.ant-descriptions-item-label-colon {
+  margin: 0 8px 0 2px;
+}
+
+.ant-descriptions-item-content {
+  display: table-cell;
+  flex: 1;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 1.5715;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 边框样式 */
+.ant-descriptions-bordered {
+  border: 1px solid #f0f0f0;
+}
+
+.ant-descriptions-bordered .ant-descriptions-view {
+  border-radius: 0;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-bordered .ant-descriptions-item-content {
+  padding: 16px 24px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-label:last-child,
+.ant-descriptions-bordered .ant-descriptions-item-content:last-child {
+  border-right: none;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-label {
+  background-color: #fafafa;
+}
+
+.ant-descriptions-bordered .ant-descriptions-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-descriptions-bordered .ant-descriptions-row:last-child {
+  border-bottom: none;
+}
+
+/* 尺寸变体 */
+.ant-descriptions-middle .ant-descriptions-item {
+  padding-bottom: 12px;
+}
+
+.ant-descriptions-middle.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-middle.ant-descriptions-bordered .ant-descriptions-item-content {
+  padding: 12px 16px;
+}
+
+.ant-descriptions-small .ant-descriptions-item {
+  padding-bottom: 8px;
+}
+
+.ant-descriptions-small.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-small.ant-descriptions-bordered .ant-descriptions-item-content {
+  padding: 8px 16px;
+}
+
+.ant-descriptions-small .ant-descriptions-title {
+  margin-bottom: 12px;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 垂直布局 */
+.ant-descriptions-vertical .ant-descriptions-item {
+  display: block;
+  padding-bottom: 0;
+}
+
+.ant-descriptions-vertical .ant-descriptions-item-label {
+  display: block;
+  padding: 0 0 8px 0;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 1.5715;
+}
+
+.ant-descriptions-vertical .ant-descriptions-item-content {
+  display: block;
+  padding-bottom: 16px;
+}
+
+.ant-descriptions-vertical.ant-descriptions-bordered .ant-descriptions-item-label {
+  padding: 8px 16px;
+  background-color: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-descriptions-vertical.ant-descriptions-bordered .ant-descriptions-item-content {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-descriptions {
+    font-size: 12px;
+  }
+
+  .ant-descriptions-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .ant-descriptions-extra {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+
+  .ant-descriptions-item-label {
+    padding-right: 16px;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-descriptions-bordered .ant-descriptions-item-content {
+    padding: 12px 16px;
+  }
+
+  .ant-descriptions-middle.ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-descriptions-middle.ant-descriptions-bordered .ant-descriptions-item-content {
+    padding: 8px 12px;
+  }
+
+  .ant-descriptions-small.ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-descriptions-small.ant-descriptions-bordered .ant-descriptions-item-content {
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-descriptions {
+    font-size: 11px;
+  }
+
+  .ant-descriptions-item {
+    display: block;
+  }
+
+  .ant-descriptions-item-label {
+    display: block;
+    padding: 0 0 4px 0;
+    font-weight: 600;
+  }
+
+  .ant-descriptions-item-content {
+    display: block;
+    padding-bottom: 12px;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-label,
+  .ant-descriptions-bordered .ant-descriptions-item-content {
+    display: block;
+    padding: 8px 12px;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-descriptions-bordered .ant-descriptions-item-content {
+    border-bottom: none;
+  }
+}
+
+/* RTL 支持 */
+.ant-descriptions-rtl {
+  direction: rtl;
+}
+
+.ant-descriptions-rtl .ant-descriptions-header {
+  direction: rtl;
+}
+
+.ant-descriptions-rtl .ant-descriptions-extra {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.ant-descriptions-rtl .ant-descriptions-item-label {
+  padding-left: 24px;
+  padding-right: 0;
+  text-align: right;
+}
+
+.ant-descriptions-rtl .ant-descriptions-item-label-colon {
+  margin: 0 2px 0 8px;
+}
+
+.ant-descriptions-rtl.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-rtl.ant-descriptions-bordered .ant-descriptions-item-content {
+  border-left: 1px solid #f0f0f0;
+  border-right: none;
+}
+
+.ant-descriptions-rtl.ant-descriptions-bordered .ant-descriptions-item-label:first-child,
+.ant-descriptions-rtl.ant-descriptions-bordered .ant-descriptions-item-content:first-child {
+  border-left: none;
+}
+
+/* 主题变体 */
+.ant-descriptions-dark {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ant-descriptions-dark .ant-descriptions-title {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ant-descriptions-dark .ant-descriptions-item-label {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ant-descriptions-dark .ant-descriptions-item-content {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ant-descriptions-dark.ant-descriptions-bordered {
+  border-color: #434343;
+}
+
+.ant-descriptions-dark.ant-descriptions-bordered .ant-descriptions-item-label {
+  background-color: #1f1f1f;
+}
+
+.ant-descriptions-dark.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-dark.ant-descriptions-bordered .ant-descriptions-item-content {
+  border-color: #434343;
+}
+
+.ant-descriptions-dark .ant-descriptions-row {
+  border-color: #434343;
+}
+
+/* 空状态 */
+.ant-descriptions-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-descriptions-empty-text {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* 加载状态 */
+.ant-descriptions-loading {
+  opacity: 0.6;
+}
+
+.ant-descriptions-loading .ant-descriptions-item-content {
+  background: linear-gradient(90deg, rgba(190, 190, 190, 0.2) 25%, rgba(129, 129, 129, 0.24) 37%, rgba(190, 190, 190, 0.2) 63%);
+  background-size: 400% 100%;
+  animation: ant-descriptions-loading 1.4s ease infinite;
+  color: transparent;
+}
+
+@keyframes ant-descriptions-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
+}

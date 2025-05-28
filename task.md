@@ -62,18 +62,18 @@
 - [✅] Avatar 头像
 - [✅] Badge 徽标数
 - [✅] Card 卡片
-- [ ] Carousel 走马灯
+- [✅] Carousel 走马灯
 - [✅] Collapse 折叠面板
-- [ ] Descriptions 描述列表
+- [✅] Descriptions 描述列表
 - [✅] Empty 空状态
 - [✅] Image 图片
 - [✅] List 列表
-- [ ] Popover 气泡卡片
+- [✅] Popover 气泡卡片
 - [✅] Statistic 统计数值
 - [ ] Table 表格
-- [ ] Tabs 标签页
+- [✅] Tabs 标签页
 - [✅] Tag 标签
-- [ ] Timeline 时间轴
+- [✅] Timeline 时间轴
 - [ ] Tooltip 文字提示
 - [ ] Tree 树形控件
 
