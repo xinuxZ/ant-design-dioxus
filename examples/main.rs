@@ -14,6 +14,10 @@ use components::*;
 
 // 引用依赖以避免未使用警告
 #[allow(unused_imports)]
+use gloo_timers as _;
+#[allow(unused_imports)]
+use js_sys as _;
+#[allow(unused_imports)]
 use once_cell as _;
 #[allow(unused_imports)]
 use serde as _;
