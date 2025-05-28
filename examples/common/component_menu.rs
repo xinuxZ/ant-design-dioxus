@@ -1,6 +1,6 @@
-//! 组件菜单组件
+//! 组件菜单
 //!
-//! 提供组件分类导航菜单
+//! 提供组件选择菜单功能
 
 use dioxus::prelude::*;
 
@@ -9,22 +9,20 @@ use dioxus::prelude::*;
 pub struct ComponentMenuProps {
     /// 当前选中的组件
     pub selected: String,
-    /// 选择事件处理器
+    /// 选择组件时的回调
     pub on_select: EventHandler<String>,
 }
 
 /// 组件菜单
-///
-/// 按分类展示所有可用的组件，支持点击切换
 #[component]
 pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
     let components = vec![
         ("通用", vec!["Button", "Icon", "Typography"]),
-        ("布局", vec!["Grid", "Layout", "Space"]),
-        ("导航", vec!["Menu", "Breadcrumb", "Pagination"]),
-        ("数据录入", vec!["Input", "Select", "Form"]),
-        ("数据展示", vec!["Table", "List", "Card"]),
-        ("反馈", vec!["Alert", "Message", "Modal"]),
+        ("布局", vec!["Grid", "Layout"]),
+        ("导航", vec![]),
+        ("数据录入", vec![]),
+        ("数据展示", vec![]),
+        ("反馈", vec![]),
     ];
 
     rsx! {

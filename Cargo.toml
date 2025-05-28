@@ -29,8 +29,8 @@ wasm-bindgen-test = "0.3"
 # desktop = ["dioxus-desktop"]
 
 [[example]]
-name = "button_demo"
-path = "examples/button_demo.rs"
+name = "main"
+path = "examples/main.rs"
 
 [profile]
 
