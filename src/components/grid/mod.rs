@@ -214,8 +214,8 @@ pub fn Row(props: RowProps) -> Element {
         style { {RESPONSIVE_STYLE} }
 
         div {
-            class: "{class_name}",
-            style: "{row_style}",
+            class: class_name.clone(),
+            style: row_style.clone(),
             {props.children}
         }
     }
@@ -250,8 +250,8 @@ pub fn Col(props: ColProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{col_style}",
+            class: class_name.clone(),
+            style: col_style.clone(),
             {props.children}
         }
     }

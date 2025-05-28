@@ -192,9 +192,9 @@ pub fn Button(props: ButtonProps) -> Element {
         style { {BUTTON_STYLE} }
 
         button {
-            class: "{class_name}",
-            style: "{button_style}",
-            r#type: "{get_html_type(&props.html_type)}",
+            class: class_name.clone(),
+            style: button_style.clone(),
+            r#type: get_html_type(&props.html_type),
             disabled: props.disabled || props.loading,
             onclick: move |evt| {
                 if !props.disabled && !props.loading {

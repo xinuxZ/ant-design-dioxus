@@ -344,7 +344,7 @@ pub fn Flex(props: FlexProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
+            class: class_name.clone(),
             style: style_attr,
             {props.children}
         }

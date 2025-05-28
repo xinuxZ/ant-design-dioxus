@@ -87,6 +87,10 @@ pub struct ListProps {
     #[props(default)]
     pub style: Option<String>,
 
+    /// 加载状态的骨架屏数量
+    #[props(default = 3)]
+    pub loading_count: usize,
+
     /// 子元素
     children: Element,
 }
@@ -149,7 +153,7 @@ pub fn List(props: ListProps) -> Element {
     rsx! {
         style { {LIST_STYLE} }
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             // 列表头部
@@ -162,8 +166,10 @@ pub fn List(props: ListProps) -> Element {
                 if props.loading {
                     // 加载状态的骨架屏
                     div { class: "ant-list-loading-content",
-                        for i in 0..3 {
-                            div { class: "ant-list-item ant-list-item-loading", key: "{i}",
+                        for _i in 0..props.loading_count {
+                            div {
+                                class: "ant-list-item ant-list-item-loading",
+                                key: i.to_string(),
                                 div { class: "ant-list-item-meta",
                                     div { class: "ant-list-item-meta-avatar",
                                         div { class: "ant-list-loading-block ant-list-loading-avatar" }
@@ -234,7 +240,7 @@ pub fn ListItem(props: ListItemProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             div { class: "ant-list-item-main",
@@ -302,7 +308,7 @@ pub fn ListItemMeta(props: ListItemMetaProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             if let Some(avatar) = &props.avatar {
@@ -311,10 +317,10 @@ pub fn ListItemMeta(props: ListItemMetaProps) -> Element {
 
             div { class: "ant-list-item-meta-content",
                 if let Some(title) = &props.title {
-                    h4 { class: "ant-list-item-meta-title", "{title}" }
+                    h4 { class: "ant-list-item-meta-title", {title.clone()} }
                 }
                 if let Some(description) = &props.description {
-                    div { class: "ant-list-item-meta-description", "{description}" }
+                    div { class: "ant-list-item-meta-description", {description.clone()} }
                 }
             }
         }

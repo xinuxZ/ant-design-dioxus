@@ -171,8 +171,8 @@ pub fn Carousel(props: CarouselProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
             onmouseenter: on_mouse_enter,
             onmouseleave: on_mouse_leave,
 
@@ -207,7 +207,7 @@ pub fn Carousel(props: CarouselProps) -> Element {
 
                     for i in 0..children_count {
                         li {
-                            key: "{i}",
+                            key: i.to_string(),
                             class: if i == current_index() { "ant-carousel-dot ant-carousel-dot-active" } else { "ant-carousel-dot" },
                             onclick: {
                                 let mut go_to = go_to.clone();
@@ -249,8 +249,10 @@ pub fn CarouselItem(props: CarouselItemProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
+            // onmouseenter: on_mouse_enter,
+            // onmouseleave: on_mouse_leave,
 
             {props.children}
         }

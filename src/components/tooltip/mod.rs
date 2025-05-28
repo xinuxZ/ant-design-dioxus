@@ -276,7 +276,7 @@ pub fn Tooltip(props: TooltipProps) -> Element {
     rsx! {
         div {
             class: format!("ant-tooltip-wrapper {}", props.class),
-            style: "{props.style}",
+            style: props.style.clone(),
             position: "relative",
             display: "inline-block",
 
@@ -325,15 +325,15 @@ pub fn Tooltip(props: TooltipProps) -> Element {
                         if props.arrow {
                             div {
                                 class: "ant-tooltip-arrow",
-                                style: "{color_style}",
+                                style: color_style.clone(),
                             }
                         }
 
                         // 内容区域
                         div {
                             class: "ant-tooltip-inner",
-                            style: "{color_style}",
-                            "{props.title}"
+                            style: color_style.clone(),
+                            {props.title.clone()}
                         }
                     }
                 }

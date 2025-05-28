@@ -146,7 +146,7 @@ pub fn Card(props: CardProps) -> Element {
     rsx! {
         style { {CARD_STYLE} }
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             // 卡片头部
@@ -154,7 +154,7 @@ pub fn Card(props: CardProps) -> Element {
                 div { class: "ant-card-head",
                     div { class: "ant-card-head-wrapper",
                         if let Some(title) = &props.title {
-                            div { class: "ant-card-head-title", "{title}" }
+                            div { class: "ant-card-head-title", {title.clone()} }
                         }
                         if let Some(extra) = &props.extra {
                             div { class: "ant-card-extra", {extra} }
@@ -233,7 +233,7 @@ pub fn CardMeta(props: CardMetaProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             div { class: "ant-card-meta-detail",
@@ -243,10 +243,10 @@ pub fn CardMeta(props: CardMetaProps) -> Element {
 
                 div { class: "ant-card-meta-content",
                     if let Some(title) = &props.title {
-                        div { class: "ant-card-meta-title", "{title}" }
+                        div { class: "ant-card-meta-title", {title.clone()} }
                     }
                     if let Some(description) = &props.description {
-                        div { class: "ant-card-meta-description", "{description}" }
+                        div { class: "ant-card-meta-description", {description.clone()} }
                     }
                 }
             }
@@ -298,7 +298,7 @@ pub fn CardGrid(props: CardGridProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
             {props.children}
         }

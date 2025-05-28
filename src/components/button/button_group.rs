@@ -98,8 +98,8 @@ pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{group_style}",
+            class: class_name.clone(),
+            style: group_style.clone(),
             {props.children}
         }
     }

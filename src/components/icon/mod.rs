@@ -126,8 +126,8 @@ pub fn Icon(props: IconProps) -> Element {
         style { {ICON_STYLE} }
 
         i {
-            class: "{class_name}",
-            style: "{icon_style}",
+            class: class_name.clone(),
+            style: icon_style.clone(),
             onclick: move |evt| {
                 if let Some(handler) = &props.onclick {
                     handler.call(evt);

@@ -119,8 +119,8 @@ pub fn Badge(props: BadgeProps) -> Element {
         if props.children.is_ok() {
             // 有子元素时，作为包装器
             span {
-                class: "{class_name}",
-                style: "{badge_style}",
+                class: class_name.clone(),
+                style: badge_style.clone(),
 
                 // 子元素
                 {props.children.clone()}
@@ -135,7 +135,7 @@ pub fn Badge(props: BadgeProps) -> Element {
             if let Some(status) = &props.status {
                 span {
                     class: "ant-badge ant-badge-status",
-                    style: "{badge_style}",
+                    style: badge_style.clone(),
 
                     span {
                         class: "ant-badge-status-dot ant-badge-status-{get_status_class(status)}",
@@ -145,7 +145,7 @@ pub fn Badge(props: BadgeProps) -> Element {
                     if let Some(text) = &props.text {
                         span {
                             class: "ant-badge-status-text",
-                            "{text}"
+                            {text.clone()}
                         }
                     }
                 }
@@ -229,8 +229,8 @@ fn render_badge_content(props: &BadgeProps) -> Element {
                     title: props.title.as_deref().unwrap_or(&display_count),
 
                     span {
-                        class: "ant-badge-count-content",
-                        "{display_count}"
+                       class: "ant-badge-count-content",
+                        {display_count.clone()}
                     }
                 }
             }

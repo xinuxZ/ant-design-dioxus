@@ -194,8 +194,8 @@ pub fn Tabs(props: TabsProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
 
             // 标签栏
             div {
@@ -336,12 +336,12 @@ pub fn TabPane(props: TabPaneProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{props.style}",
-            "data-key": "{props.tab_key}",
-            "data-tab": "{props.tab}",
-            "data-disabled": "{props.disabled}",
-            "data-closable": "{props.closable}",
+            class: class_name.clone(),
+            style: props.style.clone(),
+            "data-key": props.tab_key.clone(),
+            "data-tab": props.tab.clone(),
+            "data-disabled": props.disabled.to_string(),
+            "data-closable": props.closable.to_string(),
 
             {props.children}
         }

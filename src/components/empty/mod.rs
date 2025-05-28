@@ -77,14 +77,14 @@ pub fn Empty(props: EmptyProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
-            style: "{props.style.as_ref().unwrap_or(&String::new())}",
+            class: class_str.clone(),
+            style: props.style.clone().unwrap_or_default(),
 
             div {
                 class: "ant-empty-image",
-                style: "{props.image_style.as_ref().unwrap_or(&String::new())}",
+                style: props.image_style.clone().unwrap_or_default(),
                 img {
-                    src: "{image_url}",
+                    src: image_url.clone(),
                     alt: "empty",
                     style: "width: 64px; height: 41px;"
                 }
@@ -93,7 +93,7 @@ pub fn Empty(props: EmptyProps) -> Element {
             if !description.is_empty() {
                 div {
                     class: "ant-empty-description",
-                    "{description}"
+                    {description.clone()}
                 }
             }
 

@@ -237,7 +237,7 @@ pub fn Divider(props: DividerProps) -> Element {
             if let Some(children) = props.children {
                 rsx! {
                     div {
-                        class: "{class_name}",
+                        class: class_name.clone(),
                         style: props.style,
                         role: "separator",
                         span {
@@ -249,7 +249,7 @@ pub fn Divider(props: DividerProps) -> Element {
             } else {
                 rsx! {
                     hr {
-                        class: "{class_name}",
+                        class: class_name.clone(),
                         style: props.style,
                         role: "separator"
                     }
@@ -259,7 +259,7 @@ pub fn Divider(props: DividerProps) -> Element {
         DividerType::Vertical => {
             rsx! {
                 span {
-                    class: "{class_name}",
+                    class: class_name.clone(),
                     style: props.style,
                     role: "separator",
                     "aria-orientation": "vertical"

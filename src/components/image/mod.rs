@@ -190,7 +190,7 @@ pub fn Image(props: ImageProps) -> Element {
     rsx! {
         style { {IMAGE_STYLE} }
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
 
             div { class: "ant-image-img-wrapper",
                 // 占位符
@@ -217,11 +217,11 @@ pub fn Image(props: ImageProps) -> Element {
                     }
                 } else {
                     img {
-                        src: "{current_src.read()}",
+                        src: current_src.read().clone(),
                         alt: props.alt.clone().unwrap_or_default(),
                         width: props.width.unwrap_or_default(),
                         height: props.height.unwrap_or_default(),
-                        style: "{image_style}",
+                        style: image_style.clone(),
                         class: "ant-image-img",
                         onload: handle_load,
                         onerror: handle_error,
@@ -261,7 +261,7 @@ pub fn Image(props: ImageProps) -> Element {
                     div { class: "ant-image-preview-content",
                         div { class: "ant-image-preview-body",
                             img {
-                                src: "{current_src.read()}",
+                                src: current_src.read().clone(),
                                 alt: props.alt.unwrap_or_default(),
                                 class: "ant-image-preview-img",
                             }
@@ -330,7 +330,7 @@ pub fn ImagePreviewGroup(props: ImagePreviewGroupProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
             {props.children}
         }

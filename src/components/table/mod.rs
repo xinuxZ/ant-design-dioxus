@@ -212,13 +212,13 @@ pub fn Table(props: TableProps) -> Element {
     rsx! {
         div {
             class: "ant-table-wrapper",
-            style: "{props.style}",
+            style: props.style.clone(),
 
             // 表格标题
             if let Some(title) = &props.title {
                 div {
                     class: "ant-table-title",
-                    "{title}"
+                    {title.clone()}
                 }
             }
 
@@ -240,6 +240,7 @@ pub fn Table(props: TableProps) -> Element {
                                 class: "ant-table-thead",
                                 tr {
                                     class: "ant-table-row",
+                                    key: index.to_string(),
 
                                     // 行选择列
                                     if props.row_selection.is_some() {
@@ -267,7 +268,7 @@ pub fn Table(props: TableProps) -> Element {
                                                     ""
                                                 }
                                             ),
-                                            key: "{column.key}",
+                                            key: column.key.clone(),
                                             style: if let Some(width) = &column.width {
                                                 format!("width: {}", width)
                                             } else {
@@ -276,7 +277,7 @@ pub fn Table(props: TableProps) -> Element {
 
                                             div {
                                                 class: "ant-table-column-title",
-                                                "{column.title}"
+                                                {column.title.clone()}
                                             }
 
                                             // 排序图标
@@ -307,10 +308,10 @@ pub fn Table(props: TableProps) -> Element {
                             class: "ant-table-tbody",
 
                             // 数据行
-                            for (index, row) in props.data_source.iter().enumerate() {
+                            for (_index, row) in props.data_source.iter().enumerate() {
                                 tr {
                                     class: "ant-table-row",
-                                    key: "{index}",
+                                    key: index.to_string(),
                                     onclick: {
                                          let handler = props.on_row_click.clone();
                                          let key_value = row.get(&props.row_key).cloned();
@@ -349,9 +350,9 @@ pub fn Table(props: TableProps) -> Element {
                                                     ""
                                                 }
                                             ),
-                                            key: "{column.key}",
+                                            key: column.key.clone(),
 
-                                            "{row.get(&column.dataindex).unwrap_or(&String::new())}"
+                                            {row.get(&column.dataindex).cloned().unwrap_or_default()}
                                         }
                                     }
                                 }
@@ -387,7 +388,7 @@ pub fn Table(props: TableProps) -> Element {
             if let Some(footer) = &props.footer {
                 div {
                     class: "ant-table-footer",
-                    "{footer}"
+                    {footer.clone()}
                 }
             }
 
@@ -397,7 +398,7 @@ pub fn Table(props: TableProps) -> Element {
                     class: "ant-table-pagination ant-pagination",
                     div {
                         class: "ant-pagination-total-text",
-                        "共 {pagination.total} 条"
+                        {format!("共 {} 条", pagination.total)}
                     }
                     ul {
                         class: "ant-pagination-list",
@@ -407,7 +408,7 @@ pub fn Table(props: TableProps) -> Element {
                         }
                         li {
                             class: "ant-pagination-item ant-pagination-item-active",
-                            "{pagination.current}"
+                            {pagination.current.to_string()}
                         }
                         li {
                             class: "ant-pagination-next",

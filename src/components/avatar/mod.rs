@@ -198,8 +198,8 @@ pub fn Avatar(props: AvatarProps) -> Element {
     };
 
     rsx! {
-        span {
-            class: "{class_name}",
+        div {
+            class: class_name.clone(),
             style: style_attr,
             onclick: move |evt| {
                 if let Some(onclick) = &props.onclick {
@@ -212,7 +212,7 @@ pub fn Avatar(props: AvatarProps) -> Element {
                 if !image_error() {
                     img {
                         class: "ant-avatar-image",
-                        src: "{src}",
+                        src: src.clone(),
                         alt: props.alt.as_deref().unwrap_or(""),
                         onerror: handle_image_error,
                     }
@@ -224,7 +224,7 @@ pub fn Avatar(props: AvatarProps) -> Element {
                 if let Some(icon) = &props.icon {
                     span {
                         class: "ant-avatar-icon",
-                        "{icon}"
+                        {icon.clone()}
                     }
                 } else {
                     span {

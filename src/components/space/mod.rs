@@ -198,7 +198,7 @@ pub fn Space(props: SpaceProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: style_str,
             {props.children}
         }

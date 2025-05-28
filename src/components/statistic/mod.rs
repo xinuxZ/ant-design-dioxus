@@ -115,12 +115,12 @@ pub fn Statistic(props: StatisticProps) -> Element {
     rsx! {
         style { {STATISTIC_STYLE} }
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             // 标题
             if let Some(title) = &props.title {
-                div { class: "ant-statistic-title", "{title}" }
+                div { class: "ant-statistic-title", {title.clone()} }
             }
 
             // 数值内容
@@ -134,7 +134,7 @@ pub fn Statistic(props: StatisticProps) -> Element {
 
                 // 数值
                 span { class: "ant-statistic-content-value",
-                    "{formatted_value}"
+                    {formatted_value.clone()}
                 }
 
                 // 后缀
@@ -274,12 +274,12 @@ pub fn Countdown(props: CountdownProps) -> Element {
     rsx! {
         style { {STATISTIC_STYLE} }
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             // 标题
             if let Some(title) = &props.title {
-                div { class: "ant-statistic-title", "{title}" }
+                div { class: "ant-statistic-title", {title.clone()} }
             }
 
             // 数值内容
@@ -293,7 +293,7 @@ pub fn Countdown(props: CountdownProps) -> Element {
 
                 // 倒计时数值
                 span { class: "ant-statistic-content-value",
-                    "{formatted_time}"
+                    {formatted_time.clone()}
                 }
 
                 // 后缀

@@ -252,7 +252,7 @@ pub fn Link(props: LinkProps) -> Element {
 
     rsx! {
         a {
-            class: "{class_name}",
+            class: class_name.clone(),
             style: props.style,
             href: href,
             target: target,

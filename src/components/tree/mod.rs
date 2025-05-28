@@ -143,7 +143,7 @@ fn TreeNodeComponent(props: TreeNodeComponentProps) -> Element {
                 span {
                     class: "ant-tree-iconEle ant-tree-icon__customize",
                     if let Some(icon) = &props.node.icon {
-                        "{icon}"
+                        {icon.clone()}
                     }
                 }
             }
@@ -169,7 +169,7 @@ fn TreeNodeComponent(props: TreeNodeComponentProps) -> Element {
                 },
                 span {
                     class: "ant-tree-title",
-                    "{props.node.title}"
+                    {props.node.title.clone()}
                 }
             }
 
@@ -367,7 +367,7 @@ pub fn Tree(props: TreeProps) -> Element {
                 if props.checkable { "ant-tree-checkable" } else { "" },
                 props.class
             ),
-            style: "{props.style}",
+            style: props.style.clone(),
             role: "tree",
 
             div {

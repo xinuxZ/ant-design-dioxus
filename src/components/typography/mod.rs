@@ -322,8 +322,8 @@ pub fn Title(props: TitleProps) -> Element {
         {match props.level {
             HeadingLevel::H1 => rsx! {
                 h1 {
-                    class: "{class_name}",
-                    style: "{typography_style}",
+                    class: class_name.clone(),
+                    style: typography_style.clone(),
                     onclick: move |evt| {
                         if let Some(handler) = &props.onclick {
                             handler.call(evt);
@@ -348,8 +348,8 @@ pub fn Title(props: TitleProps) -> Element {
             },
             HeadingLevel::H2 => rsx! {
                 h2 {
-                    class: "{class_name}",
-                    style: "{typography_style}",
+                    class: class_name.clone(),
+                    style: typography_style.clone(),
                     onclick: move |evt| {
                         if let Some(handler) = &props.onclick {
                             handler.call(evt);
@@ -374,8 +374,8 @@ pub fn Title(props: TitleProps) -> Element {
             },
             HeadingLevel::H3 => rsx! {
                 h3 {
-                    class: "{class_name}",
-                    style: "{typography_style}",
+                    class: class_name.clone(),
+                    style: typography_style.clone(),
                     onclick: move |evt| {
                         if let Some(handler) = &props.onclick {
                             handler.call(evt);
@@ -400,8 +400,8 @@ pub fn Title(props: TitleProps) -> Element {
             },
             HeadingLevel::H4 => rsx! {
                 h4 {
-                    class: "{class_name}",
-                    style: "{typography_style}",
+                    class: class_name.clone(),
+                    style: typography_style.clone(),
                     onclick: move |evt| {
                         if let Some(handler) = &props.onclick {
                             handler.call(evt);
@@ -426,8 +426,8 @@ pub fn Title(props: TitleProps) -> Element {
             },
             HeadingLevel::H5 => rsx! {
                 h5 {
-                    class: "{class_name}",
-                    style: "{typography_style}",
+                    class: class_name.clone(),
+                    style: typography_style.clone(),
                     onclick: move |evt| {
                         if let Some(handler) = &props.onclick {
                             handler.call(evt);
@@ -485,8 +485,8 @@ pub fn Text(props: TextProps) -> Element {
         style { {TYPOGRAPHY_STYLE} }
 
         span {
-            class: "{class_name}",
-            style: "{typography_style}",
+            class: class_name.clone(),
+            style: typography_style.clone(),
             onclick: move |evt| {
                 if let Some(handler) = &props.onclick {
                     handler.call(evt);
@@ -543,8 +543,8 @@ pub fn Paragraph(props: ParagraphProps) -> Element {
         style { {TYPOGRAPHY_STYLE} }
 
         p {
-            class: "{class_name}",
-            style: "{typography_style}",
+            class: class_name.clone(),
+            style: typography_style.clone(),
             onclick: move |evt| {
                 if let Some(handler) = &props.onclick {
                     handler.call(evt);
@@ -608,8 +608,8 @@ pub fn Link(props: LinkProps) -> Element {
         style { {TYPOGRAPHY_STYLE} }
 
         a {
-            class: "{link_class}",
-            style: "{typography_style}",
+            class: link_class.clone(),
+            style: typography_style.clone(),
             href: props.href.as_deref().unwrap_or("#"),
             target: props.target.as_deref(),
             onclick: move |evt| {
@@ -745,7 +745,6 @@ where
 /// 返回排版组件的内联样式字符串
 fn get_typography_style(custom_style: &Option<String>, ellipsis_rows: &Option<u32>) -> String {
     let mut styles = Vec::new();
-
     // 设置多行省略样式
     if let Some(rows) = ellipsis_rows {
         styles.push(

@@ -125,8 +125,8 @@ pub fn Tag(props: TagProps) -> Element {
         style { {TAG_STYLE} }
 
         span {
-            class: "{class_name}",
-            style: "{tag_style}",
+            class: class_name.clone(),
+            style: tag_style.clone(),
             onclick: move |evt| {
                 if let Some(handler) = &props.onclick {
                     handler.call(evt);

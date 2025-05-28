@@ -224,20 +224,20 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
                 if props.disabled { "ant-menu-item-disabled" } else { "" },
                 props.class
             ),
-            style: "{props.style}",
+            style: props.style.clone(),
             role: "menuitem",
-            "data-menu-id": "{props.menu_key}",
+            "data-menu-id": props.menu_key.clone(),
             onclick: handle_click,
 
             if let Some(href) = &props.href {
                 a {
-                    href: "{href}",
+                    href: href.clone(),
                     class: "ant-menu-item-link",
 
                     if let Some(icon) = &props.icon {
                         span {
                             class: "ant-menu-item-icon",
-                            "{icon}"
+                            {icon.clone()}
                         }
                     }
 
@@ -250,7 +250,7 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
                 if let Some(icon) = &props.icon {
                     span {
                         class: "ant-menu-item-icon",
-                        "{icon}"
+                        {icon.clone()}
                     }
                 }
 
@@ -282,9 +282,9 @@ pub fn SubMenu(props: SubMenuProps) -> Element {
                 if props.disabled { "ant-menu-submenu-disabled" } else { "" },
                 props.class
             ),
-            style: "{props.style}",
+            style: props.style.clone(),
             role: "menuitem",
-            "data-menu-id": "{props.menu_key}",
+            "data-menu-id": props.menu_key.clone(),
 
             // 子菜单标题
             div {
@@ -294,13 +294,13 @@ pub fn SubMenu(props: SubMenuProps) -> Element {
                 if let Some(icon) = &props.icon {
                     span {
                         class: "ant-menu-item-icon",
-                        "{icon}"
+                        {icon.clone()}
                     }
                 }
 
                 span {
                     class: "ant-menu-title-content",
-                    "{props.title}"
+                    {props.title.clone()}
                 }
 
                 span {
@@ -330,12 +330,12 @@ pub fn MenuGroup(props: MenuGroupProps) -> Element {
     rsx! {
         li {
             class: format!("ant-menu-item-group {}", props.class),
-            style: "{props.style}",
+            style: props.style.clone(),
             role: "presentation",
 
             div {
                 class: "ant-menu-item-group-title",
-                "{props.title}"
+                {props.title.clone()}
             }
 
             ul {
@@ -425,21 +425,21 @@ pub fn Menu(props: MenuProps) -> Element {
                 if item.is_group {
                     rsx! {
                         MenuGroup {
-                            menu_key: "{item.key}",
+                            menu_key: item.key.clone(),
                             title: item.group_title.clone().unwrap_or_default(),
 
                             if let Some(children) = &item.children {
                                 for child_item in children {
                                     if child_item.children.is_some() {
                                         SubMenu {
-                                            menu_key: "{child_item.key}",
+                                            menu_key: child_item.key.clone(),
                                             title: child_item.title.clone(),
                                             icon: child_item.icon.clone(),
                                             disabled: child_item.disabled,
                                         }
                                     } else {
                                         MenuItem {
-                                            menu_key: "{child_item.key}",
+                                            menu_key: child_item.key.clone(),
                                             icon: child_item.icon.clone(),
                                             disabled: child_item.disabled,
                                             href: child_item.href.clone(),
@@ -450,7 +450,7 @@ pub fn Menu(props: MenuProps) -> Element {
                                                     handle_menu_click(item.clone());
                                                 }
                                             },
-                                            "{child_item.title}"
+                                            {child_item.title.clone()}
                                         }
                                     }
                                 }
@@ -460,7 +460,7 @@ pub fn Menu(props: MenuProps) -> Element {
                 } else if item.children.is_some() {
                     rsx! {
                         SubMenu {
-                            menu_key: "{item.key}",
+                            menu_key: item.key.clone(),
                             title: item.title.clone(),
                             icon: item.icon.clone(),
                             disabled: item.disabled,
@@ -469,7 +469,7 @@ pub fn Menu(props: MenuProps) -> Element {
                 } else {
                     rsx! {
                         MenuItem {
-                            menu_key: "{item.key}",
+                            menu_key: item.key.clone(),
                             icon: item.icon.clone(),
                             disabled: item.disabled,
                             href: item.href.clone(),
@@ -480,7 +480,7 @@ pub fn Menu(props: MenuProps) -> Element {
                                     handle_menu_click(item.clone());
                                 }
                             },
-                            "{item.title}"
+                            {item.title.clone()}
                         }
                     }
                 }
@@ -507,7 +507,7 @@ pub fn Menu(props: MenuProps) -> Element {
                 theme_class,
                 props.class
             ),
-            style: "{props.style}",
+            style: props.style.clone(),
             role: "menu",
 
             // 如果有 items 数据，使用数据渲染，否则使用子元素

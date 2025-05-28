@@ -208,8 +208,8 @@ pub fn Popover(props: PopoverProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
 
             // 触发元素
             div {
@@ -251,8 +251,8 @@ pub fn Popover(props: PopoverProps) -> Element {
             // 气泡卡片
             if visible() {
                 div {
-                    class: "{overlay_class_name}",
-                    style: "{props.overlay_style.as_deref().unwrap_or_default()}",
+                    class: overlay_class_name.clone(),
+                    style: props.overlay_style.as_deref().unwrap_or_default().to_string(),
                     onmouseenter: move |_| {
                         if props.trigger == PopoverTrigger::Hover {
                             // 清除隐藏定时器
@@ -288,7 +288,7 @@ pub fn Popover(props: PopoverProps) -> Element {
                             if let Some(title) = &props.title {
                                 div {
                                     class: "ant-popover-title",
-                                    "{title}"
+                                    {title.clone()}
                                 }
                             }
 

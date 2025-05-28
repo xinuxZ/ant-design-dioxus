@@ -111,21 +111,21 @@ pub fn BreadcrumbItem(props: BreadcrumbItemProps) -> Element {
                 "ant-breadcrumb-item {}",
                 props.class
             ),
-            style: "{props.style}",
+            style: props.style.clone(),
 
             if let Some(href) = &props.href {
                 if !props.disabled {
                     a {
-                        href: "{href}",
+                        href: href.clone(),
                         class: "ant-breadcrumb-link",
                         onclick: handle_click,
 
                         if let Some(icon) = &props.icon {
-                            span {
-                                class: "ant-breadcrumb-icon",
-                                "{icon}"
-                            }
+                        span {
+                            class: "ant-breadcrumb-icon",
+                            {icon.clone()}
                         }
+                    }
 
                         span {
                             class: "ant-breadcrumb-text",
@@ -137,11 +137,11 @@ pub fn BreadcrumbItem(props: BreadcrumbItemProps) -> Element {
                         class: "ant-breadcrumb-link ant-breadcrumb-link-disabled",
 
                         if let Some(icon) = &props.icon {
-                            span {
-                                class: "ant-breadcrumb-icon",
-                                "{icon}"
-                            }
+                        span {
+                            class: "ant-breadcrumb-icon",
+                            {icon.clone()}
                         }
+                    }
 
                         span {
                             class: "ant-breadcrumb-text",
@@ -160,7 +160,7 @@ pub fn BreadcrumbItem(props: BreadcrumbItemProps) -> Element {
                     if let Some(icon) = &props.icon {
                         span {
                             class: "ant-breadcrumb-icon",
-                            "{icon}"
+                            {icon.clone()}
                         }
                     }
 
@@ -191,24 +191,24 @@ pub fn Breadcrumb(props: BreadcrumbProps) -> Element {
         rsx! {
             for (index, item) in props.items.iter().enumerate() {
                 BreadcrumbItem {
-                    key: "{index}",
+                    key: index.to_string(),
                     href: item.href.clone(),
                     icon: item.icon.clone(),
                     disabled: item.disabled,
-                    "{item.title}"
+                    {item.title.clone()}
                 }
 
                 // 如果不是最后一个元素，添加分隔符
                 if index < props.items.len() - 1 {
                     li {
-                        key: "separator-{index}",
+                        key: format!("separator-{}", index),
                         class: "ant-breadcrumb-separator",
                         "aria-hidden": "true",
 
                         if let Some(separator_elem) = &props.separator_element {
                             {separator_elem.clone()}
                         } else {
-                            "{props.separator}"
+                            {props.separator.clone()}
                         }
                     }
                 }
@@ -217,9 +217,9 @@ pub fn Breadcrumb(props: BreadcrumbProps) -> Element {
     };
 
     rsx! {
-        nav {
-            class: format!("ant-breadcrumb {}", props.class),
-            style: "{props.style}",
+        div {
+            class: "ant-breadcrumb",
+            style: props.style.clone(),
             "aria-label": "Breadcrumb",
 
             ol {

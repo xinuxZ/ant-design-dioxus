@@ -71,8 +71,8 @@ pub fn Timeline(props: TimelineProps) -> Element {
 
     rsx! {
         div {
-            class: "{class}",
-            style: "{props.style}",
+            class: class.clone(),
+            style: props.style.clone(),
             {props.children}
             if props.pending {
                 TimelineItem {
@@ -166,9 +166,9 @@ pub fn TimelineItem(props: TimelineItemProps) -> Element {
     };
 
     rsx! {
-        li {
-            class: "{class}",
-            style: "{props.style}",
+        div {
+            class: class.clone(),
+            style: props.style.clone(),
             div {
                 class: "ant-timeline-item-tail"
             }
@@ -176,9 +176,9 @@ pub fn TimelineItem(props: TimelineItemProps) -> Element {
                 class: "ant-timeline-item-head",
                 div {
                     class: "ant-timeline-item-head-custom",
-                    style: "{dot_style}",
+                    style: dot_style.clone(),
                     if !props.dot.is_empty() {
-                        span { "{props.dot}" }
+                        span { {props.dot.clone()} }
                     } else {
                         span { class: "ant-timeline-item-dot" }
                     }
@@ -189,7 +189,7 @@ pub fn TimelineItem(props: TimelineItemProps) -> Element {
                 if !props.label.is_empty() {
                     div {
                         class: "ant-timeline-item-label",
-                        "{props.label}"
+                        {props.label.clone()}
                     }
                 }
                 div {

@@ -180,7 +180,7 @@ pub fn Collapse(props: CollapseProps) -> Element {
     rsx! {
         style { {COLLAPSE_STYLE} }
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
             role: "tablist",
 
@@ -262,7 +262,7 @@ pub fn CollapsePanel(props: CollapsePanelProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_str}",
+            class: class_str.clone(),
             style: props.style.unwrap_or_default(),
 
             // 面板头部
@@ -294,7 +294,7 @@ pub fn CollapsePanel(props: CollapsePanelProps) -> Element {
                 }
 
                 // 标题内容
-                div { class: "ant-collapse-header-text", "{props.header}" }
+                div { class: "ant-collapse-header-text", {props.header.clone()} }
 
                 // 额外操作区域
                 if let Some(extra) = &props.extra {

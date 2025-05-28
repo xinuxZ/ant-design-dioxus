@@ -103,8 +103,8 @@ pub fn Descriptions(props: DescriptionsProps) -> Element {
 
     rsx! {
         div {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
 
             // 标题和操作区域
             if props.title.is_some() || props.extra.is_some() {
@@ -114,7 +114,7 @@ pub fn Descriptions(props: DescriptionsProps) -> Element {
                     if let Some(title) = &props.title {
                         div {
                             class: "ant-descriptions-title",
-                            "{title}"
+                            {title.clone()}
                         }
                     }
 
@@ -183,17 +183,17 @@ pub fn DescriptionsItem(props: DescriptionsItemProps) -> Element {
 
     rsx! {
         tr {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
 
             td {
                 class: "ant-descriptions-item-label",
-                style: "{props.label_style.as_ref().map_or(\"\", |s| s.as_str())}",
+                style: props.label_style.as_ref().map_or("", |s| s.as_str()).to_string(),
                 colspan: if props.span > 1 { props.span } else { 1 },
 
                 span {
                     class: "ant-descriptions-item-label-content",
-                    "{props.label}"
+                    {props.label.clone()}
                 }
 
                 span {
@@ -204,7 +204,7 @@ pub fn DescriptionsItem(props: DescriptionsItemProps) -> Element {
 
             td {
                 class: "ant-descriptions-item-content",
-                style: "{props.content_style.as_ref().map_or(\"\", |s| s.as_str())}",
+                style: props.content_style.as_ref().map_or("", |s| s.as_str()).to_string(),
                 colspan: if props.span > 1 { props.span } else { 1 },
 
                 {props.children}
@@ -235,8 +235,8 @@ pub fn DescriptionsRow(props: DescriptionsRowProps) -> Element {
 
     rsx! {
         tr {
-            class: "{class_name}",
-            style: "{props.style}",
+            class: class_name.clone(),
+            style: props.style.clone(),
 
             {props.children}
         }
