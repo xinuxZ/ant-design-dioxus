@@ -25,49 +25,9 @@
 //! }
 //! ```
 
+use crate::utils::SpaceSize;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-/// Space 组件的尺寸
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum SpaceSize {
-    /// 小间距 (8px)
-    Small,
-    /// 中等间距 (16px) - 默认
-    Middle,
-    /// 大间距 (24px)
-    Large,
-    /// 自定义间距 (像素值)
-    Custom(u32),
-}
-
-impl Default for SpaceSize {
-    fn default() -> Self {
-        Self::Middle
-    }
-}
-
-impl SpaceSize {
-    /// 获取间距的像素值
-    pub fn to_pixels(&self) -> u32 {
-        match self {
-            SpaceSize::Small => 8,
-            SpaceSize::Middle => 16,
-            SpaceSize::Large => 24,
-            SpaceSize::Custom(size) => *size,
-        }
-    }
-
-    /// 获取CSS类名
-    pub fn to_class(&self) -> String {
-        match self {
-            SpaceSize::Small => "ant-space-small".to_string(),
-            SpaceSize::Middle => "ant-space-middle".to_string(),
-            SpaceSize::Large => "ant-space-large".to_string(),
-            SpaceSize::Custom(_) => "ant-space-custom".to_string(),
-        }
-    }
-}
 
 /// Space 组件的方向
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -193,7 +153,14 @@ pub fn Space(props: SpaceProps) -> Element {
     }
 
     // 添加尺寸类
-    classes.push(props.size.to_class());
+    let size_class = match props.size {
+        SpaceSize::Small => "ant-space-small".to_string(),
+        SpaceSize::Middle => "ant-space-middle".to_string(),
+        SpaceSize::Large => "ant-space-large".to_string(),
+        SpaceSize::Custom(_) => "ant-space-custom".to_string(),
+        _ => "ant-space-small".to_string(),
+    };
+    classes.push(size_class);
 
     // 添加对齐类
     classes.push(props.align.to_class());
