@@ -131,7 +131,7 @@ pub fn Pagination(props: PaginationProps) -> Element {
     // 处理页面大小变化
     let mut handle_page_size_change = move |size: usize| {
         if size != current_page_size.read().clone() {
-            let old_size = current_page_size.read().clone();
+            let _old_size = current_page_size.read().clone();
             current_page_size.set(size);
 
             // 重新计算当前页
