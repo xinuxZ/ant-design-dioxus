@@ -59,8 +59,12 @@ fn App() -> Element {
                     "Button" => rsx! { ButtonDemo {} },
                     "Icon" => rsx! { IconDemo {} },
                     "Typography" => rsx! { TypographyDemo {} },
+                    "TypographyComplete" => rsx! { TypographyCompleteDemo {} },
                     "Grid" => rsx! { GridDemo {} },
                     "Layout" => rsx! { LayoutDemo {} },
+                    "Flex" => rsx! { FlexDemo {} },
+                    "Space" => rsx! { SpaceDemo {} },
+                    "Divider" => rsx! { DividerDemo {} },
                     _ => rsx! {
                         div {
                             style: "text-align: center; padding: 48px; color: #999;",
