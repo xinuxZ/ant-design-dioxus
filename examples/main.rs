@@ -24,6 +24,8 @@ use serde as _;
 #[allow(unused_imports)]
 use serde_json as _;
 #[allow(unused_imports)]
+use wasm_bindgen as _;
+#[allow(unused_imports)]
 use wasm_bindgen_test as _;
 
 /// 主应用组件
@@ -83,6 +85,19 @@ fn App() -> Element {
                     "Tree" => rsx! { TreeDemo {} },
                     "Breadcrumb" => rsx! { BreadcrumbDemo {} },
                     "Menu" => rsx! { MenuDemo {} },
+                    "Affix" => rsx! { AffixDemo {} },
+                    "Anchor" => rsx! { AnchorDemo {} },
+                    "AutoComplete" => rsx! { AutoCompleteDemo {} },
+                    "BackTop" => rsx! { BackTopDemo {} },
+                    "Cascader" => rsx! { CascaderDemo {} },
+                    "DatePicker" => rsx! { DatePickerDemo {} },
+                    "Dropdown" => rsx! { DropdownDemo {} },
+                    "Form" => rsx! { FormDemo {} },
+                    "InputNumber" => rsx! { InputNumberDemo {} },
+                    "Mentions" => rsx! { MentionsDemo {} },
+                    "Pagination" => rsx! { PaginationDemo {} },
+                    "Rate" => rsx! { RateDemo {} },
+                    "Slider" => rsx! { SliderDemo {} },
                     _ => rsx! {
                         div {
                             style: "text-align: center; padding: 48px; color: #999;",
