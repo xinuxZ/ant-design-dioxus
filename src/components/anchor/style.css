@@ -1,0 +1,179 @@
+/* Anchor 锚点组件样式 */
+
+.ant-anchor {
+  position: relative;
+  padding-left: 4px;
+  margin-left: 8px;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.5715;
+  font-size: 14px;
+  font-variant: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.ant-anchor-wrapper {
+  position: relative;
+  margin-left: -4px;
+  padding-left: 4px;
+  overflow: auto;
+  background-color: transparent;
+}
+
+.ant-anchor-ink {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: #f0f0f0;
+}
+
+.ant-anchor-ink-ball {
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #1890ff;
+  border-radius: 8px;
+  background-color: #fff;
+  transform: translateX(-50%);
+  transition: top 0.3s ease-in-out;
+  display: none;
+}
+
+.ant-anchor-ink-ball.visible {
+  display: block;
+}
+
+.ant-anchor-content {
+  position: relative;
+}
+
+.ant-anchor-link {
+  position: relative;
+  padding: 4px 0 4px 16px;
+  line-height: 1.143;
+}
+
+.ant-anchor-link-title {
+  position: relative;
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.ant-anchor-link-title:hover {
+  color: #1890ff;
+}
+
+.ant-anchor-link-title:only-child {
+  margin-bottom: 0;
+}
+
+.ant-anchor-link-active>.ant-anchor-link-title {
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.ant-anchor-link-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #1890ff;
+}
+
+/* 嵌套链接样式 */
+.ant-anchor-link .ant-anchor-link {
+  padding-left: 32px;
+}
+
+.ant-anchor-link .ant-anchor-link .ant-anchor-link {
+  padding-left: 48px;
+}
+
+.ant-anchor-link .ant-anchor-link .ant-anchor-link .ant-anchor-link {
+  padding-left: 64px;
+}
+
+/* 暗色主题 */
+.ant-theme-dark .ant-anchor {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ant-theme-dark .ant-anchor-ink {
+  background-color: #434343;
+}
+
+.ant-theme-dark .ant-anchor-link-title {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.ant-theme-dark .ant-anchor-link-title:hover {
+  color: #1890ff;
+}
+
+.ant-theme-dark .ant-anchor-link-active>.ant-anchor-link-title {
+  color: #1890ff;
+}
+
+/* 紧凑主题 */
+.ant-theme-compact .ant-anchor {
+  font-size: 12px;
+}
+
+.ant-theme-compact .ant-anchor-link {
+  padding: 2px 0 2px 12px;
+}
+
+.ant-theme-compact .ant-anchor-link-title {
+  margin-bottom: 4px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ant-anchor {
+    display: none;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .ant-anchor-link-title {
+    color: #000;
+  }
+
+  .ant-anchor-link-active>.ant-anchor-link-title {
+    color: #0066cc;
+    text-decoration: underline;
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+
+  .ant-anchor-link-title,
+  .ant-anchor-ink-ball {
+    transition: none;
+  }
+}
+
+/* 焦点样式 */
+.ant-anchor-link-title:focus {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* 打印样式 */
+@media print {
+  .ant-anchor {
+    display: none;
+  }
+}

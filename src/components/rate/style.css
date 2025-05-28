@@ -1,0 +1,360 @@
+/* Rate 评分组件样式 */
+
+/* 基础样式 */
+.ant-rate {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 20px;
+  line-height: unset;
+  list-style: none;
+  outline: none;
+  direction: ltr;
+}
+
+.ant-rate:focus {
+  outline: none;
+}
+
+.ant-rate:focus-visible {
+  outline: 2px solid #4096ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 星星容器 */
+.ant-rate-star {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.ant-rate-star:not(:last-child) {
+  margin-inline-end: 8px;
+}
+
+.ant-rate-star>div {
+  transition: all 0.3s;
+}
+
+.ant-rate-star:hover {
+  transform: scale(1.1);
+}
+
+/* 星星状态 */
+.ant-rate-star-first,
+.ant-rate-star-second {
+  color: #f0f0f0;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.ant-rate-star-first {
+  position: relative;
+  display: inline-block;
+}
+
+.ant-rate-star-second {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* 激活状态 */
+.ant-rate-star-active .ant-rate-star-first,
+.ant-rate-star-active .ant-rate-star-second {
+  color: #fadb14;
+}
+
+.ant-rate-star-full .ant-rate-star-second {
+  opacity: 1;
+}
+
+.ant-rate-star-half .ant-rate-star-first {
+  color: #f0f0f0;
+}
+
+.ant-rate-star-half .ant-rate-star-second {
+  color: #fadb14;
+  opacity: 1;
+}
+
+.ant-rate-star-zero .ant-rate-star-first,
+.ant-rate-star-zero .ant-rate-star-second {
+  color: #f0f0f0;
+}
+
+/* 星星图标 */
+.ant-rate-star-icon {
+  font-style: normal;
+  vertical-align: middle;
+}
+
+/* 尺寸变体 */
+.ant-rate-small {
+  font-size: 16px;
+}
+
+.ant-rate-small .ant-rate-star:not(:last-child) {
+  margin-inline-end: 6px;
+}
+
+.ant-rate-large {
+  font-size: 24px;
+}
+
+.ant-rate-large .ant-rate-star:not(:last-child) {
+  margin-inline-end: 10px;
+}
+
+/* 禁用状态 */
+.ant-rate-disabled .ant-rate-star {
+  cursor: default;
+}
+
+.ant-rate-disabled .ant-rate-star:hover {
+  transform: none;
+}
+
+.ant-rate-disabled .ant-rate-star-first,
+.ant-rate-disabled .ant-rate-star-second {
+  cursor: default;
+}
+
+/* 只读状态 */
+.ant-rate-readonly .ant-rate-star {
+  cursor: default;
+}
+
+.ant-rate-readonly .ant-rate-star:hover {
+  transform: none;
+}
+
+/* 焦点状态 */
+.ant-rate-focused {
+  border-radius: 2px;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-rate {
+    font-size: 18px;
+  }
+
+  .ant-rate-small {
+    font-size: 14px;
+  }
+
+  .ant-rate-large {
+    font-size: 20px;
+  }
+
+  .ant-rate-star:not(:last-child) {
+    margin-inline-end: 6px;
+  }
+
+  .ant-rate-small .ant-rate-star:not(:last-child) {
+    margin-inline-end: 4px;
+  }
+
+  .ant-rate-large .ant-rate-star:not(:last-child) {
+    margin-inline-end: 8px;
+  }
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+  .ant-rate {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-rate-star-first,
+  .ant-rate-star-second {
+    color: #434343;
+  }
+
+  .ant-rate-star-zero .ant-rate-star-first,
+  .ant-rate-star-zero .ant-rate-star-second {
+    color: #434343;
+  }
+
+  .ant-rate-star-half .ant-rate-star-first {
+    color: #434343;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+
+  .ant-rate-star-first,
+  .ant-rate-star-second {
+    color: #cccccc;
+  }
+
+  .ant-rate-star-active .ant-rate-star-first,
+  .ant-rate-star-active .ant-rate-star-second {
+    color: #ffff00;
+  }
+
+  .ant-rate-star-half .ant-rate-star-second {
+    color: #ffff00;
+  }
+
+  .ant-rate:focus-visible {
+    outline: 3px solid #0000ff;
+    outline-offset: 2px;
+  }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+
+  .ant-rate-star,
+  .ant-rate-star>div,
+  .ant-rate-star-first,
+  .ant-rate-star-second {
+    transition: none;
+  }
+
+  .ant-rate-star:hover {
+    transform: none;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .ant-rate {
+    color: #000000;
+  }
+
+  .ant-rate-star-first,
+  .ant-rate-star-second {
+    color: #cccccc;
+  }
+
+  .ant-rate-star-active .ant-rate-star-first,
+  .ant-rate-star-active .ant-rate-star-second {
+    color: #000000;
+  }
+
+  .ant-rate-star-half .ant-rate-star-second {
+    color: #000000;
+  }
+
+  .ant-rate-star:hover {
+    transform: none;
+  }
+}
+
+/* 自定义字符支持 */
+.ant-rate-star .ant-rate-star-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  text-align: center;
+}
+
+/* RTL 支持 */
+[dir="rtl"] .ant-rate {
+  direction: rtl;
+}
+
+[dir="rtl"] .ant-rate-star:not(:last-child) {
+  margin-inline-end: 0;
+  margin-inline-start: 8px;
+}
+
+[dir="rtl"] .ant-rate-small .ant-rate-star:not(:last-child) {
+  margin-inline-start: 6px;
+}
+
+[dir="rtl"] .ant-rate-large .ant-rate-star:not(:last-child) {
+  margin-inline-start: 10px;
+}
+
+[dir="rtl"] .ant-rate-star-second {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+/* 触摸设备优化 */
+@media (hover: none) {
+  .ant-rate-star:hover {
+    transform: none;
+  }
+}
+
+/* 键盘导航 */
+.ant-rate[tabindex]:focus {
+  outline: none;
+}
+
+.ant-rate[tabindex]:focus-visible {
+  outline: 2px solid #4096ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 工具提示支持 */
+.ant-rate-star[title] {
+  position: relative;
+}
+
+.ant-rate-star[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  margin-bottom: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ant-rate-star[title]:hover::after {
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #000000;
+  }
+}
+
+/* 动画效果 */
+@keyframes rateStarScale {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.ant-rate-star:active {
+  animation: rateStarScale 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ant-rate-star:active {
+    animation: none;
+  }
+}

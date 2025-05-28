@@ -1,0 +1,425 @@
+/* AutoComplete 自动完成组件样式 */
+
+/* 基础容器样式 */
+.ant-auto-complete {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* 输入框容器 */
+.ant-auto-complete-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* 输入框样式 */
+.ant-auto-complete .ant-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 11px;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.ant-auto-complete .ant-input:hover {
+  border-color: #4096ff;
+  border-right-width: 1px;
+}
+
+.ant-auto-complete .ant-input:focus,
+.ant-auto-complete .ant-input-focused {
+  border-color: #4096ff;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  border-right-width: 1px;
+  outline: 0;
+}
+
+.ant-auto-complete .ant-input::placeholder {
+  color: rgba(0, 0, 0, 0.25);
+  user-select: none;
+}
+
+/* 小尺寸输入框 */
+.ant-auto-complete-small .ant-input,
+.ant-auto-complete .ant-input-sm {
+  padding: 0px 7px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+/* 大尺寸输入框 */
+.ant-auto-complete-large .ant-input,
+.ant-auto-complete .ant-input-lg {
+  padding: 6.5px 11px;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+/* 禁用状态 */
+.ant-auto-complete-disabled .ant-input,
+.ant-auto-complete .ant-input-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.ant-auto-complete-disabled .ant-input:hover,
+.ant-auto-complete .ant-input-disabled:hover {
+  border-color: #d9d9d9;
+  border-right-width: 1px;
+}
+
+/* 错误状态 */
+.ant-auto-complete-status-error .ant-input,
+.ant-auto-complete .ant-input-status-error {
+  border-color: #ff4d4f;
+}
+
+.ant-auto-complete-status-error .ant-input:hover,
+.ant-auto-complete .ant-input-status-error:hover {
+  border-color: #ff4d4f;
+  border-right-width: 1px;
+}
+
+.ant-auto-complete-status-error .ant-input:focus,
+.ant-auto-complete-status-error .ant-input-focused,
+.ant-auto-complete .ant-input-status-error:focus,
+.ant-auto-complete .ant-input-status-error.ant-input-focused {
+  border-color: #ff7875;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+  border-right-width: 1px;
+  outline: 0;
+}
+
+/* 警告状态 */
+.ant-auto-complete-status-warning .ant-input,
+.ant-auto-complete .ant-input-status-warning {
+  border-color: #faad14;
+}
+
+.ant-auto-complete-status-warning .ant-input:hover,
+.ant-auto-complete .ant-input-status-warning:hover {
+  border-color: #faad14;
+  border-right-width: 1px;
+}
+
+.ant-auto-complete-status-warning .ant-input:focus,
+.ant-auto-complete-status-warning .ant-input-focused,
+.ant-auto-complete .ant-input-status-warning:focus,
+.ant-auto-complete .ant-input-status-warning.ant-input-focused {
+  border-color: #ffc53d;
+  box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.2);
+  border-right-width: 1px;
+  outline: 0;
+}
+
+/* 清除按钮 */
+.ant-auto-complete-clear {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  z-index: 1;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1;
+  text-align: center;
+  text-transform: none;
+  background: #ffffff;
+  cursor: pointer;
+  opacity: 0;
+  transition: color 0.3s ease, opacity 0.15s ease;
+  text-rendering: auto;
+}
+
+.ant-auto-complete:hover .ant-auto-complete-clear {
+  opacity: 1;
+}
+
+.ant-auto-complete-clear:hover {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-auto-complete-clear:active {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+/* 下拉菜单 */
+.ant-auto-complete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 4px 0;
+  overflow: auto;
+  font-size: 14px;
+  font-variant: initial;
+  background-color: #ffffff;
+  border-radius: 6px;
+  outline: none;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ant-auto-complete-dropdown-hidden {
+  display: none;
+}
+
+/* 下拉菜单项 */
+.ant-auto-complete-dropdown-menu {
+  max-height: 256px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  outline: none;
+}
+
+.ant-auto-complete-dropdown-menu-item {
+  position: relative;
+  display: block;
+  min-height: 32px;
+  padding: 5px 12px;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 22px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-radius: 0;
+}
+
+.ant-auto-complete-dropdown-menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.ant-auto-complete-dropdown-menu-item-active {
+  background-color: rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+}
+
+.ant-auto-complete-dropdown-menu-item-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+}
+
+.ant-auto-complete-dropdown-menu-item-disabled:hover {
+  color: rgba(0, 0, 0, 0.25);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+.ant-auto-complete-dropdown-menu-item-selected {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  background-color: #e6f4ff;
+}
+
+.ant-auto-complete-dropdown-menu-item-selected:hover {
+  background-color: #e6f4ff;
+}
+
+/* 空状态 */
+.ant-auto-complete-dropdown-menu-empty {
+  color: rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+/* 打开状态 */
+.ant-auto-complete-open .ant-auto-complete-dropdown {
+  display: block;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-auto-complete-dropdown {
+    margin: 2px 0 0;
+  }
+
+  .ant-auto-complete-dropdown-menu-item {
+    padding: 8px 12px;
+    min-height: 40px;
+  }
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+  .ant-auto-complete {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-auto-complete .ant-input {
+    color: rgba(255, 255, 255, 0.85);
+    background-color: #141414;
+    border-color: #434343;
+  }
+
+  .ant-auto-complete .ant-input:hover {
+    border-color: #4096ff;
+  }
+
+  .ant-auto-complete .ant-input:focus,
+  .ant-auto-complete .ant-input-focused {
+    border-color: #4096ff;
+    box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  }
+
+  .ant-auto-complete .ant-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .ant-auto-complete-disabled .ant-input,
+  .ant-auto-complete .ant-input-disabled {
+    color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: #434343;
+  }
+
+  .ant-auto-complete-clear {
+    color: rgba(255, 255, 255, 0.25);
+    background: #141414;
+  }
+
+  .ant-auto-complete-clear:hover {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .ant-auto-complete-clear:active {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-auto-complete-dropdown {
+    background-color: #1f1f1f;
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 3px 6px -4px rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .ant-auto-complete-dropdown-menu-item {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-auto-complete-dropdown-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ant-auto-complete-dropdown-menu-item-active {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ant-auto-complete-dropdown-menu-item-disabled {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .ant-auto-complete-dropdown-menu-item-selected {
+    color: rgba(255, 255, 255, 0.85);
+    background-color: #111b26;
+  }
+
+  .ant-auto-complete-dropdown-menu-item-selected:hover {
+    background-color: #111b26;
+  }
+
+  .ant-auto-complete-dropdown-menu-empty {
+    color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .ant-auto-complete .ant-input {
+    border-width: 2px;
+  }
+
+  .ant-auto-complete .ant-input:focus,
+  .ant-auto-complete .ant-input-focused {
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(5, 145, 255, 0.3);
+  }
+
+  .ant-auto-complete-status-error .ant-input {
+    border-color: #d32f2f;
+    border-width: 2px;
+  }
+
+  .ant-auto-complete-status-warning .ant-input {
+    border-color: #f57c00;
+    border-width: 2px;
+  }
+
+  .ant-auto-complete-dropdown {
+    border: 2px solid #d9d9d9;
+  }
+
+  .ant-auto-complete-dropdown-menu-item-active {
+    background-color: #1890ff;
+    color: #ffffff;
+  }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-auto-complete .ant-input {
+    transition: none;
+  }
+
+  .ant-auto-complete-clear {
+    transition: none;
+  }
+
+  .ant-auto-complete-dropdown-menu-item {
+    transition: none;
+  }
+}
+
+/* 焦点样式 */
+.ant-auto-complete .ant-input:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.ant-auto-complete-dropdown-menu-item:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: -2px;
+}
+
+/* 打印样式 */
+@media print {
+  .ant-auto-complete-dropdown {
+    display: none !important;
+  }
+
+  .ant-auto-complete .ant-input {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+
+  .ant-auto-complete-clear {
+    display: none;
+  }
+}

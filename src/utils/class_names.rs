@@ -242,6 +242,30 @@ where
     classes.join(" ")
 }
 
+/// 条件性类名数组函数
+///
+/// # Arguments
+///
+/// * `conditional` - 条件类名和条件的元组数组
+///
+/// # Returns
+///
+/// 用空格分隔的类名字符串
+pub fn conditional_class_names_array<S: Into<String>>(conditional: &[(S, bool)]) -> String
+where
+    S: Clone,
+{
+    let mut classes = Vec::new();
+
+    for (class, condition) in conditional {
+        if *condition {
+            classes.push(class.clone().into());
+        }
+    }
+
+    classes.join(" ")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

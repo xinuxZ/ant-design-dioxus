@@ -58,10 +58,6 @@ pub mod alert;
 pub use alert::*;
 
 pub mod checkbox;
-
-pub mod input;
-pub use input::*;
-
 pub mod progress;
 pub use progress::*;
 
@@ -82,26 +78,40 @@ pub mod flex;
 pub mod space;
 
 // 导航组件
-// pub mod affix;
+pub mod affix;
+pub use affix::*;
 pub mod breadcrumb;
-// pub mod dropdown;
+pub mod dropdown;
+pub use dropdown::*;
+
 pub mod menu;
-// pub mod pagination;
-// pub mod steps;
+pub mod pagination;
+pub use pagination::*;
+pub mod steps;
+pub use steps::*;
 
 // 数据录入组件
-// pub mod auto_complete;
-// pub mod cascader;
+pub mod auto_complete;
+pub use auto_complete::*;
+pub mod cascader;
+pub use cascader::*;
 // pub mod checkbox;
-// pub mod date_picker;
-// pub mod form;
-// pub mod input;
-// pub mod input_number;
-// pub mod mentions;
+pub mod date_picker;
+pub use date_picker::*;
+pub mod form;
+pub use form::*;
+pub mod input;
+pub use input::*;
+pub mod input_number;
+pub use input_number::*;
+pub mod mentions;
+pub use mentions::*;
 // pub mod radio;
-// pub mod rate;
+pub mod rate;
+pub use rate::*;
 // pub mod select;
-// pub mod slider;
+pub mod slider;
+pub use slider::*;
 // pub mod switch;
 // pub mod time_picker;
 // pub mod transfer;
@@ -144,8 +154,12 @@ pub mod tree;
 pub mod spin;
 
 // 其他组件
-// pub mod anchor;
-// pub mod back_top;
+pub mod anchor;
+pub use anchor::*;
+
+pub mod back_top;
+pub use back_top::*;
+
 // pub mod config_provider;
 // pub mod float_button;
 // pub mod qr_code;

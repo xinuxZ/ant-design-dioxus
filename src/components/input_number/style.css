@@ -1,0 +1,505 @@
+/* InputNumber 数字输入框组件样式 */
+
+/* 基础容器样式 */
+.ant-input-number {
+  position: relative;
+  display: inline-block;
+  width: 90px;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  background-color: #ffffff;
+  background-image: none;
+  transition: all 0.2s;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+}
+
+.ant-input-number:hover {
+  border-color: #4096ff;
+  border-right-width: 1px;
+}
+
+.ant-input-number-focused {
+  border-color: #4096ff;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  border-right-width: 1px;
+  outline: 0;
+}
+
+/* 小尺寸 */
+.ant-input-number-small {
+  padding: 0;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.ant-input-number-small .ant-input-number-input {
+  height: 22px;
+  padding: 0 7px;
+}
+
+.ant-input-number-small .ant-input-number-handler-wrap {
+  width: 22px;
+}
+
+.ant-input-number-small .ant-input-number-handler {
+  height: 11px;
+}
+
+/* 大尺寸 */
+.ant-input-number-large {
+  padding: 0;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+.ant-input-number-large .ant-input-number-input {
+  height: 38px;
+  padding: 6.5px 11px;
+}
+
+.ant-input-number-large .ant-input-number-handler-wrap {
+  width: 32px;
+}
+
+.ant-input-number-large .ant-input-number-handler {
+  height: 19px;
+}
+
+/* 无边框 */
+.ant-input-number-borderless {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 禁用状态 */
+.ant-input-number-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.ant-input-number-disabled:hover {
+  border-color: #d9d9d9;
+}
+
+.ant-input-number-disabled .ant-input-number-input {
+  cursor: not-allowed;
+}
+
+.ant-input-number-disabled .ant-input-number-handler-wrap {
+  display: none;
+}
+
+/* 错误状态 */
+.ant-input-number-status-error {
+  border-color: #ff4d4f;
+}
+
+.ant-input-number-status-error:hover {
+  border-color: #ff4d4f;
+}
+
+.ant-input-number-status-error.ant-input-number-focused {
+  border-color: #ff7875;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* 警告状态 */
+.ant-input-number-status-warning {
+  border-color: #faad14;
+}
+
+.ant-input-number-status-warning:hover {
+  border-color: #faad14;
+}
+
+.ant-input-number-status-warning.ant-input-number-focused {
+  border-color: #ffc53d;
+  box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.2);
+}
+
+/* 输入框包装器 */
+.ant-input-number-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 30px;
+  padding: 0;
+}
+
+/* 输入框 */
+.ant-input-number-input {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 30px;
+  padding: 4px 11px;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: inherit;
+  line-height: 1.5714285714285714;
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.3s;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.ant-input-number-input::-webkit-outer-spin-button,
+.ant-input-number-input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.ant-input-number-input::placeholder {
+  color: rgba(0, 0, 0, 0.25);
+  user-select: none;
+}
+
+.ant-input-number-input:placeholder-shown {
+  text-overflow: ellipsis;
+}
+
+/* 前缀和后缀 */
+.ant-input-number-prefix,
+.ant-input-number-suffix {
+  display: flex;
+  flex: none;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.25);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ant-input-number-prefix {
+  margin-right: 4px;
+}
+
+.ant-input-number-suffix {
+  margin-left: 4px;
+}
+
+/* 控制按钮包装器 */
+.ant-input-number-handler-wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 100%;
+  background: #ffffff;
+  border-left: 1px solid #d9d9d9;
+  border-radius: 0 6px 6px 0;
+  opacity: 0;
+  transition: opacity 0.24s linear 0.1s;
+}
+
+.ant-input-number:hover .ant-input-number-handler-wrap,
+.ant-input-number-focused .ant-input-number-handler-wrap {
+  opacity: 1;
+}
+
+.ant-input-number-handler-wrap-hidden {
+  display: none;
+}
+
+/* 控制按钮 */
+.ant-input-number-handler {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: bold;
+  line-height: 0;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.1s linear;
+  background: transparent;
+}
+
+.ant-input-number-handler:active {
+  background: #f5f5f5;
+}
+
+.ant-input-number-handler:hover .ant-input-number-handler-up-inner,
+.ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+  color: #4096ff;
+}
+
+/* 上按钮 */
+.ant-input-number-handler-up {
+  border-radius: 0 6px 0 0;
+}
+
+.ant-input-number-handler-up-inner {
+  display: inline-block;
+  color: inherit;
+  font-style: normal;
+  line-height: 12px;
+  text-align: center;
+  text-transform: none;
+  vertical-align: -0.06em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin-top: 6px;
+  font-size: 7px;
+}
+
+/* 下按钮 */
+.ant-input-number-handler-down {
+  top: -1px;
+  border-top: 1px solid #d9d9d9;
+  border-radius: 0 0 6px 0;
+}
+
+.ant-input-number-handler-down-inner {
+  display: inline-block;
+  color: inherit;
+  font-style: normal;
+  line-height: 12px;
+  text-align: center;
+  text-transform: none;
+  vertical-align: -0.06em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin-top: -2px;
+  font-size: 7px;
+}
+
+/* 禁用的控制按钮 */
+.ant-input-number-handler-up-disabled,
+.ant-input-number-handler-down-disabled {
+  cursor: not-allowed;
+}
+
+.ant-input-number-handler-up-disabled:hover .ant-input-number-handler-up-inner,
+.ant-input-number-handler-down-disabled:hover .ant-input-number-handler-down-inner {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 只读状态 */
+.ant-input-number-readonly .ant-input-number-input {
+  cursor: default;
+}
+
+.ant-input-number-readonly .ant-input-number-handler-wrap {
+  display: none;
+}
+
+/* 紧凑模式 */
+.ant-input-number-compact {
+  display: inline-flex;
+}
+
+.ant-input-number-compact:not(:first-child) {
+  margin-left: -1px;
+}
+
+.ant-input-number-compact:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+
+.ant-input-number-compact:first-child:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.ant-input-number-compact:last-child:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.ant-input-number-compact:not(:first-child):hover,
+.ant-input-number-compact:not(:first-child):focus,
+.ant-input-number-compact:not(:first-child).ant-input-number-focused {
+  z-index: 1;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-input-number {
+    width: 80px;
+  }
+
+  .ant-input-number-input {
+    padding: 4px 8px;
+  }
+
+  .ant-input-number-handler-wrap {
+    width: 20px;
+  }
+
+  .ant-input-number-small .ant-input-number-input {
+    padding: 0 6px;
+  }
+
+  .ant-input-number-large .ant-input-number-input {
+    padding: 6px 10px;
+  }
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+  .ant-input-number {
+    color: rgba(255, 255, 255, 0.85);
+    background-color: #141414;
+    border-color: #434343;
+  }
+
+  .ant-input-number:hover {
+    border-color: #4096ff;
+  }
+
+  .ant-input-number-focused {
+    border-color: #4096ff;
+    box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+  }
+
+  .ant-input-number-disabled {
+    color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: #434343;
+  }
+
+  .ant-input-number-input {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-input-number-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .ant-input-number-prefix,
+  .ant-input-number-suffix {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .ant-input-number-handler-wrap {
+    background: #141414;
+    border-left-color: #434343;
+  }
+
+  .ant-input-number-handler {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .ant-input-number-handler:active {
+    background: #262626;
+  }
+
+  .ant-input-number-handler:hover .ant-input-number-handler-up-inner,
+  .ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+    color: #4096ff;
+  }
+
+  .ant-input-number-handler-down {
+    border-top-color: #434343;
+  }
+
+  .ant-input-number-handler-up-disabled:hover .ant-input-number-handler-up-inner,
+  .ant-input-number-handler-down-disabled:hover .ant-input-number-handler-down-inner {
+    color: rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .ant-input-number {
+    border-width: 2px;
+  }
+
+  .ant-input-number-focused {
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(5, 145, 255, 0.3);
+  }
+
+  .ant-input-number-status-error {
+    border-color: #d32f2f;
+    border-width: 2px;
+  }
+
+  .ant-input-number-status-warning {
+    border-color: #f57c00;
+    border-width: 2px;
+  }
+
+  .ant-input-number-handler-wrap {
+    border-left-width: 2px;
+  }
+
+  .ant-input-number-handler-down {
+    border-top-width: 2px;
+  }
+
+  .ant-input-number-handler:hover .ant-input-number-handler-up-inner,
+  .ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+    color: #1565c0;
+    font-weight: bold;
+  }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-input-number {
+    transition: none;
+  }
+
+  .ant-input-number-input {
+    transition: none;
+  }
+
+  .ant-input-number-handler-wrap {
+    transition: none;
+  }
+
+  .ant-input-number-handler {
+    transition: none;
+  }
+}
+
+/* 焦点样式 */
+.ant-input-number:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.ant-input-number-input:focus-visible {
+  outline: none;
+}
+
+.ant-input-number-handler:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: -2px;
+}
+
+/* 打印样式 */
+@media print {
+  .ant-input-number {
+    border: 1px solid #000;
+    box-shadow: none;
+  }
+
+  .ant-input-number-handler-wrap {
+    display: none !important;
+  }
+
+  .ant-input-number-prefix,
+  .ant-input-number-suffix {
+    color: #000;
+  }
+}

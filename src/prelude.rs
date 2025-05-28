@@ -31,7 +31,7 @@ pub use crate::utils::{
 };
 
 pub use crate::utils::class_names::{
-    class_names, class_names, conditional_class_names, ClassNames,
+    class_names, class_names, conditional_class_names, conditional_class_names_array, ClassNames,
 };
 
 pub use crate::utils::responsive::{

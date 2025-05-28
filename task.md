@@ -109,7 +109,7 @@
 - [✅] List 列表
 - [✅] Popover 气泡卡片
 - [✅] Statistic 统计数值
-- [ ] Table 表格
+- [✅] Table 表格
 - [✅] Tabs 标签页
 - [✅] Tag 标签
 - [✅] Timeline 时间轴
@@ -137,19 +137,19 @@
   - [ ] 表单验证系统
 - [ ] AutoComplete 自动完成
 - [ ] Cascader 级联选择
-- [ ] Checkbox 多选框
+- [✅] Checkbox 多选框
 - [ ] ColorPicker 颜色选择器
 - [ ] DatePicker 日期选择框
-- [ ] Input 输入框
+- [✅] Input 输入框
   - [✅] Input 基础输入框
-  - [ ] Input.TextArea 文本域
-  - [ ] Input.Search 搜索框
-  - [ ] Input.Password 密码框
-- [ ] InputNumber 数字输入框
+  - [✅] Input.TextArea 文本域
+  - [✅] Input.Search 搜索框
+  - [✅] Input.Password 密码框
+- [✅] InputNumber 数字输入框
 - [ ] Mentions 提及
 - [ ] Radio 单选框
 - [ ] Rate 评分
-- [ ] Select 选择器
+- [✅] Select 选择器
 - [ ] Slider 滑动输入条
 - [ ] Switch 开关
 - [ ] TimePicker 时间选择框
