@@ -67,6 +67,7 @@ fn App() -> Element {
                     "Space" => rsx! { SpaceDemo {} },
                     "Divider" => rsx! { DividerDemo {} },
                     "Tag" => rsx! { TagDemo {} },
+                    "Empty" => rsx! { components::empty::EmptyExample {} },
                     _ => rsx! {
                         div {
                             style: "text-align: center; padding: 48px; color: #999;",

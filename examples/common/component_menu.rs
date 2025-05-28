@@ -24,7 +24,7 @@ pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
         ("布局", vec!["Grid", "Layout", "Flex", "Space", "Divider"]),
         ("导航", vec![]),
         ("数据录入", vec![]),
-        ("数据展示", vec!["Avatar", "Tag"]),
+        ("数据展示", vec!["Avatar", "Badge", "Card", "Empty", "Tag"]),
         ("反馈", vec![]),
     ];
 

@@ -59,7 +59,7 @@
 ## 阶段三：数据展示组件（第二批）
 
 ### 6. 数据展示
-- [ ] Avatar 头像
+- [✅] Avatar 头像
 - [ ] Badge 徽标数
 - [ ] Card 卡片
 - [ ] Carousel 走马灯
@@ -72,7 +72,7 @@
 - [ ] Statistic 统计数值
 - [ ] Table 表格
 - [ ] Tabs 标签页
-- [ ] Tag 标签
+- [✅] Tag 标签
 - [ ] Timeline 时间轴
 - [ ] Tooltip 文字提示
 - [ ] Tree 树形控件
