@@ -105,7 +105,10 @@ pub fn Affix(props: AffixProps) -> Element {
         let target_element = if let Some(target_fn) = props.target {
             target_fn()
         } else {
-            window().unwrap().document().unwrap().document_element()
+            window()
+                .unwrap()
+                .document()
+                .and_then(|doc| doc.document_element())
         };
 
         if let Some(target) = target_element {

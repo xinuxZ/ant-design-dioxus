@@ -3,7 +3,7 @@
 //! 提供多语言支持，包括语言包管理、文本翻译、日期时间格式化等功能。
 //! 支持动态切换语言，并提供 React Context 风格的 API。
 
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Datelike, Local, Timelike};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -289,12 +289,12 @@ impl LocaleConfig {
 
             let js_date = Date::new_with_year_month_day_hr_min_sec_milli(
                 datetime.year() as u32,
-                (datetime.month() - 1) as u32, // JS months are 0-indexed
-                datetime.day() as u32,
-                datetime.hour() as u32,
-                datetime.minute() as u32,
-                datetime.second() as u32,
-                (datetime.nanosecond() / 1_000_000) as u32,
+                (datetime.month() - 1) as i32, // JS months are 0-indexed
+                datetime.day() as i32,
+                datetime.hour() as i32,
+                datetime.minute() as i32,
+                datetime.second() as i32,
+                (datetime.nanosecond() / 1_000_000) as i32,
             );
 
             let options = Object::new();
@@ -342,8 +342,8 @@ impl LocaleConfig {
 
             let js_date = Date::new_with_year_month_day(
                 datetime.year() as u32,
-                (datetime.month() - 1) as u32,
-                datetime.day() as u32,
+                (datetime.month() - 1) as i32,
+                datetime.day() as i32,
             );
 
             let options = Object::new();
@@ -381,11 +381,11 @@ impl LocaleConfig {
 
             let js_date = Date::new_with_year_month_day_hr_min_sec(
                 datetime.year() as u32,
-                (datetime.month() - 1) as u32,
-                datetime.day() as u32,
-                datetime.hour() as u32,
-                datetime.minute() as u32,
-                datetime.second() as u32,
+                (datetime.month() - 1) as i32,
+                datetime.day() as i32,
+                datetime.hour() as i32,
+                datetime.minute() as i32,
+                datetime.second() as i32,
             );
 
             let options = Object::new();
@@ -587,25 +587,20 @@ pub fn use_locale_switch() -> impl FnMut(Locale) {
     let mut locale_config = use_context::<Signal<LocaleConfig>>();
 
     move |new_locale: Locale| {
+        // 先获取需要的值，避免所有权问题
+        let locale_code = new_locale.code();
+        let is_rtl = new_locale.is_rtl();
+
         let mut config = locale_config.write();
-        *config = LocaleConfig::new(new_locale).with_messages(config.messages.as_ref().clone());
+        *config = LocaleConfig::new(new_locale).with_messages((*config.messages).clone());
 
         // 更新HTML文档的语言属性
         #[cfg(target_arch = "wasm32")]
         {
-            use wasm_bindgen::prelude::*;
-
-            #[wasm_bindgen]
-            extern "C" {
-                #[wasm_bindgen(js_namespace = document)]
-                static documentElement: web_sys::Element;
-            }
-
-            if let Ok(document) = web_sys::window().unwrap().document() {
+            if let Some(document) = web_sys::window().unwrap().document() {
                 if let Some(html) = document.document_element() {
-                    let _ = html.set_attribute("lang", &new_locale.code());
-                    let _ =
-                        html.set_attribute("dir", if new_locale.is_rtl() { "rtl" } else { "ltr" });
+                    let _ = html.set_attribute("lang", &locale_code);
+                    let _ = html.set_attribute("dir", if is_rtl { "rtl" } else { "ltr" });
                 }
             }
         }

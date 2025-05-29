@@ -238,7 +238,10 @@ pub fn Splitter(props: SplitterProps) -> Element {
 
     // Add global mouse event listeners
     use_effect(move || {
-        let document = web_sys::window().unwrap().document().unwrap();
+        let document = match web_sys::window().and_then(|w| w.document()) {
+            Some(doc) => doc,
+            None => return,
+        };
 
         let mousemove_closure =
             wasm_bindgen::closure::Closure::wrap(Box::new(move |_evt: web_sys::MouseEvent| {
