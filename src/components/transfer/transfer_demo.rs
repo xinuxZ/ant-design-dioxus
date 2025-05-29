@@ -5,23 +5,23 @@ use dioxus::prelude::*;
 pub fn TransferDemo() -> Element {
     // 基础穿梭框状态
     let mut basic_target_keys = use_signal(|| vec!["2".to_string(), "4".to_string()]);
-    let mut basic_selected_keys = use_signal(|| vec![]);
+    let mut basic_selected_keys = use_signal(|| Vec::<String>::new());
 
     // 带搜索功能的穿梭框状态
     let mut search_target_keys = use_signal(|| vec!["b".to_string()]);
-    let mut search_selected_keys = use_signal(|| vec![]);
+    let mut search_selected_keys = use_signal(|| Vec::<String>::new());
 
     // 禁用状态的穿梭框
     let mut disabled_target_keys = use_signal(|| vec!["key2".to_string()]);
-    let mut disabled_selected_keys = use_signal(|| vec![]);
+    let mut disabled_selected_keys = use_signal(|| Vec::<String>::new());
 
     // 单向模式的穿梭框
-    let mut one_way_target_keys = use_signal(|| vec![]);
-    let mut one_way_selected_keys = use_signal(|| vec![]);
+    let mut one_way_target_keys = use_signal(|| Vec::<String>::new());
+    let mut one_way_selected_keys = use_signal(|| Vec::<String>::new());
 
     // 自定义操作按钮的穿梭框
     let mut custom_target_keys = use_signal(|| vec!["item2".to_string()]);
-    let mut custom_selected_keys = use_signal(|| vec![]);
+    let mut custom_selected_keys = use_signal(|| Vec::<String>::new());
 
     // 基础数据源
     let basic_data_source = vec![

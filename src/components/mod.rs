@@ -15,183 +15,145 @@
 // 基础导入在各个组件中按需引入
 
 // 通用组件
+pub mod affix;
+pub mod alert;
+pub mod anchor;
+pub mod app;
+pub mod auto_complete;
+pub mod avatar;
+pub mod back_top;
+pub mod badge;
+pub mod breadcrumb;
 pub mod button;
+pub mod calendar;
+pub mod card;
+pub mod carousel;
+pub mod cascader;
+pub mod checkbox;
+pub mod collapse;
+pub mod color_picker;
+pub mod date_picker;
+pub mod descriptions;
+pub mod divider;
+pub mod drawer;
+pub mod dropdown;
+pub mod empty;
+pub mod flex;
+pub mod float_button;
+pub mod form;
 pub mod grid;
 pub mod icon;
+pub mod image;
+pub mod input;
+pub mod input_number;
 pub mod layout;
+pub mod list;
+pub mod mentions;
+pub mod menu;
+pub mod message;
+pub mod modal;
+pub mod notification;
+pub mod pagination;
+pub mod popconfirm;
+pub mod popover;
+pub mod progress;
+pub mod qr_code;
+pub mod radio;
+pub mod rate;
+pub mod result;
+pub mod segmented;
+pub mod select;
+pub mod skeleton;
+pub mod slider;
+pub mod space;
+pub mod spin;
+pub mod splitter;
+pub mod statistic;
+pub mod steps;
+pub mod switch;
+pub mod table;
+pub mod tabs;
+pub mod tag;
+pub mod time_picker;
+pub mod timeline;
+pub mod tooltip;
+pub mod tour;
+pub mod transfer;
+pub mod tree;
+pub mod tree_select;
 pub mod typography;
+pub mod upload;
+pub mod watermark;
 
-// 重新导出所有组件
+pub use affix::*;
+pub use alert::*;
+pub use anchor::*;
+pub use app::*;
+pub use auto_complete::*;
 pub use avatar::*;
+pub use back_top::*;
 pub use badge::*;
-
 pub use breadcrumb::*;
 pub use button::*;
+pub use calendar::*;
 pub use card::*;
 pub use carousel::*;
+pub use cascader::*;
+pub use checkbox::*;
 pub use collapse::*;
+pub use color_picker::*;
+pub use date_picker::*;
 pub use descriptions::*;
 pub use divider::*;
 pub use drawer::*;
+pub use dropdown::*;
 pub use empty::*;
 pub use flex::*;
+pub use float_button::*;
+pub use form::*;
 pub use grid::*;
 pub use icon::*;
 pub use image::*;
+pub use input::*;
+pub use input_number::*;
 pub use layout::*;
 pub use list::*;
+pub use mentions::*;
 pub use menu::*;
 pub use message::*;
 pub use modal::*;
 pub use notification::*;
+pub use pagination::*;
+pub use popconfirm::*;
 pub use popover::*;
+pub use progress::*;
+pub use qr_code::*;
+pub use radio::*;
+pub use rate::*;
 pub use result::*;
+pub use segmented::*;
 pub use select::*;
+pub use skeleton::*;
+pub use slider::*;
 pub use space::*;
 pub use spin::*;
+pub use splitter::*;
 pub use statistic::*;
+pub use steps::*;
+pub use switch::*;
 pub use table::*;
 pub use tabs::*;
 pub use tag::*;
+pub use time_picker::*;
 pub use timeline::*;
 pub use tooltip::*;
-pub use tree::*;
-pub use typography::*;
-
-pub mod alert;
-pub use alert::*;
-
-pub mod progress;
-pub use progress::*;
-
-// 组件模块声明（后续逐步实现）
-
-// 通用组件
-// pub mod button;
-// pub mod icon;
-// pub mod typography;
-
-// 布局组件
-pub mod divider;
-// pub mod grid;
-// pub mod layout;
-pub mod flex;
-pub mod space;
-
-// 导航组件
-pub mod affix;
-pub use affix::*;
-pub mod breadcrumb;
-pub mod dropdown;
-pub use dropdown::*;
-
-pub mod menu;
-pub mod pagination;
-pub use pagination::*;
-pub mod steps;
-pub use steps::*;
-
-// 数据录入组件
-pub mod auto_complete;
-pub use auto_complete::*;
-pub mod cascader;
-pub use cascader::*;
-pub mod checkbox;
-pub use checkbox::*;
-pub mod date_picker;
-pub use date_picker::*;
-pub mod form;
-pub use form::*;
-pub mod input;
-pub use input::*;
-pub mod input_number;
-pub use input_number::*;
-pub mod mentions;
-pub use mentions::*;
-pub mod radio;
-pub use radio::*;
-pub mod rate;
-pub use rate::*;
-pub mod select;
-pub mod slider;
-pub use slider::*;
-pub mod switch;
-pub use switch::*;
+pub use tour::*;
 pub use transfer::*;
+pub use tree::*;
+pub use tree_select::*;
+pub use typography::*;
 pub use upload::*;
-pub mod time_picker;
-pub use time_picker::*;
-pub mod transfer;
-// pub mod tree_select;
-// pub use tree_select::*;
-pub mod upload;
-
-// 数据展示
-pub mod avatar;
-pub mod badge;
-// pub mod calendar;
-pub mod card;
-pub mod carousel;
-pub mod collapse;
-// pub mod comment;
-pub mod descriptions;
-pub mod empty;
-pub mod image;
-pub mod list;
-pub mod popover;
-// pub mod segmented;
-pub mod statistic;
-pub mod table;
-pub mod tabs;
-pub mod tag;
-pub mod timeline;
-pub mod tooltip;
-// pub mod tour;
-pub mod tree;
-
-// 反馈组件
-// pub mod alert; // 已存在
-pub mod drawer;
-pub mod message;
-pub mod modal;
-pub mod notification;
-pub mod popconfirm;
-pub mod result;
-// pub mod progress;
-// pub mod result;
-pub mod skeleton;
-pub mod spin;
-
-// 其他组件
-pub mod anchor;
-pub use anchor::*;
-
-pub mod back_top;
-pub use back_top::*;
-
-// pub mod config_provider;
-// pub mod float_button;
-// pub mod qr_code;
-// pub mod theme;
-// pub mod watermark;
-
-/// 组件的通用属性特征
-pub trait ComponentProps {
-    /// 组件的 CSS 类名
-    fn class_name(&self) -> Option<&str> {
-        None
-    }
-
-    /// 组件的内联样式
-    fn style(&self) -> Option<&str> {
-        None
-    }
-
-    /// 组件的测试 ID
-    fn test_id(&self) -> Option<&str> {
-        None
-    }
-}
+pub use watermark::*;
 
 /// 尺寸相关的组件属性
 pub trait SizeProps {

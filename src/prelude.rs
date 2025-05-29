@@ -121,7 +121,8 @@ pub use crate::components::typography::{
 //     Layout, LayoutProps, Header, HeaderProps, Content, ContentProps,
 //     Footer, FooterProps, Sider, SiderProps,
 // };
-// pub use crate::components::space::{Space, SpaceProps};
+pub use crate::components::space::{Space, SpaceAlign, SpaceDirection, SpaceProps};
+pub use crate::utils::SpaceSize;
 // pub use crate::components::divider::{Divider, DividerProps};
 
 // 导航组件
@@ -136,7 +137,8 @@ pub use crate::components::typography::{
 // pub use crate::components::select::{Select, SelectProps, Option, OptionProps};
 // pub use crate::components::checkbox::{Checkbox, CheckboxProps, CheckboxGroup};
 // pub use crate::components::radio::{Radio, RadioProps, RadioGroup, RadioGroupProps};
-// pub use crate::components::switch::{Switch, SwitchProps};
+pub use crate::components::switch::{Switch, SwitchProps};
+pub use crate::components::switch::{TimePicker, TimePickerProps};
 // pub use crate::components::slider::{Slider, SliderProps};
 // pub use crate::components::rate::{Rate, RateProps};
 // pub use crate::components::upload::{Upload, UploadProps};

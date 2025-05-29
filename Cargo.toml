@@ -24,13 +24,9 @@ web-sys = { version = "0.3", features = [
 js-sys = "0.3"
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 wasm-bindgen = "0.2.100"
-uuid = { version = "1.17.0", features = ["v4", "rng-rand", "js"] }
+chrono = { version = "0.4.41", features = ["serde"] }
 # dioxus-web = { version = "0.6.3", optional = true }
 # dioxus-desktop = { version = "0.6.3", optional = true }
-getrandom = { version = "0.3", features = ["wasm_js"] }
-
-[target.wasm32-unknown-unknown]
-rustflags = ['--cfg', 'getrandom_backend="wasm_js"']
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

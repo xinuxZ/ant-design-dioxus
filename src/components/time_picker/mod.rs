@@ -285,13 +285,10 @@ pub fn TimePicker(props: TimePickerProps) -> Element {
 
     // 初始化输入框显示值
     let format_clone = props.format.clone();
-    let current_value_clone = current_value.clone();
+    let current_value_clone = current_value.clone().unwrap();
     use_effect(move || {
-        if let Some(ref value) = current_value_clone {
-            input_value.set(value.to_string(&format_clone));
-        } else {
-            input_value.set(String::new());
-        }
+        let value = current_value_clone.to_string(&format_clone);
+        input_value.set(value);
     });
 
     // 处理输入框点击事件

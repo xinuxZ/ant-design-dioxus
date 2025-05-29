@@ -23,8 +23,7 @@ use once_cell as _;
 use serde as _;
 #[allow(unused_imports)]
 use serde_json as _;
-#[allow(unused_imports)]
-use uuid as _;
+
 #[allow(unused_imports)]
 use wasm_bindgen as _;
 #[allow(unused_imports)]
@@ -93,6 +92,7 @@ fn App() -> Element {
                     "BackTop" => rsx! { BackTopDemo {} },
                     "Cascader" => rsx! { CascaderDemo {} },
                     "DatePicker" => rsx! { DatePickerDemo {} },
+                    "Drawer" => rsx! { DrawerDemo {} },
                     "Dropdown" => rsx! { DropdownDemo {} },
                     "Form" => rsx! { FormDemo {} },
                     "InputNumber" => rsx! { InputNumberDemo {} },
