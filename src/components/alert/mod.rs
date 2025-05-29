@@ -27,6 +27,8 @@
 
 use dioxus::prelude::*;
 
+const ALERT_STYLES: &str = include_str!("./style.css");
+
 /// Alert 组件类型
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AlertType {
@@ -166,6 +168,8 @@ pub fn Alert(props: AlertProps) -> Element {
     };
 
     rsx! {
+        style { {ALERT_STYLES} }
+
         div {
             class: alert_class,
             style: props.style,

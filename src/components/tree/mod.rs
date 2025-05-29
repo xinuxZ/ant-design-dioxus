@@ -82,8 +82,6 @@ fn TreeNodeComponent(props: TreeNodeComponentProps) -> Element {
     let is_leaf = props.node.is_leaf || !has_children;
 
     rsx! {
-        style { {TREE_STYLES} }
-
         div {
             class: format!(
                 "ant-tree-treenode ant-tree-treenode-switcher-{} {}",
@@ -363,6 +361,8 @@ pub fn Tree(props: TreeProps) -> Element {
     };
 
     rsx! {
+        style { {TREE_STYLES} }
+
         div {
             class: format!(
                 "ant-tree {} {} {} {}",
