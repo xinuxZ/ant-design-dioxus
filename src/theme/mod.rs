@@ -733,55 +733,17 @@ impl ThemeConfig {
 
     /// 生成浅色主题调色板
     fn generate_light_palette(&self, base_color: RgbColor) -> ColorPalette {
-        ColorPalette {
-            base: base_color,
-            light: self.lighten_color(base_color, 0.2),
-            lighter: self.lighten_color(base_color, 0.4),
-            dark: self.darken_color(base_color, 0.2),
-            darker: self.darken_color(base_color, 0.4),
-        }
+        ColorPalette::generate(base_color, 10)
     }
 
     /// 生成深色主题调色板
     fn generate_dark_palette(&self, base_color: RgbColor) -> ColorPalette {
-        ColorPalette {
-            base: base_color,
-            light: self.lighten_color(base_color, 0.3),
-            lighter: self.lighten_color(base_color, 0.5),
-            dark: self.darken_color(base_color, 0.1),
-            darker: self.darken_color(base_color, 0.3),
-        }
+        ColorPalette::generate(base_color, 10)
     }
 
     /// 生成紧凑主题调色板
     fn generate_compact_palette(&self, base_color: RgbColor) -> ColorPalette {
-        ColorPalette {
-            base: base_color,
-            light: self.lighten_color(base_color, 0.15),
-            lighter: self.lighten_color(base_color, 0.3),
-            dark: self.darken_color(base_color, 0.15),
-            darker: self.darken_color(base_color, 0.3),
-        }
-    }
-
-    /// 调亮颜色
-    fn lighten_color(&self, color: RgbColor, amount: f32) -> RgbColor {
-        let factor = 1.0 + amount;
-        RgbColor::new(
-            ((color.r as f32 * factor).min(255.0) as u8),
-            ((color.g as f32 * factor).min(255.0) as u8),
-            ((color.b as f32 * factor).min(255.0) as u8),
-        )
-    }
-
-    /// 调暗颜色
-    fn darken_color(&self, color: RgbColor, amount: f32) -> RgbColor {
-        let factor = 1.0 - amount;
-        RgbColor::new(
-            ((color.r as f32 * factor).max(0.0) as u8),
-            ((color.g as f32 * factor).max(0.0) as u8),
-            ((color.b as f32 * factor).max(0.0) as u8),
-        )
+        ColorPalette::generate(base_color, 10)
     }
 
     /// 创建自定义主题
@@ -895,9 +857,8 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 /// 使用主题的 Hook
 ///
 /// 从上下文中获取当前的主题配置
-pub fn use_theme() -> ThemeConfig {
-    let theme_signal = use_context::<Signal<ThemeConfig>>();
-    theme_signal.read().clone()
+pub fn use_theme() -> Signal<ThemeConfig> {
+    use_context::<Signal<ThemeConfig>>()
 }
 
 /// 使用主题令牌的 Hook
@@ -905,36 +866,38 @@ pub fn use_theme() -> ThemeConfig {
 /// 返回一个函数，用于获取主题令牌值
 pub fn use_theme_token() -> impl Fn(&str) -> Option<String> {
     let theme_signal = use_context::<Signal<ThemeConfig>>();
-    move |token: &str| theme_signal.read().get_token(token)
+    move |token: &str| {
+        let config = theme_signal.read();
+        config.get_token(token)
+    }
 }
 
 /// 使用主题切换的 Hook
 ///
 /// 返回当前主题和切换主题的函数
-pub fn use_theme_switch() -> (Theme, impl Fn(Theme)) {
-    let theme_signal = use_context::<Signal<ThemeConfig>>();
+pub fn use_theme_switch() -> (Theme, impl FnMut(Theme)) {
+    let mut theme_signal = use_context::<Signal<ThemeConfig>>();
     let current_theme = theme_signal.read().theme;
 
     let switch_theme = move |new_theme: Theme| {
-        theme_signal.with_mut(|config| {
-            config.theme = new_theme;
-            // 根据新主题重新生成颜色配置
-            match new_theme {
-                Theme::Dark => {
-                    config.colors.text.primary = RgbColor::new(255, 255, 255);
-                    config.colors.text.secondary = RgbColor::new(191, 191, 191);
-                    config.colors.background.primary = RgbColor::new(20, 20, 20);
-                    config.colors.background.secondary = RgbColor::new(30, 30, 30);
-                }
-                Theme::Light => {
-                    config.colors.text.primary = RgbColor::new(0, 0, 0);
-                    config.colors.text.secondary = RgbColor::new(102, 102, 102);
-                    config.colors.background.primary = RgbColor::new(255, 255, 255);
-                    config.colors.background.secondary = RgbColor::new(250, 250, 250);
-                }
-                _ => {}
+        let mut config = theme_signal.write();
+        config.theme = new_theme;
+        // 根据新主题重新生成颜色配置
+        match new_theme {
+            Theme::Dark => {
+                config.colors.text.primary = RgbColor::new(255, 255, 255);
+                config.colors.text.secondary = RgbColor::new(191, 191, 191);
+                config.colors.background.primary = RgbColor::new(20, 20, 20);
+                config.colors.background.secondary = RgbColor::new(30, 30, 30);
             }
-        });
+            Theme::Light => {
+                config.colors.text.primary = RgbColor::new(0, 0, 0);
+                config.colors.text.secondary = RgbColor::new(102, 102, 102);
+                config.colors.background.primary = RgbColor::new(255, 255, 255);
+                config.colors.background.secondary = RgbColor::new(250, 250, 250);
+            }
+            _ => {}
+        }
     };
 
     (current_theme, switch_theme)

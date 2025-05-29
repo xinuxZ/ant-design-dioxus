@@ -223,6 +223,14 @@ impl HslColor {
 pub struct ColorPalette {
     /// 基础颜色
     pub base: RgbColor,
+    /// 浅色变体
+    pub light: RgbColor,
+    /// 更浅色变体
+    pub lighter: RgbColor,
+    /// 深色变体
+    pub dark: RgbColor,
+    /// 更深色变体
+    pub darker: RgbColor,
     /// 颜色变化（从浅到深）
     pub variants: Vec<RgbColor>,
 }
@@ -246,10 +254,34 @@ impl ColorPalette {
             variants.push(variant_hsl.to_rgb());
         }
 
+        // 生成浅色和深色变体
+        let light = Self::lighten_color(&base_color, 0.2);
+        let lighter = Self::lighten_color(&base_color, 0.4);
+        let dark = Self::darken_color(&base_color, 0.2);
+        let darker = Self::darken_color(&base_color, 0.4);
+
         Self {
             base: base_color,
+            light,
+            lighter,
+            dark,
+            darker,
             variants,
         }
+    }
+
+    /// 使颜色变浅
+    fn lighten_color(color: &RgbColor, factor: f32) -> RgbColor {
+        let hsl = color.to_hsl();
+        let new_lightness = (hsl.l + factor).min(1.0);
+        HslColor::new(hsl.h, hsl.s, new_lightness).to_rgb()
+    }
+
+    /// 使颜色变深
+    fn darken_color(color: &RgbColor, factor: f32) -> RgbColor {
+        let hsl = color.to_hsl();
+        let new_lightness = (hsl.l - factor).max(0.0);
+        HslColor::new(hsl.h, hsl.s, new_lightness).to_rgb()
     }
 
     /// 获取特定索引的颜色

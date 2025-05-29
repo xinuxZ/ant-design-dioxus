@@ -3,7 +3,7 @@
 //! 提供多语言支持，包括语言包管理、文本翻译、日期时间格式化等功能。
 //! 支持动态切换语言，并提供 React Context 风格的 API。
 
-use chrono::{DateTime, Local, NaiveDateTime, Utc};
+use chrono::{DateTime, Local};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -546,7 +546,7 @@ pub struct LocaleProviderProps {
 /// 为子组件提供国际化上下文
 #[component]
 pub fn LocaleProvider(props: LocaleProviderProps) -> Element {
-    use_context_provider(|| props.config.clone());
+    use_context_provider(|| Signal::new(props.config.clone()));
 
     rsx! {
         {props.children}
@@ -556,34 +556,39 @@ pub fn LocaleProvider(props: LocaleProviderProps) -> Element {
 /// 获取国际化配置的 Hook
 ///
 /// 从上下文中获取当前的国际化配置
-pub fn use_locale() -> LocaleConfig {
-    use_context::<LocaleConfig>()
+pub fn use_locale() -> Signal<LocaleConfig> {
+    use_context::<Signal<LocaleConfig>>()
 }
 
 /// 获取翻译函数的 Hook
 ///
 /// 返回一个翻译函数，用于翻译文本
 pub fn use_translate() -> impl Fn(TranslationKey) -> String {
-    let config = use_locale();
-    move |key: TranslationKey| config.translate(key)
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+    move |key: TranslationKey| {
+        let config = locale_config.read();
+        config.translate(key)
+    }
 }
 
 /// 获取带参数翻译函数的 Hook
 ///
 /// 返回一个翻译函数，支持占位符替换
 pub fn use_translate_with_args() -> impl Fn(TranslationKey, &[(&str, &str)]) -> String {
-    let config = use_locale();
-    move |key: TranslationKey, args: &[(&str, &str)]| config.translate_with_args(key, args)
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+    move |key: TranslationKey, args: &[(&str, &str)]| {
+        let config = locale_config.read();
+        config.translate_with_args(key, args)
+    }
 }
 
 /// 动态切换语言的Hook
-pub fn use_locale_switch() -> impl Fn(Locale) {
+pub fn use_locale_switch() -> impl FnMut(Locale) {
     let mut locale_config = use_context::<Signal<LocaleConfig>>();
 
     move |new_locale: Locale| {
         let mut config = locale_config.write();
-        *config =
-            LocaleConfig::new(new_locale).with_custom_messages(config.custom_messages.clone());
+        *config = LocaleConfig::new(new_locale).with_messages(config.messages.as_ref().clone());
 
         // 更新HTML文档的语言属性
         #[cfg(target_arch = "wasm32")]
@@ -611,21 +616,30 @@ pub fn use_locale_switch() -> impl Fn(Locale) {
 pub fn use_datetime_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
 
-    move |datetime: &chrono::DateTime<chrono::Local>| locale_config.read().format_datetime(datetime)
+    move |datetime: &chrono::DateTime<chrono::Local>| {
+        let config = locale_config.read();
+        config.format_datetime(datetime)
+    }
 }
 
 /// 获取日期格式化的Hook
 pub fn use_date_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
 
-    move |datetime: &chrono::DateTime<chrono::Local>| locale_config.read().format_date(datetime)
+    move |datetime: &chrono::DateTime<chrono::Local>| {
+        let config = locale_config.read();
+        config.format_date(datetime)
+    }
 }
 
 /// 获取时间格式化的Hook
 pub fn use_time_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
 
-    move |datetime: &chrono::DateTime<chrono::Local>| locale_config.read().format_time(datetime)
+    move |datetime: &chrono::DateTime<chrono::Local>| {
+        let config = locale_config.read();
+        config.format_time(datetime)
+    }
 }
 
 /// 获取相对时间格式化的Hook
@@ -633,7 +647,8 @@ pub fn use_relative_time_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -
     let locale_config = use_context::<Signal<LocaleConfig>>();
 
     move |datetime: &chrono::DateTime<chrono::Local>| {
-        locale_config.read().format_relative_time(datetime)
+        let config = locale_config.read();
+        config.format_relative_time(datetime)
     }
 }
 
@@ -641,32 +656,41 @@ pub fn use_relative_time_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -
 pub fn use_number_format() -> impl Fn(f64) -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
 
-    move |number: f64| locale_config.read().format_number(number)
+    move |number: f64| {
+        let config = locale_config.read();
+        config.format_number(number)
+    }
 }
 
 /// 获取货币格式化的Hook
 pub fn use_currency_format() -> impl Fn(f64) -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
 
-    move |amount: f64| locale_config.read().format_currency(amount)
+    move |amount: f64| {
+        let config = locale_config.read();
+        config.format_currency(amount)
+    }
 }
 
 /// 检查当前语言是否为RTL的Hook
 pub fn use_is_rtl() -> bool {
     let locale_config = use_context::<Signal<LocaleConfig>>();
-    locale_config.read().locale.is_rtl()
+    let config = locale_config.read();
+    config.locale.is_rtl()
 }
 
 /// 获取当前语言代码的Hook
 pub fn use_locale_code() -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
-    locale_config.read().locale.code().to_string()
+    let config = locale_config.read();
+    config.locale.code().to_string()
 }
 
 /// 获取当前语言名称的Hook
 pub fn use_locale_name() -> String {
     let locale_config = use_context::<Signal<LocaleConfig>>();
-    locale_config.read().locale.name().to_string()
+    let config = locale_config.read();
+    config.locale.name().to_string()
 }
 
 /// 获取默认语言包
