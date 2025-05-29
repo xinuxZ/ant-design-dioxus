@@ -166,7 +166,7 @@ pub fn ModalDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            Modal::info(ModalConfig {
+                            ModalApi::info(ModalConfig {
                                 title: "This is a notification message".to_string(),
                                 content: "some messages...some messages...".to_string(),
                                 ..Default::default()
@@ -177,7 +177,7 @@ pub fn ModalDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            Modal::success(ModalConfig {
+                            ModalApi::success(ModalConfig {
                                 title: "This is a success message".to_string(),
                                 content: "some messages...some messages...".to_string(),
                                 ..Default::default()
@@ -188,7 +188,7 @@ pub fn ModalDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            Modal::error(ModalConfig {
+                            ModalApi::error(ModalConfig {
                                 title: "This is an error message".to_string(),
                                 content: "some messages...some messages...".to_string(),
                                 ..Default::default()
@@ -199,7 +199,7 @@ pub fn ModalDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            Modal::warning(ModalConfig {
+                            ModalApi::warning(ModalConfig {
                                 title: "This is a warning message".to_string(),
                                 content: "some messages...some messages...".to_string(),
                                 ..Default::default()
@@ -220,7 +220,7 @@ pub fn ModalDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            Modal::confirm(ModalConfig {
+                            ModalApi::confirm(ModalConfig {
                                 title: "Do you Want to delete these items?".to_string(),
                                 content: "Some descriptions".to_string(),
                                 on_ok: Some(Box::new(|| {
@@ -237,7 +237,7 @@ pub fn ModalDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            Modal::confirm(ModalConfig {
+                            ModalApi::confirm(ModalConfig {
                                 title: "Do you Want to delete these items?".to_string(),
                                 content: "When clicked the OK button, this dialog will be closed after 1 second".to_string(),
                                 on_ok: Some(Box::new(|| {

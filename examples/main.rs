@@ -128,7 +128,7 @@ fn App() -> Element {
                     "App" => rsx! { AppDemo{} },
                     "Calendar" => rsx! { CalendarDemo{} },
                     "FloatButton" => rsx! { FloatButtonDemo{} },
-                    "QRCode" => rsx! { QrCodeDemo{} },
+                    "QRCode" => rsx! { QRCodeDemo{} },
                     "Segmented" => rsx! { SegmentedDemo{} },
                     "Splitter" => rsx! { SplitterDemo{} },
                     "Watermark" => rsx! { WatermarkDemo{} },
