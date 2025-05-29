@@ -722,7 +722,7 @@ impl ThemeConfig {
     }
 
     /// 生成主题色调色板
-    pub fn generate_color_palette(&self, base_color: Color, theme: Theme) -> ColorPalette {
+    pub fn generate_color_palette(&self, base_color: RgbColor, theme: Theme) -> ColorPalette {
         match theme {
             Theme::Dark => self.generate_dark_palette(base_color),
             Theme::Light => self.generate_light_palette(base_color),
@@ -732,7 +732,7 @@ impl ThemeConfig {
     }
 
     /// 生成浅色主题调色板
-    fn generate_light_palette(&self, base_color: Color) -> ColorPalette {
+    fn generate_light_palette(&self, base_color: RgbColor) -> ColorPalette {
         ColorPalette {
             base: base_color,
             light: self.lighten_color(base_color, 0.2),
@@ -743,7 +743,7 @@ impl ThemeConfig {
     }
 
     /// 生成深色主题调色板
-    fn generate_dark_palette(&self, base_color: Color) -> ColorPalette {
+    fn generate_dark_palette(&self, base_color: RgbColor) -> ColorPalette {
         ColorPalette {
             base: base_color,
             light: self.lighten_color(base_color, 0.3),
@@ -754,7 +754,7 @@ impl ThemeConfig {
     }
 
     /// 生成紧凑主题调色板
-    fn generate_compact_palette(&self, base_color: Color) -> ColorPalette {
+    fn generate_compact_palette(&self, base_color: RgbColor) -> ColorPalette {
         ColorPalette {
             base: base_color,
             light: self.lighten_color(base_color, 0.15),
@@ -765,51 +765,47 @@ impl ThemeConfig {
     }
 
     /// 调亮颜色
-    fn lighten_color(&self, color: Color, amount: f32) -> Color {
-        let (r, g, b, a) = color.to_rgba();
+    fn lighten_color(&self, color: RgbColor, amount: f32) -> RgbColor {
         let factor = 1.0 + amount;
-        Color::rgba(
-            (r as f32 * factor).min(255.0) as u8,
-            (g as f32 * factor).min(255.0) as u8,
-            (b as f32 * factor).min(255.0) as u8,
-            a,
+        RgbColor::new(
+            ((color.r as f32 * factor).min(255.0) as u8),
+            ((color.g as f32 * factor).min(255.0) as u8),
+            ((color.b as f32 * factor).min(255.0) as u8),
         )
     }
 
     /// 调暗颜色
-    fn darken_color(&self, color: Color, amount: f32) -> Color {
-        let (r, g, b, a) = color.to_rgba();
+    fn darken_color(&self, color: RgbColor, amount: f32) -> RgbColor {
         let factor = 1.0 - amount;
-        Color::rgba(
-            (r as f32 * factor).max(0.0) as u8,
-            (g as f32 * factor).max(0.0) as u8,
-            (b as f32 * factor).max(0.0) as u8,
-            a,
+        RgbColor::new(
+            ((color.r as f32 * factor).max(0.0) as u8),
+            ((color.g as f32 * factor).max(0.0) as u8),
+            ((color.b as f32 * factor).max(0.0) as u8),
         )
     }
 
     /// 创建自定义主题
-    pub fn create_custom_theme(primary_color: Color, theme_type: Theme) -> Self {
+    pub fn create_custom_theme(primary_color: RgbColor, theme_type: Theme) -> Self {
         let mut config = Self::default();
         config.colors.primary = config.generate_color_palette(primary_color, theme_type);
 
         // 根据主题类型调整其他颜色
         match theme_type {
             Theme::Dark => {
-                config.colors.text.primary = Color::rgba(255, 255, 255, 0.85);
-                config.colors.text.secondary = Color::rgba(255, 255, 255, 0.65);
-                config.colors.text.disabled = Color::rgba(255, 255, 255, 0.25);
-                config.colors.background.primary = Color::rgb(20, 20, 20);
-                config.colors.background.secondary = Color::rgb(30, 30, 30);
-                config.colors.background.container = Color::rgb(40, 40, 40);
+                config.colors.text.primary = RgbColor::new(255, 255, 255);
+                config.colors.text.secondary = RgbColor::new(191, 191, 191);
+                config.colors.text.disabled = RgbColor::new(64, 64, 64);
+                config.colors.background.primary = RgbColor::new(20, 20, 20);
+                config.colors.background.secondary = RgbColor::new(30, 30, 30);
+                config.colors.background.container = RgbColor::new(40, 40, 40);
             }
             Theme::Light => {
-                config.colors.text.primary = Color::rgba(0, 0, 0, 0.85);
-                config.colors.text.secondary = Color::rgba(0, 0, 0, 0.65);
-                config.colors.text.disabled = Color::rgba(0, 0, 0, 0.25);
-                config.colors.background.primary = Color::rgb(255, 255, 255);
-                config.colors.background.secondary = Color::rgb(250, 250, 250);
-                config.colors.background.container = Color::rgb(245, 245, 245);
+                config.colors.text.primary = RgbColor::new(0, 0, 0);
+                config.colors.text.secondary = RgbColor::new(102, 102, 102);
+                config.colors.text.disabled = RgbColor::new(191, 191, 191);
+                config.colors.background.primary = RgbColor::new(255, 255, 255);
+                config.colors.background.secondary = RgbColor::new(250, 250, 250);
+                config.colors.background.container = RgbColor::new(245, 245, 245);
             }
             Theme::Compact => {
                 // 紧凑主题使用较小的尺寸
