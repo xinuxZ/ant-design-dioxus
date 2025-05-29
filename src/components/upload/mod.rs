@@ -456,7 +456,7 @@ pub fn Upload(props: UploadProps) -> Element {
                     onclick: move |_| {
                         if !props.disabled {
                             // 触发文件选择
-                            eval("document.querySelector('.ant-upload-input').click()");
+                            let _ = eval("document.querySelector('.ant-upload-input').click()");
                         }
                     },
 
