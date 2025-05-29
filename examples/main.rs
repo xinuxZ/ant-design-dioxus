@@ -98,6 +98,9 @@ fn App() -> Element {
                     "Pagination" => rsx! { PaginationDemo {} },
                     "Rate" => rsx! { RateDemo {} },
                     "Slider" => rsx! { SliderDemo {} },
+                    "TimePicker" => rsx! { TimePickerDemo {} },
+                    "Radio" => rsx! { RadioDemo {} },
+                    "Switch" => rsx! { SwitchDemo {} },
                     _ => rsx! {
                         div {
                             style: "text-align: center; padding: 48px; color: #999;",

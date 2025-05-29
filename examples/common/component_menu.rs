@@ -17,29 +17,29 @@ pub struct ComponentMenuProps {
 #[component]
 pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
     let components = vec![
-        (
-            "通用",
-            vec!["Button", "Icon", "Typography", "TypographyComplete"],
-        ),
+        ("通用", vec!["Button", "Icon", "Typography"]),
         ("布局", vec!["Grid", "Layout", "Flex", "Space", "Divider"]),
         (
             "表单",
             vec![
+                "Form",
                 "AutoComplete",
                 "Cascader",
                 "Checkbox",
+                "ColorPicker",
                 "DatePicker",
-                "Form",
                 "Input",
                 "InputNumber",
                 "Mentions",
                 "Radio",
                 "Rate",
+                "Select",
                 "Slider",
                 "Switch",
-                "Select",
                 "TimePicker",
                 "Transfer",
+                "TreeSelect",
+                "Upload",
             ],
         ),
         (
@@ -55,16 +55,60 @@ pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
                 "Steps",
             ],
         ),
-        ("数据录入", vec![]),
+        (
+            "其他",
+            vec![
+                "App",
+                "Calendar",
+                "FloatButton",
+                "QRCode",
+                "Segmented",
+                "Splitter",
+                "Watermark",
+            ],
+        ),
         (
             "数据展示",
             vec![
-                "Avatar", "Badge", "Card", "Empty", "Table", "Tag", "Tooltip", "Tree",
+                "Avatar",
+                "Badge",
+                "Card",
+                "Carousel",
+                "Collapse",
+                "Descriptions",
+                "Empty",
+                "Image",
+                "List",
+                "Popover",
+                "Statistic",
+                "Timeline",
+                "Table",
+                "Tabs",
+                "Tag",
+                "Tooltip",
+                "Tree",
             ],
         ),
-        ("反馈", vec!["Alert", "Progress", "Spin"]),
+        (
+            "反馈",
+            vec![
+                "Alert",
+                "Progress",
+                "Spin",
+                "Drawer",
+                "Message",
+                "Modal",
+                "Notification",
+                "Popconfirm",
+                "Result",
+                "Skeleton",
+                "Tour",
+            ],
+        ),
     ];
+    /*
 
+    */
     rsx! {
         div {
             class: "component-menu",
