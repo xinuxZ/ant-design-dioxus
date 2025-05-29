@@ -31,6 +31,8 @@
 
 // 引用依赖以避免未使用警告
 #[allow(unused_imports)]
+use getrandom as _;
+#[allow(unused_imports)]
 use once_cell as _;
 #[allow(unused_imports)]
 use serde_json as _;

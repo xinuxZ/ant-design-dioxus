@@ -170,7 +170,7 @@ pub struct ModalProps {
 /// 模态对话框，在当前页面正中打开一个浮层，承载相应的操作
 #[component]
 pub fn Modal(props: ModalProps) -> Element {
-    let mut is_closing = use_signal(|| false);
+    let is_closing = use_signal(|| false);
 
     // 处理键盘事件
     use_effect(move || {

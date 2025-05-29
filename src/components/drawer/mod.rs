@@ -209,7 +209,7 @@ pub struct DrawerProps {
 /// 屏幕边缘滑出的浮层面板
 #[component]
 pub fn Drawer(props: DrawerProps) -> Element {
-    let mut is_animating = use_signal(|| false);
+    let is_animating = use_signal(|| false);
 
     // 处理键盘事件
     use_effect(move || {

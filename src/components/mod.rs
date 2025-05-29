@@ -155,11 +155,11 @@ pub mod drawer;
 pub mod message;
 pub mod modal;
 pub mod notification;
+pub mod popconfirm;
 pub mod result;
-// pub mod popconfirm;
 // pub mod progress;
 // pub mod result;
-// pub mod skeleton;
+pub mod skeleton;
 pub mod spin;
 
 // 其他组件

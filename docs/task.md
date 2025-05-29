@@ -132,9 +132,9 @@
 
 ### 8. 表单组件
 - [✅] Form 表单
-  - [ ] Form 表单容器
-  - [ ] Form.Item 表单项
-  - [ ] 表单验证系统
+  - [✅] Form 表单容器
+  - [✅] Form.Item 表单项
+  - [✅] 表单验证系统
 - [✅] AutoComplete 自动完成
 - [✅] Cascader 级联选择
 - [✅] Checkbox 多选框
@@ -165,10 +165,10 @@
 - [ ] Message 全局提示
 - [ ] Modal 对话框
 - [ ] Notification 通知提醒框
-- [ ] Popconfirm 气泡确认框
+- [✅] Popconfirm 气泡确认框
 - [✅] Progress 进度条
 - [ ] Result 结果
-- [ ] Skeleton 骨架屏
+- [✅] Skeleton 骨架屏
 - [✅] Spin 加载中
 - [ ] Tour 漫游式引导
 
