@@ -32,9 +32,40 @@
 //! ```
 
 use dioxus::prelude::*;
-use uuid::Uuid;
+use std::sync::atomic::{AtomicU64, Ordering};
+
+#[cfg(target_arch = "wasm32")]
+use js_sys;
+
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::{SystemTime, UNIX_EPOCH};
 
 const NOTIFICATION_STYLES: &str = include_str!("./style.css");
+
+/// 全局计数器，用于生成唯一ID
+static NOTIFICATION_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// 生成通知ID
+fn generate_notification_id() -> String {
+    let timestamp = get_timestamp();
+    let counter = NOTIFICATION_COUNTER.fetch_add(1, Ordering::Relaxed);
+    format!("notification_{}_{}", timestamp, counter)
+}
+
+/// 获取时间戳
+#[cfg(target_arch = "wasm32")]
+fn get_timestamp() -> u64 {
+    js_sys::Date::now() as u64
+}
+
+/// 获取时间戳（非wasm环境）
+#[cfg(not(target_arch = "wasm32"))]
+fn get_timestamp() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis() as u64
+}
 
 /// 通知类型
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -169,7 +200,7 @@ impl NotificationItem {
         description: Option<impl Into<String>>,
     ) -> Self {
         Self {
-            key: Uuid::new_v4().to_string(),
+            key: generate_notification_id(),
             notification_type,
             title: title.into(),
             description: description.map(|d| d.into()),
@@ -180,7 +211,7 @@ impl NotificationItem {
             on_click: None,
             style: None,
             class_name: None,
-            created_at: js_sys::Date::now(),
+            created_at: get_timestamp() as f64,
         }
     }
 
