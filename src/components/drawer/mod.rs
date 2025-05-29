@@ -221,7 +221,7 @@ pub fn Drawer(props: DrawerProps) -> Element {
                             // 创建一个模拟的鼠标事件
                             if let Some(window) = window() {
                                 // dyn_into 在 JsCate 中是 dyn_into 方法，用于将一个动态类型转换为指定的类型
-                                if let Some(mouse_event) = window
+                                if let Some(_mouse_event) = window
                                     .document()
                                     .and_then(|doc| doc.create_event("MouseEvent").ok())
                                     .and_then(|event| event.dyn_into::<web_sys::MouseEvent>().ok())

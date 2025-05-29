@@ -125,15 +125,15 @@ pub fn TreeDemo() -> Element {
         ]
     });
 
-    let expanded_keys = use_signal(|| {
+    let _expanded_keys = use_signal(|| {
         vec![
             "0-0".to_string(),
             "0-0-0".to_string(),
             "0-0-0-0".to_string(),
         ]
     });
-    let selected_keys = use_signal(|| vec!["0-0-0-0".to_string()]);
-    let checked_keys = use_signal(|| vec!["0-0-0-0".to_string()]);
+    let _selected_keys = use_signal(|| vec!["0-0-0-0".to_string()]);
+    let _checked_keys = use_signal(|| vec!["0-0-0-0".to_string()]);
 
     rsx! {
         div { class: "tree-demo",
