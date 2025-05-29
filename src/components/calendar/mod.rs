@@ -2,6 +2,8 @@ use chrono::{Datelike, Duration, NaiveDate, Weekday};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
+const CALENDAR_STYLE: &str = include_str!("./style.css");
+
 /// Calendar mode
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CalendarMode {
@@ -259,6 +261,8 @@ pub fn Calendar(props: CalendarProps) -> Element {
     };
 
     rsx! {
+        style { {CALENDAR_STYLE} }
+
         div {
             class: "{class_name}",
             id: props.id,

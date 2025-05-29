@@ -1,5 +1,7 @@
 use dioxus::prelude::*;
 
+const TREE_SELECT_STYLE: &str = include_str!("./style.css");
+
 /// Tree select size
 #[derive(Clone, Debug, PartialEq)]
 pub enum TreeSelectSize {
@@ -591,6 +593,8 @@ pub fn TreeSelect(props: TreeSelectProps) -> Element {
     };
 
     rsx! {
+        style { {TREE_SELECT_STYLE} }
+
         div {
             class: "{class_name}",
             id: props.id,

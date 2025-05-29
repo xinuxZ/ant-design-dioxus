@@ -1,5 +1,7 @@
 use dioxus::prelude::*;
 
+const COLOR_PICKER_STYLE: &str = include_str!("./style.css");
+
 /// Color format types
 #[derive(Clone, Debug, PartialEq)]
 pub enum ColorFormat {
@@ -360,6 +362,8 @@ pub fn ColorPicker(props: ColorPickerProps) -> Element {
     let presets = props.presets.clone();
 
     rsx! {
+        style { {COLOR_PICKER_STYLE} }
+
         div {
             class: "{class_name}",
             id: props.id,

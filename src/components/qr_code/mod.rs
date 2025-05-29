@@ -1,5 +1,7 @@
 use dioxus::prelude::*;
 
+const QR_CODE_STYLE: &str = include_str!("./style.css");
+
 /// QRCode 状态类型
 #[derive(Clone, PartialEq, Debug)]
 pub enum QRStatus {
@@ -269,6 +271,8 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     };
 
     rsx! {
+        style { {QR_CODE_STYLE} }
+
         div {
             class: format!("ant-qrcode-wrapper {}", class.as_deref().unwrap_or("")),
             id: id.as_deref(),

@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 
+const FLOAT_BUTTON_STYLE: &str = include_str!("./style.css");
+
 /// FloatButton type
 #[derive(Clone, Debug, PartialEq)]
 pub enum FloatButtonType {
@@ -184,6 +186,8 @@ pub fn FloatButton(props: FloatButtonProps) -> Element {
 
     let button_element = if let Some(href) = &props.href {
         rsx! {
+            style { {FLOAT_BUTTON_STYLE} }
+
             a {
                 class: "{final_class}",
                 id: props.id,
@@ -207,6 +211,8 @@ pub fn FloatButton(props: FloatButtonProps) -> Element {
         };
 
         rsx! {
+            style { {FLOAT_BUTTON_STYLE} }
+
             button {
                 class: "{final_class}",
                 id: props.id,
@@ -225,6 +231,8 @@ pub fn FloatButton(props: FloatButtonProps) -> Element {
 
     if let Some(badge) = &props.badge {
         rsx! {
+            style { {FLOAT_BUTTON_STYLE} }
+
             div {
                 class: "ant-float-btn-badge",
 

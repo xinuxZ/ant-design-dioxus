@@ -1,5 +1,7 @@
 use dioxus::prelude::*;
 
+const WATERMARK_STYLE: &str = include_str!("./style.css");
+
 /// 水印字体配置
 #[derive(Clone, PartialEq, Debug)]
 pub struct WatermarkFont {
@@ -148,6 +150,8 @@ pub fn Watermark(props: WatermarkProps) -> Element {
     });
 
     rsx! {
+        style { {WATERMARK_STYLE} }
+
             div {
                 class: format!("ant-watermark {}", class.as_deref().unwrap_or("")),
                 id: id,
