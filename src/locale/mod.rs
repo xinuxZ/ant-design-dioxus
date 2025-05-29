@@ -592,7 +592,8 @@ pub fn use_locale_switch() -> impl FnMut(Locale) {
         let is_rtl = new_locale.is_rtl();
 
         let mut config = locale_config.write();
-        *config = LocaleConfig::new(new_locale).with_messages((*config.messages).clone());
+        let messages = (*config.messages).clone();
+        *config = LocaleConfig::new(new_locale.clone()).with_messages(messages);
 
         // 更新HTML文档的语言属性
         #[cfg(target_arch = "wasm32")]
