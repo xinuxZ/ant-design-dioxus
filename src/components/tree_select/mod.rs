@@ -434,7 +434,7 @@ pub struct TreeSelectProps {
 
     /// Select callback
     #[props(default)]
-    pub on_select: Option<EventHandler<(String, TreeNodeData)>>,
+    pub on_select: Option<EventHandler<String>>,
 
     /// Tree expand callback
     #[props(default)]
@@ -456,17 +456,18 @@ pub struct TreeSelectProps {
 /// Tree select component
 #[component]
 pub fn TreeSelect(props: TreeSelectProps) -> Element {
-    let is_open = use_signal(|| props.open.unwrap_or(props.default_open));
-    let current_value = use_signal(|| props.value.clone().or_else(|| props.default_value.clone()));
-    let search_value = use_signal(|| props.search_value.clone().unwrap_or_default());
-    let expanded_keys = use_signal(|| {
+    let mut is_open = use_signal(|| props.open.unwrap_or(props.default_open));
+    let mut current_value =
+        use_signal(|| props.value.clone().or_else(|| props.default_value.clone()));
+    let mut search_value = use_signal(|| props.search_value.clone().unwrap_or_default());
+    let mut expanded_keys = use_signal(|| {
         if let Some(keys) = &props.tree_expanded_keys {
             keys.clone()
         } else {
             props.tree_default_expanded_keys.clone()
         }
     });
-    let filtered_tree_data = use_signal(|| props.tree_data.clone());
+    let mut filtered_tree_data = use_signal(|| props.tree_data.clone());
 
     let class_name = format!(
         "ant-tree-select ant-tree-select-{} ant-tree-select-{} {} {} {} {}",
@@ -502,24 +503,28 @@ pub fn TreeSelect(props: TreeSelectProps) -> Element {
         }
     };
 
-    let handle_search = move |evt: FormEvent| {
-        let value = evt.value();
-        search_value.set(value.clone());
+    let handle_search = {
+        let tree_data = props.tree_data.clone();
+        let filter_tree_node = props.filter_tree_node.clone();
+        move |evt: FormEvent| {
+            let value = evt.value();
+            search_value.set(value.clone());
 
-        // Filter tree data based on search
-        if !value.is_empty() {
-            let filtered = filter_tree_data(&props.tree_data, &value, &props.filter_tree_node);
-            filtered_tree_data.set(filtered);
-        } else {
-            filtered_tree_data.set(props.tree_data.clone());
-        }
+            // Filter tree data based on search
+            if !value.is_empty() {
+                let filtered = filter_tree_data(&tree_data, &value, &filter_tree_node);
+                filtered_tree_data.set(filtered);
+            } else {
+                filtered_tree_data.set(tree_data.clone());
+            }
 
-        if let Some(on_search) = &props.on_search {
-            on_search.call(value);
+            if let Some(on_search) = &props.on_search {
+                on_search.call(value);
+            }
         }
     };
 
-    let handle_node_select = move |node_value: String, node_data: TreeNodeData| {
+    let handle_node_select = move |node_value: String| {
         if props.multiple {
             // Handle multiple selection
             let mut new_values = match current_value.read().as_ref() {
@@ -555,7 +560,7 @@ pub fn TreeSelect(props: TreeSelectProps) -> Element {
         }
 
         if let Some(on_select) = &props.on_select {
-            on_select.call((node_value, node_data));
+            on_select.call(node_value);
         }
     };
 
@@ -758,7 +763,7 @@ fn TreeSelectTree(
     show_icon: bool,
     show_line: bool,
     switcher_icon: Option<Element>,
-    on_select: EventHandler<(String, TreeNodeData)>,
+    on_select: EventHandler<String>,
     on_expand: EventHandler<String>,
 ) -> Element {
     let is_selected = |node_value: &str| -> bool {
@@ -802,7 +807,7 @@ fn TreeSelectNode(
     show_icon: bool,
     show_line: bool,
     switcher_icon: Option<Element>,
-    on_select: EventHandler<(String, TreeNodeData)>,
+    on_select: EventHandler<String>,
     on_expand: EventHandler<String>,
 ) -> Element {
     let has_children = node.children.as_ref().map_or(false, |c| !c.is_empty());
@@ -811,7 +816,7 @@ fn TreeSelectNode(
 
     let handle_title_click = move |_evt: MouseEvent| {
         if !node_clone.disabled.unwrap_or(false) {
-            on_select.call((node_clone.value.clone(), node_clone.clone()));
+            on_select.call(node_clone.value.clone());
         }
     };
 

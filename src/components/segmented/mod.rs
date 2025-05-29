@@ -150,11 +150,11 @@ pub fn Segmented(props: SegmentedProps) -> Element {
 
     // Update selected value when props.value changes
     use_effect({
-        let selected_value = selected_value.clone();
+        let mut selected_value = selected_value.clone();
         let value = props.value.clone();
         move || {
-            if let Some(value) = value {
-                selected_value.set(value);
+            if let Some(value) = &value {
+                selected_value.set(value.clone());
             }
         }
     });
@@ -238,7 +238,7 @@ fn render_segmented_item(
     global_disabled: bool,
     name: Option<&str>,
     index: usize,
-    on_click: impl Fn(String) + Copy + 'static,
+    mut on_click: impl FnMut(String) + 'static,
 ) -> Element {
     let (value, label, icon, disabled, class_name) = match option {
         SegmentedOption::String(s) => (s.clone(), Some(rsx! { "{s}" }), None, false, None),

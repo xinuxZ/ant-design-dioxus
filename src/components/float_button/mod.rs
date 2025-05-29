@@ -448,14 +448,14 @@ pub struct FloatButtonBackTopProps {
 /// FloatButton BackTop component
 #[component]
 pub fn FloatButtonBackTop(props: FloatButtonBackTopProps) -> Element {
-    let mut is_visible = use_signal(|| false);
+    let is_visible = use_signal(|| false);
 
     // Check scroll position to show/hide button
     use_effect(move || {
-        let is_visible_clone = is_visible.clone();
+        let mut is_visible_clone = is_visible.clone();
         let visibility_height = props.visibility_height;
 
-        let check_scroll = move || {
+        let mut check_scroll = move || {
             if let Some(window) = web_sys::window() {
                 let scroll_y = window.scroll_y().unwrap_or(0.0);
                 is_visible_clone.set(scroll_y >= visibility_height as f64);
@@ -467,13 +467,13 @@ pub fn FloatButtonBackTop(props: FloatButtonBackTopProps) -> Element {
 
         // Add scroll listener
         if let Some(window) = web_sys::window() {
-            let is_visible_clone2 = is_visible_clone.clone();
+            let mut is_visible_clone2 = is_visible_clone.clone();
             let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move || {
                 if let Some(window) = web_sys::window() {
                     let scroll_y = window.scroll_y().unwrap_or(0.0);
                     is_visible_clone2.set(scroll_y >= visibility_height as f64);
                 }
-            }) as Box<dyn Fn()>);
+            }) as Box<dyn FnMut()>);
 
             let _ =
                 window.add_event_listener_with_callback("scroll", closure.as_ref().unchecked_ref());
@@ -484,7 +484,7 @@ pub fn FloatButtonBackTop(props: FloatButtonBackTopProps) -> Element {
     let handle_click = move |evt: MouseEvent| {
         // Scroll to top with smooth behavior
         if let Some(window) = web_sys::window() {
-            let mut options = web_sys::ScrollToOptions::new();
+            let options = web_sys::ScrollToOptions::new();
             options.set_top(0.0);
             options.set_behavior(web_sys::ScrollBehavior::Smooth);
             window.scroll_to_with_scroll_to_options(&options);
