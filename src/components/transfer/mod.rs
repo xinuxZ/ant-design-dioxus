@@ -509,10 +509,11 @@ fn TransferList(props: TransferListProps) -> Element {
     let selected_keys_set: HashSet<String> = props.selected_keys.iter().cloned().collect();
 
     // 计算全选状态
-    let selectable_items: Vec<&TransferItem> = props
+    let selectable_items: Vec<TransferItem> = props
         .data_source
         .iter()
         .filter(|item| !item.disabled)
+        .cloned()
         .collect();
     let selected_count = selectable_items
         .iter()
@@ -524,49 +525,59 @@ fn TransferList(props: TransferListProps) -> Element {
     let is_indeterminate = selected_count > 0 && selected_count < total_count;
 
     // 处理全选
-    let handle_select_all = Callback::new(move |checked: bool| {
-        if !props.disabled {
-            let new_keys = if checked {
-                let mut keys = props.selected_keys.clone();
-                for item in &selectable_items {
-                    if !keys.contains(&item.key) {
-                        keys.push(item.key.clone());
+    let handle_select_all = {
+        let selected_keys = props.selected_keys.clone();
+        let disabled = props.disabled;
+        let on_select_change = props.on_select_change.clone();
+        let selectable_items = selectable_items.clone();
+        Callback::new(move |checked: bool| {
+            if !disabled {
+                let new_keys = if checked {
+                    let mut keys = selected_keys.clone();
+                    for item in &selectable_items {
+                        if !keys.contains(&item.key) {
+                            keys.push(item.key.clone());
+                        }
                     }
-                }
-                keys
-            } else {
-                let selectable_keys: HashSet<String> = selectable_items
-                    .iter()
-                    .map(|item| item.key.clone())
-                    .collect();
-                props
-                    .selected_keys
-                    .iter()
-                    .filter(|key| !selectable_keys.contains(*key))
-                    .cloned()
-                    .collect()
-            };
+                    keys
+                } else {
+                    let selectable_keys: HashSet<String> = selectable_items
+                        .iter()
+                        .map(|item| item.key.clone())
+                        .collect();
+                    selected_keys
+                        .iter()
+                        .filter(|key| !selectable_keys.contains(*key))
+                        .cloned()
+                        .collect()
+                };
 
-            props.on_select_change.call(new_keys);
-        }
-    });
+                on_select_change.call(new_keys);
+            }
+        })
+    };
 
     // 处理单项选择
-    let handle_item_select = Callback::new(move |args: (String, bool)| {
-        let (key, checked) = args;
-        if !props.disabled {
-            let mut new_keys = props.selected_keys.clone();
-            if checked {
-                if !new_keys.contains(&key) {
-                    new_keys.push(key);
+    let handle_item_select = {
+        let selected_keys = props.selected_keys.clone();
+        let disabled = props.disabled;
+        let on_select_change = props.on_select_change.clone();
+        Callback::new(move |args: (String, bool)| {
+            let (key, checked) = args;
+            if !disabled {
+                let mut new_keys = selected_keys.clone();
+                if checked {
+                    if !new_keys.contains(&key) {
+                        new_keys.push(key);
+                    }
+                } else {
+                    new_keys.retain(|k| k != &key);
                 }
-            } else {
-                new_keys.retain(|k| k != &key);
-            }
 
-            props.on_select_change.call(new_keys);
-        }
-    });
+                on_select_change.call(new_keys);
+            }
+        })
+    };
 
     // 处理搜索输入
     let handle_search_input = move |evt: Event<FormData>| {
@@ -620,13 +631,13 @@ fn TransferList(props: TransferListProps) -> Element {
                     class: "ant-transfer-list-header-selected",
                     span { class: "ant-transfer-list-header-title", {props.title} }
                     span { class: "ant-transfer-list-header-count",
-                        {selected_count} "/" {total_count}
+                        "{selected_count}/{total_count}"
                     }
                 }
 
                 // 自定义全选标签
                 if let Some(label) = &props.select_all_label {
-                    span { class: "ant-transfer-list-header-label", {label} }
+                    span { class: "ant-transfer-list-header-label", {label.clone()} }
                 }
             }
 
