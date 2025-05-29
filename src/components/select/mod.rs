@@ -404,12 +404,15 @@ pub fn Select(props: SelectProps) -> Element {
 
                                     span {
                                         class: "ant-select-selection-item-remove",
-                                        onclick: move |_| {
-                                            let mut current_values = selected_values();
-                                            current_values.retain(|v| v != &value);
-                                            selected_values.set(current_values.clone());
-                                            if let Some(on_change_multiple) = &props.on_change_multiple {
-                                                on_change_multiple.call(current_values);
+                                        onclick: {
+                                            let value_clone = value.clone();
+                                            move |_| {
+                                                let mut current_values = selected_values();
+                                                current_values.retain(|v| v != &value_clone);
+                                                selected_values.set(current_values.clone());
+                                                if let Some(on_change_multiple) = &props.on_change_multiple {
+                                                    on_change_multiple.call(current_values);
+                                                }
                                             }
                                         },
                                         "×"

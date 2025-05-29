@@ -298,7 +298,8 @@ pub fn CheckboxGroup(props: CheckboxGroupProps) -> Element {
     };
 
     let current_value01 = current_value.clone();
-    let handle_checkbox_change = move |option_value: String, checked: bool| {
+    let handle_checkbox_change = Callback::new(move |args: (String, bool)| {
+        let (option_value, checked) = args;
         if !props.disabled {
             let mut new_value = current_value01.clone();
 
@@ -315,7 +316,7 @@ pub fn CheckboxGroup(props: CheckboxGroupProps) -> Element {
                 on_change.call(new_value);
             }
         }
-    };
+    });
 
     let group_class = {
         let mut classes = vec!["ant-checkbox-group"];
@@ -336,7 +337,6 @@ pub fn CheckboxGroup(props: CheckboxGroupProps) -> Element {
         classes.join(" ")
     };
 
-    let value = handle_checkbox_change;
     rsx! {
         div {
             class: group_class,
@@ -353,8 +353,8 @@ pub fn CheckboxGroup(props: CheckboxGroupProps) -> Element {
                         value: option.value.clone(),
                         on_change: {
                             let option_value = option.value.clone();
-                            let mut value_fn = value.clone();
-                            move |checked| value_fn(option_value.clone(), checked)
+                            let handle_change = handle_checkbox_change.clone();
+                            move |checked| handle_change.call((option_value.clone(), checked))
                         },
                         label {
                             class: "ant-checkbox-wrapper",

@@ -29,7 +29,6 @@ pub use breadcrumb::*;
 pub use button::*;
 pub use card::*;
 pub use carousel::*;
-pub use checkbox::*;
 pub use collapse::*;
 pub use descriptions::*;
 pub use divider::*;
@@ -57,11 +56,8 @@ pub use typography::*;
 pub mod alert;
 pub use alert::*;
 
-pub mod checkbox;
 pub mod progress;
 pub use progress::*;
-
-pub mod select;
 
 // 组件模块声明（后续逐步实现）
 
@@ -95,7 +91,8 @@ pub mod auto_complete;
 pub use auto_complete::*;
 pub mod cascader;
 pub use cascader::*;
-// pub mod checkbox;
+pub mod checkbox;
+pub use checkbox::*;
 pub mod date_picker;
 pub use date_picker::*;
 pub mod form;
@@ -106,17 +103,23 @@ pub mod input_number;
 pub use input_number::*;
 pub mod mentions;
 pub use mentions::*;
-// pub mod radio;
+pub mod radio;
+pub use radio::*;
 pub mod rate;
 pub use rate::*;
-// pub mod select;
+pub mod select;
 pub mod slider;
 pub use slider::*;
-// pub mod switch;
-// pub mod time_picker;
-// pub mod transfer;
-// pub mod tree_select;
-// pub mod upload;
+pub mod switch;
+pub use switch::*;
+pub use time_picker::*;
+pub use transfer::*;
+pub use tree_select::*;
+pub use upload::*;
+pub mod time_picker;
+pub mod transfer;
+pub mod tree_select;
+pub mod upload;
 
 // 数据展示
 pub mod avatar;
