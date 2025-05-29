@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 pub fn BackTopDemo() -> Element {
     let mut visibility_height = use_signal(|| 400);
     let mut click_count = use_signal(|| 0);
-    let mut scroll_position = use_signal(|| 0);
+    let scroll_position = use_signal(|| 0);
 
     rsx! {
         div {

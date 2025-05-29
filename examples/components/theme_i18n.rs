@@ -14,29 +14,22 @@ use ant_design_dioxus::{
         use_locale_name, use_locale_switch, use_number_format, use_relative_time_format,
         use_time_format, use_translate, Locale, LocaleConfig, LocaleProvider,
     },
-    theme::{
-        use_theme, use_theme_switch, use_theme_token, ColorTheme, Theme, ThemeConfig, ThemeProvider,
-    },
+    theme::{use_theme, use_theme_switch, use_theme_token, ThemeConfig, ThemeProvider},
 };
-use chrono::{DateTime, Local};
+use chrono::Local;
 use dioxus::prelude::*;
-use std::collections::HashMap;
-
-fn main() {
-    dioxus::launch(App);
-}
 
 #[component]
-fn App() -> Element {
+fn ThemeI18nDemo() -> Element {
     // 初始化主题配置
     let theme_config = use_signal(|| ThemeConfig::light());
     let locale_config = use_signal(|| LocaleConfig::new(Locale::ZhCN));
 
     rsx! {
         ThemeProvider {
-            config: theme_config,
+            // config: theme_config,
             LocaleProvider {
-                config: locale_config,
+                config: locale_config(),
                 div {
                     class: "demo-container",
                     style: "padding: 24px; min-height: 100vh;",
@@ -85,7 +78,7 @@ fn ControlPanel() -> Element {
             // 主题切换
             div {
                 class: "theme-controls",
-                h3 { "{translate(\"theme\")}": "主题切换" }
+                h3 { "主题切换" }
                 div {
                     style: "display: flex; gap: 8px;",
                     button {
@@ -135,12 +128,13 @@ fn ControlPanel() -> Element {
 
 #[component]
 fn ThemeDemo() -> Element {
-    let theme = use_theme();
-    let primary_color = use_theme_token("color-primary");
-    let success_color = use_theme_token("color-success");
-    let warning_color = use_theme_token("color-warning");
-    let error_color = use_theme_token("color-error");
-    let translate = use_translate();
+    let _theme = use_theme();
+    let theme_token = use_theme_token();
+    let primary_color = theme_token("color-primary").unwrap_or_default();
+    let success_color = theme_token("color-success").unwrap_or_default();
+    let warning_color = theme_token("color-warning").unwrap_or_default();
+    let error_color = theme_token("color-error").unwrap_or_default();
+    let _translate = use_translate();
 
     rsx! {
         div {
@@ -218,6 +212,29 @@ fn I18nDemo() -> Element {
     let is_rtl = use_is_rtl();
     let locale_code = use_locale_code();
 
+    // 预先计算所有翻译文本
+    let ok_text = translate("ok");
+    let cancel_text = translate("cancel");
+    let save_text = translate("save");
+    let delete_text = translate("delete");
+    let edit_text = translate("edit");
+
+    let loading_text = translate("loading");
+    let success_text = translate("success");
+    let warning_text = translate("warning");
+    let error_text = translate("error");
+    let empty_text = translate("empty");
+
+    let required_text = translate("required");
+    let invalid_email_text = translate("invalid_email");
+    let invalid_phone_text = translate("invalid_phone");
+
+    let today_text = translate("today");
+    let yesterday_text = translate("yesterday");
+    let tomorrow_text = translate("tomorrow");
+    let this_week_text = translate("this_week");
+    let select_date_text = translate("select_date");
+
     rsx! {
         div {
             class: "i18n-demo",
@@ -236,11 +253,11 @@ fn I18nDemo() -> Element {
 
                     h4 { "基础操作" }
                     ul {
-                        li { "{translate(\"ok\")}: {translate(\"ok\")}" }
-                        li { "{translate(\"cancel\")}: {translate(\"cancel\")}" }
-                        li { "{translate(\"save\")}: {translate(\"save\")}" }
-                        li { "{translate(\"delete\")}: {translate(\"delete\")}" }
-                        li { "{translate(\"edit\")}: {translate(\"edit\")}" }
+                        li { "确定: {ok_text}" }
+                        li { "取消: {cancel_text}" }
+                        li { "保存: {save_text}" }
+                        li { "删除: {delete_text}" }
+                        li { "编辑: {edit_text}" }
                     }
                 }
 
@@ -250,11 +267,11 @@ fn I18nDemo() -> Element {
 
                     h4 { "状态信息" }
                     ul {
-                        li { "{translate(\"loading\")}: {translate(\"loading\")}" }
-                        li { "{translate(\"success\")}: {translate(\"success\")}" }
-                        li { "{translate(\"warning\")}: {translate(\"warning\")}" }
-                        li { "{translate(\"error\")}: {translate(\"error\")}" }
-                        li { "{translate(\"empty\")}: {translate(\"empty\")}" }
+                        li { "加载中: {loading_text}" }
+                        li { "成功: {success_text}" }
+                        li { "警告: {warning_text}" }
+                        li { "错误: {error_text}" }
+                        li { "空数据: {empty_text}" }
                     }
                 }
 
@@ -264,9 +281,9 @@ fn I18nDemo() -> Element {
 
                     h4 { "表单验证" }
                     ul {
-                        li { "{translate(\"required\")}: {translate(\"required\")}" }
-                        li { "{translate(\"invalid_email\")}: {translate(\"invalid_email\")}" }
-                        li { "{translate(\"invalid_phone\")}: {translate(\"invalid_phone\")}" }
+                        li { "必填项: {required_text}" }
+                        li { "邮箱格式错误: {invalid_email_text}" }
+                        li { "手机号格式错误: {invalid_phone_text}" }
                     }
                 }
 
@@ -276,11 +293,11 @@ fn I18nDemo() -> Element {
 
                     h4 { "日期时间" }
                     ul {
-                        li { "{translate(\"today\")}: {translate(\"today\")}" }
-                        li { "{translate(\"yesterday\")}: {translate(\"yesterday\")}" }
-                        li { "{translate(\"tomorrow\")}: {translate(\"tomorrow\")}" }
-                        li { "{translate(\"this_week\")}: {translate(\"this_week\")}" }
-                        li { "{translate(\"select_date\")}: {translate(\"select_date\")}" }
+                        li { "今天: {today_text}" }
+                        li { "昨天: {yesterday_text}" }
+                        li { "明天: {tomorrow_text}" }
+                        li { "本周: {this_week_text}" }
+                        li { "选择日期: {select_date_text}" }
                     }
                 }
             }
@@ -299,6 +316,15 @@ fn DateTimeDemo() -> Element {
     let yesterday = now - chrono::Duration::days(1);
     let last_week = now - chrono::Duration::weeks(1);
     let last_month = now - chrono::Duration::days(30);
+
+    // 预先计算格式化结果
+    let now_datetime = datetime_format(&now);
+    let now_date = date_format(&now);
+    let now_time = time_format(&now);
+    let now_relative = relative_time_format(&now);
+    let yesterday_relative = relative_time_format(&yesterday);
+    let last_week_relative = relative_time_format(&last_week);
+    let last_month_relative = relative_time_format(&last_month);
 
     rsx! {
         div {

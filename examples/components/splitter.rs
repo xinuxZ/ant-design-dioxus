@@ -13,20 +13,8 @@ pub fn SplitterDemo() -> Element {
             DemoSection {
                 title: "基本使用",
                 description: "最简单的分割面板。",
-                code: r#"rsx! {
-    Splitter {
-        style: "height: 200px; border: 1px solid #d9d9d9;",
-        div {
-            style: "padding: 16px; background: #f5f5f5;",
-            "左侧面板"
-        }
-        div {
-            style: "padding: 16px; background: #fafafa;",
-            "右侧面板"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Splitter {
                         style: "height: 200px; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
                         div {
@@ -44,21 +32,8 @@ pub fn SplitterDemo() -> Element {
             DemoSection {
                 title: "垂直分割",
                 description: "垂直方向的分割面板。",
-                code: r#"rsx! {
-    Splitter {
-        class: "splitter-vertical",
-        style: "height: 300px; border: 1px solid #d9d9d9;",
-        div {
-            style: "padding: 16px; background: #e6f4ff;",
-            "上方面板"
-        }
-        div {
-            style: "padding: 16px; background: #f6ffed;",
-            "下方面板"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Splitter {
                         class: "splitter-vertical",
                         style: "height: 300px; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
@@ -77,15 +52,8 @@ pub fn SplitterDemo() -> Element {
             DemoSection {
                 title: "多面板分割",
                 description: "支持多个面板的分割。",
-                code: r#"rsx! {
-    Splitter {
-        style: "height: 200px; border: 1px solid #d9d9d9;",
-        div { style: "padding: 16px; background: #fff1f0;", "面板 1" }
-        div { style: "padding: 16px; background: #f6ffed;", "面板 2" }
-        div { style: "padding: 16px; background: #e6f4ff;", "面板 3" }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Splitter {
                         style: "height: 200px; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
                         div {
@@ -107,21 +75,8 @@ pub fn SplitterDemo() -> Element {
             DemoSection {
                 title: "可折叠面板",
                 description: "支持面板的折叠和展开。",
-                code: r#"rsx! {
-    Splitter {
-        class: "splitter-collapsible",
-        style: "height: 200px; border: 1px solid #d9d9d9;",
-        div {
-            style: "padding: 16px; background: #f0f2f5;",
-            "可折叠的左侧面板"
-        }
-        div {
-            style: "padding: 16px; background: #ffffff;",
-            "主要内容区域"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Splitter {
                         class: "splitter-collapsible",
                         style: "height: 200px; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",

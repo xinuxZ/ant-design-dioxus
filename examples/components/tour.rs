@@ -13,15 +13,8 @@ pub fn TourDemo() -> Element {
             DemoSection {
                 title: "基本使用",
                 description: "最简单的用法。",
-                code: r#"rsx! {
-    div {
-        button { id: "tour-target-1", "开始引导" }
-        Tour {
-            // 基本引导
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; padding: 24px;",
                         button {
                             id: "tour-target-1",
@@ -47,16 +40,7 @@ pub fn TourDemo() -> Element {
             DemoSection {
                 title: "自定义样式",
                 description: "可以自定义引导框的样式。",
-                code: r#"rsx! {
-    div {
-        button { id: "tour-target-2", "功能按钮" }
-        Tour {
-            class: "custom-tour",
-            style: "background: #f6ffed; border: 1px solid #b7eb8f;"
-        }
-    }
-}"#,
-                demo: rsx! {
+                div {
                     div { style: "position: relative; padding: 24px;",
                         button {
                             id: "tour-target-2",
@@ -81,19 +65,8 @@ pub fn TourDemo() -> Element {
             DemoSection {
                 title: "多步骤引导",
                 description: "支持多个步骤的引导流程。",
-                code: r#"rsx! {
-    div {
-        div { style: "display: flex; gap: 16px;",
-            button { id: "step-1", "步骤1" }
-            button { id: "step-2", "步骤2" }
-            button { id: "step-3", "步骤3" }
-        }
-        Tour {
-            class: "multi-step-tour"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; padding: 24px;",
                         div { style: "display: flex; gap: 16px; margin-bottom: 20px;",
                             button {
@@ -137,16 +110,8 @@ pub fn TourDemo() -> Element {
             DemoSection {
                 title: "带遮罩的引导",
                 description: "可以添加遮罩层突出引导目标。",
-                code: r#"rsx! {
-    div {
-        button { id: "tour-target-mask", "重要功能" }
-        Tour {
-            class: "tour-with-mask",
-            style: "position: relative; z-index: 1001;"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; padding: 24px; background: rgba(0,0,0,0.05); border-radius: 8px;",
                         button {
                             id: "tour-target-mask",

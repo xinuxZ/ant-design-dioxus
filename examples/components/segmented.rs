@@ -13,12 +13,8 @@ pub fn SegmentedDemo() -> Element {
             DemoSection {
                 title: "基本使用",
                 description: "最简单的用法。",
-                code: r#"rsx! {
-    Segmented {
-        options: vec!["Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Segmented {
                         class: "demo-segmented",
                         style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
@@ -36,17 +32,8 @@ pub fn SegmentedDemo() -> Element {
             DemoSection {
                 title: "带图标的选项",
                 description: "为选项添加图标。",
-                code: r#"rsx! {
-    Segmented {
-        class: "segmented-with-icons",
-        options: vec![
-            { icon: "📊", label: "List" },
-            { icon: "🗂️", label: "Kanban" },
-            { icon: "📅", label: "Calendar" }
-        ]
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Segmented {
                         class: "segmented-with-icons",
                         style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
@@ -74,14 +61,7 @@ pub fn SegmentedDemo() -> Element {
             DemoSection {
                 title: "不同尺寸",
                 description: "三种尺寸的分段控制器。",
-                code: r#"rsx! {
-    div { style: "display: flex; flex-direction: column; gap: 16px;",
-        Segmented { class: "segmented-large", options: vec!["Large", "Size"] }
-        Segmented { class: "segmented-default", options: vec!["Default", "Size"] }
-        Segmented { class: "segmented-small", options: vec!["Small", "Size"] }
-    }
-}"#,
-                demo: rsx! {
+                div {
                     div { style: "display: flex; flex-direction: column; gap: 16px;",
                         Segmented {
                             class: "segmented-large",
@@ -114,14 +94,8 @@ pub fn SegmentedDemo() -> Element {
             DemoSection {
                 title: "禁用状态",
                 description: "禁用状态的分段控制器。",
-                code: r#"rsx! {
-    Segmented {
-        class: "segmented-disabled",
-        disabled: true,
-        options: vec!["Disabled", "Segmented"]
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Segmented {
                         class: "segmented-disabled",
                         style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex; opacity: 0.6;",
@@ -136,13 +110,8 @@ pub fn SegmentedDemo() -> Element {
             DemoSection {
                 title: "动态数据",
                 description: "动态改变选项数据。",
-                code: r#"rsx! {
-    Segmented {
-        class: "segmented-dynamic",
-        options: vec!["Option 1", "Option 2", "Option 3", "Option 4"]
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Segmented {
                         class: "segmented-dynamic",
                         style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",

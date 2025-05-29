@@ -27,6 +27,26 @@
 - 动画和过渡效果
 
 ## 第三步： 为每个组件添加基础使用示例
+card
+carousel
+collapse
+descriptions
+image
+list
+message
+modal
+notification
+popconfirm
+popover
+result
+skeleton
+statistic
+steps
+tabs
+timeline
+transfer
+upload
+
 
 ## 第四步： 对比已经实现的组件是否完整复刻了ant-design的组件功能
 

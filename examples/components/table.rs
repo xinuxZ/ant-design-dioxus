@@ -189,7 +189,6 @@ pub fn TableDemo() -> Element {
                         columns: columns.clone(),
                         // data_source: data.read().clone(),
                         size: TableSize::Default,
-                        striped: false,
                         loading: false,
                         scroll_x: None,
                         scroll_y: None,
@@ -210,11 +209,11 @@ pub fn TableDemo() -> Element {
                             total: 50,
                             show_size_changer: true,
                             show_quick_jumper: true,
-                            show_total: true,
-                            on_change: move |page: u32, size: u32| {
-                                current_page.set(page);
-                                page_size.set(size);
-                            },
+                            page_size_options: vec!["10条".to_string(), "20条".to_string()],
+                            // on_change: move |page: u32, size: u32| {
+                            //     current_page.set(page.try_into().unwrap());
+                            //     page_size.set(size);
+                            // },
                         }),
                     }
                 }
@@ -233,7 +232,6 @@ pub fn TableDemo() -> Element {
                             columns: columns.clone(),
                             // data_source: data.read().clone(),
                             size: TableSize::Middle,
-                            hover: true,
                             striped: false,
                             loading: false,
                             scroll_x: None,
@@ -252,7 +250,6 @@ pub fn TableDemo() -> Element {
                             columns: columns.clone(),
                             // data_source: data.read().clone(),
                             size: TableSize::Small,
-                            hover: true,
                             striped: false,
                             loading: false,
                             scroll_x: None,

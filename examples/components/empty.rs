@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 
 /// Empty 组件演示
 #[component]
-pub fn EmptyExample() -> Element {
+pub fn EmptyDemo() -> Element {
     rsx! {
         div {
             style: "padding: 24px;",

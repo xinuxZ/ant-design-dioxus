@@ -13,16 +13,8 @@ pub fn WatermarkDemo() -> Element {
             DemoSection {
                 title: "基本使用",
                 description: "最简单的用法。",
-                code: r#"rsx! {
-    Watermark {
-        content: "Ant Design",
-        div {
-            style: "height: 200px; padding: 24px;",
-            "这里是内容区域"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Watermark {
                         class: "demo-watermark",
                         style: "position: relative; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
@@ -38,16 +30,8 @@ pub fn WatermarkDemo() -> Element {
             DemoSection {
                 title: "多行水印",
                 description: "通过设置多行文本作为水印内容。",
-                code: r#"rsx! {
-    Watermark {
-        content: "Ant Design\nDioxus UI",
-        div {
-            style: "height: 200px; padding: 24px;",
-            "多行水印内容"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Watermark {
                         class: "watermark-multiline",
                         style: "position: relative; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
@@ -63,16 +47,8 @@ pub fn WatermarkDemo() -> Element {
             DemoSection {
                 title: "图片水印",
                 description: "使用图片作为水印。",
-                code: r#"rsx! {
-    Watermark {
-        class: "watermark-image",
-        div {
-            style: "height: 200px; padding: 24px;",
-            "图片水印示例"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Watermark {
                         class: "watermark-image",
                         style: "position: relative; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
@@ -87,17 +63,8 @@ pub fn WatermarkDemo() -> Element {
             DemoSection {
                 title: "自定义配置",
                 description: "自定义水印的样式配置。",
-                code: r#"rsx! {
-    Watermark {
-        class: "watermark-custom",
-        content: "Custom Style",
-        div {
-            style: "height: 200px; padding: 24px;",
-            "自定义样式水印"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Watermark {
                         class: "watermark-custom",
                         style: "position: relative; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
@@ -113,17 +80,8 @@ pub fn WatermarkDemo() -> Element {
             DemoSection {
                 title: "全屏水印",
                 description: "覆盖整个页面的水印。",
-                code: r#"rsx! {
-    Watermark {
-        class: "watermark-fullscreen",
-        content: "Full Screen",
-        div {
-            style: "height: 300px; padding: 24px;",
-            "全屏水印内容区域"
-        }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     Watermark {
                         class: "watermark-fullscreen",
                         style: "position: relative; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
@@ -140,22 +98,8 @@ pub fn WatermarkDemo() -> Element {
             DemoSection {
                 title: "互相嵌套",
                 description: "水印组件可以互相嵌套使用。",
-                code: r#"rsx! {
-    Watermark {
-        content: "Outer Watermark",
-        div {
-            style: "padding: 24px;",
-            Watermark {
-                content: "Inner Watermark",
+
                 div {
-                    style: "height: 150px; padding: 16px;",
-                    "嵌套水印内容"
-                }
-            }
-        }
-    }
-}"#,
-                demo: rsx! {
                     Watermark {
                         class: "watermark-outer",
                         style: "position: relative; border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;",
