@@ -420,7 +420,7 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
     let icon = props.icon_type.as_deref().unwrap_or("?");
 
     rsx! {
-        Modal {
+        crate::components::modal::Modal {
             open: props.open,
             title: props.title.clone(),
             width: Some("416px".to_string()),
@@ -443,5 +443,250 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
                 }
             }
         }
+    }
+}
+
+// ============ 全局 Modal API 支持 ============
+
+use once_cell::sync::Lazy;
+use std::sync::RwLock;
+
+/// Modal 类型
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ModalType {
+    /// 信息
+    Info,
+    /// 成功
+    Success,
+    /// 警告
+    Warning,
+    /// 错误
+    Error,
+    /// 确认
+    Confirm,
+}
+
+/// Modal 配置
+pub struct ModalConfig {
+    /// 标题
+    pub title: String,
+    /// 内容
+    pub content: String,
+    /// 确认按钮文本
+    pub ok_text: Option<String>,
+    /// 取消按钮文本
+    pub cancel_text: Option<String>,
+    /// 宽度
+    pub width: Option<String>,
+    /// 高度
+    pub height: Option<String>,
+    /// 是否居中
+    pub centered: Option<bool>,
+    /// 是否显示关闭按钮
+    pub closable: Option<bool>,
+    /// 点击蒙层是否关闭
+    pub mask_closable: Option<bool>,
+    /// Modal 类型
+    pub modal_type: ModalType,
+    /// 确认回调
+    pub on_ok: Option<Box<dyn Fn() + Send + Sync>>,
+    /// 取消回调
+    pub on_cancel: Option<Box<dyn Fn() + Send + Sync>>,
+}
+
+impl std::fmt::Debug for ModalConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ModalConfig")
+            .field("title", &self.title)
+            .field("content", &self.content)
+            .field("ok_text", &self.ok_text)
+            .field("cancel_text", &self.cancel_text)
+            .field("width", &self.width)
+            .field("height", &self.height)
+            .field("centered", &self.centered)
+            .field("closable", &self.closable)
+            .field("mask_closable", &self.mask_closable)
+            .field("modal_type", &self.modal_type)
+            .field("on_ok", &self.on_ok.is_some())
+            .field("on_cancel", &self.on_cancel.is_some())
+            .finish()
+    }
+}
+
+impl Clone for ModalConfig {
+    fn clone(&self) -> Self {
+        Self {
+            title: self.title.clone(),
+            content: self.content.clone(),
+            ok_text: self.ok_text.clone(),
+            cancel_text: self.cancel_text.clone(),
+            width: self.width.clone(),
+            height: self.height.clone(),
+            centered: self.centered,
+            closable: self.closable,
+            mask_closable: self.mask_closable,
+            modal_type: self.modal_type.clone(),
+            on_ok: None,     // 函数指针不能克隆，设为None
+            on_cancel: None, // 函数指针不能克隆，设为None
+        }
+    }
+}
+
+impl Default for ModalConfig {
+    fn default() -> Self {
+        Self {
+            title: String::new(),
+            content: String::new(),
+            ok_text: None,
+            cancel_text: None,
+            width: None,
+            height: None,
+            centered: None,
+            closable: None,
+            mask_closable: None,
+            modal_type: ModalType::Info,
+            on_ok: None,
+            on_cancel: None,
+        }
+    }
+}
+
+/// Modal 实例
+#[derive(Debug, Clone)]
+pub struct ModalInstance {
+    /// 配置
+    pub config: ModalConfig,
+    /// 是否显示
+    pub visible: bool,
+    /// 唯一标识
+    pub key: String,
+}
+
+impl ModalInstance {
+    /// 创建新的 Modal 实例
+    pub fn new(config: ModalConfig) -> Self {
+        Self {
+            config,
+            visible: true,
+            key: format!("modal_{}", chrono::Utc::now().timestamp_millis()),
+        }
+    }
+}
+
+/// Modal 管理器
+#[derive(Debug)]
+pub struct ModalManager {
+    /// 当前显示的 Modal
+    current_modal: RwLock<Option<ModalInstance>>,
+}
+
+impl ModalManager {
+    /// 创建新的管理器
+    pub fn new() -> Self {
+        Self {
+            current_modal: RwLock::new(None),
+        }
+    }
+
+    /// 显示信息 Modal
+    pub fn info(&self, config: ModalConfig) {
+        let mut modal_config = config;
+        modal_config.modal_type = ModalType::Info;
+        self.show_modal(modal_config);
+    }
+
+    /// 显示成功 Modal
+    pub fn success(&self, config: ModalConfig) {
+        let mut modal_config = config;
+        modal_config.modal_type = ModalType::Success;
+        self.show_modal(modal_config);
+    }
+
+    /// 显示警告 Modal
+    pub fn warning(&self, config: ModalConfig) {
+        let mut modal_config = config;
+        modal_config.modal_type = ModalType::Warning;
+        self.show_modal(modal_config);
+    }
+
+    /// 显示错误 Modal
+    pub fn error(&self, config: ModalConfig) {
+        let mut modal_config = config;
+        modal_config.modal_type = ModalType::Error;
+        self.show_modal(modal_config);
+    }
+
+    /// 显示确认 Modal
+    pub fn confirm(&self, config: ModalConfig) {
+        let mut modal_config = config;
+        modal_config.modal_type = ModalType::Confirm;
+        self.show_modal(modal_config);
+    }
+
+    /// 显示 Modal
+    fn show_modal(&self, config: ModalConfig) {
+        let instance = ModalInstance::new(config);
+        if let Ok(mut current) = self.current_modal.write() {
+            *current = Some(instance);
+        }
+    }
+
+    /// 关闭当前 Modal
+    pub fn close(&self) {
+        if let Ok(mut current) = self.current_modal.write() {
+            *current = None;
+        }
+    }
+
+    /// 获取当前 Modal
+    pub fn get_current(&self) -> Option<ModalInstance> {
+        if let Ok(current) = self.current_modal.read() {
+            current.clone()
+        } else {
+            None
+        }
+    }
+}
+
+// 全局 Modal 管理器实例
+static GLOBAL_MODAL: Lazy<ModalManager> = Lazy::new(|| ModalManager::new());
+
+/// Modal 静态方法结构体
+pub struct ModalApi;
+
+impl ModalApi {
+    /// 显示信息 Modal
+    pub fn info(config: ModalConfig) {
+        GLOBAL_MODAL.info(config);
+    }
+
+    /// 显示成功 Modal
+    pub fn success(config: ModalConfig) {
+        GLOBAL_MODAL.success(config);
+    }
+
+    /// 显示警告 Modal
+    pub fn warning(config: ModalConfig) {
+        GLOBAL_MODAL.warning(config);
+    }
+
+    /// 显示错误 Modal
+    pub fn error(config: ModalConfig) {
+        GLOBAL_MODAL.error(config);
+    }
+
+    /// 显示确认 Modal
+    pub fn confirm(config: ModalConfig) {
+        GLOBAL_MODAL.confirm(config);
+    }
+
+    /// 关闭当前 Modal
+    pub fn close() {
+        GLOBAL_MODAL.close();
+    }
+
+    /// 获取当前 Modal
+    pub fn get_current() -> Option<ModalInstance> {
+        GLOBAL_MODAL.get_current()
     }
 }
