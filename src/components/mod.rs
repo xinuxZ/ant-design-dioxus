@@ -114,11 +114,11 @@ pub mod switch;
 pub use switch::*;
 pub use time_picker::*;
 pub use transfer::*;
-pub use tree_select::*;
 pub use upload::*;
 pub mod time_picker;
 pub mod transfer;
-pub mod tree_select;
+// pub mod tree_select;
+// pub use tree_select::*;
 pub mod upload;
 
 // 数据展示

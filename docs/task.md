@@ -154,7 +154,7 @@
 - [✅] Switch 开关
 - [✅] TimePicker 时间选择框
 - [✅] Transfer 穿梭框
-- [✅] TreeSelect 树选择
+- [] TreeSelect 树选择
 - [✅] Upload 上传
 
 ## 阶段六：反馈组件（第五批）
