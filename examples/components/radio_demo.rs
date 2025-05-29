@@ -22,7 +22,7 @@ pub fn RadioDemo() -> Element {
                     style: "margin-bottom: 16px;",
                     Radio {
                         checked: basic_checked(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             basic_checked.set(checked);
                         },
                         "Radio"
@@ -39,7 +39,7 @@ pub fn RadioDemo() -> Element {
                     style: "margin-bottom: 16px;",
                     RadioGroup {
                         value: group_value(),
-                        onchange: move |value| {
+                        on_change: move |value| {
                             group_value.set(value);
                         },
                         Radio { value: "apple", "Apple" }
@@ -59,8 +59,8 @@ pub fn RadioDemo() -> Element {
                     h3 { "Large" }
                     RadioGroup {
                         value: size_value(),
-                        size: "large",
-                        onchange: move |value| {
+                        size: RadioSize::Large,
+                        on_change: move |value| {
                             size_value.set(value);
                         },
                         Radio { value: "large1", "Large Option 1" }
@@ -72,7 +72,7 @@ pub fn RadioDemo() -> Element {
                     h3 { "Medium (默认)" }
                     RadioGroup {
                         value: size_value(),
-                        onchange: move |value| {
+                        on_change: move |value| {
                             size_value.set(value);
                         },
                         Radio { value: "medium", "Medium Option 1" }
@@ -84,8 +84,8 @@ pub fn RadioDemo() -> Element {
                     h3 { "Small" }
                     RadioGroup {
                         value: size_value(),
-                        size: "small",
-                        onchange: move |value| {
+                        size: RadioSize::Small,
+                        on_change: move |value| {
                             size_value.set(value);
                         },
                         Radio { value: "small1", "Small Option 1" }
@@ -103,7 +103,7 @@ pub fn RadioDemo() -> Element {
                     style: "margin-bottom: 16px;",
                     RadioGroup {
                         value: disabled_value(),
-                        onchange: move |value| {
+                        on_change: move |value| {
                             disabled_value.set(value);
                         },
                         Radio { value: "option1", "Normal Option" }
@@ -127,7 +127,7 @@ pub fn RadioDemo() -> Element {
                             RadioOption { label: "选项B".to_string(), value: "b".to_string(), disabled: Some(false) },
                             RadioOption { label: "禁用选项".to_string(), value: "c".to_string(), disabled: Some(true) },
                         ],
-                        onchange: move |value| {
+                        on_change: move |value| {
                             group_value.set(value);
                         },
                     }
