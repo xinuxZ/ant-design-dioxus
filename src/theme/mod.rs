@@ -425,25 +425,69 @@ impl ThemeConfig {
 
         // 颜色变量
         css.push_str(&format!(":root {{\n"));
+
+        // 主色系
         css.push_str(&format!(
             "  --ant-primary-color: {};\n",
             self.colors.primary.base.to_hex()
         ));
         css.push_str(&format!(
+            "  --ant-primary-color-hover: {};\n",
+            self.colors.primary.light.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-primary-color-active: {};\n",
+            self.colors.primary.dark.to_hex()
+        ));
+
+        // 功能色系
+        css.push_str(&format!(
             "  --ant-success-color: {};\n",
             self.colors.success.base.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-success-color-hover: {};\n",
+            self.colors.success.light.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-success-color-active: {};\n",
+            self.colors.success.dark.to_hex()
         ));
         css.push_str(&format!(
             "  --ant-warning-color: {};\n",
             self.colors.warning.base.to_hex()
         ));
         css.push_str(&format!(
+            "  --ant-warning-color-hover: {};\n",
+            self.colors.warning.light.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-warning-color-active: {};\n",
+            self.colors.warning.dark.to_hex()
+        ));
+        css.push_str(&format!(
             "  --ant-error-color: {};\n",
             self.colors.error.base.to_hex()
         ));
         css.push_str(&format!(
+            "  --ant-error-color-hover: {};\n",
+            self.colors.error.light.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-error-color-active: {};\n",
+            self.colors.error.dark.to_hex()
+        ));
+        css.push_str(&format!(
             "  --ant-info-color: {};\n",
             self.colors.info.base.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-info-color-hover: {};\n",
+            self.colors.info.light.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-info-color-active: {};\n",
+            self.colors.info.dark.to_hex()
         ));
 
         // 文本颜色
@@ -459,6 +503,10 @@ impl ThemeConfig {
             "  --ant-text-color-disabled: {};\n",
             self.colors.text.disabled.to_hex()
         ));
+        css.push_str(&format!(
+            "  --ant-text-color-inverse: {};\n",
+            self.colors.text.inverse.to_hex()
+        ));
 
         // 背景颜色
         css.push_str(&format!(
@@ -473,6 +521,14 @@ impl ThemeConfig {
             "  --ant-background-color-container: {};\n",
             self.colors.background.container.to_hex()
         ));
+        css.push_str(&format!(
+            "  --ant-background-color-elevated: {};\n",
+            self.colors.background.elevated.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-background-color-layout: {};\n",
+            self.colors.background.layout.to_hex()
+        ));
 
         // 边框颜色
         css.push_str(&format!(
@@ -483,35 +539,85 @@ impl ThemeConfig {
             "  --ant-border-color-split: {};\n",
             self.colors.border.split.to_hex()
         ));
+        css.push_str(&format!(
+            "  --ant-border-color-secondary: {};\n",
+            self.colors.border.secondary.to_hex()
+        ));
+
+        // 填充颜色
+        css.push_str(&format!(
+            "  --ant-fill-color: {};\n",
+            self.colors.fill.base.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-fill-color-secondary: {};\n",
+            self.colors.fill.secondary.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-fill-color-tertiary: {};\n",
+            self.colors.fill.tertiary.to_hex()
+        ));
+        css.push_str(&format!(
+            "  --ant-fill-color-quaternary: {};\n",
+            self.colors.fill.quaternary.to_hex()
+        ));
 
         // 尺寸变量
         css.push_str(&format!(
-            "  --ant-font-size: {}px;\n",
-            self.sizes.font_sizes.base
-        ));
-        css.push_str(&format!(
-            "  --ant-font-size-sm: {}px;\n",
-            self.sizes.font_sizes.sm
-        ));
-        css.push_str(&format!(
-            "  --ant-font-size-lg: {}px;\n",
-            self.sizes.font_sizes.lg
-        ));
-        css.push_str(&format!(
-            "  --ant-line-height: {};\n",
-            self.sizes.line_heights.base
-        ));
-        css.push_str(&format!(
-            "  --ant-border-radius: {}px;\n",
-            self.sizes.border_radius.base
+            "  --ant-border-radius-xs: {}px;\n",
+            self.sizes.border_radius.xs
         ));
         css.push_str(&format!(
             "  --ant-border-radius-sm: {}px;\n",
             self.sizes.border_radius.sm
         ));
         css.push_str(&format!(
+            "  --ant-border-radius: {}px;\n",
+            self.sizes.border_radius.base
+        ));
+        css.push_str(&format!(
             "  --ant-border-radius-lg: {}px;\n",
             self.sizes.border_radius.lg
+        ));
+        css.push_str(&format!(
+            "  --ant-border-radius-xl: {}px;\n",
+            self.sizes.border_radius.xl
+        ));
+
+        // 字体大小
+        css.push_str(&format!(
+            "  --ant-font-size-xs: {}px;\n",
+            self.sizes.font_sizes.xs
+        ));
+        css.push_str(&format!(
+            "  --ant-font-size-sm: {}px;\n",
+            self.sizes.font_sizes.sm
+        ));
+        css.push_str(&format!(
+            "  --ant-font-size: {}px;\n",
+            self.sizes.font_sizes.base
+        ));
+        css.push_str(&format!(
+            "  --ant-font-size-lg: {}px;\n",
+            self.sizes.font_sizes.lg
+        ));
+        css.push_str(&format!(
+            "  --ant-font-size-xl: {}px;\n",
+            self.sizes.font_sizes.xl
+        ));
+
+        // 行高
+        css.push_str(&format!(
+            "  --ant-line-height: {};\n",
+            self.sizes.line_heights.base
+        ));
+        css.push_str(&format!(
+            "  --ant-line-height-heading: {};\n",
+            self.sizes.line_heights.heading
+        ));
+        css.push_str(&format!(
+            "  --ant-line-height-sm: {};\n",
+            self.sizes.line_heights.sm
         ));
 
         // 间距变量
@@ -535,11 +641,16 @@ impl ThemeConfig {
             "  --ant-spacing-xl: {}px;\n",
             self.sizes.spacing.xl
         ));
+        css.push_str(&format!(
+            "  --ant-spacing-xxl: {}px;\n",
+            self.sizes.spacing.xxl
+        ));
 
         // 阴影变量
         css.push_str(&format!("  --ant-shadow: {};\n", self.sizes.shadows.base));
         css.push_str(&format!("  --ant-shadow-sm: {};\n", self.sizes.shadows.sm));
         css.push_str(&format!("  --ant-shadow-lg: {};\n", self.sizes.shadows.lg));
+        css.push_str(&format!("  --ant-shadow-xl: {};\n", self.sizes.shadows.xl));
 
         // 动画变量
         css.push_str(&format!(
@@ -555,8 +666,20 @@ impl ThemeConfig {
             self.motion.durations.slow
         ));
         css.push_str(&format!(
-            "  --ant-ease-in-out: {};\n",
+            "  --ant-ease-standard: {};\n",
             self.motion.easings.standard
+        ));
+        css.push_str(&format!(
+            "  --ant-ease-emphasized: {};\n",
+            self.motion.easings.emphasized
+        ));
+        css.push_str(&format!(
+            "  --ant-ease-decelerated: {};\n",
+            self.motion.easings.decelerated
+        ));
+        css.push_str(&format!(
+            "  --ant-ease-accelerated: {};\n",
+            self.motion.easings.accelerated
         ));
 
         // 自定义变量
@@ -598,6 +721,138 @@ impl ThemeConfig {
         }
     }
 
+    /// 生成主题色调色板
+    pub fn generate_color_palette(&self, base_color: Color, theme: Theme) -> ColorPalette {
+        match theme {
+            Theme::Dark => self.generate_dark_palette(base_color),
+            Theme::Light => self.generate_light_palette(base_color),
+            Theme::Compact => self.generate_compact_palette(base_color),
+            _ => self.generate_light_palette(base_color),
+        }
+    }
+
+    /// 生成浅色主题调色板
+    fn generate_light_palette(&self, base_color: Color) -> ColorPalette {
+        ColorPalette {
+            base: base_color,
+            light: self.lighten_color(base_color, 0.2),
+            lighter: self.lighten_color(base_color, 0.4),
+            dark: self.darken_color(base_color, 0.2),
+            darker: self.darken_color(base_color, 0.4),
+        }
+    }
+
+    /// 生成深色主题调色板
+    fn generate_dark_palette(&self, base_color: Color) -> ColorPalette {
+        ColorPalette {
+            base: base_color,
+            light: self.lighten_color(base_color, 0.3),
+            lighter: self.lighten_color(base_color, 0.5),
+            dark: self.darken_color(base_color, 0.1),
+            darker: self.darken_color(base_color, 0.3),
+        }
+    }
+
+    /// 生成紧凑主题调色板
+    fn generate_compact_palette(&self, base_color: Color) -> ColorPalette {
+        ColorPalette {
+            base: base_color,
+            light: self.lighten_color(base_color, 0.15),
+            lighter: self.lighten_color(base_color, 0.3),
+            dark: self.darken_color(base_color, 0.15),
+            darker: self.darken_color(base_color, 0.3),
+        }
+    }
+
+    /// 调亮颜色
+    fn lighten_color(&self, color: Color, amount: f32) -> Color {
+        let (r, g, b, a) = color.to_rgba();
+        let factor = 1.0 + amount;
+        Color::rgba(
+            (r as f32 * factor).min(255.0) as u8,
+            (g as f32 * factor).min(255.0) as u8,
+            (b as f32 * factor).min(255.0) as u8,
+            a,
+        )
+    }
+
+    /// 调暗颜色
+    fn darken_color(&self, color: Color, amount: f32) -> Color {
+        let (r, g, b, a) = color.to_rgba();
+        let factor = 1.0 - amount;
+        Color::rgba(
+            (r as f32 * factor).max(0.0) as u8,
+            (g as f32 * factor).max(0.0) as u8,
+            (b as f32 * factor).max(0.0) as u8,
+            a,
+        )
+    }
+
+    /// 创建自定义主题
+    pub fn create_custom_theme(primary_color: Color, theme_type: Theme) -> Self {
+        let mut config = Self::default();
+        config.colors.primary = config.generate_color_palette(primary_color, theme_type);
+
+        // 根据主题类型调整其他颜色
+        match theme_type {
+            Theme::Dark => {
+                config.colors.text.primary = Color::rgba(255, 255, 255, 0.85);
+                config.colors.text.secondary = Color::rgba(255, 255, 255, 0.65);
+                config.colors.text.disabled = Color::rgba(255, 255, 255, 0.25);
+                config.colors.background.primary = Color::rgb(20, 20, 20);
+                config.colors.background.secondary = Color::rgb(30, 30, 30);
+                config.colors.background.container = Color::rgb(40, 40, 40);
+            }
+            Theme::Light => {
+                config.colors.text.primary = Color::rgba(0, 0, 0, 0.85);
+                config.colors.text.secondary = Color::rgba(0, 0, 0, 0.65);
+                config.colors.text.disabled = Color::rgba(0, 0, 0, 0.25);
+                config.colors.background.primary = Color::rgb(255, 255, 255);
+                config.colors.background.secondary = Color::rgb(250, 250, 250);
+                config.colors.background.container = Color::rgb(245, 245, 245);
+            }
+            Theme::Compact => {
+                // 紧凑主题使用较小的尺寸
+                config.sizes.spacing.xs = 2;
+                config.sizes.spacing.sm = 4;
+                config.sizes.spacing.base = 8;
+                config.sizes.spacing.lg = 12;
+                config.sizes.spacing.xl = 16;
+                config.sizes.spacing.xxl = 20;
+
+                config.sizes.font_sizes.xs = 10;
+                config.sizes.font_sizes.sm = 12;
+                config.sizes.font_sizes.base = 13;
+                config.sizes.font_sizes.lg = 14;
+                config.sizes.font_sizes.xl = 16;
+            }
+            _ => {}
+        }
+
+        config
+    }
+
+    /// 获取主题令牌值
+    pub fn get_token(&self, token: &str) -> Option<String> {
+        match token {
+            "primary-color" => Some(self.colors.primary.base.to_hex()),
+            "primary-color-hover" => Some(self.colors.primary.light.to_hex()),
+            "primary-color-active" => Some(self.colors.primary.dark.to_hex()),
+            "text-color" => Some(self.colors.text.primary.to_hex()),
+            "text-color-secondary" => Some(self.colors.text.secondary.to_hex()),
+            "background-color" => Some(self.colors.background.primary.to_hex()),
+            "border-radius" => Some(format!("{}px", self.sizes.border_radius.base)),
+            "font-size" => Some(format!("{}px", self.sizes.font_sizes.base)),
+            "spacing" => Some(format!("{}px", self.sizes.spacing.base)),
+            _ => self.custom_vars.get(token).cloned(),
+        }
+    }
+
+    /// 设置自定义令牌
+    pub fn set_token(&mut self, token: String, value: String) {
+        self.custom_vars.insert(token, value);
+    }
+
     /// 获取边框圆角
     pub fn get_border_radius(&self, size: Size) -> u32 {
         match size {
@@ -621,21 +876,72 @@ pub struct ThemeProviderProps {
 /// 主题提供者组件
 #[component]
 pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
-    use_context_provider(|| props.theme.clone());
+    let theme_signal = use_signal(|| props.theme.clone());
+    use_context_provider(|| theme_signal);
+
+    // 监听主题变化，动态更新CSS变量
+    let css_vars = use_memo(move || theme_signal.read().generate_css_vars());
+
+    let theme_class = use_memo(move || format!("ant-theme-{}", theme_signal.read().theme));
+
+    let theme_data = use_memo(move || theme_signal.read().theme.to_string());
 
     rsx! {
-        style { {props.theme.generate_css_vars()} }
+        style { {css_vars.read().clone()} }
         div {
-            class: format!("ant-theme-{}", props.theme.theme),
-            "data-theme": props.theme.theme.to_string(),
+            class: theme_class.read().clone(),
+            "data-theme": theme_data.read().clone(),
             {props.children}
         }
     }
 }
 
 /// 使用主题的 Hook
+///
+/// 从上下文中获取当前的主题配置
 pub fn use_theme() -> ThemeConfig {
-    use_context::<ThemeConfig>()
+    let theme_signal = use_context::<Signal<ThemeConfig>>();
+    theme_signal.read().clone()
+}
+
+/// 使用主题令牌的 Hook
+///
+/// 返回一个函数，用于获取主题令牌值
+pub fn use_theme_token() -> impl Fn(&str) -> Option<String> {
+    let theme_signal = use_context::<Signal<ThemeConfig>>();
+    move |token: &str| theme_signal.read().get_token(token)
+}
+
+/// 使用主题切换的 Hook
+///
+/// 返回当前主题和切换主题的函数
+pub fn use_theme_switch() -> (Theme, impl Fn(Theme)) {
+    let theme_signal = use_context::<Signal<ThemeConfig>>();
+    let current_theme = theme_signal.read().theme;
+
+    let switch_theme = move |new_theme: Theme| {
+        theme_signal.with_mut(|config| {
+            config.theme = new_theme;
+            // 根据新主题重新生成颜色配置
+            match new_theme {
+                Theme::Dark => {
+                    config.colors.text.primary = RgbColor::new(255, 255, 255);
+                    config.colors.text.secondary = RgbColor::new(191, 191, 191);
+                    config.colors.background.primary = RgbColor::new(20, 20, 20);
+                    config.colors.background.secondary = RgbColor::new(30, 30, 30);
+                }
+                Theme::Light => {
+                    config.colors.text.primary = RgbColor::new(0, 0, 0);
+                    config.colors.text.secondary = RgbColor::new(102, 102, 102);
+                    config.colors.background.primary = RgbColor::new(255, 255, 255);
+                    config.colors.background.secondary = RgbColor::new(250, 250, 250);
+                }
+                _ => {}
+            }
+        });
+    };
+
+    (current_theme, switch_theme)
 }
 
 #[cfg(test)]

@@ -138,7 +138,7 @@
 - [✅] AutoComplete 自动完成
 - [✅] Cascader 级联选择
 - [✅] Checkbox 多选框
-- [ ] ColorPicker 颜色选择器
+- [✅] ColorPicker 颜色选择器
 - [✅] DatePicker 日期选择框
 - [✅] Input 输入框
   - [✅] Input 基础输入框
@@ -154,7 +154,7 @@
 - [✅] Switch 开关
 - [✅] TimePicker 时间选择框
 - [✅] Transfer 穿梭框
-- [] TreeSelect 树选择
+- [✅] TreeSelect 树选择
 - [✅] Upload 上传
 
 ## 阶段六：反馈组件（第五批）
@@ -170,18 +170,18 @@
 - [✅] Result 结果
 - [✅] Skeleton 骨架屏
 - [✅] Spin 加载中
-- [ ] Tour 漫游式引导
+- [✅] Tour 漫游式引导
 
 ## 阶段七：其他组件（第六批）
 
 ### 10. 其他组件
-- [ ] App 包裹组件
-- [ ] Calendar 日历
-- [ ] FloatButton 悬浮按钮
-- [ ] QRCode 二维码
-- [ ] Segmented 分段控制器
-- [ ] Splitter 分割面板
-- [ ] Watermark 水印
+- [✅] App 包裹组件
+- [✅] Calendar 日历
+- [✅] FloatButton 悬浮按钮
+- [✅] QRCode 二维码
+- [✅] Segmented 分段控制器
+- [✅] Splitter 分割面板
+- [✅] Watermark 水印
 
 ## 阶段八：高级功能和优化
 

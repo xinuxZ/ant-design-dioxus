@@ -3,11 +3,34 @@
 //! 提供多语言支持，包括语言包管理、文本翻译、日期时间格式化等功能。
 //! 支持动态切换语言，并提供 React Context 风格的 API。
 
+use chrono::{DateTime, Local, NaiveDateTime, Utc};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = Intl)]
+    type DateTimeFormat;
+
+    #[wasm_bindgen(constructor, js_namespace = Intl)]
+    fn new(locale: &str, options: &JsValue) -> DateTimeFormat;
+
+    #[wasm_bindgen(method)]
+    fn format(this: &DateTimeFormat, date: &JsValue) -> String;
+
+    #[wasm_bindgen(js_namespace = Intl)]
+    type RelativeTimeFormat;
+
+    #[wasm_bindgen(constructor, js_namespace = Intl)]
+    fn new_relative(locale: &str, options: &JsValue) -> RelativeTimeFormat;
+
+    #[wasm_bindgen(method)]
+    fn format_relative(this: &RelativeTimeFormat, value: f64, unit: &str) -> String;
+}
 
 /// 支持的语言类型
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -257,6 +280,199 @@ impl LocaleConfig {
         text
     }
 
+    /// 格式化日期时间
+    pub fn format_datetime(&self, datetime: &DateTime<Local>) -> String {
+        #[cfg(target_arch = "wasm32")]
+        {
+            use js_sys::{Date, Object, Reflect};
+            use wasm_bindgen::JsValue;
+
+            let js_date = Date::new_with_year_month_day_hr_min_sec_milli(
+                datetime.year() as u32,
+                (datetime.month() - 1) as u32, // JS months are 0-indexed
+                datetime.day() as u32,
+                datetime.hour() as u32,
+                datetime.minute() as u32,
+                datetime.second() as u32,
+                (datetime.nanosecond() / 1_000_000) as u32,
+            );
+
+            let options = Object::new();
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("year"),
+                &JsValue::from_str("numeric"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("month"),
+                &JsValue::from_str("2-digit"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("day"),
+                &JsValue::from_str("2-digit"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("hour"),
+                &JsValue::from_str("2-digit"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("minute"),
+                &JsValue::from_str("2-digit"),
+            );
+
+            let formatter = DateTimeFormat::new(&self.locale.code(), &options);
+            formatter.format(&js_date.into())
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            datetime.format(&self.date_format).to_string()
+        }
+    }
+
+    /// 格式化日期
+    pub fn format_date(&self, datetime: &DateTime<Local>) -> String {
+        #[cfg(target_arch = "wasm32")]
+        {
+            use js_sys::{Date, Object, Reflect};
+            use wasm_bindgen::JsValue;
+
+            let js_date = Date::new_with_year_month_day(
+                datetime.year() as u32,
+                (datetime.month() - 1) as u32,
+                datetime.day() as u32,
+            );
+
+            let options = Object::new();
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("year"),
+                &JsValue::from_str("numeric"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("month"),
+                &JsValue::from_str("2-digit"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("day"),
+                &JsValue::from_str("2-digit"),
+            );
+
+            let formatter = DateTimeFormat::new(&self.locale.code(), &options);
+            formatter.format(&js_date.into())
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            datetime.format("%Y-%m-%d").to_string()
+        }
+    }
+
+    /// 格式化时间
+    pub fn format_time(&self, datetime: &DateTime<Local>) -> String {
+        #[cfg(target_arch = "wasm32")]
+        {
+            use js_sys::{Date, Object, Reflect};
+            use wasm_bindgen::JsValue;
+
+            let js_date = Date::new_with_year_month_day_hr_min_sec(
+                datetime.year() as u32,
+                (datetime.month() - 1) as u32,
+                datetime.day() as u32,
+                datetime.hour() as u32,
+                datetime.minute() as u32,
+                datetime.second() as u32,
+            );
+
+            let options = Object::new();
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("hour"),
+                &JsValue::from_str("2-digit"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("minute"),
+                &JsValue::from_str("2-digit"),
+            );
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("second"),
+                &JsValue::from_str("2-digit"),
+            );
+
+            let formatter = DateTimeFormat::new(&self.locale.code(), &options);
+            formatter.format(&js_date.into())
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            datetime.format(&self.time_format).to_string()
+        }
+    }
+
+    /// 格式化相对时间
+    pub fn format_relative_time(&self, datetime: &DateTime<Local>) -> String {
+        let now = Local::now();
+        let duration = now.signed_duration_since(*datetime);
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            use js_sys::{Object, Reflect};
+            use wasm_bindgen::JsValue;
+
+            let options = Object::new();
+            let _ = Reflect::set(
+                &options,
+                &JsValue::from_str("numeric"),
+                &JsValue::from_str("auto"),
+            );
+
+            let formatter = RelativeTimeFormat::new_relative(&self.locale.code(), &options);
+
+            if duration.num_seconds().abs() < 60 {
+                formatter.format_relative(-duration.num_seconds() as f64, "second")
+            } else if duration.num_minutes().abs() < 60 {
+                formatter.format_relative(-duration.num_minutes() as f64, "minute")
+            } else if duration.num_hours().abs() < 24 {
+                formatter.format_relative(-duration.num_hours() as f64, "hour")
+            } else if duration.num_days().abs() < 30 {
+                formatter.format_relative(-duration.num_days() as f64, "day")
+            } else if duration.num_days().abs() < 365 {
+                formatter.format_relative(-(duration.num_days() as f64 / 30.0), "month")
+            } else {
+                formatter.format_relative(-(duration.num_days() as f64 / 365.0), "year")
+            }
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            if duration.num_seconds().abs() < 60 {
+                match self.locale {
+                    Locale::ZhCN => format!("{}秒前", duration.num_seconds()),
+                    _ => format!("{} seconds ago", duration.num_seconds()),
+                }
+            } else if duration.num_minutes().abs() < 60 {
+                match self.locale {
+                    Locale::ZhCN => format!("{}分钟前", duration.num_minutes()),
+                    _ => format!("{} minutes ago", duration.num_minutes()),
+                }
+            } else if duration.num_hours().abs() < 24 {
+                match self.locale {
+                    Locale::ZhCN => format!("{}小时前", duration.num_hours()),
+                    _ => format!("{} hours ago", duration.num_hours()),
+                }
+            } else {
+                match self.locale {
+                    Locale::ZhCN => format!("{}天前", duration.num_days()),
+                    _ => format!("{} days ago", duration.num_days()),
+                }
+            }
+        }
+    }
+
     /// 格式化数字
     pub fn format_number(&self, number: f64) -> String {
         let formatted = format!(
@@ -360,12 +576,106 @@ pub fn use_translate_with_args() -> impl Fn(TranslationKey, &[(&str, &str)]) -> 
     move |key: TranslationKey, args: &[(&str, &str)]| config.translate_with_args(key, args)
 }
 
+/// 动态切换语言的Hook
+pub fn use_locale_switch() -> impl Fn(Locale) {
+    let mut locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |new_locale: Locale| {
+        let mut config = locale_config.write();
+        *config =
+            LocaleConfig::new(new_locale).with_custom_messages(config.custom_messages.clone());
+
+        // 更新HTML文档的语言属性
+        #[cfg(target_arch = "wasm32")]
+        {
+            use wasm_bindgen::prelude::*;
+
+            #[wasm_bindgen]
+            extern "C" {
+                #[wasm_bindgen(js_namespace = document)]
+                static documentElement: web_sys::Element;
+            }
+
+            if let Ok(document) = web_sys::window().unwrap().document() {
+                if let Some(html) = document.document_element() {
+                    let _ = html.set_attribute("lang", &new_locale.code());
+                    let _ =
+                        html.set_attribute("dir", if new_locale.is_rtl() { "rtl" } else { "ltr" });
+                }
+            }
+        }
+    }
+}
+
+/// 获取日期时间格式化的Hook
+pub fn use_datetime_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |datetime: &chrono::DateTime<chrono::Local>| locale_config.read().format_datetime(datetime)
+}
+
+/// 获取日期格式化的Hook
+pub fn use_date_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |datetime: &chrono::DateTime<chrono::Local>| locale_config.read().format_date(datetime)
+}
+
+/// 获取时间格式化的Hook
+pub fn use_time_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |datetime: &chrono::DateTime<chrono::Local>| locale_config.read().format_time(datetime)
+}
+
+/// 获取相对时间格式化的Hook
+pub fn use_relative_time_format() -> impl Fn(&chrono::DateTime<chrono::Local>) -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |datetime: &chrono::DateTime<chrono::Local>| {
+        locale_config.read().format_relative_time(datetime)
+    }
+}
+
+/// 获取数字格式化的Hook
+pub fn use_number_format() -> impl Fn(f64) -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |number: f64| locale_config.read().format_number(number)
+}
+
+/// 获取货币格式化的Hook
+pub fn use_currency_format() -> impl Fn(f64) -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+
+    move |amount: f64| locale_config.read().format_currency(amount)
+}
+
+/// 检查当前语言是否为RTL的Hook
+pub fn use_is_rtl() -> bool {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+    locale_config.read().locale.is_rtl()
+}
+
+/// 获取当前语言代码的Hook
+pub fn use_locale_code() -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+    locale_config.read().locale.code().to_string()
+}
+
+/// 获取当前语言名称的Hook
+pub fn use_locale_name() -> String {
+    let locale_config = use_context::<Signal<LocaleConfig>>();
+    locale_config.read().locale.name().to_string()
+}
+
 /// 获取默认语言包
 fn get_default_messages(locale: &Locale) -> LanguagePack {
     let mut messages = HashMap::new();
 
     match locale {
         Locale::ZhCN => {
+            // 基础操作
             messages.insert("ok", "确定".to_string());
             messages.insert("cancel", "取消".to_string());
             messages.insert("close", "关闭".to_string());
@@ -390,8 +700,80 @@ fn get_default_messages(locale: &Locale) -> LanguagePack {
             messages.insert("next", "下一页".to_string());
             messages.insert("total", "共 {total} 条".to_string());
             messages.insert("page_size", "每页 {size} 条".to_string());
+
+            // 表单相关
+            messages.insert("required", "此项为必填项".to_string());
+            messages.insert("invalid_email", "请输入有效的邮箱地址".to_string());
+            messages.insert("invalid_url", "请输入有效的URL".to_string());
+            messages.insert("invalid_phone", "请输入有效的手机号码".to_string());
+            messages.insert("min_length", "至少输入 {min} 个字符".to_string());
+            messages.insert("max_length", "最多输入 {max} 个字符".to_string());
+            messages.insert("pattern_mismatch", "输入格式不正确".to_string());
+
+            // 日期时间
+            messages.insert("today", "今天".to_string());
+            messages.insert("yesterday", "昨天".to_string());
+            messages.insert("tomorrow", "明天".to_string());
+            messages.insert("this_week", "本周".to_string());
+            messages.insert("last_week", "上周".to_string());
+            messages.insert("this_month", "本月".to_string());
+            messages.insert("last_month", "上月".to_string());
+            messages.insert("this_year", "今年".to_string());
+            messages.insert("last_year", "去年".to_string());
+            messages.insert("select_date", "选择日期".to_string());
+            messages.insert("select_time", "选择时间".to_string());
+            messages.insert("start_date", "开始日期".to_string());
+            messages.insert("end_date", "结束日期".to_string());
+
+            // 表格相关
+            messages.insert("select_all", "全选".to_string());
+            messages.insert("select_invert", "反选".to_string());
+            messages.insert("select_none", "取消选择".to_string());
+            messages.insert("sort_asc", "升序".to_string());
+            messages.insert("sort_desc", "降序".to_string());
+            messages.insert("filter_menu", "筛选菜单".to_string());
+            messages.insert("filter_reset", "重置".to_string());
+            messages.insert("filter_confirm", "确定".to_string());
+            messages.insert("filter_checkall", "全选".to_string());
+
+            // 上传相关
+            messages.insert("upload_drag", "点击或拖拽文件到此区域上传".to_string());
+            messages.insert("upload_select", "选择文件".to_string());
+            messages.insert("upload_error", "上传失败".to_string());
+            messages.insert("upload_success", "上传成功".to_string());
+            messages.insert("upload_progress", "上传中...".to_string());
+            messages.insert("file_size_limit", "文件大小不能超过 {size}".to_string());
+            messages.insert("file_type_error", "不支持的文件类型".to_string());
+
+            // 弹窗相关
+            messages.insert("modal_ok", "确定".to_string());
+            messages.insert("modal_cancel", "取消".to_string());
+            messages.insert("confirm_delete", "确定要删除吗？".to_string());
+            messages.insert("confirm_title", "确认".to_string());
+            messages.insert("warning_title", "警告".to_string());
+            messages.insert("error_title", "错误".to_string());
+            messages.insert("info_title", "信息".to_string());
+
+            // 步骤条
+            messages.insert("step_prev", "上一步".to_string());
+            messages.insert("step_next", "下一步".to_string());
+            messages.insert("step_finish", "完成".to_string());
+            messages.insert("step_process", "进行中".to_string());
+            messages.insert("step_wait", "等待".to_string());
+            messages.insert("step_error", "错误".to_string());
+
+            // 传输穿梭框
+            messages.insert("transfer_titles", "['', '']".to_string());
+            messages.insert("transfer_search_placeholder", "请输入搜索内容".to_string());
+            messages.insert("transfer_item_unit", "项".to_string());
+            messages.insert("transfer_items_unit", "项".to_string());
+            messages.insert("transfer_remove", "删除".to_string());
+            messages.insert("transfer_remove_all", "删除全部".to_string());
+            messages.insert("transfer_select_all", "全选".to_string());
+            messages.insert("transfer_select_invert", "反选".to_string());
         }
         Locale::En => {
+            // Basic operations
             messages.insert("ok", "OK".to_string());
             messages.insert("cancel", "Cancel".to_string());
             messages.insert("close", "Close".to_string());
@@ -416,6 +798,98 @@ fn get_default_messages(locale: &Locale) -> LanguagePack {
             messages.insert("next", "Next".to_string());
             messages.insert("total", "Total {total} items".to_string());
             messages.insert("page_size", "{size} items per page".to_string());
+
+            // Form related
+            messages.insert("required", "This field is required".to_string());
+            messages.insert(
+                "invalid_email",
+                "Please enter a valid email address".to_string(),
+            );
+            messages.insert("invalid_url", "Please enter a valid URL".to_string());
+            messages.insert(
+                "invalid_phone",
+                "Please enter a valid phone number".to_string(),
+            );
+            messages.insert(
+                "min_length",
+                "Please enter at least {min} characters".to_string(),
+            );
+            messages.insert(
+                "max_length",
+                "Please enter no more than {max} characters".to_string(),
+            );
+            messages.insert("pattern_mismatch", "Input format is incorrect".to_string());
+
+            // Date and time
+            messages.insert("today", "Today".to_string());
+            messages.insert("yesterday", "Yesterday".to_string());
+            messages.insert("tomorrow", "Tomorrow".to_string());
+            messages.insert("this_week", "This Week".to_string());
+            messages.insert("last_week", "Last Week".to_string());
+            messages.insert("this_month", "This Month".to_string());
+            messages.insert("last_month", "Last Month".to_string());
+            messages.insert("this_year", "This Year".to_string());
+            messages.insert("last_year", "Last Year".to_string());
+            messages.insert("select_date", "Select Date".to_string());
+            messages.insert("select_time", "Select Time".to_string());
+            messages.insert("start_date", "Start Date".to_string());
+            messages.insert("end_date", "End Date".to_string());
+
+            // Table related
+            messages.insert("select_all", "Select All".to_string());
+            messages.insert("select_invert", "Invert Selection".to_string());
+            messages.insert("select_none", "Deselect All".to_string());
+            messages.insert("sort_asc", "Sort Ascending".to_string());
+            messages.insert("sort_desc", "Sort Descending".to_string());
+            messages.insert("filter_menu", "Filter Menu".to_string());
+            messages.insert("filter_reset", "Reset".to_string());
+            messages.insert("filter_confirm", "OK".to_string());
+            messages.insert("filter_checkall", "Select All".to_string());
+
+            // Upload related
+            messages.insert(
+                "upload_drag",
+                "Click or drag file to this area to upload".to_string(),
+            );
+            messages.insert("upload_select", "Select File".to_string());
+            messages.insert("upload_error", "Upload Failed".to_string());
+            messages.insert("upload_success", "Upload Successful".to_string());
+            messages.insert("upload_progress", "Uploading...".to_string());
+            messages.insert(
+                "file_size_limit",
+                "File size cannot exceed {size}".to_string(),
+            );
+            messages.insert("file_type_error", "Unsupported file type".to_string());
+
+            // Modal related
+            messages.insert("modal_ok", "OK".to_string());
+            messages.insert("modal_cancel", "Cancel".to_string());
+            messages.insert(
+                "confirm_delete",
+                "Are you sure you want to delete?".to_string(),
+            );
+            messages.insert("confirm_title", "Confirm".to_string());
+            messages.insert("warning_title", "Warning".to_string());
+            messages.insert("error_title", "Error".to_string());
+            messages.insert("info_title", "Information".to_string());
+
+            // Steps
+            messages.insert("step_prev", "Previous".to_string());
+            messages.insert("step_next", "Next".to_string());
+            messages.insert("step_finish", "Finish".to_string());
+            messages.insert("step_process", "In Progress".to_string());
+            messages.insert("step_wait", "Waiting".to_string());
+            messages.insert("step_error", "Error".to_string());
+
+            // Transfer
+            messages.insert("transfer_titles", "['', '']".to_string());
+            messages.insert("transfer_search_placeholder", "Search here".to_string());
+            messages.insert("transfer_item_unit", "item".to_string());
+            messages.insert("transfer_items_unit", "items".to_string());
+            messages.insert("transfer_remove", "Remove".to_string());
+            messages.insert("transfer_remove_all", "Remove All".to_string());
+            messages.insert("transfer_select_all", "Select All".to_string());
+            messages.insert("transfer_select_invert", "Invert Selection".to_string());
         }
         _ => {
             // 默认使用英文
