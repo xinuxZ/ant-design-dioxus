@@ -24,6 +24,8 @@ use serde as _;
 #[allow(unused_imports)]
 use serde_json as _;
 #[allow(unused_imports)]
+use uuid as _;
+#[allow(unused_imports)]
 use wasm_bindgen as _;
 #[allow(unused_imports)]
 use wasm_bindgen_test as _;

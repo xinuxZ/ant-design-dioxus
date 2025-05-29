@@ -24,7 +24,7 @@ pub fn SwitchDemo() -> Element {
                     style: "margin-bottom: 16px;",
                     Switch {
                         checked: basic_checked(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             basic_checked.set(checked);
                         },
                     }
@@ -40,14 +40,14 @@ pub fn SwitchDemo() -> Element {
                     style: "display: flex; align-items: center; gap: 16px; margin-bottom: 16px;",
                     Switch {
                         checked: size_checked(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             size_checked.set(checked);
                         },
                     }
                     Switch {
                         size: SwitchSize::Small,
                         checked: size_checked(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             size_checked.set(checked);
                         },
                     }
@@ -65,7 +65,7 @@ pub fn SwitchDemo() -> Element {
                         checked: text_checked(),
                         checked_children: "开".to_string(),
                         unchecked_children: "关".to_string(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             text_checked.set(checked);
                         },
                     }
@@ -73,7 +73,7 @@ pub fn SwitchDemo() -> Element {
                         checked: text_checked(),
                         checked_children: "1".to_string(),
                         unchecked_children: "0".to_string(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             text_checked.set(checked);
                         },
                     }
@@ -81,7 +81,7 @@ pub fn SwitchDemo() -> Element {
                         checked: text_checked(),
                         checked_children: "✓".to_string(),
                         unchecked_children: "✕".to_string(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             text_checked.set(checked);
                         },
                     }
@@ -111,7 +111,7 @@ pub fn SwitchDemo() -> Element {
                     Switch {
                         disabled: disabled_switch(),
                         checked: disabled_checked(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             disabled_checked.set(checked);
                         },
                     }
@@ -147,7 +147,7 @@ pub fn SwitchDemo() -> Element {
                     Switch {
                         auto_focus: true,
                         checked: basic_checked(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             basic_checked.set(checked);
                         },
                     }
@@ -165,7 +165,7 @@ pub fn SwitchDemo() -> Element {
                         checked: basic_checked(),
                         class: "custom-switch".to_string(),
                         style: "margin-right: 16px;".to_string(),
-                        onchange: move |checked| {
+                        on_change: move |checked| {
                             basic_checked.set(checked);
                         },
                     }
