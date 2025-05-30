@@ -128,7 +128,7 @@ pub struct ResultProps {
 
     /// 自定义图标
     #[props(default)]
-    pub icon: Option<String>,
+    pub icon: Option<Element>,
 
     /// 操作区
     #[props(default)]
@@ -163,10 +163,6 @@ pub fn Result(props: ResultProps) -> Element {
         classes.join(" ")
     };
 
-    let icon = props
-        .icon
-        .as_deref()
-        .unwrap_or_else(|| props.status.default_icon());
     let title = props
         .title
         .as_deref()
@@ -187,7 +183,11 @@ pub fn Result(props: ResultProps) -> Element {
                 class: "ant-result-icon",
                 span {
                     class: "ant-result-icon-content",
-                    "{icon}"
+                    if let Some(custom_icon) = props.icon {
+                        {custom_icon}
+                    } else {
+                        "{props.status.default_icon()}"
+                    }
                 }
             }
 

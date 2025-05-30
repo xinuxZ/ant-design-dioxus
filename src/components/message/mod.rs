@@ -394,3 +394,32 @@ impl Default for MessageManager {
         Self::new()
     }
 }
+
+// 全局 Message 管理器实例
+use once_cell::sync::Lazy;
+static GLOBAL_MESSAGE: Lazy<MessageManager> = Lazy::new(|| MessageManager::new());
+
+/// 显示成功消息
+pub fn success(content: &str) {
+    let _ = GLOBAL_MESSAGE.success(content, None);
+}
+
+/// 显示错误消息
+pub fn error(content: &str) {
+    let _ = GLOBAL_MESSAGE.error(content, None);
+}
+
+/// 显示警告消息
+pub fn warning(content: &str) {
+    let _ = GLOBAL_MESSAGE.warning(content, None);
+}
+
+/// 显示信息消息
+pub fn info(content: &str) {
+    let _ = GLOBAL_MESSAGE.info(content, None);
+}
+
+/// 显示加载消息
+pub fn loading(content: &str) {
+    let _ = GLOBAL_MESSAGE.loading(content, None);
+}
