@@ -51,28 +51,8 @@ pub mod utils;
 pub mod components;
 pub mod prelude;
 
-// 预导入模块
-// pub mod prelude {
-//     //! 常用类型和组件的预导入模块
-
-//     // 重新导出 Dioxus 核心类型（避免命名冲突）
-//     pub use dioxus::prelude::{component, rsx, Element, EventHandler, MouseEvent, Props};
-
-//     // 配置和主题
-//     pub use crate::config_provider::{ConfigProvider, ConfigProviderProps};
-//     pub use crate::theme::{Theme, ThemeConfig, ThemeProvider};
-
-//     // 工具类型
-//     pub use crate::utils::class_names::*;
-//     pub use crate::utils::color::*;
-//     pub use crate::utils::motion::Direction as MotionDirection;
-//     pub use crate::utils::responsive::*;
-//     pub use crate::utils::size::*;
-//     pub use crate::utils::{is_chinese_char, is_two_cn_char};
-
-//     // 组件（当前为空，后续会添加）
-//     pub use crate::components::*;
-// }
+// 预导入模块已移至 prelude.rs 文件
+// 该模块提供了更清晰的组件导出结构，避免命名冲突
 
 // 版本信息
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
