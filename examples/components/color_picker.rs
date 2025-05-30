@@ -13,12 +13,8 @@ pub fn ColorPickerDemo() -> Element {
             DemoSection {
                 title: "基本使用",
                 description: "最简单的用法。",
-                code: r#"rsx! {
-    ColorPicker {
-        // 基本颜色选择器
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     ColorPicker {
                         class: "demo-color-picker"
                     }
@@ -28,14 +24,8 @@ pub fn ColorPickerDemo() -> Element {
             DemoSection {
                 title: "不同尺寸",
                 description: "三种尺寸的颜色选择器。",
-                code: r#"rsx! {
-    div { style: "display: flex; gap: 16px; align-items: center;",
-        ColorPicker { class: "color-picker-small", style: "width: 24px; height: 24px;" }
-        ColorPicker { class: "color-picker-default", style: "width: 32px; height: 32px;" }
-        ColorPicker { class: "color-picker-large", style: "width: 40px; height: 40px;" }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "display: flex; gap: 16px; align-items: center;",
                         ColorPicker { class: "color-picker-small", style: "width: 24px; height: 24px;" }
                         ColorPicker { class: "color-picker-default", style: "width: 32px; height: 32px;" }
@@ -47,13 +37,8 @@ pub fn ColorPickerDemo() -> Element {
             DemoSection {
                 title: "预设颜色",
                 description: "可以预设一些常用的颜色。",
-                code: r#"rsx! {
-    ColorPicker {
-        class: "color-picker-presets",
-        style: "width: 40px; height: 40px;"
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     ColorPicker {
                         class: "color-picker-presets",
                         style: "width: 40px; height: 40px;"
@@ -64,13 +49,8 @@ pub fn ColorPickerDemo() -> Element {
             DemoSection {
                 title: "禁用状态",
                 description: "禁用状态的颜色选择器。",
-                code: r#"rsx! {
-    ColorPicker {
-        class: "color-picker-disabled",
-        style: "width: 32px; height: 32px; opacity: 0.5; cursor: not-allowed;"
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     ColorPicker {
                         class: "color-picker-disabled",
                         style: "width: 32px; height: 32px; opacity: 0.5; cursor: not-allowed;"
@@ -81,13 +61,8 @@ pub fn ColorPickerDemo() -> Element {
             DemoSection {
                 title: "自定义触发器",
                 description: "自定义颜色选择器的触发器样式。",
-                code: r#"rsx! {
-    ColorPicker {
-        class: "color-picker-custom",
-        style: "width: 100px; height: 32px; border-radius: 16px; border: 2px solid #1677ff;"
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     ColorPicker {
                         class: "color-picker-custom",
                         style: "width: 100px; height: 32px; border-radius: 16px; border: 2px solid #1677ff;"

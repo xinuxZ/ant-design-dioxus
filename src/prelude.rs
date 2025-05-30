@@ -159,7 +159,7 @@ pub use crate::components::select::{
     OptionData, Select, SelectOptGroup, SelectOption, SelectProps, SelectSize, SelectStatus,
 };
 pub use crate::components::slider::{Slider, SliderMark, SliderProps, SliderSize, SliderStatus};
-pub use crate::components::switch::{Switch, SwitchProps};
+pub use crate::components::switch::{Switch, SwitchProps, SwitchSize};
 pub use crate::components::time_picker::{
     TimeFormat, TimePicker, TimePickerProps, TimePickerSize, TimeValue,
 };
@@ -167,7 +167,9 @@ pub use crate::components::transfer::{
     Transfer, TransferDirection, TransferItem, TransferListProps, TransferProps,
 };
 pub use crate::components::tree_select::{TreeSelect, TreeSelectProps};
-pub use crate::components::upload::{Upload, UploadFile, UploadProps, UploadStatus};
+pub use crate::components::upload::{
+    Upload, UploadChangeInfo, UploadFile, UploadListType, UploadProps, UploadStatus,
+};
 // }
 
 /// 数据展示组件
@@ -180,14 +182,16 @@ pub use crate::components::carousel::{
     Carousel, CarouselProps, DotPosition, Effect as CarouselEffect,
 };
 pub use crate::components::collapse::{Collapse, CollapsePanel, CollapseProps};
-pub use crate::components::descriptions::{Descriptions, DescriptionsItem, DescriptionsProps};
+pub use crate::components::descriptions::{
+    Descriptions, DescriptionsItem, DescriptionsProps, DescriptionsSize,
+};
 pub use crate::components::empty::{Empty, EmptyProps};
-pub use crate::components::image::{Image, ImageProps};
+pub use crate::components::image::{Image, ImagePreviewGroup};
 pub use crate::components::list::{List, ListItem, ListItemMeta, ListLayout, ListProps, ListSize};
 pub use crate::components::popover::{Popover, PopoverPlacement, PopoverProps, PopoverTrigger};
 pub use crate::components::qr_code::{QRCode, QRCodeProps};
-pub use crate::components::segmented::{Segmented, SegmentedProps};
-pub use crate::components::statistic::{Countdown, Statistic, StatisticProps};
+pub use crate::components::segmented::{Segmented, SegmentedItem, SegmentedOption, SegmentedProps};
+pub use crate::components::statistic::{Countdown, Statistic, StatisticPrecision, StatisticProps};
 pub use crate::components::table::{
     SelectionType, Table, TableAlign, TableColumn, TableFixed, TablePagination, TableProps,
     TableRowSelection, TableSize,
@@ -208,21 +212,22 @@ pub use crate::components::tree::{Tree, TreeNode, TreeProps};
 // pub mod feedback {
 pub use crate::components::alert::{Alert, AlertProps, AlertType};
 pub use crate::components::drawer::{Drawer, DrawerPlacement, DrawerProps, DrawerSize};
-pub use crate::components::message::{Message, MessageManager, MessageProps};
+pub use crate::components::message::{message, Message, MessageManager, MessageProps};
 pub use crate::components::modal::{Modal, ModalApi, ModalConfig, ModalProps};
 pub use crate::components::notification::{
     notification, NotificationConfig, NotificationItem, NotificationManager, NotificationPlacement,
     NotificationProps, NotificationType,
 };
-pub use crate::components::popconfirm::{Popconfirm, PopconfirmProps};
+pub use crate::components::popconfirm::{Popconfirm, PopconfirmPlacement, PopconfirmProps};
 pub use crate::components::progress::{
     Progress, ProgressProps, ProgressSize, ProgressStatus, ProgressType,
 };
 pub use crate::components::result::{Result, ResultProps, ResultStatus};
 pub use crate::components::skeleton::{
-    Skeleton, SkeletonButton, SkeletonButtonSize, SkeletonParagraphProps, SkeletonProps,
+    Skeleton, SkeletonButton, SkeletonButtonSize, SkeletonImage, SkeletonInput, SkeletonInputSize,
+    SkeletonParagraphProps, SkeletonProps, SkeletonWidth,
 };
-pub use crate::components::spin::{Spin, SpinProps};
+pub use crate::components::spin::{Spin, SpinProps, SpinSize};
 // }
 
 /// 其他组件

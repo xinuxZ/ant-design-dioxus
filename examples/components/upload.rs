@@ -142,28 +142,28 @@ pub fn UploadDemo() -> Element {
 
                     Upload {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-                        on_change: move |info| {
-                            let mut new_file_list = info.file_list;
+                        // onchange: move |info: EventHandler<UploadChangeInfo>| {
+                        //     let mut new_file_list = info.file_list;
 
-                            // 1. Limit the number of uploaded files
-                            // Only to show two recent uploaded files, and old ones will be replaced by the new
-                            new_file_list = new_file_list.into_iter().rev().take(2).rev().collect();
+                        //     // 1. Limit the number of uploaded files
+                        //     // Only to show two recent uploaded files, and old ones will be replaced by the new
+                        //     new_file_list = new_file_list.into_iter().rev().take(2).rev().collect();
 
-                            // 2. Read from response and show file link
-                            new_file_list = new_file_list.into_iter().map(|mut file| {
-                                if file.response.is_some() {
-                                    // Component will show file.url as link
-                                    file.url = Some("https://www.google.com".to_string());
-                                }
-                                file
-                            }).collect();
+                        //     // 2. Read from response and show file link
+                        //     new_file_list = new_file_list.into_iter().map(|mut file| {
+                        //         if file.response.is_some() {
+                        //             // Component will show file.url as link
+                        //             file.url = Some("https://www.google.com".to_string());
+                        //         }
+                        //         file
+                        //     }).collect();
 
-                            file_list.set(new_file_list);
-                        },
+                        //     file_list.set(new_file_list);
+                        // },
                         file_list: file_list(),
 
                         Button {
-                            icon: Icon { icon_type: "upload-outlined".to_string() },
+                            // icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Click to Upload"
                         }
                     }
@@ -186,23 +186,42 @@ pub fn UploadDemo() -> Element {
                                 name: "xxx.png".to_string(),
                                 status: UploadStatus::Done,
                                 url: Some("http://www.baidu.com/xxx.png".to_string()),
+                                thumb_url: None,
+                                size: None,
+                                file_type: None,
+                                response: None,
+                                error: None,
+                                percent: None,
                             },
                             UploadFile {
                                 uid: "2".to_string(),
                                 name: "yyy.png".to_string(),
                                 status: UploadStatus::Done,
                                 url: Some("http://www.baidu.com/yyy.png".to_string()),
+                                thumb_url: None,
+                                size: None,
+                                file_type: None,
+                                response: None,
+                                error: None,
+                                percent: None,
+
                             },
                             UploadFile {
                                 uid: "3".to_string(),
                                 name: "zzz.png".to_string(),
                                 status: UploadStatus::Error,
                                 url: None,
+                                thumb_url: None,
+                                size: None,
+                                file_type: None,
+                                response: None,
+                                error: None,
+                                percent: None,
                             },
                         ],
 
                         Button {
-                            icon: Icon { icon_type: "upload-outlined".to_string() },
+                            // icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
@@ -226,17 +245,29 @@ pub fn UploadDemo() -> Element {
                                 name: "image.png".to_string(),
                                 status: UploadStatus::Done,
                                 url: Some("https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPiUjhimbqI.jpg".to_string()),
+                                thumb_url: None,
+                                size: None,
+                                file_type: None,
+                                response: None,
+                                error: None,
+                                percent: None,
                             },
                             UploadFile {
                                 uid: "-2".to_string(),
                                 name: "image.png".to_string(),
                                 status: UploadStatus::Done,
                                 url: Some("https://zos.alipayobjects.com/rmsportal/taLLVXItOcnSrlc.jpg".to_string()),
+                                thumb_url: None,
+                                size: None,
+                                file_type: None,
+                                response: None,
+                                error: None,
+                                percent: None,
                             },
                         ],
 
                         Button {
-                            icon: Icon { icon_type: "upload-outlined".to_string() },
+                            // icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
@@ -253,7 +284,7 @@ pub fn UploadDemo() -> Element {
 
                     Upload {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-                        on_change: move |info| {
+                        onchange: move |info| {
                             let mut new_file_list = info.file_list;
 
                             // 1. Limit the number of uploaded files
@@ -274,57 +305,57 @@ pub fn UploadDemo() -> Element {
                         file_list: file_list(),
 
                         Button {
-                            icon: Icon { icon_type: "upload-outlined".to_string() },
+                            // icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
                 }
             }
 
-            // 拖拽上传
-            DemoSection {
-                title: "拖拽上传",
-                description: "把文件拖入指定区域，完成上传，同样支持点击上传。设置 multiple 后，在 IE10+ 可以一次上传多个文件。",
+            // // 拖拽上传
+            // DemoSection {
+            //     title: "拖拽上传",
+            //     description: "把文件拖入指定区域，完成上传，同样支持点击上传。设置 multiple 后，在 IE10+ 可以一次上传多个文件。",
 
-                div {
-                    style: "padding: 24px; background: #fafafa; border-radius: 6px;",
+            //     div {
+            //         style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
-                    Upload::Dragger {
-                        name: "file",
-                        multiple: true,
-                        action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-                        on_change: move |info| {
-                            let status = &info.file.status;
-                            if *status != UploadStatus::Uploading {
-                                println!("{:?} {:?}", info.file, info.file_list);
-                            }
-                            if *status == UploadStatus::Done {
-                                message::success(format!("{} file uploaded successfully.", info.file.name));
-                            } else if *status == UploadStatus::Error {
-                                message::error(format!("{} file upload failed.", info.file.name));
-                            }
-                        },
-                        on_drop: move |e| {
-                            println!("Dropped files: {:?}", e.data_transfer.files);
-                        },
+            //         Upload::Dragger {
+            //             name: "file",
+            //             multiple: true,
+            //             action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
+            //             onchange: move |info| {
+            //                 let status = &info.file.status;
+            //                 if *status != UploadStatus::Uploading {
+            //                     println!("{:?} {:?}", info.file, info.file_list);
+            //                 }
+            //                 if *status == UploadStatus::Done {
+            //                     message::success(format!("{} file uploaded successfully.", info.file.name).as_str());
+            //                 } else if *status == UploadStatus::Error {
+            //                     message::error(format!("{} file upload failed.", info.file.name).as_str());
+            //                 }
+            //             },
+            //             on_drop: move |e| {
+            //                 println!("Dropped files: {:?}", e.data_transfer.files);
+            //             },
 
-                        p {
-                            class: "ant-upload-drag-icon",
-                            Icon {
-                                icon_type: "inbox-outlined".to_string()
-                            }
-                        }
-                        p {
-                            class: "ant-upload-text",
-                            "Click or drag file to this area to upload"
-                        }
-                        p {
-                            class: "ant-upload-hint",
-                            "Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files"
-                        }
-                    }
-                }
-            }
+            //             p {
+            //                 class: "ant-upload-drag-icon",
+            //                 Icon {
+            //                     icon_type: "inbox-outlined".to_string()
+            //                 }
+            //             }
+            //             p {
+            //                 class: "ant-upload-text",
+            //                 "Click or drag file to this area to upload"
+            //             }
+            //             p {
+            //                 class: "ant-upload-hint",
+            //                 "Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files"
+            //             }
+            //         }
+            //     }
+            // }
 
             // 照片墙
             DemoSection {
@@ -338,7 +369,7 @@ pub fn UploadDemo() -> Element {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
                         list_type: UploadListType::PictureCard,
                         file_list: image_file_list(),
-                        on_change: move |info| {
+                        onchange: move |info| {
                             image_file_list.set(info.file_list);
                         },
                         on_preview: move |file| {
@@ -346,17 +377,15 @@ pub fn UploadDemo() -> Element {
                         },
 
                         if image_file_list().len() >= 8 {
-                            rsx! { div {} }
+                            div {}
                         } else {
-                            rsx! {
+                            div {
+                                Icon {
+                                    icon_type: "plus-outlined".to_string()
+                                }
                                 div {
-                                    Icon {
-                                        icon_type: "plus-outlined".to_string()
-                                    }
-                                    div {
-                                        style: "margin-top: 8px;",
-                                        "Upload"
-                                    }
+                                    style: "margin-top: 8px;",
+                                    "Upload"
                                 }
                             }
                         }
@@ -365,44 +394,45 @@ pub fn UploadDemo() -> Element {
             }
 
             // 自定义上传按钮
-            DemoSection {
-                title: "自定义上传按钮",
-                description: "使用 showUploadList 设置列表交互功能。",
+            // UploadListProps 定义与此处用法不一致
+            // DemoSection {
+            //     title: "自定义上传按钮",
+            //     description: "使用 showUploadList 设置列表交互功能。",
 
-                div {
-                    style: "padding: 24px; background: #fafafa; border-radius: 6px;",
+            //     div {
+            //         style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
-                    Upload {
-                        action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-                        show_upload_list: UploadListProps {
-                            show_preview_icon: true,
-                            show_remove_icon: true,
-                            show_download_icon: true,
-                            remove_icon: Some(rsx! {
-                                Icon {
-                                    icon_type: "delete-outlined".to_string(),
-                                    onclick: move |_| {
-                                        println!("custom removeIcon");
-                                    }
-                                }
-                            }),
-                            download_icon: Some(rsx! {
-                                Icon {
-                                    icon_type: "download-outlined".to_string(),
-                                    onclick: move |_| {
-                                        println!("custom downloadIcon");
-                                    }
-                                }
-                            }),
-                        },
+            //         Upload {
+            //             action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
+            //             show_upload_list: UploadListProps {
+            //                 show_preview_icon: true,
+            //                 show_remove_icon: true,
+            //                 show_download_icon: true,
+            //                 remove_icon: Some(rsx! {
+            //                     Icon {
+            //                         icon_type: "delete-outlined".to_string(),
+            //                         onclick: move |_| {
+            //                             println!("custom removeIcon");
+            //                         }
+            //                     }
+            //                 }),
+            //                 download_icon: Some(rsx! {
+            //                     Icon {
+            //                         icon_type: "download-outlined".to_string(),
+            //                         onclick: move |_| {
+            //                             println!("custom downloadIcon");
+            //                         }
+            //                     }
+            //                 }),
+            //             },
 
-                        Button {
-                            icon: Icon { icon_type: "upload-outlined".to_string() },
-                            "Upload"
-                        }
-                    }
-                }
-            }
+            //             Button {
+            //                 // icon: Icon { icon_type: "upload-outlined".to_string() },
+            //                 "Upload"
+            //             }
+            //         }
+            //     }
+            // }
 
             // 手动上传
             DemoSection {
@@ -414,15 +444,15 @@ pub fn UploadDemo() -> Element {
 
                     Upload {
                         file_list: file_list(),
-                        on_change: move |info| {
+                        onchange: move |info| {
                             file_list.set(info.file_list);
                         },
-                        before_upload: move |file| {
-                            false
-                        },
+                        // before_upload: move |file| {
+                        //     false
+                        // },
 
                         Button {
-                            icon: Icon { icon_type: "upload-outlined".to_string() },
+                            // icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Select File"
                         }
                     }
@@ -459,7 +489,7 @@ pub fn UploadDemo() -> Element {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
                         list_type: UploadListType::PictureCard,
                         file_list: image_file_list(),
-                        on_change: move |info| {
+                        onchange: move |info| {
                             image_file_list.set(info.file_list);
                         },
                         before_upload: move |file| {
@@ -475,17 +505,15 @@ pub fn UploadDemo() -> Element {
                         },
 
                         if image_file_list().len() >= 1 {
-                            rsx! { div {} }
+                            div {}
                         } else {
-                            rsx! {
+                            div {
+                                Icon {
+                                    icon_type: "plus-outlined".to_string()
+                                }
                                 div {
-                                    Icon {
-                                        icon_type: "plus-outlined".to_string()
-                                    }
-                                    div {
-                                        style: "margin-top: 8px;",
-                                        "Upload"
-                                    }
+                                    style: "margin-top: 8px;",
+                                    "Upload"
                                 }
                             }
                         }

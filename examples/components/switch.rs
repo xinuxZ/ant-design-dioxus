@@ -11,6 +11,14 @@ pub fn SwitchDemo() -> Element {
     let mut disabled_switch = use_signal(|| true);
 
     rsx! {
+        // style {
+        //     r#"
+        //     .custom-switch {
+        //         /* 自定义开关样式示例 */
+        //     }
+        //     "#
+        // }
+
         div {
             style: "padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",
 
@@ -174,12 +182,5 @@ pub fn SwitchDemo() -> Element {
             }
         }
 
-        style {
-            r#"
-            .custom-switch {
-                /* 自定义开关样式示例 */
-            }
-            "#
-        }
     }
 }

@@ -32,9 +32,9 @@ pub fn ImageDemo() -> Element {
                     style: "display: flex; gap: 16px; flex-wrap: wrap;",
 
                     Image {
-                        width: 200,
-                        src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-                        alt: "example"
+                        width: Some("200px".to_string()),
+                        src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png".to_string(),
+                        alt: Some("example".to_string()),
                     }
                 }
             }
@@ -48,11 +48,11 @@ pub fn ImageDemo() -> Element {
                     style: "display: flex; gap: 16px; flex-wrap: wrap;",
 
                     Image {
-                        width: 200,
-                        height: 200,
-                        src: "error",
-                        fallback: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN",
-                        alt: "fallback"
+                        width: Some("200px".to_string()),
+                        height: Some("200px".to_string()),
+                        src: "error".to_string(),
+                        fallback: Some("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN".to_string()),
+                        alt: Some("fallback".to_string()),
                     }
                 }
             }
@@ -66,15 +66,15 @@ pub fn ImageDemo() -> Element {
                     style: "display: flex; gap: 16px; flex-wrap: wrap;",
 
                     Image {
-                        width: 200,
-                        src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-                        placeholder: rsx! {
+                        width: Some("200px".to_string()),
+                        src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png".to_string(),
+                        placeholder: Some(rsx! {
                             div {
                                 style: "width: 200px; height: 200px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999;",
                                 "Loading..."
                             }
-                        },
-                        alt: "example"
+                        }),
+                        alt: Some("example".to_string()),
                     }
                 }
             }
@@ -88,21 +88,21 @@ pub fn ImageDemo() -> Element {
                     style: "display: flex; gap: 16px; flex-wrap: wrap;",
 
                     Image {
-                        width: 200,
-                        src: "https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp",
-                        alt: "image-1"
+                        width: Some("200px".to_string()),
+                        src: "https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp".to_string(),
+                        alt: Some("image-1".to_string()),
                     }
 
                     Image {
-                        width: 200,
-                        src: "https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp",
-                        alt: "image-2"
+                        width: Some("200px".to_string()),
+                        src: "https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp".to_string(),
+                        alt: Some("image-2".to_string()),
                     }
 
                     Image {
-                        width: 200,
-                        src: "https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp",
-                        alt: "image-3"
+                        width: Some("200px".to_string()),
+                        src: "https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp".to_string(),
+                        alt: Some("image-3".to_string()),
                     }
                 }
             }
@@ -117,15 +117,15 @@ pub fn ImageDemo() -> Element {
 
                     ImagePreviewGroup {
                         Image {
-                            width: 200,
-                            src: "https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg",
-                            alt: "image-1"
+                            width: Some("200px".to_string()),
+                            src: "https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg".to_string(),
+                            alt: Some("image-1".to_string()),
                         }
 
                         Image {
-                            width: 200,
-                            src: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
-                            alt: "image-2"
+                            width: Some("200px".to_string()),
+                            src: "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg".to_string(),
+                            alt: Some("image-2".to_string()),
                         }
                     }
                 }
@@ -140,10 +140,10 @@ pub fn ImageDemo() -> Element {
                     style: "display: flex; gap: 16px; flex-wrap: wrap;",
 
                     Image {
-                        width: 200,
-                        src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-                        preview_src: "https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp",
-                        alt: "example"
+                        width: Some("200px".to_string()),
+                        src: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png".to_string(),
+                        // preview_src: "https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp",
+                        alt: Some("example".to_string()),
                     }
                 }
             }

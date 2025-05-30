@@ -35,19 +35,19 @@ pub fn CollapseDemo() -> Element {
                         default_active_key: vec!["1".to_string()],
 
                         CollapsePanel {
-                            key: "1",
+                            panel_key: "1".to_string(),
                             header: "This is panel header 1",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
 
                         CollapsePanel {
-                            key: "2",
+                            panel_key: "2".to_string(),
                             header: "This is panel header 2",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
 
                         CollapsePanel {
-                            key: "3",
+                            panel_key: "3".to_string(),
                             header: "This is panel header 3",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
@@ -67,19 +67,19 @@ pub fn CollapseDemo() -> Element {
                         accordion: true,
 
                         CollapsePanel {
-                            key: "1",
+                            panel_key: "1".to_string(),
                             header: "This is panel header 1",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
 
                         CollapsePanel {
-                            key: "2",
+                            panel_key: "2".to_string(),
                             header: "This is panel header 2",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
 
                         CollapsePanel {
-                            key: "3",
+                            panel_key: "3".to_string(),
                             header: "This is panel header 3",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
@@ -97,14 +97,14 @@ pub fn CollapseDemo() -> Element {
 
                     Collapse {
                         CollapsePanel {
-                            key: "1",
+                            panel_key: "1".to_string(),
                             header: "This is panel header 1",
 
                             Collapse {
                                 default_active_key: vec!["1".to_string()],
 
                                 CollapsePanel {
-                                    key: "1",
+                                    panel_key: "1".to_string(),
                                     header: "This is panel nest panel",
                                     p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                                 }
@@ -127,19 +127,19 @@ pub fn CollapseDemo() -> Element {
                         default_active_key: vec!["1".to_string()],
 
                         CollapsePanel {
-                            key: "1",
+                            panel_key: "1".to_string(),
                             header: "This is panel header 1",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
 
                         CollapsePanel {
-                            key: "2",
+                            panel_key: "2".to_string(),
                             header: "This is panel header 2",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }
 
                         CollapsePanel {
-                            key: "3",
+                            panel_key: "3".to_string(),
                             header: "This is panel header 3",
                             p { "A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world." }
                         }

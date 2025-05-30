@@ -227,18 +227,18 @@ pub fn TimelineDemo() -> Element {
                     Timeline {
                         mode: TimelineMode::Left,
                         TimelineItem {
-                            label: Some(rsx! { "2015-09-01" }),
+                            label: "2015-09-01".to_string(),
                             "Create a services"
                         }
                         TimelineItem {
-                            label: Some(rsx! { "2015-09-01 09:12:11" }),
+                            label: "2015-09-01 09:12:11".to_string(),
                             "Solve initial network problems"
                         }
                         TimelineItem {
                             "Technical testing"
                         }
                         TimelineItem {
-                            label: Some(rsx! { "2015-09-01 09:12:11" }),
+                            label: "2015-09-01 09:12:11".to_string(),
                             "Network problems being solved"
                         }
                     }

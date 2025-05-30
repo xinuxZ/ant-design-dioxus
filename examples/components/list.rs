@@ -134,7 +134,7 @@ pub fn ListDemo() -> Element {
                                             src: "https://joeschmoe.io/api/v1/random"
                                         }
                                     },
-                                    title: rsx! { a { href: "https://ant.design", "{item}" } },
+                                    title: "href-a-wait-complete".to_string(), //rsx! { a { href: "https://ant.design", "{item}" } },
                                     description: "Ant Design, a design language for background applications, is refined by Ant UED Team."
                                 }
 

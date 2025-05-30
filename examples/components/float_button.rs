@@ -19,7 +19,7 @@ pub fn FloatButtonDemo() -> Element {
                         FloatButton {
                             class: "demo-float-button",
                             style: "position: absolute; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "➕"
+                            // icon: "➕"
                         }
                     }
                 }
@@ -34,12 +34,12 @@ pub fn FloatButtonDemo() -> Element {
                         FloatButton {
                             class: "float-button-primary",
                             style: "position: absolute; bottom: 24px; right: 80px; width: 40px; height: 40px; border-radius: 50%; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "🏠"
+                            // icon: "🏠"
                         }
                         FloatButton {
                             class: "float-button-default",
                             style: "position: absolute; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: white; color: #666; border: 1px solid #d9d9d9; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "⚙️"
+                            // icon: "⚙️"
                         }
                     }
                 }
@@ -54,12 +54,12 @@ pub fn FloatButtonDemo() -> Element {
                         FloatButton {
                             class: "float-button-circle",
                             style: "position: absolute; bottom: 24px; right: 80px; width: 40px; height: 40px; border-radius: 50%; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "🔍"
+                            // icon: "🔍"
                         }
                         FloatButton {
                             class: "float-button-square",
                             style: "position: absolute; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 6px; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "📝"
+                            // icon: "📝"
                         }
                     }
                 }
@@ -74,17 +74,17 @@ pub fn FloatButtonDemo() -> Element {
                         FloatButton {
                             class: "float-button-small",
                             style: "position: absolute; bottom: 24px; right: 120px; width: 32px; height: 32px; border-radius: 50%; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 12px;",
-                            icon: "📧"
+                            // icon: "📧"
                         }
                         FloatButton {
                             class: "float-button-default",
                             style: "position: absolute; bottom: 24px; right: 72px; width: 40px; height: 40px; border-radius: 50%; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "📞"
+                            // icon: "📞"
                         }
                         FloatButton {
                             class: "float-button-large",
                             style: "position: absolute; bottom: 24px; right: 24px; width: 48px; height: 48px; border-radius: 50%; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 18px;",
-                            icon: "💬"
+                            // icon: "💬"
                         }
                     }
                 }
@@ -99,8 +99,8 @@ pub fn FloatButtonDemo() -> Element {
                         FloatButton {
                             class: "float-button-with-description",
                             style: "position: absolute; bottom: 24px; right: 24px; height: 40px; padding: 0 16px; border-radius: 20px; background: #1677ff; color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            span { "❓" }
-                            span { "帮助" }
+                            // span { "❓" }
+                            // span { "帮助" }
                         }
                     }
                 }
@@ -115,7 +115,7 @@ pub fn FloatButtonDemo() -> Element {
                         FloatButton {
                             class: "back-top",
                             style: "position: absolute; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 6px; background: rgba(0,0,0,0.65); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15);",
-                            icon: "⬆️"
+                            // icon: "⬆️"
                         }
                     }
                 }

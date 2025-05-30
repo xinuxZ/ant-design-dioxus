@@ -302,7 +302,7 @@ pub fn PopconfirmDemo() -> Element {
                         on_cancel: move |_| {
                             visible.set(false);
                         },
-                        on_open_change: move |open| {
+                        on_open_change: move |open: bool| {
                             if !open {
                                 visible.set(false);
                             }

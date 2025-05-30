@@ -16,14 +16,14 @@ pub fn SegmentedDemo() -> Element {
 
                 div {
                     Segmented {
-                        class: "demo-segmented",
-                        style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
+                        class: Some("demo-segmented".to_string()),
+                        style: Some("background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;".to_string()),
                         options: vec![
-                            "Daily".into(),
-                            "Weekly".into(),
-                            "Monthly".into(),
-                            "Quarterly".into(),
-                            "Yearly".into(),
+                            SegmentedOption::String("Daily".to_string()),
+                            SegmentedOption::String("Weekly".to_string()),
+                            SegmentedOption::String("Monthly".to_string()),
+                            SegmentedOption::String("Quarterly".to_string()),
+                            SegmentedOption::String("Yearly".to_string()),
                         ],
                         default_value: Some("Daily".to_string())
                     }
@@ -36,30 +36,30 @@ pub fn SegmentedDemo() -> Element {
 
                 div {
                     Segmented {
-                        class: "segmented-with-icons",
-                        style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
+                        class: Some("segmented-with-icons".to_string()),
+                        style: Some("background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;".to_string()),
                         options: vec![
-                            SegmentedItem {
+                            SegmentedOption::Item(SegmentedItem {
                                 label: Some(rsx!("Map")),
                                 value: "map".to_string(),
                                 icon: Some(rsx!(Icon { icon_type: "user".to_string(), style: "margin-right: 4px;" })),
                                 disabled: false,
                                 class_name: None,
-                            }.into(),
-                            SegmentedItem {
+                            }),
+                            SegmentedOption::Item(SegmentedItem {
                                 label: Some(rsx!("Transit")),
                                 value: "transit".to_string(),
                                 icon: Some(rsx!(Icon { icon_type: "app".to_string(), style: "margin-right: 4px;" })),
                                 disabled: false,
                                 class_name: None,
-                            }.into(),
-                            SegmentedItem {
+                            }),
+                            SegmentedOption::Item(SegmentedItem {
                                 label: Some(rsx!("Satellite")),
                                 value: "satellite".to_string(),
                                 icon: Some(rsx!(Icon { icon_type: "compass".to_string(), style: "margin-right: 4px;" })),
                                 disabled: false,
                                 class_name: None,
-                            }.into(),
+                            }),
                         ],
                         default_value: Some("map".to_string())
                     }
@@ -72,28 +72,37 @@ pub fn SegmentedDemo() -> Element {
                 div {
                     div { style: "display: flex; flex-direction: column; gap: 16px;",
                         Segmented {
-                            class: "segmented-large",
-                            style: "background: #f5f5f5; border-radius: 8px; padding: 3px; display: inline-flex;",
-                            div { style: "display: flex;",
-                                button { style: "padding: 8px 20px; border: none; background: #1677ff; color: white; border-radius: 6px; cursor: pointer; margin-right: 3px; font-size: 14px;", "Large" }
-                                button { style: "padding: 8px 20px; border: none; background: transparent; color: #666; border-radius: 6px; cursor: pointer; font-size: 14px;", "Size" }
-                            }
+                            class: Some("segmented-large".to_string()),
+                            style: Some("background: #f5f5f5; border-radius: 8px; padding: 3px; display: inline-flex;".to_string()),
+                            options: vec![
+                                SegmentedOption::String("Daily".to_string()),
+                            ],
+                            // div { style: "display: flex;",
+                            //     button { style: "padding: 8px 20px; border: none; background: #1677ff; color: white; border-radius: 6px; cursor: pointer; margin-right: 3px; font-size: 14px;", "Large" }
+                            //     button { style: "padding: 8px 20px; border: none; background: transparent; color: #666; border-radius: 6px; cursor: pointer; font-size: 14px;", "Size" }
+                            // }
                         }
                         Segmented {
-                            class: "segmented-default",
-                            style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
-                            div { style: "display: flex;",
-                                button { style: "padding: 4px 16px; border: none; background: #1677ff; color: white; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Default" }
-                                button { style: "padding: 4px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer;", "Size" }
-                            }
+                            class: Some("segmented-default".to_string()),
+                            style: Some("background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;".to_string()),
+                            options: vec![
+                                SegmentedOption::String("Daily".to_string()),
+                            ],
+                            // div { style: "display: flex;",
+                            //     button { style: "padding: 4px 16px; border: none; background: #1677ff; color: white; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Default" }
+                            //     button { style: "padding: 4px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer;", "Size" }
+                            // }
                         }
                         Segmented {
-                            class: "segmented-small",
-                            style: "background: #f5f5f5; border-radius: 4px; padding: 1px; display: inline-flex;",
-                            div { style: "display: flex;",
-                                button { style: "padding: 2px 12px; border: none; background: #1677ff; color: white; border-radius: 3px; cursor: pointer; margin-right: 1px; font-size: 12px;", "Small" }
-                                button { style: "padding: 2px 12px; border: none; background: transparent; color: #666; border-radius: 3px; cursor: pointer; font-size: 12px;", "Size" }
-                            }
+                            class: Some("segmented-small".to_string()),
+                            style: Some("background: #f5f5f5; border-radius: 4px; padding: 1px; display: inline-flex;".to_string()),
+                            options: vec![
+                                SegmentedOption::String("Daily".to_string()),
+                            ],
+                            // div { style: "display: flex;",
+                            //     button { style: "padding: 2px 12px; border: none; background: #1677ff; color: white; border-radius: 3px; cursor: pointer; margin-right: 1px; font-size: 12px;", "Small" }
+                            //     button { style: "padding: 2px 12px; border: none; background: transparent; color: #666; border-radius: 3px; cursor: pointer; font-size: 12px;", "Size" }
+                            // }
                         }
                     }
                 }
@@ -105,12 +114,15 @@ pub fn SegmentedDemo() -> Element {
 
                 div {
                     Segmented {
-                        class: "segmented-disabled",
-                        style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex; opacity: 0.6;",
-                        div { style: "display: flex;",
-                            button { style: "padding: 4px 16px; border: none; background: #d9d9d9; color: #00000040; border-radius: 4px; cursor: not-allowed; margin-right: 2px;", "Disabled" }
-                            button { style: "padding: 4px 16px; border: none; background: transparent; color: #00000040; border-radius: 4px; cursor: not-allowed;", "Segmented" }
-                        }
+                        class: Some("segmented-disabled".to_string()),
+                        style: Some("background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex; opacity: 0.6;".to_string()),
+                        options: vec![
+                            SegmentedOption::String("Daily".to_string()),
+                        ],
+                        // div { style: "display: flex;",
+                        //     button { style: "padding: 4px 16px; border: none; background: #d9d9d9; color: #00000040; border-radius: 4px; cursor: not-allowed; margin-right: 2px;", "Disabled" }
+                        //     button { style: "padding: 4px 16px; border: none; background: transparent; color: #00000040; border-radius: 4px; cursor: not-allowed;", "Segmented" }
+                        // }
                     }
                 }
             }
@@ -121,14 +133,17 @@ pub fn SegmentedDemo() -> Element {
 
                 div {
                     Segmented {
-                        class: "segmented-dynamic",
-                        style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
-                        div { style: "display: flex;",
-                            button { style: "padding: 4px 12px; border: none; background: #1677ff; color: white; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Option 1" }
-                            button { style: "padding: 4px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Option 2" }
-                            button { style: "padding: 4px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Option 3" }
-                            button { style: "padding: 4px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer;", "Option 4" }
-                        }
+                        class: Some("segmented-dynamic".to_string()),
+                        style: Some("background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;".to_string()),
+                        options: vec![
+                            SegmentedOption::String("Daily".to_string()),
+                        ],
+                        // div { style: "display: flex;",
+                        //     button { style: "padding: 4px 12px; border: none; background: #1677ff; color: white; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Option 1" }
+                        //     button { style: "padding: 4px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Option 2" }
+                        //     button { style: "padding: 4px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Option 3" }
+                        //     button { style: "padding: 4px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer;", "Option 4" }
+                        // }
                     }
                 }
             }

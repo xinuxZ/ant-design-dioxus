@@ -30,7 +30,7 @@ pub fn TimePickerDemo() -> Element {
 
     rsx! {
         div {
-            style: "padding: 24px; max-width: 1200px; margin: 0 auto;",
+            // style: "padding: 24px; max-width: 1200px; margin: 0 auto;",
 
             h1 { "TimePicker 时间选择器演示" }
 

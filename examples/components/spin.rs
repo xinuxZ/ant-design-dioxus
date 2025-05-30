@@ -10,8 +10,17 @@ pub fn SpinDemo() -> Element {
     let mut loading = use_signal(|| false);
     let mut delay_loading = use_signal(|| false);
 
+    // style { include_str!("../src/components/spin/style.css") }
     rsx! {
-        // style { include_str!("../src/components/spin/style.css") }
+        // 添加自定义指示器的动画样式
+        // style {
+        //     r#"
+        //     @keyframes spin {
+        //         0% { transform: rotate(0deg); }
+        //         100% { transform: rotate(360deg); }
+        //     }
+        //     "#
+        // }
 
         div {
             style: "padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",
@@ -216,14 +225,5 @@ pub fn SpinDemo() -> Element {
             }
         }
 
-        // 添加自定义指示器的动画样式
-        style {
-            r#"
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            "#
-        }
     }
 }

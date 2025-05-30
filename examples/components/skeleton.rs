@@ -49,10 +49,10 @@ pub fn SkeletonDemo() -> Element {
                     Skeleton {
                         avatar: true,
                         paragraph: true,
-                        // paragraph: SkeletonParagraphProps {
-                        //     rows: 4,
-                        //     width: Some(SkeletonWidth::Percent(70))
-                        // }
+                        paragraph_props: SkeletonParagraphProps {
+                            rows: Some(4),
+                            width: Some(SkeletonWidth::Percentage(70))
+                        }
                     }
                 }
             }
@@ -79,8 +79,10 @@ pub fn SkeletonDemo() -> Element {
                     Skeleton {
                         active: active(),
                         avatar: true,
-                        paragraph: SkeletonParagraph {
-                            rows: 4,
+                        paragraph:true,
+                        paragraph_props: SkeletonParagraphProps {
+                            rows: Some(4),
+                            width: Some(SkeletonWidth::Percentage(70))
                         }
                     }
                 }

@@ -121,9 +121,9 @@ pub fn MessageDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            MessageManager::new().loading("Action in progress..", Some(1000 as f64))
-                                .then(|| MessageManager::new().success("Loading finished", Some(1000 as f64)))
-                                .then(|| MessageManager::new().info("Loading finished is finished", Some(1000 as f64)));
+                            MessageManager::new().loading("Action in progress..", Some(1000 as f64));
+                                // .then(|| MessageManager::new().success("Loading finished", Some(1000 as f64)))
+                                // .then(|| MessageManager::new().info("Loading finished is finished", Some(1000 as f64)));
                         },
                         "Display sequential messages"
                     }

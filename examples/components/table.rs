@@ -258,7 +258,7 @@ pub fn TableDemo() -> Element {
                             show_header: true,
                             // empty_text: "暂无数据".to_string(),
                             on_row_click: move |key: String| {},
-                            on_sort_change: move |column: String, direction: String| {},
+                            // on_sort_change: move |column: String, direction: String| {},
                             row_selection: None,
                             pagination: None,
                         }
@@ -273,7 +273,7 @@ pub fn TableDemo() -> Element {
                             show_header: true,
                             // empty_text: "暂无数据".to_string(),
                             on_row_click: move |key: String| {},
-                            on_sort_change: move |column: String, direction: String| {},
+                            // on_sort_change: move |column: String, direction: String| {},
                             row_selection: None,
                             pagination: None,
                         }

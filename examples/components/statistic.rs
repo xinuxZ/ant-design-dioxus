@@ -35,25 +35,25 @@ pub fn StatisticDemo() -> Element {
                     style: "display: flex; gap: 32px; flex-wrap: wrap;",
 
                     Statistic {
-                        title: "Active Users",
+                        title: Some("Active Users".to_string()),
                         value: 112893.0
                     }
 
                     Statistic {
-                        title: "Account Balance (CNY)",
+                        title: Some("Account Balance (CNY)".to_string()),
                         value: 112893.0,
                         precision: StatisticPrecision { decimal_places: 2 }
                     }
 
                     Statistic {
-                        title: "Active Users",
+                        title: Some("Active Users".to_string()),
                         value: 112893.0,
                         suffix: rsx! { "/" },
                         value_style: Some("color: #3f8600".to_string())
                     }
 
                     Statistic {
-                        title: "Idle Users",
+                        title: Some("Idle Users".to_string()),
                         value: 93.0,
                         suffix: rsx! { "%" },
                         value_style: Some("color: #cf1322".to_string())
@@ -70,7 +70,7 @@ pub fn StatisticDemo() -> Element {
                     style: "display: flex; gap: 32px; flex-wrap: wrap;",
 
                     Statistic {
-                        title: "Feedback",
+                        title: Some("Feedback".to_string()),
                         value: 1128.0,
                         prefix: rsx! {
                             Icon {
@@ -82,7 +82,7 @@ pub fn StatisticDemo() -> Element {
                     }
 
                     Statistic {
-                        title: "Unmerged",
+                        title: Some("Unmerged".to_string()),
                         value: 93.0,
                         suffix: rsx! { "/100" }
                     }
@@ -98,9 +98,9 @@ pub fn StatisticDemo() -> Element {
                     style: "display: flex; gap: 16px; flex-wrap: wrap;",
 
                     Card {
-                        style: "width: 300px;",
+                        style: Some("width: 300px;".to_string()),
                         Statistic {
-                            title: "Active Users",
+                            title: Some("Active Users".to_string()),
                             value: 112893.0,
                             value_style: Some("color: #3f8600".to_string()),
                             prefix: rsx! {
@@ -113,9 +113,9 @@ pub fn StatisticDemo() -> Element {
                     }
 
                     Card {
-                        style: "width: 300px;",
+                        style: Some("width: 300px;".to_string()),
                         Statistic {
-                            title: "Idle Users",
+                            title: Some("Idle Users".to_string()),
                             value: 9.3,
                             precision: StatisticPrecision { decimal_places: 2 },
                             value_style: Some("color: #cf1322".to_string()),
@@ -130,104 +130,104 @@ pub fn StatisticDemo() -> Element {
                 }
             }
 
-            // 倒计时
-            DemoSection {
-                title: "倒计时",
-                description: "倒计时组件。",
+            // // 倒计时
+            // DemoSection {
+            //     title: "倒计时",
+            //     description: "倒计时组件。",
 
-                div {
-                    style: "display: flex; gap: 32px; flex-wrap: wrap;",
+            //     div {
+            //         style: "display: flex; gap: 32px; flex-wrap: wrap;",
 
-                    Countdown {
-                        title: "Countdown",
-                        value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
-                        on_finish: move |_| {
-                            web_sys::console::log_1(&"finished!".into());
-                        }
-                    }
+            //         Countdown {
+            //             title: Some("Countdown".to_string()),
+            //             value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
+            //             on_finish: move |_| {
+            //                 web_sys::console::log_1(&"finished!".into());
+            //             }
+            //         }
 
-                    Countdown {
-                        title: "Million Seconds",
-                        value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
-                        format: "HH:mm:ss:SSS"
-                    }
+            //         Countdown {
+            //             title: Some("Million Seconds".to_string()),
+            //             value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
+            //             format: "HH:mm:ss:SSS"
+            //         }
 
-                    Countdown {
-                        title: "Day Level",
-                        value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
-                        format: "D 天 H 时 m 分 s 秒"
-                    }
-                }
-            }
+            //         Countdown {
+            //             title: Some("Day Level".to_string()),
+            //             value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
+            //             format: "D 天 H 时 m 分 s 秒"
+            //         }
+            //     }
+            // }
 
-            // 控制倒计时
-            DemoSection {
-                title: "控制倒计时",
-                description: "通过 value 手动控制倒计时展示。",
+            // // 控制倒计时
+            // DemoSection {
+            //     title: "控制倒计时",
+            //     description: "通过 value 手动控制倒计时展示。",
 
-                div {
-                    style: "display: flex; gap: 32px; flex-wrap: wrap; align-items: center;",
+            //     div {
+            //         style: "display: flex; gap: 32px; flex-wrap: wrap; align-items: center;",
 
-                    Countdown {
-                        title: "Countdown",
-                        value: (js_sys::Date::now() + 10.0 * 1000.0) as u64,
-                        on_finish: move |_| {
-                            web_sys::console::log_1(&"finished!".into());
-                        }
-                    }
+            //         Countdown {
+            //             title: Some("Countdown".to_string()),
+            //             value: (js_sys::Date::now() + 10.0 * 1000.0) as u64,
+            //             on_finish: move |_| {
+            //                 web_sys::console::log_1(&"finished!".into());
+            //             }
+            //         }
 
-                    Button {
-                        button_type: ButtonType::Primary,
-                        onclick: move |_| {
-                            // 重新设置倒计时
-                        },
-                        "Start"
-                    }
-                }
-            }
+            //         Button {
+            //             button_type: ButtonType::Primary,
+            //             onclick: move |_| {
+            //                 // 重新设置倒计时
+            //             },
+            //             "Start"
+            //         }
+            //     }
+            // }
 
-            // 数值动画
-            DemoSection {
-                title: "数值动画",
-                description: "数值动画。",
+            // // 数值动画
+            // DemoSection {
+            //     title: "数值动画",
+            //     description: "数值动画。",
 
-                div {
-                    style: "display: flex; gap: 32px; flex-wrap: wrap; align-items: center;",
+            //     div {
+            //         style: "display: flex; gap: 32px; flex-wrap: wrap; align-items: center;",
 
-                    div {
-                        style: "display: flex; gap: 16px; align-items: center;",
-                        Button {
-                            button_type: ButtonType::Primary,
-                            onclick: move |_| {
-                                like.set(like() + 1);
-                            },
-                            Icon {
-                                icon_type: "like".to_string(),
-                                theme: IconTheme::Outlined,
-                                style: "color: #1890ff",
-                            }
-                        }
-                        span {
-                            style: "margin: 0 16px;",
-                            {like()}
-                        }
-                        Button {
-                            onclick: move |_| {
-                                dislikes.set(dislikes() + 1);
-                            },
-                            Icon {
-                                icon_type: "dislike".to_string(),
-                                theme: IconTheme::Outlined,
-                                style: "color: #eb2f96",
-                            }
-                        }
-                        span {
-                            style: "margin: 0 16px;",
-                            {dislikes()}
-                        }
-                    }
-                }
-            }
+            //         div {
+            //             style: "display: flex; gap: 16px; align-items: center;",
+            //             Button {
+            //                 button_type: ButtonType::Primary,
+            //                 onclick: move |_| {
+            //                     like.set(like() + 1);
+            //                 },
+            //                 Icon {
+            //                     icon_type: "like".to_string(),
+            //                     theme: IconTheme::Outlined,
+            //                     style: "color: #1890ff",
+            //                 }
+            //             }
+            //             span {
+            //                 style: "margin: 0 16px;",
+            //                 {like()}
+            //             }
+            //             Button {
+            //                 onclick: move |_| {
+            //                     dislikes.set(dislikes() + 1);
+            //                 },
+            //                 Icon {
+            //                     icon_type: "dislike".to_string(),
+            //                     theme: IconTheme::Outlined,
+            //                     style: "color: #eb2f96",
+            //                 }
+            //             }
+            //             span {
+            //                 style: "margin: 0 16px;",
+            //                 {dislikes()}
+            //             }
+            //         }
+            //     }
+            // }
 
             // API 文档
             ApiDocumentation {

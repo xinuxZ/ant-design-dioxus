@@ -35,27 +35,27 @@ pub fn DescriptionsDemo() -> Element {
                         title: "User Info",
 
                         DescriptionsItem {
-                            label: "UserName",
+                            label: "UserName".to_string(),
                             "Zhou Maomao"
                         }
 
                         DescriptionsItem {
-                            label: "Telephone",
+                            label: "Telephone".to_string(),
                             "1810000000"
                         }
 
                         DescriptionsItem {
-                            label: "Live",
+                            label: "Live".to_string(),
                             "Hangzhou, Zhejiang"
                         }
 
                         DescriptionsItem {
-                            label: "Remark",
+                            label: "Remark".to_string(),
                             "empty"
                         }
 
                         DescriptionsItem {
-                            label: "Address",
+                            label: "Address".to_string(),
                             "No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China"
                         }
                     }
@@ -75,57 +75,57 @@ pub fn DescriptionsDemo() -> Element {
                         bordered: true,
 
                         DescriptionsItem {
-                            label: "Product",
+                            label: "Product".to_string(),
                             "Cloud Database"
                         }
 
                         DescriptionsItem {
-                            label: "Billing Mode",
+                            label: "Billing Mode".to_string(),
                             "Prepaid"
                         }
 
                         DescriptionsItem {
-                            label: "Automatic Renewal",
+                            label: "Automatic Renewal".to_string(),
                             "YES"
                         }
 
                         DescriptionsItem {
-                            label: "Order time",
+                            label: "Order time".to_string(),
                             "2018-04-24 18:00:00"
                         }
 
                         DescriptionsItem {
-                            label: "Usage Time",
+                            label: "Usage Time".to_string(),
                             span: 2,
                             "2019-04-24 18:00:00"
                         }
 
                         DescriptionsItem {
-                            label: "Status",
+                            label: "Status".to_string(),
                             span: 3,
                             Badge {
-                                status: "processing",
+                                status: BadgeStatus::Processing,
                                 text: "Running"
                             }
                         }
 
                         DescriptionsItem {
-                            label: "Negotiated Amount",
+                            label: "Negotiated Amount".to_string(),
                             "$80.00"
                         }
 
                         DescriptionsItem {
-                            label: "Discount",
+                            label: "Discount".to_string(),
                             "$20.00"
                         }
 
                         DescriptionsItem {
-                            label: "Official Receipts",
+                            label: "Official Receipts".to_string(),
                             "$60.00"
                         }
 
                         DescriptionsItem {
-                            label: "Config Info",
+                            label: "Config Info".to_string(),
                             "Data disk type: MongoDB"
                             br {}
                             "Database version: 3.4"
