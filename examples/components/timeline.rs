@@ -255,7 +255,7 @@ pub fn TimelineDemo() -> Element {
 
                     div {
                         style: "margin-bottom: 16px;",
-                        Radio::Group {
+                        RadioGroup {
                             value: mode(),
                             on_change: move |e| {
                                 mode.set(e);

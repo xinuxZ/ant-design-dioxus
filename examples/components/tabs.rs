@@ -129,7 +129,7 @@ pub fn TabsDemo() -> Element {
                             TabItem {
                                 key: "2".to_string(),
                                 label: "Tab 2".to_string(),
-                                disabled: true,
+                                disabled: Some(true),
                                 children: rsx! {
                                     div {
                                         style: "padding: 16px;",
@@ -168,11 +168,11 @@ pub fn TabsDemo() -> Element {
                             TabItem {
                                 key: "1".to_string(),
                                 label: "Tab 1".to_string(),
-                                icon: Some(rsx! {
-                                    Icon {
-                                        icon_type: "apple-outlined".to_string()
-                                    }
-                                }),
+                                // icon: Some(rsx! {
+                                //     Icon {
+                                //         icon_type: "apple-outlined".to_string()
+                                //     }
+                                // }),
                                 children: rsx! {
                                     div {
                                         style: "padding: 16px;",
@@ -184,11 +184,11 @@ pub fn TabsDemo() -> Element {
                             TabItem {
                                 key: "2".to_string(),
                                 label: "Tab 2".to_string(),
-                                icon: Some(rsx! {
-                                    Icon {
-                                        icon_type: "android-outlined".to_string()
-                                    }
-                                }),
+                                // icon: Some(rsx! {
+                                //     Icon {
+                                //         icon_type: "android-outlined".to_string()
+                                //     }
+                                // }),
                                 children: rsx! {
                                     div {
                                         style: "padding: 16px;",
@@ -224,7 +224,7 @@ pub fn TabsDemo() -> Element {
                                 },
                                 ..Default::default()
                             }
-                        }).collect()
+                        }).collect::<Vec<TabItem>>()
                     }
                 }
             }
@@ -293,7 +293,7 @@ pub fn TabsDemo() -> Element {
 
                     div {
                         style: "margin-bottom: 16px;",
-                        Radio::Group {
+                        RadioGroup {
                             value: active_key_size(),
                             on_change: move |e| {
                                 active_key_size.set(e);
@@ -316,9 +316,10 @@ pub fn TabsDemo() -> Element {
                     Tabs {
                         default_active_key: "2",
                         size: match active_key_size().as_str() {
-                            "small" => "small",
-                            "large" => "large",
-                            _ => "middle"
+                            "small" => TabsSize::Small,
+                            "middle" => TabsSize::Default,
+                            "large" => TabsSize::Large,
+                            _ => TabsSize::Default,
                         },
                         items: vec![
                             TabItem {
@@ -369,33 +370,33 @@ pub fn TabsDemo() -> Element {
 
                     div {
                         style: "margin-bottom: 16px;",
-                        Radio::Group {
+                        RadioGroup {
                             value: active_key_position(),
                             on_change: move |e| {
                                 active_key_position.set(e);
                             },
                             Radio {
                                 value: "top",
-                                "top"
+                                "Top"
                             }
                             Radio {
                                 value: "bottom",
-                                "bottom"
+                                "Bottom"
                             }
                             Radio {
                                 value: "left",
-                                "left"
+                                "Left"
                             }
                             Radio {
                                 value: "right",
-                                "right"
+                                "Right"
                             }
                         }
                     }
 
                     Tabs {
                         default_active_key: "1",
-                        tab_position: active_key_position(),
+                        tab_position: TabsPosition::Top,//active_key_position(),
                         style: "height: 220px;",
                         items: vec![
                             TabItem {
@@ -503,7 +504,7 @@ pub fn TabsDemo() -> Element {
                         on_change: move |key| {
                             active_key_editable.set(key);
                         },
-                        on_edit: move |target_key, action| {
+                        on_edit: move |(action, target_key)| {
                             if action == "add" {
                                 let new_key = (tab_items().len() + 1).to_string();
                                 let mut items = tab_items();

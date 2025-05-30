@@ -10,8 +10,10 @@
 //! - 既可用于容器顶部，也可用于容器内部，是最通用的 Tabs。
 //! - Radio.Button 可作为更次级的页签来使用。
 
+use crate::utils::class_names::class_names;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::rc::Rc;
 
 const TABS_STYLES: &str = include_str!("./style.css");
 
@@ -155,7 +157,7 @@ impl Default for TabItem {
 /// Tabs 标签页组件
 #[component]
 pub fn Tabs(props: TabsProps) -> Element {
-    let current_key = use_signal(|| {
+    let mut current_key = use_signal(|| {
         props.active_key.clone().unwrap_or_else(|| {
             props
                 .default_active_key
@@ -175,33 +177,10 @@ pub fn Tabs(props: TabsProps) -> Element {
         });
     }
 
-    // 切换标签页
-    let mut current_key_clone = current_key.clone();
-    let on_change_clone = props.on_change.clone();
-    let active_key_clone = props.active_key.clone();
-    let change_tab = move |key: String| {
-        if active_key_clone.is_none() {
-            current_key_clone.set(key.clone());
-        }
-        if let Some(on_change) = &on_change_clone {
-            on_change.call(key);
-        }
-    };
-
     // 新增标签页
     let add_tab = move |_| {
         if let Some(on_edit) = &props.on_edit {
-            on_edit.call((
-                format!("new-tab-{}", js_sys::Date::now()),
-                "add".to_string(),
-            ));
-        }
-    };
-
-    // 删除标签页
-    let remove_tab = move |key: String| {
-        if let Some(on_edit) = &props.on_edit {
-            on_edit.call((key, "remove".to_string()));
+            on_edit.call(("add".to_string(), "add".to_string()));
         }
     };
 
@@ -250,7 +229,7 @@ pub fn Tabs(props: TabsProps) -> Element {
                                 class: "ant-tabs-nav",
 
                                 // 渲染标签页
-                                {render_tab_nav(&props, &current_key, change_tab, remove_tab)}
+                                {render_tab_nav(&props, &current_key(), &mut current_key, &props.active_key, &props.on_change, &props.on_edit)}
 
                                 // 墨水条
                                 if props.tab_type == TabsType::Line {
@@ -298,11 +277,13 @@ pub fn Tabs(props: TabsProps) -> Element {
 /// 渲染标签页导航
 fn render_tab_nav(
     props: &TabsProps,
-    current_key: &Signal<String>,
-    change_tab: impl Fn(String) + 'static,
-    mut remove_tab: impl FnMut(String) + 'static,
+    current_key: &str,
+    current_key_signal: &mut Signal<String>,
+    active_key: &Option<String>,
+    on_change: &Option<Callback<String>>,
+    on_edit: &Option<Callback<(String, String)>>,
 ) -> Element {
-    let current_key_value = current_key.read();
+    let current_key_value = current_key;
 
     if let Some(items) = &props.items {
         // 使用 items 渲染
@@ -319,9 +300,17 @@ fn render_tab_nav(
                     onclick: {
                         let key = item.key.clone();
                         let disabled = item.disabled.unwrap_or(false);
+                        let mut current_key_signal = current_key_signal.clone();
+                        let active_key = active_key.clone();
+                        let on_change = on_change.clone();
                         move |_| {
                             if !disabled {
-                                change_tab(key.clone());
+                                if active_key.is_none() {
+                                    *current_key_signal.write() = key.clone();
+                                }
+                                if let Some(on_change) = &on_change {
+                                    on_change.call(key.clone());
+                                }
                             }
                         }
                     },
@@ -336,7 +325,12 @@ fn render_tab_nav(
                             class: "ant-tabs-tab-remove",
                             onclick: {
                                 let key = item.key.clone();
-                                move |_| remove_tab(key.clone())
+                                let on_edit = on_edit.clone();
+                                move |_| {
+                                    if let Some(on_edit) = &on_edit {
+                                        on_edit.call(("remove".to_string(), key.clone()));
+                                    }
+                                }
                             },
                             "×"
                         }
@@ -349,7 +343,20 @@ fn render_tab_nav(
         rsx! {
             div {
                 class: "ant-tabs-tab ant-tabs-tab-active",
-                onclick: move |_| change_tab("1".to_string()),
+                onclick: {
+                    let mut current_key_signal = current_key_signal.clone();
+                    let active_key = active_key.clone();
+                    let on_change = on_change.clone();
+                    move |_| {
+                        let key = "1".to_string();
+                        if active_key.is_none() {
+                            *current_key_signal.write() = key.clone();
+                        }
+                        if let Some(on_change) = &on_change {
+                            on_change.call(key);
+                        }
+                    }
+                },
 
                 div {
                     class: "ant-tabs-tab-btn",
@@ -359,7 +366,14 @@ fn render_tab_nav(
                 if props.editable {
                     button {
                         class: "ant-tabs-tab-remove",
-                        onclick: move |_| remove_tab("1".to_string()),
+                        onclick: {
+                            let on_edit = on_edit.clone();
+                            move |_| {
+                                if let Some(on_edit) = &on_edit {
+                                    on_edit.call(("remove".to_string(), "1".to_string()));
+                                }
+                            }
+                        },
                         "×"
                     }
                 }

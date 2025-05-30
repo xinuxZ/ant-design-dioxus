@@ -196,7 +196,9 @@ pub use crate::components::table::{
     SelectionType, Table, TableAlign, TableColumn, TableFixed, TablePagination, TableProps,
     TableRowSelection, TableSize,
 };
-// pub use crate::components::tabs::{Tabs, TabsProps, TabPane};
+pub use crate::components::tabs::{
+    TabItem, Tabs, TabsEditAction, TabsPosition, TabsProps, TabsSize, TabsType,
+};
 pub use crate::components::tag::{Tag, TagColor, TagProps, TagSize};
 pub use crate::components::timeline::{
     Timeline, TimelineItem, TimelineItemColor, TimelineMode, TimelineProps,

@@ -72,7 +72,7 @@ pub mod statistic;
 pub mod steps;
 pub mod switch;
 pub mod table;
-// pub mod tabs;
+pub mod tabs;
 pub mod tag;
 pub mod time_picker;
 pub mod timeline;

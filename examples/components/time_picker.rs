@@ -28,6 +28,15 @@ pub fn TimePickerDemo() -> Element {
     // 自定义步长时间选择器
     let mut step_time = use_signal(|| None::<TimeValue>);
 
+    // 预定义12小时制格式
+    let format_12h = TimeFormat {
+        format: "h:mm:ss a".to_string(),
+        show_hour: true,
+        show_minute: true,
+        show_second: true,
+        use_12_hours: true,
+    };
+
     rsx! {
         div {
             // style: "padding: 24px; max-width: 1200px; margin: 0 auto;",
@@ -158,7 +167,7 @@ pub fn TimePickerDemo() -> Element {
                 if let Some(time) = time_12h() {
                     p {
                         style: "color: #666; font-size: 14px;",
-                        "选择的时间: {time.to_string(&TimeFormat { format: \"h:mm:ss a\".to_string(), show_hour: true, show_minute: true, show_second: true, use_12_hours: true })}"
+                        "选择的时间: {time.to_string(&format_12h)}"
                     }
                 }
             }

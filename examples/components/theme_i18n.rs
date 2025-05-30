@@ -14,7 +14,7 @@ use ant_design_dioxus::{
         use_locale_name, use_locale_switch, use_number_format, use_relative_time_format,
         use_time_format, use_translate, Locale, LocaleConfig, LocaleProvider,
     },
-    theme::{use_theme, use_theme_switch, use_theme_token, ThemeConfig, ThemeProvider},
+    theme::{use_theme, use_theme_switch, use_theme_token, Theme, ThemeConfig, ThemeProvider},
 };
 use chrono::Local;
 use dioxus::prelude::*;
@@ -63,8 +63,7 @@ fn ThemeI18nDemo() -> Element {
 
 #[component]
 fn ControlPanel() -> Element {
-    let theme_switch = use_theme_switch();
-    let locale_switch = use_locale_switch();
+    // 移除theme_switch和locale_switch的预先获取，在每个闭包内部调用
     let translate = use_translate();
     let is_rtl = use_is_rtl();
     let locale_name = use_locale_name();
@@ -82,17 +81,26 @@ fn ControlPanel() -> Element {
                 div {
                     style: "display: flex; gap: 8px;",
                     button {
-                        onclick: move |_| theme_switch(ThemeConfig::light()),
+                        onclick: move |_| {
+                            let (_, mut theme_switch) = use_theme_switch();
+                            theme_switch(Theme::Light);
+                        },
                         style: "padding: 8px 16px; border: 1px solid var(--ant-color-border); border-radius: var(--ant-border-radius-base); background: var(--ant-color-bg-container); cursor: pointer;",
                         "亮色主题"
                     }
                     button {
-                        onclick: move |_| theme_switch(ThemeConfig::dark()),
+                        onclick: move |_| {
+                            let (_, mut theme_switch) = use_theme_switch();
+                            theme_switch(Theme::Dark);
+                        },
                         style: "padding: 8px 16px; border: 1px solid var(--ant-color-border); border-radius: var(--ant-border-radius-base); background: var(--ant-color-bg-container); cursor: pointer;",
                         "暗色主题"
                     }
                     button {
-                        onclick: move |_| theme_switch(ThemeConfig::compact()),
+                        onclick: move |_| {
+                            let (_, mut theme_switch) = use_theme_switch();
+                            theme_switch(Theme::Compact);
+                        },
                         style: "padding: 8px 16px; border: 1px solid var(--ant-color-border); border-radius: var(--ant-border-radius-base); background: var(--ant-color-bg-container); cursor: pointer;",
                         "紧凑主题"
                     }
@@ -106,17 +114,26 @@ fn ControlPanel() -> Element {
                 div {
                     style: "display: flex; gap: 8px;",
                     button {
-                        onclick: move |_| locale_switch(Locale::ZhCN),
+                        onclick: move |_| {
+                            let mut locale_switch = use_locale_switch();
+                            locale_switch(Locale::ZhCN);
+                        },
                         style: "padding: 8px 16px; border: 1px solid var(--ant-color-border); border-radius: var(--ant-border-radius-base); background: var(--ant-color-bg-container); cursor: pointer;",
                         "中文"
                     }
                     button {
-                        onclick: move |_| locale_switch(Locale::En),
+                        onclick: move |_| {
+                            let mut locale_switch = use_locale_switch();
+                            locale_switch(Locale::En);
+                        },
                         style: "padding: 8px 16px; border: 1px solid var(--ant-color-border); border-radius: var(--ant-border-radius-base); background: var(--ant-color-bg-container); cursor: pointer;",
                         "English"
                     }
                     button {
-                        onclick: move |_| locale_switch(Locale::Ar),
+                        onclick: move |_| {
+                            let mut locale_switch = use_locale_switch();
+                            locale_switch(Locale::Ar);
+                        },
                         style: "padding: 8px 16px; border: 1px solid var(--ant-color-border); border-radius: var(--ant-border-radius-base); background: var(--ant-color-bg-container); cursor: pointer;",
                         "العربية"
                     }

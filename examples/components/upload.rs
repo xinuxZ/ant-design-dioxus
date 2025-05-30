@@ -3,6 +3,7 @@
 //! 展示 Upload 组件的各种用法和样式
 
 use crate::common::*;
+use ant_design_dioxus::components::upload::BeforeUploadResult;
 use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
@@ -284,7 +285,7 @@ pub fn UploadDemo() -> Element {
 
                     Upload {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-                        onchange: move |info| {
+                        onchange: move |info: UploadChangeInfo| {
                             let mut new_file_list = info.file_list;
 
                             // 1. Limit the number of uploaded files
@@ -369,7 +370,7 @@ pub fn UploadDemo() -> Element {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
                         list_type: UploadListType::PictureCard,
                         file_list: image_file_list(),
-                        onchange: move |info| {
+                        onchange: move |info: UploadChangeInfo| {
                             image_file_list.set(info.file_list);
                         },
                         on_preview: move |file| {
@@ -444,7 +445,7 @@ pub fn UploadDemo() -> Element {
 
                     Upload {
                         file_list: file_list(),
-                        onchange: move |info| {
+                        onchange: move |info: UploadChangeInfo| {
                             file_list.set(info.file_list);
                         },
                         // before_upload: move |file| {
@@ -489,19 +490,20 @@ pub fn UploadDemo() -> Element {
                         action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
                         list_type: UploadListType::PictureCard,
                         file_list: image_file_list(),
-                        onchange: move |info| {
+                        onchange: move |info: UploadChangeInfo| {
                             image_file_list.set(info.file_list);
                         },
-                        before_upload: move |file| {
-                            let is_jpg_or_png = file.file_type == "image/jpeg" || file.file_type == "image/png";
+                        before_upload: move |args: (UploadFile, BeforeUploadResult)| {
+                            let file = args.0;
+                            let is_jpg_or_png = file.file_type.as_deref() == Some("image/jpeg") || file.file_type.as_deref() == Some("image/png");
                             if !is_jpg_or_png {
                                 message::error("You can only upload JPG/PNG file!");
                             }
-                            let is_lt_2m = file.size / 1024 / 1024 < 2;
+                            let is_lt_2m = file.size.map_or(false, |size| size / 1024 / 1024 < 2);
                             if !is_lt_2m {
                                 message::error("Image must smaller than 2MB!");
                             }
-                            is_jpg_or_png && is_lt_2m
+                            // EventHandler 不需要返回值
                         },
 
                         if image_file_list().len() >= 1 {

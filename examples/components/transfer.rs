@@ -136,9 +136,9 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         show_search: show_search(),
-                        filter_option: |input_value: String, item: TransferItem, _direction: TransferDirection| {
-                            item.title.contains(&input_value)
-                        },
+                        filter_option: Some(Callback::new(move |args: (String, TransferItem, TransferDirection)| {
+                            args.1.title.contains(&args.0)
+                        })),
                         target_keys: target_keys(),
                         on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
@@ -170,11 +170,11 @@ pub fn TransferDemo() -> Element {
                         on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
                         },
-                        render: |item| {
+                        render: |item: TransferItem| {
                             rsx! {
                                 span {
                                     class: "custom-item",
-                                    "{item.title} - {item.description}"
+                                    "{item.title} - {item.description.as_deref().unwrap_or(\"\")}"
                                 }
                             }
                         },
@@ -216,7 +216,7 @@ pub fn TransferDemo() -> Element {
                         on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
                         },
-                        render: |item| {
+                        render: |item: TransferItem| {
                             rsx! {
                                 div {
                                     style: "display: flex; justify-content: space-between; align-items: center;",
@@ -227,7 +227,7 @@ pub fn TransferDemo() -> Element {
                                         }
                                         div {
                                             style: "color: #999; font-size: 12px;",
-                                            "{item.description}"
+                                            "{item.description.as_deref().unwrap_or(\"\")}"
                                         }
                                     }
                                     Icon {
@@ -399,7 +399,7 @@ pub fn TransferDemo() -> Element {
                         on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
                         },
-                        children: |props| {
+                        children: |props: TransferListProps| {
                             rsx! {
                                 Tree {
                                     tree_data: props.data_source.iter().map(|item| {
@@ -417,7 +417,9 @@ pub fn TransferDemo() -> Element {
                                     }).collect(),
                                     checkable: true,
                                     default_checked_keys: props.selected_keys,
-                                    on_check: props.on_item_select_all,
+                                    on_check: move |args: (Vec<String>, TreeNode)| {
+                                        props.on_select_change.call(args.0);
+                                    },
                                 }
                             }
                         }
