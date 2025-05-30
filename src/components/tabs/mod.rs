@@ -58,16 +58,21 @@ pub struct TabsProps {
     #[props(default)]
     pub on_change: Option<EventHandler<String>>,
 
-    /// 新增和删除页签的回调
+    /// 新增和删除页签的回调，在 type="editable-card" 时有效
     #[props(default)]
-    pub on_edit: Option<EventHandler<(String, TabsEditAction)>>,
+    pub on_edit: Option<EventHandler<(String, String)>>,
 
     /// tab bar 上额外的元素
     #[props(default)]
     pub tab_bar_extra_content: Option<Element>,
 
+    /// 标签页项目列表（优先级高于 children）
+    #[props(default)]
+    pub items: Option<Vec<TabItem>>,
+
     /// 子元素
-    pub children: Element,
+    #[props(default)]
+    pub children: Option<Element>,
 }
 
 /// 页签的基本样式
@@ -120,6 +125,33 @@ pub enum TabsEditAction {
     Remove,
 }
 
+/// 标签页项目
+#[derive(Clone, PartialEq)]
+pub struct TabItem {
+    /// 对应 activeKey
+    pub key: String,
+    /// 选项卡头显示文字
+    pub label: String,
+    /// 标签页内容
+    pub children: Element,
+    /// 是否禁用
+    pub disabled: Option<bool>,
+    /// 是否可关闭
+    pub closable: Option<bool>,
+}
+
+impl Default for TabItem {
+    fn default() -> Self {
+        Self {
+            key: String::new(),
+            label: String::new(),
+            children: rsx! { "" },
+            disabled: None,
+            closable: None,
+        }
+    }
+}
+
 /// Tabs 标签页组件
 #[component]
 pub fn Tabs(props: TabsProps) -> Element {
@@ -161,7 +193,7 @@ pub fn Tabs(props: TabsProps) -> Element {
         if let Some(on_edit) = &props.on_edit {
             on_edit.call((
                 format!("new-tab-{}", js_sys::Date::now()),
-                TabsEditAction::Add,
+                "add".to_string(),
             ));
         }
     };
@@ -169,7 +201,7 @@ pub fn Tabs(props: TabsProps) -> Element {
     // 删除标签页
     let remove_tab = move |key: String| {
         if let Some(on_edit) = &props.on_edit {
-            on_edit.call((key, TabsEditAction::Remove));
+            on_edit.call((key, "remove".to_string()));
         }
     };
 
@@ -266,27 +298,70 @@ pub fn Tabs(props: TabsProps) -> Element {
 /// 渲染标签页导航
 fn render_tab_nav(
     props: &TabsProps,
-    _current_key: &Signal<String>,
-    mut change_tab: impl FnMut(String) + 'static,
+    current_key: &Signal<String>,
+    change_tab: impl Fn(String) + 'static,
     mut remove_tab: impl FnMut(String) + 'static,
 ) -> Element {
-    // 这里需要解析 children 来获取 TabPane 信息
-    // 简化实现，假设直接渲染
-    rsx! {
-        div {
-            class: "ant-tabs-tab ant-tabs-tab-active",
-            onclick: move |_| change_tab("1".to_string()),
+    let current_key_value = current_key.read();
 
-            div {
-                class: "ant-tabs-tab-btn",
-                "Tab 1"
+    if let Some(items) = &props.items {
+        // 使用 items 渲染
+        rsx! {
+            for item in items.iter() {
+                div {
+                    key: "{item.key}",
+                    class: if *current_key_value == item.key {
+                        "ant-tabs-tab ant-tabs-tab-active"
+                    } else {
+                        "ant-tabs-tab"
+                    },
+                    class: if item.disabled.unwrap_or(false) { " ant-tabs-tab-disabled" } else { "" },
+                    onclick: {
+                        let key = item.key.clone();
+                        let disabled = item.disabled.unwrap_or(false);
+                        move |_| {
+                            if !disabled {
+                                change_tab(key.clone());
+                            }
+                        }
+                    },
+
+                    div {
+                        class: "ant-tabs-tab-btn",
+                        "{item.label}"
+                    }
+
+                    if props.editable && item.closable.unwrap_or(true) {
+                        button {
+                            class: "ant-tabs-tab-remove",
+                            onclick: {
+                                let key = item.key.clone();
+                                move |_| remove_tab(key.clone())
+                            },
+                            "×"
+                        }
+                    }
+                }
             }
+        }
+    } else {
+        // 使用 children 渲染（简化实现）
+        rsx! {
+            div {
+                class: "ant-tabs-tab ant-tabs-tab-active",
+                onclick: move |_| change_tab("1".to_string()),
 
-            if props.editable {
-                button {
-                    class: "ant-tabs-tab-remove",
-                    onclick: move |_| remove_tab("1".to_string()),
-                    "×"
+                div {
+                    class: "ant-tabs-tab-btn",
+                    "Tab 1"
+                }
+
+                if props.editable {
+                    button {
+                        class: "ant-tabs-tab-remove",
+                        onclick: move |_| remove_tab("1".to_string()),
+                        "×"
+                    }
                 }
             }
         }
@@ -294,12 +369,38 @@ fn render_tab_nav(
 }
 
 /// 渲染标签页内容
-fn render_tab_content(props: &TabsProps, _current_key: &Signal<String>) -> Element {
-    rsx! {
-        div {
-            class: "ant-tabs-tabpane ant-tabs-tabpane-active",
+fn render_tab_content(props: &TabsProps, current_key: &Signal<String>) -> Element {
+    let current_key_value = current_key.read();
 
-            {props.children.clone()}
+    if let Some(items) = &props.items {
+        // 使用 items 渲染
+        rsx! {
+            for item in items.iter() {
+                div {
+                    key: "{item.key}",
+                    class: if *current_key_value == item.key {
+                        "ant-tabs-tabpane ant-tabs-tabpane-active"
+                    } else {
+                        "ant-tabs-tabpane"
+                    },
+                    style: if *current_key_value == item.key {
+                        "display: block;"
+                    } else {
+                        "display: none;"
+                    },
+
+                    {item.children.clone()}
+                }
+            }
+        }
+    } else {
+        // 使用 children 渲染
+        rsx! {
+            div {
+                class: "ant-tabs-tabpane ant-tabs-tabpane-active",
+
+                {props.children.clone()}
+            }
         }
     }
 }
