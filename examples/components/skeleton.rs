@@ -48,9 +48,11 @@ pub fn SkeletonDemo() -> Element {
 
                     Skeleton {
                         avatar: true,
-                        paragraph: SkeletonParagraph {
-                            rows: 4,
-                        }
+                        paragraph: true,
+                        // paragraph: SkeletonParagraphProps {
+                        //     rows: 4,
+                        //     width: Some(SkeletonWidth::Percent(70))
+                        // }
                     }
                 }
             }
@@ -64,7 +66,7 @@ pub fn SkeletonDemo() -> Element {
                     style: "display: flex; gap: 16px; align-items: center; margin-bottom: 16px;",
                     Switch {
                         checked: active(),
-                        on_change: move |checked| {
+                        onchange: move |checked| {
                             active.set(checked);
                         }
                     }
@@ -93,7 +95,7 @@ pub fn SkeletonDemo() -> Element {
                     style: "display: flex; gap: 16px; align-items: center; margin-bottom: 16px;",
                     Switch {
                         checked: loading(),
-                        on_change: move |checked| {
+                        onchange: move |checked| {
                             loading.set(checked);
                         }
                     }
@@ -157,47 +159,47 @@ pub fn SkeletonDemo() -> Element {
 
                     div {
                         style: "display: flex; gap: 16px; align-items: center; margin-bottom: 16px;",
-                        Skeleton::Button {
+                        SkeletonButton {
                             active: true
                         }
-                        Skeleton::Avatar {
+                        SkeletonButton {
                             active: true
                         }
-                        Skeleton::Input {
+                        SkeletonInput {
                             active: true
                         }
                     }
 
                     div {
                         style: "display: flex; gap: 16px; align-items: center; margin-bottom: 16px;",
-                        Skeleton::Button {
+                        SkeletonButton {
                             active: true,
-                            size: "large"
+                            size: SkeletonButtonSize::Large
                         }
-                        Skeleton::Avatar {
+                        SkeletonButton {
                             active: true,
-                            size: "large"
+                            size: SkeletonButtonSize::Large
                         }
-                        Skeleton::Input {
-                            active: true,
-                            size: "large"
-                        }
+                        SkeletonInput {
+                              active: true,
+                              size: SkeletonInputSize::Large
+                          }
                     }
 
                     div {
                         style: "display: flex; gap: 16px; align-items: center;",
-                        Skeleton::Button {
+                        SkeletonButton {
                             active: true,
-                            size: "small"
+                            size: SkeletonButtonSize::Small
                         }
-                        Skeleton::Avatar {
-                            active: true,
-                            size: "small"
-                        }
-                        Skeleton::Input {
-                            active: true,
-                            size: "small"
-                        }
+                        SkeletonButton {
+                             active: true,
+                             size: SkeletonButtonSize::Small
+                         }
+                        SkeletonInput {
+                              active: true,
+                              size: SkeletonInputSize::Small
+                          }
                     }
                 }
             }
@@ -210,7 +212,7 @@ pub fn SkeletonDemo() -> Element {
                 div {
                     style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
-                    Skeleton::Image {
+                    SkeletonImage {
                         active: true
                     }
                 }

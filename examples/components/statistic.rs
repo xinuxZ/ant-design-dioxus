@@ -48,15 +48,15 @@ pub fn StatisticDemo() -> Element {
                     Statistic {
                         title: "Active Users",
                         value: 112893.0,
-                        suffix: "/",
-                        value_style: Some("color: #3f8600")
+                        suffix: rsx! { "/" },
+                        value_style: Some("color: #3f8600".to_string())
                     }
 
                     Statistic {
                         title: "Idle Users",
                         value: 93.0,
-                        suffix: "%",
-                        value_style: Some("color: #cf1322")
+                        suffix: rsx! { "%" },
+                        value_style: Some("color: #cf1322".to_string())
                     }
                 }
             }
@@ -76,7 +76,6 @@ pub fn StatisticDemo() -> Element {
                             Icon {
                                 icon_type: "like".to_string(),
                                 theme: IconTheme::Outlined,
-                                aria_label: "Like".to_string(),
                                 style: "color: #1890ff",
                             }
                         }
@@ -85,7 +84,7 @@ pub fn StatisticDemo() -> Element {
                     Statistic {
                         title: "Unmerged",
                         value: 93.0,
-                        suffix: Some("/100")
+                        suffix: rsx! { "/100" }
                     }
                 }
             }
@@ -103,13 +102,13 @@ pub fn StatisticDemo() -> Element {
                         Statistic {
                             title: "Active Users",
                             value: 112893.0,
-                            value_style: Some("color: #3f8600"),
+                            value_style: Some("color: #3f8600".to_string()),
                             prefix: rsx! {
                                 Icon {
                                     icon_type: "arrow-up-outlined".to_string()
                                 }
                             },
-                            suffix: "%"
+                            suffix: rsx! { "%" }
                         }
                     }
 
@@ -119,13 +118,13 @@ pub fn StatisticDemo() -> Element {
                             title: "Idle Users",
                             value: 9.3,
                             precision: StatisticPrecision { decimal_places: 2 },
-                            value_style: Some("color: #cf1322"),
+                            value_style: Some("color: #cf1322".to_string()),
                             prefix: rsx! {
                                 Icon {
                                     icon_type: "arrow-down-outlined".to_string()
                                 }
                             },
-                            suffix: "%"
+                            suffix: rsx! { "%" }
                         }
                     }
                 }
@@ -139,23 +138,23 @@ pub fn StatisticDemo() -> Element {
                 div {
                     style: "display: flex; gap: 32px; flex-wrap: wrap;",
 
-                    Statistic::Countdown {
+                    Countdown {
                         title: "Countdown",
-                        value: js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0,
-                        on_finish: move || {
+                        value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
+                        on_finish: move |_| {
                             web_sys::console::log_1(&"finished!".into());
                         }
                     }
 
-                    Statistic::Countdown {
+                    Countdown {
                         title: "Million Seconds",
-                        value: js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0,
+                        value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
                         format: "HH:mm:ss:SSS"
                     }
 
-                    Statistic::Countdown {
+                    Countdown {
                         title: "Day Level",
-                        value: js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0,
+                        value: (js_sys::Date::now() + 1000.0 * 60.0 * 60.0 * 24.0 * 2.0 + 1000.0 * 30.0) as u64,
                         format: "D 天 H 时 m 分 s 秒"
                     }
                 }
@@ -169,10 +168,10 @@ pub fn StatisticDemo() -> Element {
                 div {
                     style: "display: flex; gap: 32px; flex-wrap: wrap; align-items: center;",
 
-                    Statistic::Countdown {
+                    Countdown {
                         title: "Countdown",
-                        value: js_sys::Date::now() + 10.0 * 1000.0,
-                        on_finish: move || {
+                        value: (js_sys::Date::now() + 10.0 * 1000.0) as u64,
+                        on_finish: move |_| {
                             web_sys::console::log_1(&"finished!".into());
                         }
                     }
@@ -206,7 +205,6 @@ pub fn StatisticDemo() -> Element {
                                 icon_type: "like".to_string(),
                                 theme: IconTheme::Outlined,
                                 style: "color: #1890ff",
-                                aria_label: "Like".to_string(),
                             }
                         }
                         span {
@@ -220,7 +218,6 @@ pub fn StatisticDemo() -> Element {
                             Icon {
                                 icon_type: "dislike".to_string(),
                                 theme: IconTheme::Outlined,
-                                aria_label: "Dislike".to_string(),
                                 style: "color: #eb2f96",
                             }
                         }

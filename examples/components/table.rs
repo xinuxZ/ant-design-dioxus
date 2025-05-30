@@ -5,6 +5,7 @@
 use crate::common::*;
 use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
+use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Debug)]
 struct UserData {
@@ -255,8 +256,8 @@ pub fn TableDemo() -> Element {
                             scroll_x: false,
                             scroll_y: false,
                             show_header: true,
-                            empty_text: "暂无数据".to_string(),
-                            on_row_click: move |record: UserData| {},
+                            // empty_text: "暂无数据".to_string(),
+                            on_row_click: move |key: String| {},
                             on_sort_change: move |column: String, direction: String| {},
                             row_selection: None,
                             pagination: None,
@@ -270,8 +271,8 @@ pub fn TableDemo() -> Element {
                             scroll_x: false,
                             scroll_y: false,
                             show_header: true,
-                            empty_text: "暂无数据".to_string(),
-                            on_row_click: move |record: UserData| {},
+                            // empty_text: "暂无数据".to_string(),
+                            on_row_click: move |key: String| {},
                             on_sort_change: move |column: String, direction: String| {},
                             row_selection: None,
                             pagination: None,

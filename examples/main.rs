@@ -124,7 +124,8 @@ fn App() -> Element {
                     "Result" => rsx! { ResultDemo{} },
                     "Skeleton" => rsx! { SkeletonDemo{} },
                     "Spin" => rsx! { SpinDemo{} },
-                    "Tour" => rsx! { TourDemo{} },
+                    // 暂时注释掉Tour组件，稍后修复
+                    // "Tour" => rsx! { TourDemo{} },
                     "App" => rsx! { AppDemo{} },
                     "Calendar" => rsx! { CalendarDemo{} },
                     "FloatButton" => rsx! { FloatButtonDemo{} },

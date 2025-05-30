@@ -194,7 +194,7 @@ pub fn ResultDemo() -> Element {
                                     p {
                                         style: "margin: 8px 0;",
                                         Icon {
-                                            icon_type: IconType::CloseCircleOutlined,
+                                            icon_type: "close-circle-outlined".to_string(),
                                             style: "color: #ff4d4f; margin-right: 8px;"
                                         }
                                         "Your account has been frozen. "
@@ -206,7 +206,7 @@ pub fn ResultDemo() -> Element {
                                     p {
                                         style: "margin: 8px 0;",
                                         Icon {
-                                            icon_type: IconType::CloseCircleOutlined,
+                                            icon_type: "close-circle-outlined".to_string(),
                                             style: "color: #ff4d4f; margin-right: 8px;"
                                         }
                                         "Your account is not yet eligible to apply. "

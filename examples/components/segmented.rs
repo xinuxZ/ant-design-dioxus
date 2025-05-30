@@ -18,13 +18,14 @@ pub fn SegmentedDemo() -> Element {
                     Segmented {
                         class: "demo-segmented",
                         style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
-                        div { style: "display: flex;",
-                            button { style: "padding: 4px 16px; border: none; background: #1677ff; color: white; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Daily" }
-                            button { style: "padding: 4px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Weekly" }
-                            button { style: "padding: 4px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Monthly" }
-                            button { style: "padding: 4px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px;", "Quarterly" }
-                            button { style: "padding: 4px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer;", "Yearly" }
-                        }
+                        options: vec![
+                            "Daily".into(),
+                            "Weekly".into(),
+                            "Monthly".into(),
+                            "Quarterly".into(),
+                            "Yearly".into(),
+                        ],
+                        default_value: Some("Daily".to_string())
                     }
                 }
             }
@@ -37,23 +38,30 @@ pub fn SegmentedDemo() -> Element {
                     Segmented {
                         class: "segmented-with-icons",
                         style: "background: #f5f5f5; border-radius: 6px; padding: 2px; display: inline-flex;",
-                        div { style: "display: flex;",
-                            button {
-                                style: "padding: 8px 16px; border: none; background: #1677ff; color: white; border-radius: 4px; cursor: pointer; margin-right: 2px; display: flex; align-items: center; gap: 6px;",
-                                span { "📊" }
-                                span { "List" }
-                            }
-                            button {
-                                style: "padding: 8px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; margin-right: 2px; display: flex; align-items: center; gap: 6px;",
-                                span { "🗂️" }
-                                span { "Kanban" }
-                            }
-                            button {
-                                style: "padding: 8px 16px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;",
-                                span { "📅" }
-                                span { "Calendar" }
-                            }
-                        }
+                        options: vec![
+                            SegmentedItem {
+                                label: Some(rsx!("Map")),
+                                value: "map".to_string(),
+                                icon: Some(rsx!(Icon { icon_type: "user".to_string(), style: "margin-right: 4px;" })),
+                                disabled: false,
+                                class_name: None,
+                            }.into(),
+                            SegmentedItem {
+                                label: Some(rsx!("Transit")),
+                                value: "transit".to_string(),
+                                icon: Some(rsx!(Icon { icon_type: "app".to_string(), style: "margin-right: 4px;" })),
+                                disabled: false,
+                                class_name: None,
+                            }.into(),
+                            SegmentedItem {
+                                label: Some(rsx!("Satellite")),
+                                value: "satellite".to_string(),
+                                icon: Some(rsx!(Icon { icon_type: "compass".to_string(), style: "margin-right: 4px;" })),
+                                disabled: false,
+                                class_name: None,
+                            }.into(),
+                        ],
+                        default_value: Some("map".to_string())
                     }
                 }
             }

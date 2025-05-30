@@ -89,27 +89,27 @@ pub fn MessageDemo() -> Element {
             }
 
             // 加载中
-            DemoSection {
-                title: "加载中",
-                description: "进行全局 loading，异步自行移除。",
+            // DemoSection {
+            //     title: "加载中",
+            //     description: "进行全局 loading，异步自行移除。",
 
-                div {
-                    style: "display: flex; gap: 8px; flex-wrap: wrap;",
+            //     div {
+            //         style: "display: flex; gap: 8px; flex-wrap: wrap;",
 
-                    Button {
-                        onclick: move |_| {
-                            let hide = MessageManager::new().loading("Action in progress..", Some(1000 as f64));
-                            // 模拟异步操作
-                            spawn(async move {
-                                gloo_timers::future::TimeoutFuture::new(2000).await;
-                                hide();
-                                MessageManager::new().success("Loading finished", Some(1000 as f64));
-                            });
-                        },
-                        "Display a loading indicator"
-                    }
-                }
-            }
+            //         Button {
+            //             onclick: move |_| {
+            //                 let hide = MessageManager::new().loading("Action in progress..", Some(1000 as f64));
+            //                 // 模拟异步操作
+            //                 spawn(async move {
+            //                     gloo_timers::future::TimeoutFuture::new(2000).await;
+            //                     hide();
+            //                     MessageManager::new().success("Loading finished", Some(1000 as f64));
+            //                 });
+            //             },
+            //             "Display a loading indicator"
+            //         }
+            //     }
+            // }
 
             // Promise 接口
             DemoSection {

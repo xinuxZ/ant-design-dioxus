@@ -34,11 +34,12 @@ pub fn NotificationDemo() -> Element {
                     Button {
                         button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                ..Default::default()
-                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification. This is the content of the notification. This is the content of the notification.")
+                            );
+                            notification::open(notification_item);
                         },
                         "Open the notification box"
                     }
@@ -55,44 +56,40 @@ pub fn NotificationDemo() -> Element {
 
                     Button {
                         onclick: move |_| {
-                            notification::success(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                ..Default::default()
-                            });
+                            notification::success(
+                                "Notification Title",
+                                "This is the content of the notification. This is the content of the notification. This is the content of the notification."
+                            );
                         },
                         "Success"
                     }
 
                     Button {
                         onclick: move |_| {
-                            notification::info(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                ..Default::default()
-                            });
+                            notification::info(
+                                "Notification Title",
+                                "This is the content of the notification. This is the content of the notification. This is the content of the notification."
+                            );
                         },
                         "Info"
                     }
 
                     Button {
                         onclick: move |_| {
-                            notification::warning(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                ..Default::default()
-                            });
+                            notification::warning(
+                                "Notification Title",
+                                "This is the content of the notification. This is the content of the notification. This is the content of the notification."
+                            );
                         },
                         "Warning"
                     }
 
                     Button {
                         onclick: move |_| {
-                            notification::error(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                ..Default::default()
-                            });
+                            notification::error(
+                                "Notification Title",
+                                "This is the content of the notification. This is the content of the notification. This is the content of the notification."
+                            );
                         },
                         "Error"
                     }
@@ -110,26 +107,12 @@ pub fn NotificationDemo() -> Element {
                     Button {
                         button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            let key = format!("open{}", js_sys::Date::now());
-                            notification::open(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "A function will be be called after the notification is closed (automatically after the 'duration' time of manually).".to_string(),
-                                btn: Some(rsx! {
-                                    Button {
-                                        button_type: ButtonType::Primary,
-                                        size: ButtonSize::Small,
-                                        onclick: move |_| {
-                                            notification::close(&key);
-                                        },
-                                        "Confirm"
-                                    }
-                                }),
-                                key: key.clone(),
-                                on_close: Some(Box::new(|| {
-                                    web_sys::console::log_1(&"Notification was closed.".into());
-                                })),
-                                ..Default::default()
-                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("A function will be be called after the notification is closed (automatically after the 'duration' time of manually).")
+                            );
+                            notification::open(notification_item);
                         },
                         "Open the notification box"
                     }
@@ -147,17 +130,12 @@ pub fn NotificationDemo() -> Element {
                     Button {
                         button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                icon: Some(rsx! {
-                                    Icon {
-                                        icon_type: "smile-outlined".to_string(),
-                                        style: "color: #108ee9;"
-                                    }
-                                }),
-                                ..Default::default()
-                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification. This is the content of the notification. This is the content of the notification.")
+                            ).with_icon("😊");
+                            notification::open(notification_item);
                         },
                         "Open the notification box"
                     }
@@ -175,13 +153,13 @@ pub fn NotificationDemo() -> Element {
                     Button {
                         button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
-                                class_name: "custom-class".to_string(),
-                                style: "width: 600px; margin-left: 335px - 600px;".to_string(),
-                                ..Default::default()
-                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification. This is the content of the notification. This is the content of the notification.")
+                            ).with_class_name("custom-class")
+                             .with_style("width: 600px; margin-left: 335px - 600px;");
+                            notification::open(notification_item);
                         },
                         "Open the notification box"
                     }
@@ -197,45 +175,69 @@ pub fn NotificationDemo() -> Element {
                     style: "display: flex; gap: 8px; flex-wrap: wrap;",
 
                     Button {
+                        button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open_with_placement(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification.".to_string(),
+                            notification::config(NotificationConfig {
+                                placement: NotificationPlacement::TopLeft,
                                 ..Default::default()
-                            }, "topLeft");
+                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification. This is the content of the notification. This is the content of the notification.")
+                            );
+                            notification::open(notification_item);
                         },
                         "topLeft"
                     }
 
                     Button {
+                        button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open_with_placement(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification.".to_string(),
+                            notification::config(NotificationConfig {
+                                placement: NotificationPlacement::TopRight,
                                 ..Default::default()
-                            }, "topRight");
+                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification.")
+                            );
+                            notification::open(notification_item);
                         },
                         "topRight"
                     }
 
                     Button {
+                        button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open_with_placement(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification.".to_string(),
+                            notification::config(NotificationConfig {
+                                placement: NotificationPlacement::BottomLeft,
                                 ..Default::default()
-                            }, "bottomLeft");
+                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification.")
+                            );
+                            notification::open(notification_item);
                         },
                         "bottomLeft"
                     }
 
                     Button {
+                        button_type: ButtonType::Primary,
                         onclick: move |_| {
-                            notification::open_with_placement(NotificationConfig {
-                                message: "Notification Title".to_string(),
-                                description: "This is the content of the notification.".to_string(),
+                            notification::config(NotificationConfig {
+                                placement: NotificationPlacement::BottomRight,
                                 ..Default::default()
-                            }, "bottomRight");
+                            });
+                            let notification_item = NotificationItem::new(
+                                NotificationType::Info,
+                                "Notification Title",
+                                Some("This is the content of the notification.")
+                            );
+                            notification::open(notification_item);
                         },
                         "bottomRight"
                     }
@@ -246,59 +248,85 @@ pub fn NotificationDemo() -> Element {
             ApiDocumentation {
                 component_name: "Notification",
                 props: vec![
+                    // NotificationItem 属性
                     PropDoc {
-                        name: "message".to_string(),
-                        prop_type: "String".to_string(),
+                        name: "title".to_string(),
+                        prop_type: "&str".to_string(),
                         default: "-".to_string(),
                         description: "通知提醒标题，必选".to_string(),
                     },
                     PropDoc {
                         name: "description".to_string(),
-                        prop_type: "String".to_string(),
-                        default: "-".to_string(),
-                        description: "通知提醒内容，必选".to_string(),
+                        prop_type: "Option<&str>".to_string(),
+                        default: "None".to_string(),
+                        description: "通知提醒内容，可选".to_string(),
                     },
                     PropDoc {
-                        name: "btn".to_string(),
-                        prop_type: "Element".to_string(),
-                        default: "-".to_string(),
-                        description: "自定义关闭按钮".to_string(),
-                    },
-                    PropDoc {
-                        name: "class_name".to_string(),
-                        prop_type: "String".to_string(),
-                        default: "-".to_string(),
-                        description: "自定义 CSS class".to_string(),
+                        name: "notification_type".to_string(),
+                        prop_type: "NotificationType".to_string(),
+                        default: "NotificationType::Info".to_string(),
+                        description: "通知类型，可选值：Info、Success、Warning、Error".to_string(),
                     },
                     PropDoc {
                         name: "duration".to_string(),
-                        prop_type: "f64".to_string(),
-                        default: "4.5".to_string(),
-                        description: "默认 4.5 秒后自动关闭，配置为 null 则不自动关闭".to_string(),
+                        prop_type: "Option<f64>".to_string(),
+                        default: "Some(4.5)".to_string(),
+                        description: "默认 4.5 秒后自动关闭，配置为 None 则不自动关闭".to_string(),
                     },
                     PropDoc {
                         name: "icon".to_string(),
-                        prop_type: "Element".to_string(),
-                        default: "-".to_string(),
+                        prop_type: "Option<&str>".to_string(),
+                        default: "None".to_string(),
                         description: "自定义图标".to_string(),
                     },
                     PropDoc {
-                        name: "key".to_string(),
-                        prop_type: "String".to_string(),
-                        default: "-".to_string(),
-                        description: "当前通知唯一标志".to_string(),
+                        name: "class_name".to_string(),
+                        prop_type: "Option<&str>".to_string(),
+                        default: "None".to_string(),
+                        description: "自定义 CSS class".to_string(),
                     },
                     PropDoc {
                         name: "style".to_string(),
-                        prop_type: "String".to_string(),
-                        default: "-".to_string(),
+                        prop_type: "Option<&str>".to_string(),
+                        default: "None".to_string(),
                         description: "自定义内联样式".to_string(),
                     },
+                    // NotificationConfig 属性
                     PropDoc {
-                        name: "on_close".to_string(),
-                        prop_type: "Function".to_string(),
-                        default: "-".to_string(),
-                        description: "点击默认关闭按钮时触发的回调函数".to_string(),
+                        name: "placement".to_string(),
+                        prop_type: "NotificationPlacement".to_string(),
+                        default: "NotificationPlacement::TopRight".to_string(),
+                        description: "弹出位置，可选值：TopLeft、TopRight、BottomLeft、BottomRight".to_string(),
+                    },
+                    PropDoc {
+                        name: "top".to_string(),
+                        prop_type: "Option<i32>".to_string(),
+                        default: "None".to_string(),
+                        description: "消息从顶部弹出时，距离顶部的位置，单位像素".to_string(),
+                    },
+                    PropDoc {
+                        name: "bottom".to_string(),
+                        prop_type: "Option<i32>".to_string(),
+                        default: "None".to_string(),
+                        description: "消息从底部弹出时，距离底部的位置，单位像素".to_string(),
+                    },
+                    PropDoc {
+                        name: "max_count".to_string(),
+                        prop_type: "Option<usize>".to_string(),
+                        default: "None".to_string(),
+                        description: "最大显示数，超过限制时，最早的消息会被自动关闭".to_string(),
+                    },
+                    PropDoc {
+                        name: "rtl".to_string(),
+                        prop_type: "Option<bool>".to_string(),
+                        default: "None".to_string(),
+                        description: "是否开启 RTL 模式".to_string(),
+                    },
+                    PropDoc {
+                        name: "stack".to_string(),
+                        prop_type: "Option<bool>".to_string(),
+                        default: "None".to_string(),
+                        description: "是否堆叠显示".to_string(),
                     },
                 ]
             }

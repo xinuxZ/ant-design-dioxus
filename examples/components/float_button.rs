@@ -13,12 +13,8 @@ pub fn FloatButtonDemo() -> Element {
             DemoSection {
                 title: "基本使用",
                 description: "最简单的用法。",
-                code: r#"rsx! {
-    FloatButton {
-        icon: "➕"
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; height: 200px; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 8px;",
                         FloatButton {
                             class: "demo-float-button",
@@ -32,13 +28,8 @@ pub fn FloatButtonDemo() -> Element {
             DemoSection {
                 title: "不同类型",
                 description: "悬浮按钮有两种类型：primary（默认）和 default。",
-                code: r#"rsx! {
-    div { style: "display: flex; gap: 16px;",
-        FloatButton { r#type: "primary", icon: "🏠" }
-        FloatButton { r#type: "default", icon: "⚙️" }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; height: 200px; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 8px;",
                         FloatButton {
                             class: "float-button-primary",
@@ -57,13 +48,8 @@ pub fn FloatButtonDemo() -> Element {
             DemoSection {
                 title: "不同形状",
                 description: "支持圆形和方形两种形状。",
-                code: r#"rsx! {
-    div { style: "display: flex; gap: 16px;",
-        FloatButton { shape: "circle", icon: "🔍" }
-        FloatButton { shape: "square", icon: "📝" }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; height: 200px; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 8px;",
                         FloatButton {
                             class: "float-button-circle",
@@ -82,14 +68,8 @@ pub fn FloatButtonDemo() -> Element {
             DemoSection {
                 title: "不同尺寸",
                 description: "悬浮按钮有大、中、小三种尺寸。",
-                code: r#"rsx! {
-    div { style: "display: flex; gap: 16px; align-items: center;",
-        FloatButton { size: "small", icon: "📧" }
-        FloatButton { size: "default", icon: "📞" }
-        FloatButton { size: "large", icon: "💬" }
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; height: 200px; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 8px;",
                         FloatButton {
                             class: "float-button-small",
@@ -113,13 +93,8 @@ pub fn FloatButtonDemo() -> Element {
             DemoSection {
                 title: "带描述的悬浮按钮",
                 description: "可以添加描述文字的悬浮按钮。",
-                code: r#"rsx! {
-    FloatButton {
-        icon: "❓",
-        description: "帮助"
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; height: 200px; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 8px;",
                         FloatButton {
                             class: "float-button-with-description",
@@ -134,13 +109,8 @@ pub fn FloatButtonDemo() -> Element {
             DemoSection {
                 title: "回到顶部",
                 description: "返回页面顶部的悬浮按钮。",
-                code: r#"rsx! {
-    FloatButton {
-        class: "back-top",
-        icon: "⬆️"
-    }
-}"#,
-                demo: rsx! {
+
+                div {
                     div { style: "position: relative; height: 200px; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 8px;",
                         FloatButton {
                             class: "back-top",

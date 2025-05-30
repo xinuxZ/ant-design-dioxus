@@ -251,7 +251,7 @@ pub fn GridDemo() -> Element {
                     div {
                         p { "子元素向左排列" }
                         Row {
-                            justify: Justify::Start,
+                            justify: GridJustify::Start,
                             style: "background: #f5f5f5; min-height: 60px;",
                             Col {
                                 span: 4,
@@ -280,7 +280,7 @@ pub fn GridDemo() -> Element {
                     div {
                         p { "子元素向中间排列" }
                         Row {
-                            justify: Justify::Center,
+                            justify: GridJustify::Center,
                             style: "background: #f5f5f5; min-height: 60px;",
                             Col {
                                 span: 4,
@@ -309,7 +309,7 @@ pub fn GridDemo() -> Element {
                     div {
                         p { "子元素向右排列" }
                         Row {
-                            justify: Justify::End,
+                            justify: GridJustify::End,
                             style: "background: #f5f5f5; min-height: 60px;",
                             Col {
                                 span: 4,

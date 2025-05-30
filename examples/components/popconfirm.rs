@@ -249,7 +249,7 @@ pub fn PopconfirmDemo() -> Element {
 
                     Switch {
                         checked: condition(),
-                        on_change: move |checked| {
+                        onchange: move |checked| {
                             condition.set(checked);
                         }
                     }

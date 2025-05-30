@@ -3,7 +3,6 @@
 //! 展示 Transfer 组件的各种用法和样式
 
 use crate::common::*;
-use ant_design_dioxus::components::table::{SelectionType, TableAlign, TableSize};
 use ant_design_dioxus::prelude::*;
 use dioxus::prelude::Callback;
 use dioxus::prelude::*;

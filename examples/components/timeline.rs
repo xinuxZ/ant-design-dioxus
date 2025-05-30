@@ -35,24 +35,18 @@ pub fn TimelineDemo() -> Element {
                     style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
                     Timeline {
-                        items: vec![
-                            TimelineItem {
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Solve initial network problems 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Technical testing 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Network problems being solved 2015-09-01" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Solve initial network problems 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Technical testing 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Network problems being solved 2015-09-01"
+                        }
                     }
                 }
             }
@@ -66,49 +60,33 @@ pub fn TimelineDemo() -> Element {
                     style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
                     Timeline {
-                        items: vec![
-                            TimelineItem {
-                                color: "green".to_string(),
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                color: "green".to_string(),
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                color: "red".to_string(),
-                                children: rsx! {
-                                    p { "Solve initial network problems 2015-09-01" }
-                                    p { "Network problems being solved 2015-09-01" }
-                                },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! {
-                                    p { "Technical testing 2015-09-01" }
-                                    p { "Network problems being solved 2015-09-01" }
-                                },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                color: "gray".to_string(),
-                                children: rsx! {
-                                    p { "Technical testing 2015-09-01" }
-                                    p { "Network problems being solved 2015-09-01" }
-                                },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                color: "gray".to_string(),
-                                children: rsx! {
-                                    p { "Technical testing 2015-09-01" }
-                                    p { "Network problems being solved 2015-09-01" }
-                                },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            color: TimelineItemColor::Red,
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            color: TimelineItemColor::Red,
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            color: TimelineItemColor::Red,
+                            p { "Solve initial network problems 2015-09-01" }
+                            p { "Network problems being solved 2015-09-01" }
+                        }
+                        TimelineItem {
+                            p { "Technical testing 2015-09-01" }
+                            p { "Network problems being solved 2015-09-01" }
+                        }
+                        TimelineItem {
+                            color: TimelineItemColor::Gray,
+                            p { "Technical testing 2015-09-01" }
+                            p { "Network problems being solved 2015-09-01" }
+                        }
+                        TimelineItem {
+                            color: TimelineItemColor::Gray,
+                            p { "Technical testing 2015-09-01" }
+                            p { "Network problems being solved 2015-09-01" }
+                        }
                     }
                 }
             }
@@ -134,20 +112,15 @@ pub fn TimelineDemo() -> Element {
                     Timeline {
                         pending: Some(rsx! { "Recording..." }).is_some(),
                         reverse: reverse(),
-                        items: vec![
-                            TimelineItem {
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Solve initial network problems 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Technical testing 2015-09-01" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Solve initial network problems 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Technical testing 2015-09-01"
+                        }
                     }
                 }
             }
@@ -161,31 +134,20 @@ pub fn TimelineDemo() -> Element {
                     style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
                     Timeline {
-                        items: vec![
-                            TimelineItem {
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Solve initial network problems 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                dot: Some(rsx! {
-                                    Icon {
-                                        icon_type: "clock-circle-outlined".to_string(),
-                                        style: "font-size: 16px;"
-                                    }
-                                }),
-                                color: "red".to_string(),
-                                children: rsx! { "Technical testing 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Network problems being solved 2015-09-01" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Solve initial network problems 2015-09-01"
+                        }
+                        TimelineItem {
+                            dot: "clock-circle-outlined".to_string(),
+                            color: TimelineItemColor::Red,
+                            "Technical testing 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Network problems being solved 2015-09-01"
+                        }
                     }
                 }
             }
@@ -200,31 +162,20 @@ pub fn TimelineDemo() -> Element {
 
                     Timeline {
                         mode: TimelineMode::Left,
-                        items: vec![
-                            TimelineItem {
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Solve initial network problems 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                dot: Some(rsx! {
-                                    Icon {
-                                        icon_type: "clock-circle-outlined".to_string(),
-                                        style: "font-size: 16px;"
-                                    }
-                                }),
-                                color: "red".to_string(),
-                                children: rsx! { "Technical testing 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Network problems being solved 2015-09-01" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Solve initial network problems 2015-09-01"
+                        }
+                        TimelineItem {
+                            dot: "clock-circle-outlined".to_string(),
+                            color: TimelineItemColor::Red,
+                            "Technical testing 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Network problems being solved 2015-09-01"
+                        }
                     }
                 }
             }
@@ -239,46 +190,28 @@ pub fn TimelineDemo() -> Element {
 
                     Timeline {
                         mode: TimelineMode::Alternate,
-                        items: vec![
-                            TimelineItem {
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Solve initial network problems 2015-09-01" },
-                                color: "green".to_string(),
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                dot: Some(rsx! {
-                                    Icon {
-                                        icon_type: "clock-circle-outlined".to_string(),
-                                        style: "font-size: 16px;"
-                                    }
-                                }),
-                                children: rsx! { "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo." },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                color: "red".to_string(),
-                                children: rsx! { "Network problems being solved 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Create a services site 2015-09-01" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                dot: Some(rsx! {
-                                    Icon {
-                                        icon_type: "clock-circle-outlined".to_string(),
-                                        style: "font-size: 16px;"
-                                    }
-                                }),
-                                children: rsx! { "Technical testing 2015-09-01" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            color: TimelineItemColor::Green,
+                            "Solve initial network problems 2015-09-01"
+                        }
+                        TimelineItem {
+                            dot: "clock-circle-outlined".to_string(),
+                            "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+                        }
+                        TimelineItem {
+                            color: TimelineItemColor::Red,
+                            "Network problems being solved 2015-09-01"
+                        }
+                        TimelineItem {
+                            "Create a services site 2015-09-01"
+                        }
+                        TimelineItem {
+                            dot: "clock-circle-outlined".to_string(),
+                            "Technical testing 2015-09-01"
+                        }
                     }
                 }
             }
@@ -293,27 +226,21 @@ pub fn TimelineDemo() -> Element {
 
                     Timeline {
                         mode: TimelineMode::Left,
-                        items: vec![
-                            TimelineItem {
-                                label: Some(rsx! { "2015-09-01" }),
-                                children: rsx! { "Create a services" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                label: Some(rsx! { "2015-09-01 09:12:11" }),
-                                children: rsx! { "Solve initial network problems" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Technical testing" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                label: Some(rsx! { "2015-09-01 09:12:11" }),
-                                children: rsx! { "Network problems being solved" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            label: Some(rsx! { "2015-09-01" }),
+                            "Create a services"
+                        }
+                        TimelineItem {
+                            label: Some(rsx! { "2015-09-01 09:12:11" }),
+                            "Solve initial network problems"
+                        }
+                        TimelineItem {
+                            "Technical testing"
+                        }
+                        TimelineItem {
+                            label: Some(rsx! { "2015-09-01 09:12:11" }),
+                            "Network problems being solved"
+                        }
                     }
                 }
             }
@@ -355,27 +282,21 @@ pub fn TimelineDemo() -> Element {
                             "alternate" => TimelineMode::Alternate,
                             _ => TimelineMode::Left,
                         },
-                        items: vec![
-                            TimelineItem {
-                                label: Some(rsx! { "2015-09-01" }),
-                                children: rsx! { "Create a services" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                label: Some(rsx! { "2015-09-01 09:12:11" }),
-                                children: rsx! { "Solve initial network problems" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                children: rsx! { "Technical testing" },
-                                ..Default::default()
-                            },
-                            TimelineItem {
-                                label: Some(rsx! { "2015-09-01 09:12:11" }),
-                                children: rsx! { "Network problems being solved" },
-                                ..Default::default()
-                            },
-                        ]
+                        TimelineItem {
+                            label:  "2015-09-01".to_string(),
+                            "Create a services"
+                        }
+                        TimelineItem {
+                            label:  "2015-09-01 09:12:11".to_string(),
+                            "Solve initial network problems"
+                        }
+                        TimelineItem {
+                            "Technical testing"
+                        }
+                        TimelineItem {
+                            label: "2015-09-01 09:12:11".to_string(),
+                            "Network problems being solved"
+                        }
                     }
                 }
             }
