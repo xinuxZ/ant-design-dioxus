@@ -233,6 +233,22 @@ pub struct TransferProps {
     /// 自定义过滤函数
     #[props(default)]
     pub filter_option: Option<Callback<(String, TransferItem, TransferDirection), bool>>,
+
+    /// 自定义渲染函数
+    #[props(default)]
+    pub render: Option<Callback<TransferItem, Element>>,
+
+    /// 自定义底部渲染函数
+    #[props(default)]
+    pub footer: Option<Callback<TransferProps, Element>>,
+
+    /// 自定义子组件渲染函数
+    #[props(default)]
+    pub children: Option<Callback<TransferListProps, Element>>,
+
+    /// 是否显示分页
+    #[props(default = false)]
+    pub pagination: bool,
 }
 
 /// 穿梭框组件
@@ -338,34 +354,34 @@ pub fn Transfer(props: TransferProps) -> Element {
     };
 
     // 处理选择变化
-    let handle_left_select_change = move |keys: Vec<String>| {
+    let handle_left_select_change = Callback::new(move |keys: Vec<String>| {
         left_selected_keys.set(keys.clone());
         if let Some(on_select_change) = &props.on_select_change {
             on_select_change.call((keys, right_selected_keys()));
         }
-    };
+    });
 
-    let handle_right_select_change = move |keys: Vec<String>| {
+    let handle_right_select_change = Callback::new(move |keys: Vec<String>| {
         right_selected_keys.set(keys.clone());
         if let Some(on_select_change) = &props.on_select_change {
             on_select_change.call((left_selected_keys(), keys));
         }
-    };
+    });
 
     // 处理搜索
-    let handle_left_search = move |value: String| {
+    let handle_left_search = Callback::new(move |value: String| {
         left_search_value.set(value.clone());
         if let Some(on_search) = &props.on_search {
             on_search.call((TransferDirection::Left, value));
         }
-    };
+    });
 
-    let handle_right_search = move |value: String| {
+    let handle_right_search = Callback::new(move |value: String| {
         right_search_value.set(value.clone());
         if let Some(on_search) = &props.on_search {
             on_search.call((TransferDirection::Right, value));
         }
-    };
+    });
 
     // 计算操作按钮状态
     let left_disabled = props.disabled || left_selected_keys().is_empty();
@@ -417,67 +433,96 @@ pub fn Transfer(props: TransferProps) -> Element {
             class: transfer_class,
             style: props.style.as_deref().unwrap_or(""),
 
-            // 左侧列表
-            TransferList {
-                title: left_title,
-                data_source: filtered_left_data,
-                selected_keys: left_selected_keys(),
-                disabled: props.disabled,
-                show_search: props.show_search,
-                search_placeholder: props.search_option.as_ref().map(|s| s.placeholder.clone()).unwrap_or_else(|| props.locale.search_placeholder.clone()),
-                search_value: left_search_value(),
-                show_select_all: props.show_select_all,
-                select_all_label: props.select_all_labels.get(0).cloned(),
-                locale: props.locale.clone(),
-                list_style: props.list_style.clone(),
-                direction: TransferDirection::Left,
-                on_select_change: handle_left_select_change,
-                on_search: handle_left_search,
-                on_scroll: props.on_scroll.clone(),
-            }
-            // 操作按钮
-            div {
-                class: "ant-transfer-operation",
-                style: props.operation_style.as_deref().unwrap_or(""),
-
-                button {
-                    class: format!("ant-btn ant-transfer-operation-btn{}", if left_disabled { " ant-btn-disabled" } else { "" }),
-                    disabled: left_disabled,
-                    onclick: move_to_target,
-                    title: "向右移动",
-
-                    span { class: "ant-transfer-operation-btn-icon", {to_right_text} }
+            if let Some(children_fn) = &props.children {
+                // 使用自定义子组件渲染
+                // 为左侧列表创建 props
+                {children_fn.call(TransferListProps {
+                    title: left_title.clone(),
+                    data_source: filtered_left_data.clone(),
+                    selected_keys: left_selected_keys(),
+                    disabled: props.disabled,
+                    show_search: props.show_search,
+                    search_placeholder: props.search_option.as_ref().map(|s| s.placeholder.clone()).unwrap_or_else(|| props.locale.search_placeholder.clone()),
+                    search_value: left_search_value(),
+                    show_select_all: props.show_select_all,
+                    select_all_label: props.select_all_labels.get(0).cloned(),
+                    locale: props.locale.clone(),
+                    list_style: props.list_style.clone(),
+                    direction: TransferDirection::Left,
+                    on_select_change: handle_left_select_change,
+                    on_search: handle_left_search,
+                    on_scroll: props.on_scroll.clone(),
+                    render: props.render.clone(),
+                    footer: props.footer.clone(),
+                })}
+            } else {
+                // 默认渲染
+                // 左侧列表
+                TransferList {
+                    title: left_title,
+                    data_source: filtered_left_data,
+                    selected_keys: left_selected_keys(),
+                    disabled: props.disabled,
+                    show_search: props.show_search,
+                    search_placeholder: props.search_option.as_ref().map(|s| s.placeholder.clone()).unwrap_or_else(|| props.locale.search_placeholder.clone()),
+                    search_value: left_search_value(),
+                    show_select_all: props.show_select_all,
+                    select_all_label: props.select_all_labels.get(0).cloned(),
+                    locale: props.locale.clone(),
+                    list_style: props.list_style.clone(),
+                    direction: TransferDirection::Left,
+                    on_select_change: handle_left_select_change,
+                    on_search: handle_left_search,
+                    on_scroll: props.on_scroll.clone(),
+                    render: props.render.clone(),
+                    footer: props.footer.clone(),
                 }
+                // 操作按钮
+                div {
+                    class: "ant-transfer-operation",
+                    style: props.operation_style.as_deref().unwrap_or(""),
 
-                if !props.one_way {
                     button {
-                        class: format!("ant-btn ant-transfer-operation-btn{}", if right_disabled { " ant-btn-disabled" } else { "" }),
-                        disabled: right_disabled,
-                        onclick: move_to_source,
-                        title: "向左移动",
+                        class: format!("ant-btn ant-transfer-operation-btn{}", if left_disabled { " ant-btn-disabled" } else { "" }),
+                        disabled: left_disabled,
+                        onclick: move_to_target,
+                        title: "向右移动",
 
-                        span { class: "ant-transfer-operation-btn-icon", {to_left_text} }
+                        span { class: "ant-transfer-operation-btn-icon", {to_right_text} }
+                    }
+
+                    if !props.one_way {
+                        button {
+                            class: format!("ant-btn ant-transfer-operation-btn{}", if right_disabled { " ant-btn-disabled" } else { "" }),
+                            disabled: right_disabled,
+                            onclick: move_to_source,
+                            title: "向左移动",
+
+                            span { class: "ant-transfer-operation-btn-icon", {to_left_text} }
+                        }
                     }
                 }
-            }
 
-            // 右侧列表
-            TransferList {
-                title: right_title,
-                data_source: filtered_right_data,
-                selected_keys: right_selected_keys(),
-                disabled: props.disabled,
-                show_search: props.show_search,
-                search_placeholder: props.search_option.as_ref().map(|s| s.placeholder.clone()).unwrap_or_else(|| props.locale.search_placeholder.clone()),
-                search_value: right_search_value(),
-                show_select_all: props.show_select_all,
-                select_all_label: props.select_all_labels.get(1).cloned(),
-                locale: props.locale.clone(),
-                list_style: props.list_style.clone(),
-                direction: TransferDirection::Right,
-                on_select_change: handle_right_select_change,
-                on_search: handle_right_search,
-                on_scroll: props.on_scroll.clone(),
+                // 右侧列表
+                TransferList {
+                    title: right_title,
+                    data_source: filtered_right_data,
+                    selected_keys: right_selected_keys(),
+                    disabled: props.disabled,
+                    show_search: props.show_search,
+                    search_placeholder: props.search_option.as_ref().map(|s| s.placeholder.clone()).unwrap_or_else(|| props.locale.search_placeholder.clone()),
+                    search_value: right_search_value(),
+                    show_select_all: props.show_select_all,
+                    select_all_label: props.select_all_labels.get(1).cloned(),
+                    locale: props.locale.clone(),
+                    list_style: props.list_style.clone(),
+                    direction: TransferDirection::Right,
+                    on_select_change: handle_right_select_change,
+                    on_search: handle_right_search,
+                    on_scroll: props.on_scroll.clone(),
+                    render: props.render.clone(),
+                    footer: props.footer.clone(),
+                }
             }
         }
     }
@@ -485,22 +530,24 @@ pub fn Transfer(props: TransferProps) -> Element {
 
 /// 穿梭框列表属性
 #[derive(Props, Clone, PartialEq)]
-struct TransferListProps {
-    title: String,
-    data_source: Vec<TransferItem>,
-    selected_keys: Vec<String>,
-    disabled: bool,
-    show_search: bool,
-    search_placeholder: String,
-    search_value: String,
-    show_select_all: bool,
-    select_all_label: Option<String>,
-    locale: TransferLocale,
-    list_style: Option<String>,
-    direction: TransferDirection,
-    on_select_change: Callback<Vec<String>>,
-    on_search: Callback<String>,
-    on_scroll: Option<Callback<(TransferDirection, Event<ScrollData>)>>,
+pub struct TransferListProps {
+    pub title: String,
+    pub data_source: Vec<TransferItem>,
+    pub selected_keys: Vec<String>,
+    pub disabled: bool,
+    pub show_search: bool,
+    pub search_placeholder: String,
+    pub search_value: String,
+    pub show_select_all: bool,
+    pub select_all_label: Option<String>,
+    pub locale: TransferLocale,
+    pub list_style: Option<String>,
+    pub direction: TransferDirection,
+    pub on_select_change: Callback<Vec<String>>,
+    pub on_search: Callback<String>,
+    pub on_scroll: Option<Callback<(TransferDirection, Event<ScrollData>)>>,
+    pub render: Option<Callback<TransferItem, Element>>,
+    pub footer: Option<Callback<TransferProps, Element>>,
 }
 
 /// 穿梭框列表组件
@@ -670,14 +717,28 @@ fn TransferList(props: TransferListProps) -> Element {
                     }
                 } else {
                     for item in &props.data_source {
-                        TransferListItem {
-                            key: item.key,
-                            item: item.clone(),
-                            selected: selected_keys_set.contains(&item.key),
-                            disabled: props.disabled || item.disabled,
-                            on_select: handle_item_select,
+                        if let Some(render_fn) = &props.render {
+                            {render_fn.call(item.clone())}
+                        } else {
+                            TransferListItem {
+                                key: item.key,
+                                item: item.clone(),
+                                selected: selected_keys_set.contains(&item.key),
+                                disabled: props.disabled || item.disabled,
+                                on_select: handle_item_select,
+                            }
                         }
                     }
+                }
+            }
+
+            // Footer
+            if let Some(_footer_fn) = &props.footer {
+                div {
+                    class: "ant-transfer-list-footer",
+                    // 注意：这里需要传递一个 TransferProps，但我们只有部分信息
+                    // 暂时先注释掉，需要重新设计 footer 的参数
+                    // {_footer_fn.call(/* 需要构造 TransferProps */)}
                 }
             }
         }

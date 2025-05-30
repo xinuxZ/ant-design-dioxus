@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-use std::collections::HashMap;
 
 /// Tour placement options
 #[derive(Clone, Debug, PartialEq)]
