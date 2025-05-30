@@ -577,7 +577,7 @@ fn TransferList(props: TransferListProps) -> Element {
         let disabled = props.disabled;
         let on_select_change = props.on_select_change.clone();
         let selectable_items = selectable_items.clone();
-        Callback::new(move |checked: bool| {
+        move |checked: bool| {
             if !disabled {
                 let new_keys = if checked {
                     let mut keys = selected_keys.clone();
@@ -601,7 +601,7 @@ fn TransferList(props: TransferListProps) -> Element {
 
                 on_select_change.call(new_keys);
             }
-        })
+        }
     };
 
     // 处理单项选择
