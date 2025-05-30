@@ -110,6 +110,7 @@ fn App() -> Element {
                     "Select" => rsx! { SelectDemo{} },
                     "Slider" => rsx! { SliderDemo{} },
                     "Switch" => rsx! { SwitchDemo{} },
+                    "Tabs" => rsx! { TabsDemo{} },
                     "TimePicker" => rsx! { TimePickerDemo{} },
                     "Transfer" => rsx! { TransferDemo{} },
                     "TreeSelect" => rsx! { TreeSelectDemo{} },
@@ -124,8 +125,7 @@ fn App() -> Element {
                     "Result" => rsx! { ResultDemo{} },
                     "Skeleton" => rsx! { SkeletonDemo{} },
                     "Spin" => rsx! { SpinDemo{} },
-                    // 暂时注释掉Tour组件，稍后修复
-                    // "Tour" => rsx! { TourDemo{} },
+                    "Tour" => rsx! { TourDemo{} },
                     "App" => rsx! { AppDemo{} },
                     "Calendar" => rsx! { CalendarDemo{} },
                     "FloatButton" => rsx! { FloatButtonDemo{} },
