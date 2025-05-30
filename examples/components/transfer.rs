@@ -4,6 +4,7 @@
 
 use crate::common::*;
 use ant_design_dioxus::prelude::*;
+use dioxus::prelude::Callback;
 use dioxus::prelude::*;
 
 /// Transfer 组件演示
@@ -40,7 +41,7 @@ pub fn TransferDemo() -> Element {
         TransferItem {
             key: "d".to_string(),
             title: "content4".to_string(),
-            description: "description of content4".to_string(),
+            description: Some("description of content4".to_string()),
             disabled: false,
             data: None,
         },
@@ -97,12 +98,12 @@ pub fn TransferDemo() -> Element {
                         titles: vec!["Source".to_string(), "Target".to_string()],
                         target_keys: target_keys(),
                         selected_keys: selected_keys(),
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
-                        on_select_change: move |source_selected_keys, target_selected_keys| {
-                            selected_keys.set([source_selected_keys, target_selected_keys].concat());
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
+                        on_select_change: Callback::new(move |args: (Vec<String>, Vec<String>)| {
+                            selected_keys.set([args.0, args.1].concat());
+                        }),
                         render: |item| {
                             rsx! {
                                 span {
@@ -129,7 +130,6 @@ pub fn TransferDemo() -> Element {
                             onchange: move |checked| {
                                 show_search.set(checked);
                             },
-                            "Show Search"
                         }
                     }
 
@@ -140,9 +140,9 @@ pub fn TransferDemo() -> Element {
                             item.title.contains(input_value)
                         },
                         target_keys: target_keys(),
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
                         render: |item| {
                             rsx! {
                                 span {
@@ -167,9 +167,9 @@ pub fn TransferDemo() -> Element {
                         list_style: "width: 300px; height: 300px;",
                         operations: vec!["to right".to_string(), "to left".to_string()],
                         target_keys: target_keys(),
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
                         render: |item| {
                             rsx! {
                                 span {
@@ -181,7 +181,7 @@ pub fn TransferDemo() -> Element {
                         footer: |props| {
                             rsx! {
                                 Button {
-                                    size: "small",
+                                    size: ButtonSize::Small,
                                     style: "float: right; margin: 5px;",
                                     onclick: move |_| {
                                         // Reload data
@@ -189,7 +189,7 @@ pub fn TransferDemo() -> Element {
                                     "reload"
                                 }
                                 Button {
-                                    size: "small",
+                                    size: ButtonSize::Small,
                                     style: "float: right; margin: 5px;",
                                     onclick: move |_| {
                                         // Clear data
@@ -213,9 +213,9 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         target_keys: target_keys(),
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
                         render: |item| {
                             rsx! {
                                 div {
@@ -231,7 +231,7 @@ pub fn TransferDemo() -> Element {
                                         }
                                     }
                                     Icon {
-                                        icon_type: IconType::RightOutlined
+                                        icon_type: "right".to_string()
                                     }
                                 }
                             }
@@ -252,9 +252,9 @@ pub fn TransferDemo() -> Element {
                         data_source: large_data.clone(),
                         target_keys: target_keys(),
                         pagination: true,
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
                         render: |item| {
                             rsx! {
                                 span {
@@ -281,7 +281,6 @@ pub fn TransferDemo() -> Element {
                             onchange: move |checked| {
                                 one_way.set(checked);
                             },
-                            "One Way"
                         }
                     }
 
@@ -294,9 +293,9 @@ pub fn TransferDemo() -> Element {
                         } else {
                             vec!["to right".to_string(), "to left".to_string()]
                         },
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
                         render: |item| {
                             rsx! {
                                 span {
@@ -319,50 +318,69 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         target_keys: target_keys(),
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
-                        children: |props| {
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
+                        children: Callback::new(|props: TransferListProps| {
                             rsx! {
                                 Table {
                                     row_selection: TableRowSelection {
-                                        checkbox_props: |record| {
-                                            CheckboxProps {
-                                                disabled: record.disabled,
-                                                name: record.title.clone(),
-                                            }
-                                        },
-                                        on_select: props.on_item_select,
-                                        on_select_all: props.on_item_select_all,
-                                        selected_row_keys: props.selected_keys,
+                                        checkbox_props: None,
+                                        column_width: None,
+                                        column_title: None,
+                                        fixed: false,
+                                        selected_row_keys: props.selected_keys.clone(),
+                                        selection_type: SelectionType::Checkbox,
                                     },
                                     columns: vec![
                                         TableColumn {
                                             title: "Name".to_string(),
                                             dataindex: "title".to_string(),
                                             key: "title".to_string(),
+                                            width: None,
+                                            align: "left".to_string(),
+                                            sortable: false,
+                                            fixed: None,
+                                            show_sorter_tooltip: true,
                                         },
                                         TableColumn {
                                             title: "Description".to_string(),
                                             dataindex: "description".to_string(),
                                             key: "description".to_string(),
+                                            width: None,
+                                            align: "left".to_string(),
+                                            sortable: false,
+                                            fixed: None,
+                                            show_sorter_tooltip: true,
                                         },
                                     ],
-                                    data_source: props.data_source,
-                                    size: "small",
+                                    data_source: props.data_source.iter().map(|item| {
+                                        serde_json::json!({
+                                            "key": item.key,
+                                            "title": item.title,
+                                            "description": item.description.as_ref().unwrap_or(&String::new())
+                                        })
+                                    }).collect(),
+                                    size: TableSize::Small,
                                     style: "pointer-events: none;",
-                                    on_row_click: |record| {
-                                        TableRowProps {
-                                            onclick: move |_| {
-                                                if !record.disabled {
-                                                    props.on_item_select(record.key.clone(), !props.selected_keys.contains(&record.key));
+                                    on_row_click: move |key: String| {
+                                        // 处理行点击事件
+                                        if let Some(item) = props.data_source.iter().find(|item| item.key == key) {
+                                            if !item.disabled {
+                                                // 这里需要调用 on_select_change 回调
+                                                let mut new_keys = props.selected_keys.clone();
+                                                if new_keys.contains(&key) {
+                                                    new_keys.retain(|k| k != &key);
+                                                } else {
+                                                    new_keys.push(key);
                                                 }
+                                                props.on_select_change.call(new_keys);
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
+                        })
                     }
                 }
             }
@@ -378,18 +396,24 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         target_keys: target_keys(),
-                        on_change: move |next_target_keys, direction, move_keys| {
-                            target_keys.set(next_target_keys);
-                        },
+                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                            target_keys.set(args.0);
+                        }),
                         children: |props| {
                             rsx! {
                                 Tree {
                                     tree_data: props.data_source.iter().map(|item| {
                                         TreeNode {
-                                            title: item.title.clone(),
-                                            key: item.key.clone(),
-                                            disabled: item.disabled,
-                                        }
+                                             title: item.title.clone(),
+                                             key: item.key.clone(),
+                                             disabled: item.disabled,
+                                             children: None,
+                                             disabled_checkbox: false,
+                                             icon: None,
+                                             is_leaf: true,
+                                             selectable: true,
+                                             data: None,
+                                         }
                                     }).collect(),
                                     checkable: true,
                                     default_checked_keys: props.selected_keys,

@@ -1,5 +1,5 @@
 use crate::common::demo_section::DemoSection;
-use ant_design_dioxus::components::splitter::Splitter;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// Splitter组件示例

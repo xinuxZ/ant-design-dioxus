@@ -1,5 +1,5 @@
 use crate::common::demo_section::DemoSection;
-use ant_design_dioxus::components::segmented::Segmented;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// Segmented组件示例

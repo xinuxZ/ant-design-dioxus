@@ -1,5 +1,5 @@
 use crate::common::demo_section::DemoSection;
-use ant_design_dioxus::components::float_button::FloatButton;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// FloatButton组件示例

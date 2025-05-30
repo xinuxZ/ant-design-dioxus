@@ -1,5 +1,5 @@
 use crate::common::demo_section::DemoSection;
-use ant_design_dioxus::components::tour::Tour;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// Tour组件示例

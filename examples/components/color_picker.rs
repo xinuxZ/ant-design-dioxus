@@ -1,5 +1,5 @@
 use crate::common::demo_section::DemoSection;
-use ant_design_dioxus::components::color_picker::ColorPicker;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// ColorPicker组件示例

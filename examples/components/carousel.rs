@@ -61,7 +61,7 @@ pub fn CarouselDemo() -> Element {
                     style: "width: 100%; max-width: 600px;",
 
                     Carousel {
-                        dots_position: "top",
+                        dot_position: DotPosition::Top,
                         div {
                             style: "height: 160px; color: #fff; line-height: 160px; text-align: center; background: #364d79;",
                             h3 { style: "margin: 0; color: #fff;", "1" }
@@ -121,7 +121,7 @@ pub fn CarouselDemo() -> Element {
                     style: "width: 100%; max-width: 600px;",
 
                     Carousel {
-                        effect: "fade",
+                        effect: Effect::Fade,
                         div {
                             style: "height: 160px; color: #fff; line-height: 160px; text-align: center; background: #364d79;",
                             h3 { style: "margin: 0; color: #fff;", "1" }

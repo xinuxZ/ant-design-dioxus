@@ -1,5 +1,5 @@
 use crate::common::*;
-use ant_design_dioxus::components::app::App;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// App组件示例

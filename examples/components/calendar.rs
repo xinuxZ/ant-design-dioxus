@@ -1,5 +1,5 @@
 use crate::common::demo_section::DemoSection;
-use ant_design_dioxus::components::calendar::Calendar;
+use ant_design_dioxus::prelude::*;
 use dioxus::prelude::*;
 
 /// Calendar组件示例
