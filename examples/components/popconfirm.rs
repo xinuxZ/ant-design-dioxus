@@ -88,7 +88,7 @@ pub fn PopconfirmDemo() -> Element {
                     style: "display: flex; gap: 8px; flex-wrap: wrap;",
 
                     Popconfirm {
-                        placement: "topLeft",
+                        placement: PopconfirmPlacement::TopLeft,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -99,7 +99,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "top",
+                        placement: PopconfirmPlacement::Top,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -110,7 +110,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "topRight",
+                        placement: PopconfirmPlacement::TopRight,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -121,7 +121,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "leftTop",
+                        placement: PopconfirmPlacement::LeftTop,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -132,7 +132,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "left",
+                        placement: PopconfirmPlacement::Left,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -143,7 +143,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "leftBottom",
+                        placement: PopconfirmPlacement::LeftBottom,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -154,7 +154,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "rightTop",
+                        placement: PopconfirmPlacement::RightTop,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -165,7 +165,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "right",
+                        placement: PopconfirmPlacement::Right,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -176,7 +176,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "rightBottom",
+                        placement: PopconfirmPlacement::RightBottom,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -187,7 +187,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "bottomLeft",
+                        placement: PopconfirmPlacement::BottomLeft,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -198,7 +198,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "bottom",
+                        placement: PopconfirmPlacement::Bottom,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -209,7 +209,7 @@ pub fn PopconfirmDemo() -> Element {
                     }
 
                     Popconfirm {
-                        placement: "bottomRight",
+                        placement: PopconfirmPlacement::BottomRight,
                         title: "Are you sure?",
                         ok_text: "Yes",
                         cancel_text: "No",
@@ -268,7 +268,7 @@ pub fn PopconfirmDemo() -> Element {
                         title: "Are you sure?",
                         icon: rsx! {
                             Icon {
-                                icon_type: IconType::QuestionCircleOutlined,
+                                icon_type: "question-circle-outlined".to_string(),
                                 style: "color: red;"
                             }
                         },

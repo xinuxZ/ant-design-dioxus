@@ -83,7 +83,7 @@ fn App() -> Element {
                     "Popover" => rsx! { PopoverDemo{} },
                     "Statistic" => rsx! { StatisticDemo{} },
                     "Table" => rsx! { TableDemo{} },
-                    "Tabs" => rsx! { TabsDemo{} },
+                    // "Tabs" => rsx! { TabsDemo{} },
                     "Tag" => rsx! { TagDemo{} },
                     "Timeline" => rsx! { TimelineDemo{} },
                     "Tooltip" => rsx! { TooltipDemo{} },

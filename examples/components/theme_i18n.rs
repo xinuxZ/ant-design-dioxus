@@ -318,13 +318,13 @@ fn DateTimeDemo() -> Element {
     let last_month = now - chrono::Duration::days(30);
 
     // 预先计算格式化结果
-    let now_datetime = datetime_format(&now);
-    let now_date = date_format(&now);
-    let now_time = time_format(&now);
-    let now_relative = relative_time_format(&now);
-    let yesterday_relative = relative_time_format(&yesterday);
-    let last_week_relative = relative_time_format(&last_week);
-    let last_month_relative = relative_time_format(&last_month);
+    let _now_datetime = datetime_format(&now);
+    let _now_date = date_format(&now);
+    let _now_time = time_format(&now);
+    let _now_relative = relative_time_format(&now);
+    let _yesterday_relative = relative_time_format(&yesterday);
+    let _last_week_relative = relative_time_format(&last_week);
+    let _last_month_relative = relative_time_format(&last_month);
 
     rsx! {
         div {

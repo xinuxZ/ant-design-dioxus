@@ -152,7 +152,7 @@ pub fn DescriptionsDemo() -> Element {
 
                     Descriptions {
                         title: "Custom Size",
-                        size: "small",
+                        size: DescriptionsSize::Small,
 
                         DescriptionsItem {
                             label: "Product",

@@ -170,7 +170,7 @@ pub fn TabsDemo() -> Element {
                                 label: "Tab 1".to_string(),
                                 icon: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::AppleOutlined
+                                        icon_type: "apple-outlined".to_string()
                                     }
                                 }),
                                 children: rsx! {
@@ -186,7 +186,7 @@ pub fn TabsDemo() -> Element {
                                 label: "Tab 2".to_string(),
                                 icon: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::AndroidOutlined
+                                        icon_type: "android-outlined".to_string()
                                     }
                                 }),
                                 children: rsx! {

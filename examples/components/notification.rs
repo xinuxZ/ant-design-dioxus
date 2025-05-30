@@ -152,7 +152,7 @@ pub fn NotificationDemo() -> Element {
                                 description: "This is the content of the notification. This is the content of the notification. This is the content of the notification.".to_string(),
                                 icon: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::SmileOutlined,
+                                        icon_type: "smile-outlined".to_string(),
                                         style: "color: #108ee9;"
                                     }
                                 }),

@@ -163,7 +163,7 @@ pub fn UploadDemo() -> Element {
                         file_list: file_list(),
 
                         Button {
-                            icon: Icon { icon_type: IconType::UploadOutlined },
+                            icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Click to Upload"
                         }
                     }
@@ -202,7 +202,7 @@ pub fn UploadDemo() -> Element {
                         ],
 
                         Button {
-                            icon: Icon { icon_type: IconType::UploadOutlined },
+                            icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
@@ -236,7 +236,7 @@ pub fn UploadDemo() -> Element {
                         ],
 
                         Button {
-                            icon: Icon { icon_type: IconType::UploadOutlined },
+                            icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
@@ -274,7 +274,7 @@ pub fn UploadDemo() -> Element {
                         file_list: file_list(),
 
                         Button {
-                            icon: Icon { icon_type: IconType::UploadOutlined },
+                            icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
@@ -311,7 +311,7 @@ pub fn UploadDemo() -> Element {
                         p {
                             class: "ant-upload-drag-icon",
                             Icon {
-                                icon_type: IconType::InboxOutlined
+                                icon_type: "inbox-outlined".to_string()
                             }
                         }
                         p {
@@ -351,7 +351,7 @@ pub fn UploadDemo() -> Element {
                             rsx! {
                                 div {
                                     Icon {
-                                        icon_type: IconType::PlusOutlined
+                                        icon_type: "plus-outlined".to_string()
                                     }
                                     div {
                                         style: "margin-top: 8px;",
@@ -380,7 +380,7 @@ pub fn UploadDemo() -> Element {
                             show_download_icon: true,
                             remove_icon: Some(rsx! {
                                 Icon {
-                                    icon_type: IconType::DeleteOutlined,
+                                    icon_type: "delete-outlined".to_string(),
                                     onclick: move |_| {
                                         println!("custom removeIcon");
                                     }
@@ -388,7 +388,7 @@ pub fn UploadDemo() -> Element {
                             }),
                             download_icon: Some(rsx! {
                                 Icon {
-                                    icon_type: IconType::DownloadOutlined,
+                                    icon_type: "download-outlined".to_string(),
                                     onclick: move |_| {
                                         println!("custom downloadIcon");
                                     }
@@ -397,7 +397,7 @@ pub fn UploadDemo() -> Element {
                         },
 
                         Button {
-                            icon: Icon { icon_type: IconType::UploadOutlined },
+                            icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Upload"
                         }
                     }
@@ -422,7 +422,7 @@ pub fn UploadDemo() -> Element {
                         },
 
                         Button {
-                            icon: Icon { icon_type: IconType::UploadOutlined },
+                            icon: Icon { icon_type: "upload-outlined".to_string() },
                             "Select File"
                         }
                     }
@@ -480,7 +480,7 @@ pub fn UploadDemo() -> Element {
                             rsx! {
                                 div {
                                     Icon {
-                                        icon_type: IconType::PlusOutlined
+                                        icon_type: "plus-outlined".to_string()
                                     }
                                     div {
                                         style: "margin-top: 8px;",

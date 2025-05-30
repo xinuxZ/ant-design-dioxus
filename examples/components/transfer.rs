@@ -3,6 +3,7 @@
 //! 展示 Transfer 组件的各种用法和样式
 
 use crate::common::*;
+use ant_design_dioxus::components::table::{SelectionType, TableAlign, TableSize};
 use ant_design_dioxus::prelude::*;
 use dioxus::prelude::Callback;
 use dioxus::prelude::*;
@@ -98,13 +99,13 @@ pub fn TransferDemo() -> Element {
                         titles: vec!["Source".to_string(), "Target".to_string()],
                         target_keys: target_keys(),
                         selected_keys: selected_keys(),
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
-                        on_select_change: Callback::new(move |args: (Vec<String>, Vec<String>)| {
+                        },
+                        on_select_change: move |args: (Vec<String>, Vec<String>)| {
                             selected_keys.set([args.0, args.1].concat());
-                        }),
-                        render: |item| {
+                        },
+                        render: |item: TransferItem| {
                             rsx! {
                                 span {
                                     "{item.title}"
@@ -136,17 +137,17 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         show_search: show_search(),
-                        filter_option: |input_value, item| {
-                            item.title.contains(input_value)
+                        filter_option: |input_value: String, item: TransferItem, _direction: TransferDirection| {
+                            item.title.contains(&input_value)
                         },
                         target_keys: target_keys(),
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
-                        render: |item| {
+                        },
+                        render: |item: TransferItem| {
                             rsx! {
                                 span {
-                                    "{item.title} - {item.description}"
+                                    "{item.title} - {item.description.as_ref().unwrap_or(&String::new())}"
                                 }
                             }
                         }
@@ -167,9 +168,9 @@ pub fn TransferDemo() -> Element {
                         list_style: "width: 300px; height: 300px;",
                         operations: vec!["to right".to_string(), "to left".to_string()],
                         target_keys: target_keys(),
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
+                        },
                         render: |item| {
                             rsx! {
                                 span {
@@ -213,9 +214,9 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         target_keys: target_keys(),
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
+                        },
                         render: |item| {
                             rsx! {
                                 div {
@@ -252,10 +253,10 @@ pub fn TransferDemo() -> Element {
                         data_source: large_data.clone(),
                         target_keys: target_keys(),
                         pagination: true,
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
-                        render: |item| {
+                        },
+                        render: |item: TransferItem| {
                             rsx! {
                                 span {
                                     "{item.title}"
@@ -280,7 +281,7 @@ pub fn TransferDemo() -> Element {
                             checked: one_way(),
                             onchange: move |checked| {
                                 one_way.set(checked);
-                            },
+                            }
                         }
                     }
 
@@ -293,10 +294,10 @@ pub fn TransferDemo() -> Element {
                         } else {
                             vec!["to right".to_string(), "to left".to_string()]
                         },
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
-                        render: |item| {
+                        },
+                        render: |item: TransferItem| {
                             rsx! {
                                 span {
                                     "{item.title}"
@@ -318,10 +319,10 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         target_keys: target_keys(),
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
-                        children: Callback::new(|props: TransferListProps| {
+                        },
+                        children: |props: TransferListProps| {
                             rsx! {
                                 Table {
                                     row_selection: TableRowSelection {
@@ -334,11 +335,11 @@ pub fn TransferDemo() -> Element {
                                     },
                                     columns: vec![
                                         TableColumn {
-                                            title: "Name".to_string(),
+                                            title: "Title".to_string(),
                                             dataindex: "title".to_string(),
                                             key: "title".to_string(),
                                             width: None,
-                                            align: "left".to_string(),
+                                            align: Some(TableAlign::Left),
                                             sortable: false,
                                             fixed: None,
                                             show_sorter_tooltip: true,
@@ -348,18 +349,18 @@ pub fn TransferDemo() -> Element {
                                             dataindex: "description".to_string(),
                                             key: "description".to_string(),
                                             width: None,
-                                            align: "left".to_string(),
+                                            align: Some(TableAlign::Left),
                                             sortable: false,
                                             fixed: None,
                                             show_sorter_tooltip: true,
                                         },
                                     ],
                                     data_source: props.data_source.iter().map(|item| {
-                                        serde_json::json!({
-                                            "key": item.key,
-                                            "title": item.title,
-                                            "description": item.description.as_ref().unwrap_or(&String::new())
-                                        })
+                                        let mut map = std::collections::HashMap::new();
+                                        map.insert("key".to_string(), item.key.clone());
+                                        map.insert("title".to_string(), item.title.clone());
+                                        map.insert("description".to_string(), item.description.as_ref().unwrap_or(&String::new()).clone());
+                                        map
                                     }).collect(),
                                     size: TableSize::Small,
                                     style: "pointer-events: none;",
@@ -380,7 +381,7 @@ pub fn TransferDemo() -> Element {
                                     }
                                 }
                             }
-                        })
+                        }
                     }
                 }
             }
@@ -396,9 +397,9 @@ pub fn TransferDemo() -> Element {
                     Transfer {
                         data_source: mock_data.clone(),
                         target_keys: target_keys(),
-                        on_change: Callback::new(move |args: (Vec<String>, TransferDirection, Vec<String>)| {
+                        on_change: move |args: (Vec<String>, TransferDirection, Vec<String>)| {
                             target_keys.set(args.0);
-                        }),
+                        },
                         children: |props| {
                             rsx! {
                                 Tree {

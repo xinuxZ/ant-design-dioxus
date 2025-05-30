@@ -123,11 +123,7 @@ pub fn StepsDemo() -> Element {
                                 title: "Login".to_string(),
                                 description: Some("This is a description.".to_string()),
                                 status: Some(StepStatus::Finish),
-                                icon: Some(rsx!{
-                                    Icon {
-                                        icon_type: IconType::UserOutlined
-                                    }
-                                }),
+                                icon: Some("user-outlined".to_string()),
                                 subtitle: None,
                                 disabled: false,
                             },
@@ -135,11 +131,7 @@ pub fn StepsDemo() -> Element {
                                 title: "Verification".to_string(),
                                 description: Some("This is a description.".to_string()),
                                 status: Some(StepStatus::Finish),
-                                icon: Some(rsx! {
-                                    Icon {
-                                        icon_type: IconType::SolutionOutlined
-                                    }
-                                }),
+                                icon: Some("solution-outlined".to_string()),
                                 subtitle: None,
                                 disabled: false,
                             },
@@ -147,11 +139,7 @@ pub fn StepsDemo() -> Element {
                                 title: "Pay".to_string(),
                                 description: Some("This is a description.".to_string()),
                                 status: Some(StepStatus::Finish),
-                                icon: Some(rsx! {
-                                    Icon {
-                                        icon_type: IconType::LoadingOutlined
-                                    }
-                                }),
+                                icon: Some("loading-outlined".to_string()),
                                 subtitle: None,
                                 disabled: false,
                             },
@@ -159,11 +147,7 @@ pub fn StepsDemo() -> Element {
                                 title: "Done".to_string(),
                                 description: Some("This is a description.".to_string()),
                                 status: Some(StepStatus::Wait),
-                                icon: Some(rsx! {
-                                    Icon {
-                                        icon_type: IconType::SmileOutlined
-                                    }
-                                }),
+                                icon: Some("smile-outlined".to_string()),
                                 subtitle: None,
                                 disabled: false,
                             },

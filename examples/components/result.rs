@@ -233,7 +233,7 @@ pub fn ResultDemo() -> Element {
                     Result {
                         icon: rsx! {
                             Icon {
-                                icon_type: IconType::SmileOutlined,
+                                icon_type: "smile-outlined".to_string(),
                                 style: "color: #1890ff; font-size: 72px;"
                             }
                         },

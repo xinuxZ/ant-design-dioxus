@@ -15,10 +15,21 @@ struct UserData {
     tags: Vec<String>,
 }
 
+/// 将UserData转换为HashMap<String, String>
+fn user_data_to_hashmap(user: &UserData) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    map.insert("key".to_string(), user.key.clone());
+    map.insert("name".to_string(), user.name.clone());
+    map.insert("age".to_string(), user.age.to_string());
+    map.insert("address".to_string(), user.address.clone());
+    map.insert("tags".to_string(), user.tags.join(", "));
+    map
+}
+
 /// Table 组件演示
 #[component]
 pub fn TableDemo() -> Element {
-    let data = use_signal(|| {
+    let user_data = use_signal(|| {
         vec![
             UserData {
                 key: "1".to_string(),
@@ -42,6 +53,15 @@ pub fn TableDemo() -> Element {
                 tags: vec!["cool".to_string(), "teacher".to_string()],
             },
         ]
+    });
+
+    // 将UserData转换为HashMap<String, String>
+    let data = use_memo(move || {
+        user_data
+            .read()
+            .iter()
+            .map(|item| user_data_to_hashmap(item))
+            .collect::<Vec<_>>()
     });
 
     let columns = vec![
@@ -98,6 +118,17 @@ pub fn TableDemo() -> Element {
     ];
 
     let selected_rows = use_signal(|| Vec::<String>::new());
+    let selected_keys = use_signal(|| Vec::<String>::new());
+
+    // 获取所有用户的key
+    let all_keys = use_memo(move || {
+        user_data
+            .read()
+            .iter()
+            .map(|item| item.key.clone())
+            .collect::<Vec<_>>()
+    });
+
     let current_page = use_signal(|| 1);
     let page_size = use_signal(|| 10);
 
@@ -119,12 +150,14 @@ pub fn TableDemo() -> Element {
                         scroll_x: false,
                         scroll_y: false,
                         show_header: true,
-                        on_row_click: move |record: UserData| {
-                            println!("Row clicked: {:?}", record);
-                        },
-                        on_sort_change: move |column: String, direction: String| {
-                            println!("Sort changed: {} {}", column, direction);
-                        },
+                        // 暂时注释掉on_row_click以解决类型不匹配问题
+                        // on_row_click: Some(|key| {
+                        //     println!("Row clicked: {}", key);
+                        // }),
+                        // 暂时注释掉on_sort_change以解决类型不匹配问题
+                        // on_sort_change: Some(move |(column, order): (String, String)| {
+                        //     println!("Sort changed: {} {}", column, order);
+                        // }),
                         row_selection: None,
                         pagination: None,
                     }
@@ -146,34 +179,21 @@ pub fn TableDemo() -> Element {
                         scroll_x: false,
                         scroll_y: false,
                         show_header: true,
-                        on_row_click: move |record: UserData| {
-                            println!("Row clicked: {:?}", record);
-                        },
-                        on_sort_change: move |column: String, direction: String| {
-                            println!("Sort changed: {} {}", column, direction);
-                        },
+                        // 暂时注释掉on_row_click以解决类型不匹配问题
+                        // on_row_click: Some(|key| {
+                        //     println!("Row clicked: {}", key);
+                        // }),
+                        // 暂时注释掉on_sort_change以解决类型不匹配问题
+                        // on_sort_change: Some(move |(column, order): (String, String)| {
+                        //     println!("Sort changed: {} {}", column, order);
+                        // }),
                         row_selection: Some(TableRowSelection {
                             selected_row_keys: selected_rows.read().clone(),
-                            on_select: move |key: String, selected: bool| {
-                                let mut keys = selected_rows.read().clone();
-                                if selected {
-                                    if !keys.contains(&key) {
-                                        keys.push(key);
-                                    }
-                                } else {
-                                    keys.retain(|k| k != &key);
-                                }
-                                selected_rows.set(keys);
-                            },
-                            on_select_all: move |selected: bool| {
-                                if selected {
-                                    let all_keys: Vec<String> = data.read().iter().map(|item| item.key.clone()).collect();
-                                    selected_rows.set(all_keys);
-                                } else {
-                                    selected_rows.set(Vec::new());
-                                }
-                            },
-                            get_checkbox_props: None,
+                            checkbox_props: None,
+                            column_width: None,
+                            column_title: None,
+                            fixed: false,
+                            selection_type: SelectionType::Checkbox,
                         }),
                         pagination: None,
                     }
@@ -187,21 +207,20 @@ pub fn TableDemo() -> Element {
                 div {
                     Table {
                         columns: columns.clone(),
-                        // data_source: data.read().clone(),
+                        data_source: data.read().clone(),
                         size: TableSize::Default,
                         loading: false,
-                        scroll_x: None,
-                        scroll_y: None,
-                        sticky_header: false,
+                        scroll_x: false,
+                        scroll_y: false,
                         show_header: true,
-                        table_layout: "auto".to_string(),
-                        empty_text: "暂无数据".to_string(),
-                        on_row_click: move |record: UserData| {
-                            println!("Row clicked: {:?}", record);
-                        },
-                        on_sort_change: move |column: String, direction: String| {
-                            println!("Sort changed: {} {}", column, direction);
-                        },
+                        // 暂时注释掉on_row_click以解决类型不匹配问题
+                        // on_row_click: Some(|key| {
+                        //     println!("Row clicked: {}", key);
+                        // }),
+                        // 暂时注释掉on_sort_change以解决类型不匹配问题
+                        // on_sort_change: Some(move |(column, order): (String, String)| {
+                        //     println!("Sort changed: {} {}", column, order);
+                        // }),
                         row_selection: None,
                         pagination: Some(TablePagination {
                             current: current_page.read().clone(),
@@ -230,15 +249,12 @@ pub fn TableDemo() -> Element {
                         h4 { "Middle size" }
                         Table {
                             columns: columns.clone(),
-                            // data_source: data.read().clone(),
+                            data_source: data.read().clone(),
                             size: TableSize::Middle,
-                            striped: false,
                             loading: false,
-                            scroll_x: None,
-                            scroll_y: None,
-                            sticky_header: false,
+                            scroll_x: false,
+                            scroll_y: false,
                             show_header: true,
-                            table_layout: "auto".to_string(),
                             empty_text: "暂无数据".to_string(),
                             on_row_click: move |record: UserData| {},
                             on_sort_change: move |column: String, direction: String| {},
@@ -248,15 +264,12 @@ pub fn TableDemo() -> Element {
                         h4 { "Small size" }
                         Table {
                             columns: columns.clone(),
-                            // data_source: data.read().clone(),
+                            data_source: data.read().clone(),
                             size: TableSize::Small,
-                            striped: false,
                             loading: false,
-                            scroll_x: None,
-                            scroll_y: None,
-                            sticky_header: false,
+                            scroll_x: false,
+                            scroll_y: false,
                             show_header: true,
-                            table_layout: "auto".to_string(),
                             empty_text: "暂无数据".to_string(),
                             on_row_click: move |record: UserData| {},
                             on_sort_change: move |column: String, direction: String| {},

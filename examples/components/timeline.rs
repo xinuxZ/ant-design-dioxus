@@ -173,7 +173,7 @@ pub fn TimelineDemo() -> Element {
                             TimelineItem {
                                 dot: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::ClockCircleOutlined,
+                                        icon_type: "clock-circle-outlined".to_string(),
                                         style: "font-size: 16px;"
                                     }
                                 }),
@@ -212,7 +212,7 @@ pub fn TimelineDemo() -> Element {
                             TimelineItem {
                                 dot: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::ClockCircleOutlined,
+                                        icon_type: "clock-circle-outlined".to_string(),
                                         style: "font-size: 16px;"
                                     }
                                 }),
@@ -252,7 +252,7 @@ pub fn TimelineDemo() -> Element {
                             TimelineItem {
                                 dot: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::ClockCircleOutlined,
+                                        icon_type: "clock-circle-outlined".to_string(),
                                         style: "font-size: 16px;"
                                     }
                                 }),
@@ -271,7 +271,7 @@ pub fn TimelineDemo() -> Element {
                             TimelineItem {
                                 dot: Some(rsx! {
                                     Icon {
-                                        icon_type: IconType::ClockCircleOutlined,
+                                        icon_type: "clock-circle-outlined".to_string(),
                                         style: "font-size: 16px;"
                                     }
                                 }),
@@ -349,7 +349,12 @@ pub fn TimelineDemo() -> Element {
                     }
 
                     Timeline {
-                        mode: mode(),
+                        mode: match mode().as_str() {
+                            "left" => TimelineMode::Left,
+                            "right" => TimelineMode::Right,
+                            "alternate" => TimelineMode::Alternate,
+                            _ => TimelineMode::Left,
+                        },
                         items: vec![
                             TimelineItem {
                                 label: Some(rsx! { "2015-09-01" }),

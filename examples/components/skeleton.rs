@@ -131,27 +131,15 @@ pub fn SkeletonDemo() -> Element {
                     style: "padding: 24px; background: #fafafa; border-radius: 6px;",
 
                     List {
-                        item_layout: "horizontal",
-                        data_source: vec!["1", "2", "3"],
-                        render_item: move |item| {
-                            rsx! {
-                                List::Item {
-                                    Skeleton {
-                                        avatar: true,
-                                        active: true,
-                                        title: false,
-                                        loading: true,
+                        item_layout: ListLayout::Horizontal,
 
-                                        List::Item::Meta {
-                                            avatar: rsx! {
-                                                Avatar {
-                                                    src: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1"
-                                                }
-                                            },
-                                            title: "Ant Design, a design language",
-                                            description: "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently."
-                                        }
-                                    }
+                        for i in 0..3 {
+                            ListItem {
+                                Skeleton {
+                                    avatar: true,
+                                    active: true,
+                                    title: false,
+                                    loading: true
                                 }
                             }
                         }

@@ -36,27 +36,27 @@ pub fn StatisticDemo() -> Element {
 
                     Statistic {
                         title: "Active Users",
-                        value: 112893
+                        value: 112893.0
                     }
 
                     Statistic {
                         title: "Account Balance (CNY)",
-                        value: 112893,
-                        precision: 2
+                        value: 112893.0,
+                        precision: StatisticPrecision { decimal_places: 2 }
                     }
 
                     Statistic {
                         title: "Active Users",
-                        value: 112893,
+                        value: 112893.0,
                         suffix: "/",
-                        value_style: "color: #3f8600"
+                        value_style: Some("color: #3f8600")
                     }
 
                     Statistic {
                         title: "Idle Users",
-                        value: 93,
+                        value: 93.0,
                         suffix: "%",
-                        value_style: "color: #cf1322"
+                        value_style: Some("color: #cf1322")
                     }
                 }
             }
@@ -71,18 +71,21 @@ pub fn StatisticDemo() -> Element {
 
                     Statistic {
                         title: "Feedback",
-                        value: 1128,
+                        value: 1128.0,
                         prefix: rsx! {
                             Icon {
-                                icon_type: IconType::LikeOutlined
+                                icon_type: "like".to_string(),
+                                theme: IconTheme::Outlined,
+                                aria_label: "Like".to_string(),
+                                style: "color: #1890ff",
                             }
                         }
                     }
 
                     Statistic {
                         title: "Unmerged",
-                        value: 93,
-                        suffix: "/100"
+                        value: 93.0,
+                        suffix: Some("/100")
                     }
                 }
             }
@@ -99,11 +102,11 @@ pub fn StatisticDemo() -> Element {
                         style: "width: 300px;",
                         Statistic {
                             title: "Active Users",
-                            value: 112893,
-                            value_style: "color: #3f8600",
+                            value: 112893.0,
+                            value_style: Some("color: #3f8600"),
                             prefix: rsx! {
                                 Icon {
-                                    icon_type: IconType::ArrowUpOutlined
+                                    icon_type: "arrow-up-outlined".to_string()
                                 }
                             },
                             suffix: "%"
@@ -115,11 +118,11 @@ pub fn StatisticDemo() -> Element {
                         Statistic {
                             title: "Idle Users",
                             value: 9.3,
-                            precision: 2,
-                            value_style: "color: #cf1322",
+                            precision: StatisticPrecision { decimal_places: 2 },
+                            value_style: Some("color: #cf1322"),
                             prefix: rsx! {
                                 Icon {
-                                    icon_type: IconType::ArrowDownOutlined
+                                    icon_type: "arrow-down-outlined".to_string()
                                 }
                             },
                             suffix: "%"
@@ -200,7 +203,10 @@ pub fn StatisticDemo() -> Element {
                                 like.set(like() + 1);
                             },
                             Icon {
-                                icon_type: IconType::LikeOutlined
+                                icon_type: "like".to_string(),
+                                theme: IconTheme::Outlined,
+                                style: "color: #1890ff",
+                                aria_label: "Like".to_string(),
                             }
                         }
                         span {
@@ -212,7 +218,10 @@ pub fn StatisticDemo() -> Element {
                                 dislikes.set(dislikes() + 1);
                             },
                             Icon {
-                                icon_type: IconType::DislikeOutlined
+                                icon_type: "dislike".to_string(),
+                                theme: IconTheme::Outlined,
+                                aria_label: "Dislike".to_string(),
+                                style: "color: #eb2f96",
                             }
                         }
                         span {
