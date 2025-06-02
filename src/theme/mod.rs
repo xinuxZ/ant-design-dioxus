@@ -867,9 +867,9 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 /// 使用主题的 Hook
 ///
 /// 从上下文中获取当前的主题配置
-pub fn use_theme() -> Signal<ThemeConfig> {
-    use_context::<Signal<ThemeConfig>>()
-}
+// pub fn use_theme() -> Signal<ThemeConfig> {
+//     use_context::<Signal<ThemeConfig>>()
+// }
 
 /// 使用主题令牌的 Hook
 ///
