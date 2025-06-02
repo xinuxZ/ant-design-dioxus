@@ -1,6 +1,16 @@
-//! 主题系统模块
+//! Theme system for Ant Design Dioxus components
 //!
-//! 提供主题定义、样式管理和动态主题切换功能
+//! This module provides theme support and CSS integration for Ant Design components.
+//! It includes Ant Design specific design tokens, color presets, animation configurations,
+//! and theme presets that work seamlessly with the css-in-rust foundation.
+
+pub mod css_bridge;
+pub mod hooks;
+pub mod tokens;
+
+pub use css_bridge::*;
+pub use hooks::*;
+pub use tokens::*;
 
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
