@@ -7,8 +7,8 @@ use css_in_rust::theme::{DesignTokens, Theme as CssTheme, ThemeMode, ThemeProvid
 // 注意：css! 宏需要在启用 proc-macro 特性时才可用
 use std::collections::HashMap;
 
+use crate::theme::core::color::RgbColor;
 use crate::theme::{ColorTheme, SizeTheme, Theme, ThemeConfig};
-use crate::utils::color::RgbColor;
 
 /// CSS-in-Rust 主题桥接器
 #[derive(Debug, Clone)]

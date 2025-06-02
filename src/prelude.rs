@@ -43,8 +43,7 @@ pub use crate::locale::{
 
 /// 重新导出工具类型和函数
 pub use crate::utils::{
-    is_chinese_char, is_two_cn_char, to_percent, to_px, DebounceCallback, Size, SpaceSize,
-    ThrottleCallback,
+    is_chinese_char, is_two_cn_char, to_percent, to_px, DebounceCallback, ThrottleCallback,
 };
 
 /// 重新导出类名工具
@@ -59,15 +58,10 @@ pub use crate::utils::responsive::{
 };
 
 /// 重新导出颜色工具
-pub use crate::utils::color::{
-    generate_css_var_name, get_contrast_color, is_dark_color, ColorPalette, ColorType, HslColor,
-    RgbColor,
-};
+pub use crate::theme::core::color::{ColorType, RgbColor};
 
 /// 重新导出动画工具
-pub use crate::utils::motion::{
-    AnimationConfig, Direction as MotionDirection, Duration, Easing, TransitionType,
-};
+pub use crate::theme::core::motion::Duration;
 
 // ================================
 // 组件通用类型

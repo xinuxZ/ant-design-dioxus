@@ -3,17 +3,19 @@
 //! 提供组件库中常用的工具函数和类型定义
 
 pub mod class_names;
-pub mod color;
-pub mod motion;
 pub mod responsive;
-pub mod size;
+
+// 重新导出 theme/core 中的类型（向后兼容）
+pub use crate::theme::core::color;
+pub use crate::theme::core::motion;
+pub use crate::theme::core::types::Size as size;
 
 // 重新导出常用工具
 pub use class_names::*;
 pub use color::presets as color_presets;
 pub use color::{
-    get_color_by_type, get_contrast_color, is_dark_color, ColorPalette, ColorType, HslColor,
-    RgbColor,
+    utils::{get_color_by_type, get_contrast_color, is_dark_color},
+    ColorPalette, ColorType, HslColor, RgbColor,
 };
 pub use motion::presets as motion_presets;
 pub use motion::{AnimationConfig, Direction, Duration, Easing, TransitionType};

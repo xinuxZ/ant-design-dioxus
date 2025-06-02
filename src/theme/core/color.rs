@@ -282,9 +282,106 @@ impl ColorPalette {
     }
 }
 
+/// 预定义的 Ant Design 颜色
+pub mod presets {
+    use super::RgbColor;
+
+    /// 蓝色（主色）
+    pub const BLUE: RgbColor = RgbColor {
+        r: 24,
+        g: 144,
+        b: 255,
+    };
+    /// 绿色（成功色）
+    pub const GREEN: RgbColor = RgbColor {
+        r: 82,
+        g: 196,
+        b: 26,
+    };
+    /// 红色（错误色）
+    pub const RED: RgbColor = RgbColor {
+        r: 255,
+        g: 77,
+        b: 79,
+    };
+    /// 橙色（警告色）
+    pub const ORANGE: RgbColor = RgbColor {
+        r: 250,
+        g: 173,
+        b: 20,
+    };
+    /// 灰色（默认色）
+    pub const GRAY: RgbColor = RgbColor {
+        r: 140,
+        g: 140,
+        b: 140,
+    };
+    /// 紫色
+    pub const PURPLE: RgbColor = RgbColor {
+        r: 114,
+        g: 46,
+        b: 209,
+    };
+    /// 青色
+    pub const CYAN: RgbColor = RgbColor {
+        r: 19,
+        g: 194,
+        b: 194,
+    };
+    /// 粉色
+    pub const MAGENTA: RgbColor = RgbColor {
+        r: 235,
+        g: 47,
+        b: 150,
+    };
+    /// 黄色
+    pub const YELLOW: RgbColor = RgbColor {
+        r: 250,
+        g: 219,
+        b: 20,
+    };
+    /// 火山色
+    pub const VOLCANO: RgbColor = RgbColor {
+        r: 250,
+        g: 84,
+        b: 28,
+    };
+    /// 极光绿
+    pub const GEEK_BLUE: RgbColor = RgbColor {
+        r: 47,
+        g: 84,
+        b: 235,
+    };
+    /// 酱紫
+    pub const GOLD: RgbColor = RgbColor {
+        r: 250,
+        g: 173,
+        b: 20,
+    };
+    /// 日暮
+    pub const LIME: RgbColor = RgbColor {
+        r: 160,
+        g: 217,
+        b: 17,
+    };
+}
+
 /// 颜色工具函数
 pub mod utils {
     use super::*;
+
+    /// 获取颜色类型对应的默认颜色
+    pub fn get_color_by_type(color_type: ColorType) -> RgbColor {
+        match color_type {
+            ColorType::Primary => presets::BLUE,
+            ColorType::Success => presets::GREEN,
+            ColorType::Warning => presets::ORANGE,
+            ColorType::Error => presets::RED,
+            ColorType::Info => presets::BLUE,
+            ColorType::Default => presets::GRAY,
+            ColorType::Link => presets::BLUE,
+        }
+    }
 
     /// 判断颜色是否为深色
     pub fn is_dark_color(color: &RgbColor) -> bool {

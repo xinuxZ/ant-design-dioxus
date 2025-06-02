@@ -328,6 +328,101 @@ impl AnimationConfig {
     }
 }
 
+/// 预定义的动画配置
+pub mod presets {
+    use super::*;
+
+    /// 快速淡入
+    pub fn fade_in_fast() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Fade)
+            .duration(Duration::Fast)
+            .easing(Easing::EaseOut)
+    }
+
+    /// 淡入
+    pub fn fade_in() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Fade)
+            .duration(Duration::Mid)
+            .easing(Easing::EaseOut)
+    }
+
+    /// 慢速淡入
+    pub fn fade_in_slow() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Fade)
+            .duration(Duration::Slow)
+            .easing(Easing::EaseOut)
+    }
+
+    /// 从上滑入
+    pub fn slide_in_up() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Slide)
+            .duration(Duration::Mid)
+            .easing(Easing::EaseOutCubic)
+            .direction(Direction::Up)
+    }
+
+    /// 从下滑入
+    pub fn slide_in_down() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Slide)
+            .duration(Duration::Mid)
+            .easing(Easing::EaseOutCubic)
+            .direction(Direction::Down)
+    }
+
+    /// 从左滑入
+    pub fn slide_in_left() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Slide)
+            .duration(Duration::Mid)
+            .easing(Easing::EaseOutCubic)
+            .direction(Direction::Left)
+    }
+
+    /// 从右滑入
+    pub fn slide_in_right() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Slide)
+            .duration(Duration::Mid)
+            .easing(Easing::EaseOutCubic)
+            .direction(Direction::Right)
+    }
+
+    /// 缩放进入
+    pub fn scale_in() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Scale)
+            .duration(Duration::Mid)
+            .easing(Easing::EaseOutBack)
+    }
+
+    /// 弹跳进入
+    pub fn bounce_in() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Bounce)
+            .duration(Duration::Slow)
+            .easing(Easing::EaseOutBack)
+    }
+
+    /// 脉冲动画
+    pub fn pulse() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Pulse)
+            .duration(Duration::Custom(1000))
+            .easing(Easing::EaseInOut)
+            .infinite()
+    }
+
+    /// 抖动动画
+    pub fn shake() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Shake)
+            .duration(Duration::Custom(500))
+            .easing(Easing::EaseInOut)
+    }
+
+    /// 心跳动画
+    pub fn heartbeat() -> AnimationConfig {
+        AnimationConfig::new(TransitionType::HeartBeat)
+            .duration(Duration::Custom(1300))
+            .easing(Easing::EaseInOut)
+            .infinite()
+    }
+}
+
 /// 动画工具函数
 pub mod utils {
     use super::*;

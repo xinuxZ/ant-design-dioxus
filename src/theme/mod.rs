@@ -8,29 +8,35 @@
 // 新的主题系统模块
 pub mod ant_design;
 pub mod core;
+pub mod providers;
 
 // 旧的模块（保持向后兼容）
 pub mod css_bridge;
-pub mod hooks;
 pub mod tokens;
 
 // 重新导出新的主题系统
 pub use ant_design::*;
 pub use core::*;
 
+// 重新导出主题提供者
+pub use providers::*;
+
 // 重新导出旧的模块（保持向后兼容）
 pub use css_bridge::*;
-pub use hooks::*;
 pub use tokens::*;
+
+// 为了向后兼容，重新导出 hooks 模块的内容
+pub use providers::hooks;
+pub use providers::hooks::*;
 
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 
-use crate::utils::color::{presets as color_presets, ColorPalette, ColorType, RgbColor};
-use crate::utils::motion::{Duration, Easing};
-use crate::utils::size::Size;
+use crate::theme::core::color::{ColorType, RgbColor};
+use crate::theme::core::motion::Duration;
+use crate::theme::core::types::Size;
 
 /// 主题类型枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -295,11 +301,11 @@ impl ThemeConfig {
         Self {
             theme: Theme::Light,
             colors: ColorTheme {
-                primary: ColorPalette::generate(color_presets::BLUE, 10),
-                success: ColorPalette::generate(color_presets::GREEN, 10),
-                warning: ColorPalette::generate(color_presets::ORANGE, 10),
-                error: ColorPalette::generate(color_presets::RED, 10),
-                info: ColorPalette::generate(color_presets::BLUE, 10),
+                primary: ColorPalette::generate(color::presets::BLUE, 10),
+                success: ColorPalette::generate(color::presets::GREEN, 10),
+                warning: ColorPalette::generate(color::presets::ORANGE, 10),
+                error: ColorPalette::generate(color::presets::RED, 10),
+                info: ColorPalette::generate(color::presets::BLUE, 10),
                 text: TextColors {
                     primary: RgbColor::new(0, 0, 0),
                     secondary: RgbColor::new(102, 102, 102),
@@ -931,7 +937,7 @@ mod tests {
     fn test_get_color() {
         let theme = ThemeConfig::light();
         let primary = theme.get_color(ColorType::Primary);
-        assert_eq!(primary.base, color_presets::BLUE);
+        assert_eq!(primary.base, color::presets::BLUE);
     }
 
     #[test]
