@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 #[component]
 pub fn ThemeSwitchDemo() -> Element {
     // 当前主题状态
-    let theme_context = use_theme();
+    let theme_context = use_context::<Signal<ant_design_dioxus::theme::ThemeConfig>>();
 
     rsx! {
         div {
@@ -170,10 +170,8 @@ pub fn ThemeSwitchDemo() -> Element {
                         "当前主题: "
                         strong {
                             match theme_context.read().theme {
-                                Theme::Light => "亮色主题",
-                                Theme::Dark => "暗色主题",
-                                Theme::Compact => "紧凑主题",
-                                Theme::Custom => "自定义主题",
+                                ant_design_dioxus::theme::Theme::Dark => "暗色主题",
+                                _ => "亮色主题",
                             }
                         }
                     }

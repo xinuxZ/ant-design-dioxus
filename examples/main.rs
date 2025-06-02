@@ -40,7 +40,7 @@ fn App() -> Element {
     rsx! {
         // 主题提供者包装整个应用
         ThemeProvider {
-            // initial_theme: Some(ant_design_dioxus::theme::tokens::theme_presets::AntDesignTheme::light()),
+            theme: ant_design_dioxus::theme::ThemeConfig::dark(),
 
             div {
                 class: "showcase-container",
@@ -89,6 +89,7 @@ fn App() -> Element {
                         "Button" => rsx! { ButtonDemo{} },
                         "Icon" => rsx! { IconDemo{} },
                         "Typography" => rsx! { TypographyDemo{} },
+                        "ThemeSwitch" => rsx! { ThemeSwitchDemo{} },
                         "Avatar" => rsx! { AvatarDemo{} },
                         "Badge" => rsx! { BadgeDemo{} },
                         "Card" => rsx! { CardDemo{} },

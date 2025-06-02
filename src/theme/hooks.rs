@@ -85,6 +85,9 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         }
     });
 
+    // 提供主题上下文
+    use_context_provider(|| theme_context);
+
     // 生成 CSS 变量
     let css_variables = theme_context.read().current_theme.to_css_variables();
 
