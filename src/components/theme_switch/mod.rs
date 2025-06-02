@@ -123,12 +123,12 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                             if is_dark { "🌙" } else { "☀️" }
                         }
 
-                        div {
-                            class: "ant-theme-switch-inner",
-                            style: get_inner_styles(),
-                            span { class: "ant-theme-switch-inner-checked", "🌙" }
-                            span { class: "ant-theme-switch-inner-unchecked", "☀️" }
-                        }
+                        // div {
+                        //     class: "ant-theme-switch-inner",
+                        //     style: get_inner_styles(),
+                        //     span { class: "ant-theme-switch-inner-checked", "🌙" }
+                        //     span { class: "ant-theme-switch-inner-unchecked", "☀️" }
+                        // }
                     }
                 }
             }

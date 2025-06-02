@@ -24,7 +24,7 @@ pub use crate::config_provider::{
 
 /// 重新导出主题相关类型
 pub use crate::theme::{
-    use_theme, ColorTheme, MotionTheme, SizeTheme, Theme, ThemeConfig, ThemeProvider,
+    use_theme, ColorTheme, MotionTheme, SizeTheme, SpaceSize, Theme, ThemeConfig, ThemeProvider,
 };
 
 /// 重新导出主题切换组件
