@@ -108,8 +108,8 @@ pub mod watermark;
 /// 尺寸相关的组件属性
 pub trait SizeProps {
     /// 组件尺寸
-    fn size(&self) -> crate::utils::Size {
-        crate::utils::Size::Middle
+    fn size(&self) -> crate::theme::core::types::Size {
+        crate::theme::core::types::Size::Middle
     }
 }
 
@@ -324,11 +324,11 @@ pub mod utils {
     }
 
     /// 生成尺寸相关的 CSS 类名
-    pub fn get_size_class_name(base: &str, size: crate::utils::Size) -> String {
+    pub fn get_size_class_name(base: &str, size: crate::theme::core::types::Size) -> String {
         match size {
-            crate::utils::Size::Small => format!("{}-sm", base),
-            crate::utils::Size::Middle => base.to_string(),
-            crate::utils::Size::Large => format!("{}-lg", base),
+            crate::theme::core::types::Size::Small => format!("{}-sm", base),
+            crate::theme::core::types::Size::Middle => base.to_string(),
+            crate::theme::core::types::Size::Large => format!("{}-lg", base),
         }
     }
 
@@ -399,15 +399,15 @@ mod tests {
     #[test]
     fn test_get_size_class_name() {
         assert_eq!(
-            get_size_class_name("ant-button", crate::utils::Size::Small),
+            get_size_class_name("ant-button", crate::theme::core::types::Size::Small),
             "ant-button-sm"
         );
         assert_eq!(
-            get_size_class_name("ant-button", crate::utils::Size::Middle),
+            get_size_class_name("ant-button", crate::theme::core::types::Size::Middle),
             "ant-button"
         );
         assert_eq!(
-            get_size_class_name("ant-button", crate::utils::Size::Large),
+            get_size_class_name("ant-button", crate::theme::core::types::Size::Large),
             "ant-button-lg"
         );
     }
