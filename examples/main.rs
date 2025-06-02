@@ -39,7 +39,7 @@ fn App() -> Element {
 
     rsx! {
         // 主题提供者包装整个应用
-        ant_design_dioxus::theme::hooks::ThemeProvider {
+        ThemeProvider {
 
             div {
                 class: "showcase-container",
