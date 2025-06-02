@@ -40,7 +40,7 @@ fn App() -> Element {
     rsx! {
         // 主题提供者包装整个应用
         ThemeProvider {
-            theme: ant_design_dioxus::theme::ThemeConfig::dark(),
+            theme: ant_design_dioxus::theme::ThemeConfig::light(),
 
             div {
                 class: "showcase-container",
@@ -61,11 +61,11 @@ fn App() -> Element {
                         }
 
                         // 主题切换器
-                        ThemeSwitch {
-                            mode: ThemeSwitchMode::Switch,
-                            size: "small".to_string(),
-                            show_label: false,
-                        }
+                        // ThemeSwitch {
+                        //     mode: ThemeSwitchMode::Switch,
+                        //     size: "small".to_string(),
+                        //     show_label: false,
+                        // }
                     }
 
                     ComponentMenu {

@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 #[component]
 pub fn ThemeSwitchDemo() -> Element {
     // 当前主题状态
-    let theme_context = use_context::<Signal<ant_design_dioxus::theme::ThemeConfig>>();
+    let theme_hook = use_theme();
 
     rsx! {
         div {
@@ -169,9 +169,10 @@ pub fn ThemeSwitchDemo() -> Element {
                     p {
                         "当前主题: "
                         strong {
-                            match theme_context.read().theme {
-                                ant_design_dioxus::theme::Theme::Dark => "暗色主题",
-                                _ => "亮色主题",
+                            if theme_hook.is_dark() {
+                                "暗色主题"
+                            } else {
+                                "亮色主题"
                             }
                         }
                     }
