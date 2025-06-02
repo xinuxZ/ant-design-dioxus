@@ -330,7 +330,11 @@ pub mod theme_utils {
     /// 根据时间自动选择主题
     pub fn auto_theme_by_time() -> AntDesignTheme {
         // 简单的时间判断逻辑：6-18点使用浅色主题，其他时间使用深色主题
-        let hour = chrono::Local::now().hour();
+        let hour = chrono::Local::now()
+            .format("%H")
+            .to_string()
+            .parse::<u32>()
+            .unwrap_or(12);
         if hour >= 6 && hour < 18 {
             AntDesignTheme::light()
         } else {

@@ -27,8 +27,12 @@
 //! }
 //! ```
 
-use css_in_rust_macros::css;
+mod styles;
+
+use self::styles::*;
+use css_in_rust::css;
 use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
 
 /// Input 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -53,10 +57,12 @@ impl InputSize {
         match self {
             InputSize::Large => {
                 css!("height: 40px; padding: 6px 11px; font-size: var(--ant-font-size-lg);")
+                    .to_string()
             }
             InputSize::Middle => String::new(),
             InputSize::Small => {
                 css!("height: 24px; padding: 0px 7px; font-size: var(--ant-font-size-sm);")
+                    .to_string()
             }
         }
     }
@@ -97,7 +103,8 @@ impl InputStatus {
                     box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
                 }
             "#
-            ),
+            )
+            .to_string(),
             InputStatus::Warning => css!(
                 r#"
                 border-color: var(--ant-warning-color);
@@ -111,7 +118,8 @@ impl InputStatus {
                     box-shadow: 0 0 0 2px rgba(255, 197, 61, 0.2);
                 }
             "#
-            ),
+            )
+            .to_string(),
         }
     }
 }
@@ -217,8 +225,9 @@ pub fn Input(props: InputProps) -> Element {
     let mut is_focused = use_signal(|| false);
 
     // 同步外部 value 到内部状态
+    let props_value = props.value.clone();
     use_effect(move || {
-        internal_value.set(props.value.clone());
+        internal_value.set(props_value.clone());
     });
 
     let handle_input = move |evt: FormEvent| {
@@ -273,80 +282,45 @@ pub fn Input(props: InputProps) -> Element {
 
     // 如果有 addon，使用 group 包装
     if props.addon_before.is_some() || props.addon_after.is_some() {
-        rsx! {
-            div {
-                class: group_class,
-                style: props.style,
+        let table_class = css!(
+            r#"
+            position: relative;
+            display: table;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        "#
+        );
+        let addon_before_class = css!(
+            r#"
+            position: relative;
+            padding: 0 11px;
+            color: var(--ant-text-color);
+            font-weight: normal;
+            font-size: var(--ant-font-size-base);
+            text-align: center;
+            background-color: var(--ant-bg-color-container);
+            border: 1px solid var(--ant-border-color);
+            border-radius: var(--ant-border-radius);
+            transition: all 0.2s;
+            display: table-cell;
+            width: 1px;
+            white-space: nowrap;
+            vertical-align: middle;
+        "#
+        );
+        let prefix_class = css!(
+            r#"
+                                    display: flex;
+                                    flex: none;
+                                    align-items: center;
+                                    margin-inline-end: 4px;
+                                    color: var(--ant-text-color-tertiary);
+                                "#
+        );
 
-                div {
-                        class: "{}",
-                        css!(r#"
-                            position: relative;
-                            display: table;
-                            width: 100%;
-                            border-collapse: separate;
-                            border-spacing: 0;
-                        "#),
-
-                    if let Some(addon_before) = props.addon_before {
-                        div {
-                            class: "{}",
-                            css!(r#"
-                                position: relative;
-                                padding: 0 11px;
-                                color: var(--ant-text-color);
-                                font-weight: normal;
-                                font-size: var(--ant-font-size-base);
-                                text-align: center;
-                                background-color: var(--ant-bg-color-container);
-                                border: 1px solid var(--ant-border-color);
-                                border-radius: var(--ant-border-radius);
-                                transition: all 0.2s;
-                                display: table-cell;
-                                width: 1px;
-                                white-space: nowrap;
-                                vertical-align: middle;
-                            "#),
-                            {addon_before}
-                        }
-                    }
-
-                    if !wrapper_class.is_empty() {
-                        div {
-                            class: wrapper_class,
-
-                            if let Some(prefix) = props.prefix {
-                                span {
-                                    class: "{}",
-                                    css!(r#"
-                                        display: flex;
-                                        flex: none;
-                                        align-items: center;
-                                        margin-inline-end: 4px;
-                                        color: var(--ant-text-color-tertiary);
-                                    "#),
-                                    {prefix}
-                                }
-                            }
-
-                            input {
-                                class: input_class,
-                                r#type: props.input_type,
-                                value: internal_value(),
-                                placeholder: props.placeholder,
-                                disabled: props.disabled,
-                                readonly: props.readonly,
-                                maxlength: if max_length != usize::MAX { max_length.to_string() } else { String::new() },
-                                oninput: handle_input,
-                                onkeydown: handle_keydown,
-                                onfocus: handle_focus,
-                                onblur: handle_blur
-                            }
-
-                            if props.allow_clear && !internal_value().is_empty() && !props.disabled {
-                                span {
-                                    class: "{}",
-                                    css!(r#"
+        let allow_clear_css_class = css!(
+            r#"
                                         position: absolute;
                                         top: 50%;
                                         inset-inline-end: 8px;
@@ -370,22 +344,93 @@ pub fn Input(props: InputProps) -> Element {
                                         &:hover {
                                             color: var(--ant-text-color-tertiary);
                                         }
-                                    "#),
+                                    "#
+        );
+
+        let addon_after_css_class = css!(
+            r#"
+                                position: relative;
+                                padding: 0 11px;
+                                color: var(--ant-text-color);
+                                font-weight: normal;
+                                font-size: var(--ant-font-size-base);
+                                text-align: center;
+                                background-color: var(--ant-bg-color-container);
+                                border: 1px solid var(--ant-border-color);
+                                border-radius: var(--ant-border-radius);
+                                transition: all 0.2s;
+                                display: table-cell;
+                                width: 1px;
+                                white-space: nowrap;
+                                vertical-align: middle;
+                            "#
+        );
+
+        let suffix_css_class = css!(
+            r#"
+                                        display: flex;
+                                        flex: none;
+                                        align-items: center;
+                                        margin-inline-start: 4px;
+                                        color: var(--ant-text-color-tertiary);
+                                    "#
+        );
+
+        rsx! {
+            div {
+                class: group_class,
+                style: props.style,
+
+                div {
+                    class: table_class,
+
+                    if let Some(addon_before) = props.addon_before {
+
+                        div {
+                            class: addon_before_class,
+                            {addon_before}
+                        }
+                    }
+
+                    if !wrapper_class.is_empty() {
+                        div {
+                            class: wrapper_class,
+
+                            if let Some(prefix) = props.prefix {
+
+                                span {
+                                    class: prefix_class,
+                                    {prefix}
+                                }
+                            }
+
+                            input {
+                                class: input_class,
+                                r#type: props.input_type,
+                                value: internal_value(),
+                                placeholder: props.placeholder,
+                                disabled: props.disabled,
+                                readonly: props.readonly,
+                                maxlength: if max_length != usize::MAX { max_length.to_string() } else { String::new() },
+                                oninput: handle_input,
+                                onkeydown: handle_keydown,
+                                onfocus: handle_focus,
+                                onblur: handle_blur
+                            }
+
+                            if props.allow_clear && !internal_value().is_empty() && !props.disabled {
+
+                                span {
+                                    class: allow_clear_css_class,
                                     onclick: handle_clear,
                                     "×"
                                 }
                             }
 
                             if let Some(suffix) = props.suffix {
+
                                 span {
-                                    class: "{}",
-                                    css!(r#"
-                                        display: flex;
-                                        flex: none;
-                                        align-items: center;
-                                        margin-inline-start: 4px;
-                                        color: var(--ant-text-color-tertiary);
-                                    "#),
+                                    class: suffix_css_class,
                                     {suffix}
                                 }
                             }
@@ -407,24 +452,9 @@ pub fn Input(props: InputProps) -> Element {
                     }
 
                     if let Some(addon_after) = props.addon_after {
+
                         div {
-                            class: "{}",
-                            css!(r#"
-                                position: relative;
-                                padding: 0 11px;
-                                color: var(--ant-text-color);
-                                font-weight: normal;
-                                font-size: var(--ant-font-size-base);
-                                text-align: center;
-                                background-color: var(--ant-bg-color-container);
-                                border: 1px solid var(--ant-border-color);
-                                border-radius: var(--ant-border-radius);
-                                transition: all 0.2s;
-                                display: table-cell;
-                                width: 1px;
-                                white-space: nowrap;
-                                vertical-align: middle;
-                            "#),
+                            class: addon_after_css_class,
                             {addon_after}
                         }
                     }
@@ -585,7 +615,8 @@ fn get_input_css_class(props: &InputProps, is_focused: bool) -> String {
             user-select: none;
         }
     "#
-    );
+    )
+    .to_string();
 
     // 尺寸样式
     let size_class = props.size.to_css();
@@ -609,6 +640,7 @@ fn get_input_css_class(props: &InputProps, is_focused: bool) -> String {
             }
         "#
         )
+        .to_string()
     } else {
         String::new()
     };
@@ -622,6 +654,7 @@ fn get_input_css_class(props: &InputProps, is_focused: bool) -> String {
             box-shadow: none;
         "#
         )
+        .to_string()
     } else {
         String::new()
     };
@@ -636,6 +669,7 @@ fn get_input_css_class(props: &InputProps, is_focused: bool) -> String {
             outline: 0;
         "#
         )
+        .to_string()
     } else {
         String::new()
     };
@@ -697,7 +731,8 @@ fn get_wrapper_css_class(props: &InputProps, is_focused: bool) -> String {
             outline: 0;
         }
     "#
-    );
+    )
+    .to_string();
 
     // 尺寸样式
     let size_class = props.size.to_css();
@@ -721,6 +756,7 @@ fn get_wrapper_css_class(props: &InputProps, is_focused: bool) -> String {
             }
         "#
         )
+        .to_string()
     } else {
         String::new()
     };
@@ -734,6 +770,7 @@ fn get_wrapper_css_class(props: &InputProps, is_focused: bool) -> String {
             box-shadow: none;
         "#
         )
+        .to_string()
     } else {
         String::new()
     };
@@ -748,6 +785,7 @@ fn get_wrapper_css_class(props: &InputProps, is_focused: bool) -> String {
             outline: 0;
         "#
         )
+        .to_string()
     } else {
         String::new()
     };
@@ -797,7 +835,8 @@ fn get_group_css_class(props: &InputProps) -> String {
         border-collapse: separate;
         border-spacing: 0;
     "#
-    );
+    )
+    .to_string();
 
     // 尺寸样式
     let size_class = props.size.to_css();

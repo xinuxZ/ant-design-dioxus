@@ -32,8 +32,6 @@ css-in-rust-macros = { version = "0.1.0", path = "../css-in-rust/css-in-rust-mac
 
 # 启用 proc-macro 特性
 [build-dependencies]
-css-in-rust-macros = { path = "../css-in-rust/css-in-rust-macros" }
-wasm-bindgen-test = "0.3"
 
 # [features]
 # default = []

@@ -51,7 +51,10 @@ impl CssThemeBridge {
     /// 这些变量可以在组件样式中通过 var(--variable-name) 使用
     pub fn inject_theme_variables(&self) {
         let css_vars = self.generate_css_variables();
-        StyleInjector::inject_global_styles(&css_vars);
+        let injector = StyleInjector::new();
+        injector
+            .inject_style(&css_vars, "ant-design-theme-vars")
+            .ok();
     }
 
     /// 生成 CSS 自定义属性
@@ -127,14 +130,14 @@ impl CssThemeBridge {
             colors.primary.base.to_hex(),
             colors
                 .primary
-                .colors
-                .get("500")
+                .variants
+                .get(5)
                 .unwrap_or(&colors.primary.base)
                 .to_hex(),
             colors
                 .primary
-                .colors
-                .get("700")
+                .variants
+                .get(7)
                 .unwrap_or(&colors.primary.base)
                 .to_hex(),
             colors.success.base.to_hex(),
@@ -148,17 +151,17 @@ impl CssThemeBridge {
             colors.background.container.to_hex(),
             colors.border.base.to_hex(),
             sizes.border_radius.base,
-            sizes.border_radius.small,
-            sizes.border_radius.large,
-            sizes.font.base,
-            sizes.font.small,
-            sizes.font.large,
-            sizes.line_height.base,
-            sizes.spacing.extra_small,
-            sizes.spacing.small,
-            sizes.spacing.medium,
-            sizes.spacing.large,
-            sizes.spacing.extra_large
+            sizes.border_radius.sm,
+            sizes.border_radius.lg,
+            sizes.font_sizes.base,
+            sizes.font_sizes.sm,
+            sizes.font_sizes.lg,
+            sizes.line_heights.base,
+            sizes.spacing.xs,
+            sizes.spacing.sm,
+            sizes.spacing.base,
+            sizes.spacing.lg,
+            sizes.spacing.xl
         )
     }
 

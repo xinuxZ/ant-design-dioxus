@@ -39,7 +39,10 @@
 //! }
 //! ```
 
-use css_in_rust_macros::css;
+mod styles;
+
+use self::styles::*;
+use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -101,6 +104,7 @@ fn get_table_wrapper_css() -> String {
         border-radius: var(--ant-border-radius);
     "#
     )
+    .to_string()
 }
 
 /// 获取表格基础样式
@@ -123,6 +127,7 @@ fn get_table_base_css() -> String {
         border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格滚动样式
@@ -136,6 +141,7 @@ fn get_table_scroll_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取表格标题样式
@@ -148,6 +154,7 @@ fn get_table_title_css() -> String {
         border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格容器样式
@@ -157,6 +164,7 @@ fn get_table_container_css() -> String {
         position: relative;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格table样式
@@ -170,6 +178,7 @@ fn get_table_table_css() -> String {
         border-spacing: 0;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格表头样式
@@ -179,6 +188,7 @@ fn get_table_thead_css() -> String {
 
     "#
     )
+    .to_string()
 }
 
 /// 获取表格行样式
@@ -191,6 +201,7 @@ fn get_table_row_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取表格单元格样式
@@ -208,6 +219,7 @@ fn get_table_cell_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取表格选择列样式
@@ -219,6 +231,7 @@ fn get_table_selection_column_css() -> String {
         text-align: center;
     "#
     )
+    .to_string()
 }
 
 /// 获取复选框输入样式
@@ -237,6 +250,7 @@ fn get_checkbox_input_css() -> String {
         opacity: 0;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格列标题样式
@@ -248,6 +262,7 @@ fn get_table_column_title_css() -> String {
         flex: 1 1 auto;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格列排序器样式
@@ -265,6 +280,7 @@ fn get_table_column_sorters_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取表格列排序器样式
@@ -277,6 +293,7 @@ fn get_table_column_sorter_css() -> String {
         transition: all 0.3s;
     "#
     )
+    .to_string()
 }
 
 /// 获取表格列排序器向上样式
@@ -291,6 +308,7 @@ fn get_table_column_sorter_up_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取表格列排序器向下样式
@@ -305,6 +323,7 @@ fn get_table_column_sorter_down_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取表格主体样式
@@ -314,6 +333,7 @@ fn get_table_tbody_css() -> String {
 
     "#
     )
+    .to_string()
 }
 
 /// 获取表格占位符样式
@@ -326,6 +346,7 @@ fn get_table_placeholder_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取空状态样式
@@ -339,6 +360,7 @@ fn get_empty_css() -> String {
         text-align: center;
     "#
     )
+    .to_string()
 }
 
 /// 获取空状态图片样式
@@ -350,6 +372,7 @@ fn get_empty_image_css() -> String {
         opacity: 1;
     "#
     )
+    .to_string()
 }
 
 /// 获取空状态描述样式
@@ -359,6 +382,7 @@ fn get_empty_description_css() -> String {
         color: var(--ant-text-color-disabled);
     "#
     )
+    .to_string()
 }
 
 /// 获取表格尾部样式
@@ -370,6 +394,7 @@ fn get_table_footer_css() -> String {
         background: var(--ant-bg-color-container);
     "#
     )
+    .to_string()
 }
 
 /// 获取表格分页样式
@@ -383,6 +408,7 @@ fn get_table_pagination_css() -> String {
         margin: 16px 0;
     "#
     )
+    .to_string()
 }
 
 /// 获取分页样式
@@ -402,6 +428,7 @@ fn get_pagination_css() -> String {
         align-items: center;
     "#
     )
+    .to_string()
 }
 
 /// 获取分页总数文本样式
@@ -415,6 +442,7 @@ fn get_pagination_total_text_css() -> String {
         line-height: var(--ant-line-height-base);
     "#
     )
+    .to_string()
 }
 
 /// 获取分页列表样式
@@ -428,6 +456,7 @@ fn get_pagination_list_css() -> String {
         list-style: none;
     "#
     )
+    .to_string()
 }
 
 /// 获取分页项样式
@@ -456,6 +485,7 @@ fn get_pagination_item_css() -> String {
         }
     "#
     )
+    .to_string()
 }
 
 /// 获取分页激活项样式
@@ -474,18 +504,8 @@ fn get_pagination_item_active_css() -> String {
         }
     "#
     )
+    .to_string()
 }
-
-/// 获取分页上一页样式
-fn get_pagination_prev_css() -> String {
-    get_pagination_item_css()
-}
-
-/// 获取分页下一页样式
-fn get_pagination_next_css() -> String {
-    get_pagination_item_css()
-}
-
 /// 表格对齐方式
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum TableAlign {
@@ -501,417 +521,25 @@ impl TableAlign {
                 r#"
                 text-align: left;
             "#
-            ),
+            )
+            .to_string(),
             TableAlign::Center => css!(
                 r#"
                 text-align: center;
             "#
-            ),
+            )
+            .to_string(),
             TableAlign::Right => css!(
                 r#"
                 text-align: right;
             "#
-            ),
+            )
+            .to_string(),
         }
     }
 }
 
 // CSS-in-Rust 辅助函数
-
-/// 获取表格包装器样式
-fn get_table_wrapper_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        position: relative;
-        clear: both;
-        max-width: 100%;
-        background: var(--ant-bg-color-container);
-        border-radius: var(--ant-border-radius);
-    "#
-    )
-}
-
-/// 获取表格基础样式
-fn get_table_base_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        position: relative;
-        z-index: 0;
-        clear: both;
-        font-size: var(--ant-font-size-base);
-        background: var(--ant-bg-color-container);
-        border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
-    "#
-    )
-}
-
-/// 获取表格滚动样式
-fn get_table_scroll_css() -> String {
-    css!(
-        r#"
-        overflow: auto;
-
-        .ant-table-table {
-            min-width: 100%;
-        }
-    "#
-    )
-}
-
-/// 获取表格标题样式
-fn get_table_title_css() -> String {
-    css!(
-        r#"
-        padding: 16px 16px 0 16px;
-        position: relative;
-        top: 1px;
-        border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
-    "#
-    )
-}
-
-/// 获取表格容器样式
-fn get_table_container_css() -> String {
-    css!(
-        r#"
-        position: relative;
-    "#
-    )
-}
-
-/// 获取表格table样式
-fn get_table_table_css() -> String {
-    css!(
-        r#"
-        width: 100%;
-        text-align: left;
-        border-radius: 0 0 var(--ant-border-radius-lg) var(--ant-border-radius-lg);
-        border-collapse: separate;
-        border-spacing: 0;
-    "#
-    )
-}
-
-/// 获取表格表头样式
-fn get_table_thead_css() -> String {
-    css!(
-        r#"
-
-    "#
-    )
-}
-
-/// 获取表格行样式
-fn get_table_row_css() -> String {
-    css!(
-        r#"
-
-        &:hover > td {
-            background: var(--ant-bg-color-hover);
-        }
-    "#
-    )
-}
-
-/// 获取表格单元格样式
-fn get_table_cell_css() -> String {
-    css!(
-        r#"
-        position: relative;
-        padding: 16px;
-        overflow-wrap: break-word;
-        border-bottom: 1px solid var(--ant-border-color-split);
-        transition: background 0.3s;
-
-        &:last-child {
-            border-right: 0;
-        }
-    "#
-    )
-}
-
-/// 获取表格选择列样式
-fn get_table_selection_column_css() -> String {
-    css!(
-        r#"
-        width: 32px;
-        min-width: 32px;
-        text-align: center;
-    "#
-    )
-}
-
-/// 获取复选框输入样式
-fn get_checkbox_input_css() -> String {
-    css!(
-        r#"
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        z-index: 1;
-        width: 16px;
-        height: 16px;
-        margin-top: -8px;
-        margin-left: -8px;
-        cursor: pointer;
-        opacity: 0;
-    "#
-    )
-}
-
-/// 获取表格列标题样式
-fn get_table_column_title_css() -> String {
-    css!(
-        r#"
-        position: relative;
-        z-index: 1;
-        flex: 1 1 auto;
-    "#
-    )
-}
-
-/// 获取表格列排序器样式
-fn get_table_column_sorters_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        flex: auto;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-
-        &:hover {
-            background: var(--ant-bg-color-hover);
-        }
-    "#
-    )
-}
-
-/// 获取表格列排序器样式
-fn get_table_column_sorter_css() -> String {
-    css!(
-        r#"
-        margin-left: 4px;
-        color: var(--ant-text-color-tertiary);
-        font-size: 0;
-        transition: all 0.3s;
-    "#
-    )
-}
-
-/// 获取表格列排序器向上样式
-fn get_table_column_sorter_up_css() -> String {
-    css!(
-        r#"
-        height: 0;
-        line-height: 0;
-
-        &:hover {
-            color: var(--ant-text-color-secondary);
-        }
-    "#
-    )
-}
-
-/// 获取表格列排序器向下样式
-fn get_table_column_sorter_down_css() -> String {
-    css!(
-        r#"
-        height: 0;
-        line-height: 0;
-
-        &:hover {
-            color: var(--ant-text-color-secondary);
-        }
-    "#
-    )
-}
-
-/// 获取表格主体样式
-fn get_table_tbody_css() -> String {
-    css!(
-        r#"
-
-    "#
-    )
-}
-
-/// 获取表格占位符样式
-fn get_table_placeholder_css() -> String {
-    css!(
-        r#"
-
-        &:hover > td {
-            background: var(--ant-bg-color-container);
-        }
-    "#
-    )
-}
-
-/// 获取空状态样式
-fn get_empty_css() -> String {
-    css!(
-        r#"
-        margin: 32px 0;
-        color: var(--ant-text-color-disabled);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        text-align: center;
-    "#
-    )
-}
-
-/// 获取空状态图片样式
-fn get_empty_image_css() -> String {
-    css!(
-        r#"
-        height: 40px;
-        margin-bottom: 8px;
-        opacity: 1;
-    "#
-    )
-}
-
-/// 获取空状态描述样式
-fn get_empty_description_css() -> String {
-    css!(
-        r#"
-        color: var(--ant-text-color-disabled);
-    "#
-    )
-}
-
-/// 获取表格尾部样式
-fn get_table_footer_css() -> String {
-    css!(
-        r#"
-        padding: 16px;
-        color: var(--ant-text-color);
-        background: var(--ant-bg-color-container);
-    "#
-    )
-}
-
-/// 获取表格分页样式
-fn get_table_pagination_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        flex-wrap: wrap;
-        row-gap: 8px;
-        justify-content: flex-end;
-        margin: 16px 0;
-    "#
-    )
-}
-
-/// 获取分页样式
-fn get_pagination_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-    "#
-    )
-}
-
-/// 获取分页总数文本样式
-fn get_pagination_total_text_css() -> String {
-    css!(
-        r#"
-        display: inline-block;
-        margin-right: 8px;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-    "#
-    )
-}
-
-/// 获取分页列表样式
-fn get_pagination_list_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    "#
-    )
-}
-
-/// 获取分页项样式
-fn get_pagination_item_css() -> String {
-    css!(
-        r#"
-        display: inline-block;
-        min-width: 32px;
-        height: 32px;
-        margin-right: 8px;
-        font-family: inherit;
-        line-height: 30px;
-        text-align: center;
-        vertical-align: middle;
-        list-style: none;
-        background-color: var(--ant-bg-color-container);
-        border: 1px solid var(--ant-border-color);
-        border-radius: var(--ant-border-radius);
-        outline: 0;
-        cursor: pointer;
-        user-select: none;
-
-        &:hover {
-            border-color: var(--ant-primary-color);
-            color: var(--ant-primary-color);
-        }
-    "#
-    )
-}
-
-/// 获取分页激活项样式
-fn get_pagination_item_active_css() -> String {
-    css!(
-        r#"
-        font-weight: 600;
-        background: var(--ant-primary-color);
-        border-color: var(--ant-primary-color);
-        color: var(--ant-text-color-inverse);
-
-        &:hover {
-            background: var(--ant-primary-color-hover);
-            border-color: var(--ant-primary-color-hover);
-            color: var(--ant-text-color-inverse);
-        }
-    "#
-    )
-}
-
 /// 获取分页上一页样式
 fn get_pagination_prev_css() -> String {
     get_pagination_item_css()
@@ -946,14 +574,16 @@ impl TableSize {
                     padding: 16px;
                 }
             "#
-            ),
+            )
+            .to_string(),
             TableSize::Middle => css!(
                 r#"
                 .ant-table-cell {
                     padding: 12px 8px;
                 }
             "#
-            ),
+            )
+            .to_string(),
             TableSize::Small => css!(
                 r#"
                 .ant-table-cell {
@@ -966,417 +596,13 @@ impl TableSize {
                     padding: 8px 0;
                 }
             "#
-            ),
+            )
+            .to_string(),
         }
     }
 }
 
 // CSS-in-Rust 辅助函数
-
-/// 获取表格包装器样式
-fn get_table_wrapper_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        position: relative;
-        clear: both;
-        max-width: 100%;
-        background: var(--ant-bg-color-container);
-        border-radius: var(--ant-border-radius);
-    "#
-    )
-}
-
-/// 获取表格基础样式
-fn get_table_base_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        position: relative;
-        z-index: 0;
-        clear: both;
-        font-size: var(--ant-font-size-base);
-        background: var(--ant-bg-color-container);
-        border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
-    "#
-    )
-}
-
-/// 获取表格滚动样式
-fn get_table_scroll_css() -> String {
-    css!(
-        r#"
-        overflow: auto;
-
-        .ant-table-table {
-            min-width: 100%;
-        }
-    "#
-    )
-}
-
-/// 获取表格标题样式
-fn get_table_title_css() -> String {
-    css!(
-        r#"
-        padding: 16px 16px 0 16px;
-        position: relative;
-        top: 1px;
-        border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
-    "#
-    )
-}
-
-/// 获取表格容器样式
-fn get_table_container_css() -> String {
-    css!(
-        r#"
-        position: relative;
-    "#
-    )
-}
-
-/// 获取表格table样式
-fn get_table_table_css() -> String {
-    css!(
-        r#"
-        width: 100%;
-        text-align: left;
-        border-radius: 0 0 var(--ant-border-radius-lg) var(--ant-border-radius-lg);
-        border-collapse: separate;
-        border-spacing: 0;
-    "#
-    )
-}
-
-/// 获取表格表头样式
-fn get_table_thead_css() -> String {
-    css!(
-        r#"
-
-    "#
-    )
-}
-
-/// 获取表格行样式
-fn get_table_row_css() -> String {
-    css!(
-        r#"
-
-        &:hover > td {
-            background: var(--ant-bg-color-hover);
-        }
-    "#
-    )
-}
-
-/// 获取表格单元格样式
-fn get_table_cell_css() -> String {
-    css!(
-        r#"
-        position: relative;
-        padding: 16px;
-        overflow-wrap: break-word;
-        border-bottom: 1px solid var(--ant-border-color-split);
-        transition: background 0.3s;
-
-        &:last-child {
-            border-right: 0;
-        }
-    "#
-    )
-}
-
-/// 获取表格选择列样式
-fn get_table_selection_column_css() -> String {
-    css!(
-        r#"
-        width: 32px;
-        min-width: 32px;
-        text-align: center;
-    "#
-    )
-}
-
-/// 获取复选框输入样式
-fn get_checkbox_input_css() -> String {
-    css!(
-        r#"
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        z-index: 1;
-        width: 16px;
-        height: 16px;
-        margin-top: -8px;
-        margin-left: -8px;
-        cursor: pointer;
-        opacity: 0;
-    "#
-    )
-}
-
-/// 获取表格列标题样式
-fn get_table_column_title_css() -> String {
-    css!(
-        r#"
-        position: relative;
-        z-index: 1;
-        flex: 1 1 auto;
-    "#
-    )
-}
-
-/// 获取表格列排序器样式
-fn get_table_column_sorters_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        flex: auto;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-
-        &:hover {
-            background: var(--ant-bg-color-hover);
-        }
-    "#
-    )
-}
-
-/// 获取表格列排序器样式
-fn get_table_column_sorter_css() -> String {
-    css!(
-        r#"
-        margin-left: 4px;
-        color: var(--ant-text-color-tertiary);
-        font-size: 0;
-        transition: all 0.3s;
-    "#
-    )
-}
-
-/// 获取表格列排序器向上样式
-fn get_table_column_sorter_up_css() -> String {
-    css!(
-        r#"
-        height: 0;
-        line-height: 0;
-
-        &:hover {
-            color: var(--ant-text-color-secondary);
-        }
-    "#
-    )
-}
-
-/// 获取表格列排序器向下样式
-fn get_table_column_sorter_down_css() -> String {
-    css!(
-        r#"
-        height: 0;
-        line-height: 0;
-
-        &:hover {
-            color: var(--ant-text-color-secondary);
-        }
-    "#
-    )
-}
-
-/// 获取表格主体样式
-fn get_table_tbody_css() -> String {
-    css!(
-        r#"
-
-    "#
-    )
-}
-
-/// 获取表格占位符样式
-fn get_table_placeholder_css() -> String {
-    css!(
-        r#"
-
-        &:hover > td {
-            background: var(--ant-bg-color-container);
-        }
-    "#
-    )
-}
-
-/// 获取空状态样式
-fn get_empty_css() -> String {
-    css!(
-        r#"
-        margin: 32px 0;
-        color: var(--ant-text-color-disabled);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        text-align: center;
-    "#
-    )
-}
-
-/// 获取空状态图片样式
-fn get_empty_image_css() -> String {
-    css!(
-        r#"
-        height: 40px;
-        margin-bottom: 8px;
-        opacity: 1;
-    "#
-    )
-}
-
-/// 获取空状态描述样式
-fn get_empty_description_css() -> String {
-    css!(
-        r#"
-        color: var(--ant-text-color-disabled);
-    "#
-    )
-}
-
-/// 获取表格尾部样式
-fn get_table_footer_css() -> String {
-    css!(
-        r#"
-        padding: 16px;
-        color: var(--ant-text-color);
-        background: var(--ant-bg-color-container);
-    "#
-    )
-}
-
-/// 获取表格分页样式
-fn get_table_pagination_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        flex-wrap: wrap;
-        row-gap: 8px;
-        justify-content: flex-end;
-        margin: 16px 0;
-    "#
-    )
-}
-
-/// 获取分页样式
-fn get_pagination_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-    "#
-    )
-}
-
-/// 获取分页总数文本样式
-fn get_pagination_total_text_css() -> String {
-    css!(
-        r#"
-        display: inline-block;
-        margin-right: 8px;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-    "#
-    )
-}
-
-/// 获取分页列表样式
-fn get_pagination_list_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    "#
-    )
-}
-
-/// 获取分页项样式
-fn get_pagination_item_css() -> String {
-    css!(
-        r#"
-        display: inline-block;
-        min-width: 32px;
-        height: 32px;
-        margin-right: 8px;
-        font-family: inherit;
-        line-height: 30px;
-        text-align: center;
-        vertical-align: middle;
-        list-style: none;
-        background-color: var(--ant-bg-color-container);
-        border: 1px solid var(--ant-border-color);
-        border-radius: var(--ant-border-radius);
-        outline: 0;
-        cursor: pointer;
-        user-select: none;
-
-        &:hover {
-            border-color: var(--ant-primary-color);
-            color: var(--ant-primary-color);
-        }
-    "#
-    )
-}
-
-/// 获取分页激活项样式
-fn get_pagination_item_active_css() -> String {
-    css!(
-        r#"
-        font-weight: 600;
-        background: var(--ant-primary-color);
-        border-color: var(--ant-primary-color);
-        color: var(--ant-text-color-inverse);
-
-        &:hover {
-            background: var(--ant-primary-color-hover);
-            border-color: var(--ant-primary-color-hover);
-            color: var(--ant-text-color-inverse);
-        }
-    "#
-    )
-}
-
-/// 获取分页上一页样式
-fn get_pagination_prev_css() -> String {
-    get_pagination_item_css()
-}
-
-/// 获取分页下一页样式
-fn get_pagination_next_css() -> String {
-    get_pagination_item_css()
-}
-
 /// 表格行选择配置
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableRowSelection {
@@ -1682,410 +908,4 @@ pub fn Table(props: TableProps) -> Element {
             }
         }
     }
-}
-
-// CSS-in-Rust 辅助函数
-
-/// 获取表格包装器样式
-fn get_table_wrapper_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        position: relative;
-        clear: both;
-        max-width: 100%;
-        background: var(--ant-bg-color-container);
-        border-radius: var(--ant-border-radius);
-    "#
-    )
-}
-
-/// 获取表格基础样式
-fn get_table_base_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        position: relative;
-        z-index: 0;
-        clear: both;
-        font-size: var(--ant-font-size-base);
-        background: var(--ant-bg-color-container);
-        border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
-    "#
-    )
-}
-
-/// 获取表格滚动样式
-fn get_table_scroll_css() -> String {
-    css!(
-        r#"
-        overflow: auto;
-
-        .ant-table-table {
-            min-width: 100%;
-        }
-    "#
-    )
-}
-
-/// 获取表格标题样式
-fn get_table_title_css() -> String {
-    css!(
-        r#"
-        padding: 16px 16px 0 16px;
-        position: relative;
-        top: 1px;
-        border-radius: var(--ant-border-radius-lg) var(--ant-border-radius-lg) 0 0;
-    "#
-    )
-}
-
-/// 获取表格容器样式
-fn get_table_container_css() -> String {
-    css!(
-        r#"
-        position: relative;
-    "#
-    )
-}
-
-/// 获取表格table样式
-fn get_table_table_css() -> String {
-    css!(
-        r#"
-        width: 100%;
-        text-align: left;
-        border-radius: 0 0 var(--ant-border-radius-lg) var(--ant-border-radius-lg);
-        border-collapse: separate;
-        border-spacing: 0;
-    "#
-    )
-}
-
-/// 获取表格表头样式
-fn get_table_thead_css() -> String {
-    css!(
-        r#"
-
-    "#
-    )
-}
-
-/// 获取表格行样式
-fn get_table_row_css() -> String {
-    css!(
-        r#"
-
-        &:hover > td {
-            background: var(--ant-bg-color-hover);
-        }
-    "#
-    )
-}
-
-/// 获取表格单元格样式
-fn get_table_cell_css() -> String {
-    css!(
-        r#"
-        position: relative;
-        padding: 16px;
-        overflow-wrap: break-word;
-        border-bottom: 1px solid var(--ant-border-color-split);
-        transition: background 0.3s;
-
-        &:last-child {
-            border-right: 0;
-        }
-    "#
-    )
-}
-
-/// 获取表格选择列样式
-fn get_table_selection_column_css() -> String {
-    css!(
-        r#"
-        width: 32px;
-        min-width: 32px;
-        text-align: center;
-    "#
-    )
-}
-
-/// 获取复选框输入样式
-fn get_checkbox_input_css() -> String {
-    css!(
-        r#"
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        z-index: 1;
-        width: 16px;
-        height: 16px;
-        margin-top: -8px;
-        margin-left: -8px;
-        cursor: pointer;
-        opacity: 0;
-    "#
-    )
-}
-
-/// 获取表格列标题样式
-fn get_table_column_title_css() -> String {
-    css!(
-        r#"
-        position: relative;
-        z-index: 1;
-        flex: 1 1 auto;
-    "#
-    )
-}
-
-/// 获取表格列排序器样式
-fn get_table_column_sorters_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        flex: auto;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-
-        &:hover {
-            background: var(--ant-bg-color-hover);
-        }
-    "#
-    )
-}
-
-/// 获取表格列排序器样式
-fn get_table_column_sorter_css() -> String {
-    css!(
-        r#"
-        margin-left: 4px;
-        color: var(--ant-text-color-tertiary);
-        font-size: 0;
-        transition: all 0.3s;
-    "#
-    )
-}
-
-/// 获取表格列排序器向上样式
-fn get_table_column_sorter_up_css() -> String {
-    css!(
-        r#"
-        height: 0;
-        line-height: 0;
-
-        &:hover {
-            color: var(--ant-text-color-secondary);
-        }
-    "#
-    )
-}
-
-/// 获取表格列排序器向下样式
-fn get_table_column_sorter_down_css() -> String {
-    css!(
-        r#"
-        height: 0;
-        line-height: 0;
-
-        &:hover {
-            color: var(--ant-text-color-secondary);
-        }
-    "#
-    )
-}
-
-/// 获取表格主体样式
-fn get_table_tbody_css() -> String {
-    css!(
-        r#"
-
-    "#
-    )
-}
-
-/// 获取表格占位符样式
-fn get_table_placeholder_css() -> String {
-    css!(
-        r#"
-
-        &:hover > td {
-            background: var(--ant-bg-color-container);
-        }
-    "#
-    )
-}
-
-/// 获取空状态样式
-fn get_empty_css() -> String {
-    css!(
-        r#"
-        margin: 32px 0;
-        color: var(--ant-text-color-disabled);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        text-align: center;
-    "#
-    )
-}
-
-/// 获取空状态图片样式
-fn get_empty_image_css() -> String {
-    css!(
-        r#"
-        height: 40px;
-        margin-bottom: 8px;
-        opacity: 1;
-    "#
-    )
-}
-
-/// 获取空状态描述样式
-fn get_empty_description_css() -> String {
-    css!(
-        r#"
-        color: var(--ant-text-color-disabled);
-    "#
-    )
-}
-
-/// 获取表格尾部样式
-fn get_table_footer_css() -> String {
-    css!(
-        r#"
-        padding: 16px;
-        color: var(--ant-text-color);
-        background: var(--ant-bg-color-container);
-    "#
-    )
-}
-
-/// 获取表格分页样式
-fn get_table_pagination_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        flex-wrap: wrap;
-        row-gap: 8px;
-        justify-content: flex-end;
-        margin: 16px 0;
-    "#
-    )
-}
-
-/// 获取分页样式
-fn get_pagination_css() -> String {
-    css!(
-        r#"
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-        list-style: none;
-        font-family: inherit;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-    "#
-    )
-}
-
-/// 获取分页总数文本样式
-fn get_pagination_total_text_css() -> String {
-    css!(
-        r#"
-        display: inline-block;
-        margin-right: 8px;
-        color: var(--ant-text-color);
-        font-size: var(--ant-font-size-base);
-        line-height: var(--ant-line-height-base);
-    "#
-    )
-}
-
-/// 获取分页列表样式
-fn get_pagination_list_css() -> String {
-    css!(
-        r#"
-        display: flex;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    "#
-    )
-}
-
-/// 获取分页项样式
-fn get_pagination_item_css() -> String {
-    css!(
-        r#"
-        display: inline-block;
-        min-width: 32px;
-        height: 32px;
-        margin-right: 8px;
-        font-family: inherit;
-        line-height: 30px;
-        text-align: center;
-        vertical-align: middle;
-        list-style: none;
-        background-color: var(--ant-bg-color-container);
-        border: 1px solid var(--ant-border-color);
-        border-radius: var(--ant-border-radius);
-        outline: 0;
-        cursor: pointer;
-        user-select: none;
-
-        &:hover {
-            border-color: var(--ant-primary-color);
-            color: var(--ant-primary-color);
-        }
-    "#
-    )
-}
-
-/// 获取分页激活项样式
-fn get_pagination_item_active_css() -> String {
-    css!(
-        r#"
-        font-weight: 600;
-        background: var(--ant-primary-color);
-        border-color: var(--ant-primary-color);
-        color: var(--ant-text-color-inverse);
-
-        &:hover {
-            background: var(--ant-primary-color-hover);
-            border-color: var(--ant-primary-color-hover);
-            color: var(--ant-text-color-inverse);
-        }
-    "#
-    )
-}
-
-/// 获取分页上一页样式
-fn get_pagination_prev_css() -> String {
-    get_pagination_item_css()
-}
-
-/// 获取分页下一页样式
-fn get_pagination_next_css() -> String {
-    get_pagination_item_css()
 }

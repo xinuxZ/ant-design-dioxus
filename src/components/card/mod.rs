@@ -6,7 +6,10 @@
 //!
 //! 最基础的卡片容器，可承载文字、列表、图片、段落，常用于后台概览页面。
 
-use css_in_rust_macros::css;
+mod styles;
+
+use self::styles::*;
+use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -28,7 +31,7 @@ impl Default for CardSize {
 impl CardSize {
     /// 获取卡片尺寸对应的CSS样式
     pub fn to_css(&self) -> String {
-        match self {
+        let style = match self {
             CardSize::Default => css! {
                 ""
             },
@@ -42,7 +45,9 @@ impl CardSize {
                     padding: 12px;
                 }"
             },
-        }
+        };
+
+        style.to_string()
     }
 }
 
@@ -64,10 +69,8 @@ impl Default for CardType {
 impl CardType {
     /// 获取卡片类型对应的CSS样式
     pub fn to_css(&self) -> String {
-        match self {
-            CardType::Default => css! {
-                ""
-            },
+        let style = match self {
+            CardType::Default => css! { "" }.to_string(),
             CardType::Inner => css! {
                 ".ant-card-type-inner .ant-card-head {
                     padding: 0 24px;
@@ -83,8 +86,11 @@ impl CardType {
                 .ant-card-type-inner .ant-card-extra {
                     padding: 17.5px 0;
                 }"
-            },
-        }
+            }
+            .to_string(),
+        };
+
+        style.to_string()
     }
 }
 
@@ -383,7 +389,7 @@ fn get_card_base_css() -> String {
         .ant-card-loading {
             overflow: hidden;
         }"
-    }
+    }.to_string()
 }
 
 /// 获取卡片包装器CSS样式
@@ -391,6 +397,7 @@ fn get_card_wrapper_css() -> String {
     css! {
         "ant-card"
     }
+    .to_string()
 }
 
 /// 获取卡片头部CSS样式
@@ -398,6 +405,7 @@ fn get_card_head_css() -> String {
     css! {
         "ant-card-head"
     }
+    .to_string()
 }
 
 /// 获取卡片头部包装器CSS样式
@@ -405,6 +413,7 @@ fn get_card_head_wrapper_css() -> String {
     css! {
         "ant-card-head-wrapper"
     }
+    .to_string()
 }
 
 /// 获取卡片头部标题CSS样式
@@ -412,6 +421,7 @@ fn get_card_head_title_css() -> String {
     css! {
         "ant-card-head-title"
     }
+    .to_string()
 }
 
 /// 获取卡片额外操作区域CSS样式
@@ -419,6 +429,7 @@ fn get_card_extra_css() -> String {
     css! {
         "ant-card-extra"
     }
+    .to_string()
 }
 
 /// 获取卡片主体CSS样式
@@ -426,6 +437,7 @@ fn get_card_body_css() -> String {
     css! {
         "ant-card-body"
     }
+    .to_string()
 }
 
 /// 获取卡片加载内容CSS样式
@@ -433,6 +445,7 @@ fn get_card_loading_content_css() -> String {
     css! {
         "ant-card-loading-content"
     }
+    .to_string()
 }
 
 /// 获取卡片加载块CSS样式
@@ -440,6 +453,7 @@ fn get_card_loading_block_css() -> String {
     css! {
         "ant-card-loading-block"
     }
+    .to_string()
 }
 
 /// 获取卡片操作区域CSS样式
@@ -447,6 +461,7 @@ fn get_card_actions_css() -> String {
     css! {
         "ant-card-actions"
     }
+    .to_string()
 }
 
 /// 获取卡片元信息CSS样式
@@ -454,6 +469,7 @@ fn get_card_meta_css() -> String {
     css! {
         "ant-card-meta"
     }
+    .to_string()
 }
 
 /// 获取卡片元信息详情CSS样式
@@ -461,6 +477,7 @@ fn get_card_meta_detail_css() -> String {
     css! {
         "ant-card-meta-detail"
     }
+    .to_string()
 }
 
 /// 获取卡片元信息头像CSS样式
@@ -468,6 +485,7 @@ fn get_card_meta_avatar_css() -> String {
     css! {
         "ant-card-meta-avatar"
     }
+    .to_string()
 }
 
 /// 获取卡片元信息内容CSS样式
@@ -475,6 +493,7 @@ fn get_card_meta_content_css() -> String {
     css! {
         "ant-card-meta-content"
     }
+    .to_string()
 }
 
 /// 获取卡片元信息标题CSS样式
@@ -482,6 +501,7 @@ fn get_card_meta_title_css() -> String {
     css! {
         "ant-card-meta-title"
     }
+    .to_string()
 }
 
 /// 获取卡片元信息描述CSS样式
@@ -489,6 +509,7 @@ fn get_card_meta_description_css() -> String {
     css! {
         "ant-card-meta-description"
     }
+    .to_string()
 }
 
 /// 获取卡片网格CSS样式
@@ -496,4 +517,5 @@ fn get_card_grid_css() -> String {
     css! {
         "ant-card-grid"
     }
+    .to_string()
 }

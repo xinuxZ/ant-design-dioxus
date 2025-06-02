@@ -31,6 +31,8 @@
 
 // 引用依赖以避免未使用警告
 #[allow(unused_imports)]
+use css_in_rust_macros as _;
+#[allow(unused_imports)]
 use once_cell as _;
 #[allow(unused_imports)]
 use serde_json as _;
@@ -38,12 +40,13 @@ use serde_json as _;
 use web_sys as _;
 
 // 引用dev-dependencies以避免未使用警告
-#[cfg(test)]
-extern crate wasm_bindgen_test;
+// #[cfg(test)]
+// extern crate wasm_bindgen_test;
 
 // 核心模块
 pub mod config_provider;
 pub mod locale;
+pub mod shared;
 pub mod theme;
 pub mod utils;
 
