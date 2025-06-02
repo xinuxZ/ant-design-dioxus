@@ -165,6 +165,112 @@ fn App() -> Element {
     }
 }
 
+/// 初始化 Ant Design CSS 变量系统
+fn init_ant_design_theme() {
+    use std::collections::HashMap;
+
+    // 创建 Ant Design 主题变量
+    let mut css_variables = HashMap::new();
+
+    // 主要颜色
+    css_variables.insert("--ant-primary-color".to_string(), "#1890ff".to_string());
+    css_variables.insert("--ant-success-color".to_string(), "#52c41a".to_string());
+    css_variables.insert("--ant-warning-color".to_string(), "#faad14".to_string());
+    css_variables.insert("--ant-error-color".to_string(), "#ff4d4f".to_string());
+
+    // 文本颜色
+    css_variables.insert("--ant-text-color".to_string(), "#000000d9".to_string());
+    css_variables.insert(
+        "--ant-text-color-secondary".to_string(),
+        "#00000073".to_string(),
+    );
+    css_variables.insert(
+        "--ant-text-color-disabled".to_string(),
+        "#00000040".to_string(),
+    );
+
+    // 边框和背景
+    css_variables.insert("--ant-border-color".to_string(), "#d9d9d9".to_string());
+    css_variables.insert("--ant-background-color".to_string(), "#ffffff".to_string());
+    css_variables.insert(
+        "--ant-background-color-light".to_string(),
+        "#fafafa".to_string(),
+    );
+
+    // 尺寸
+    css_variables.insert("--ant-border-radius".to_string(), "6px".to_string());
+    css_variables.insert("--ant-padding-xs".to_string(), "4px".to_string());
+    css_variables.insert("--ant-padding-sm".to_string(), "8px".to_string());
+    css_variables.insert("--ant-padding-md".to_string(), "16px".to_string());
+    css_variables.insert("--ant-padding-lg".to_string(), "24px".to_string());
+
+    // 阴影
+    css_variables.insert(
+        "--ant-box-shadow".to_string(),
+        "0 2px 8px rgba(0, 0, 0, 0.15)".to_string(),
+    );
+    css_variables.insert(
+        "--ant-box-shadow-sm".to_string(),
+        "0 2px 0 rgba(0, 0, 0, 0.045)".to_string(),
+    );
+
+    // 在 WASM 环境中注入 CSS 变量到 DOM
+    #[cfg(target_arch = "wasm32")]
+    {
+        use wasm_bindgen::JsCast;
+        use web_sys::{window, Document, Element, HtmlStyleElement};
+
+        if let Some(window) = window() {
+            if let Some(document) = window.document() {
+                // 检查是否已经存在 CSS 变量样式
+                if document
+                    .query_selector("[data-ant-css-variables]")
+                    .unwrap_or(None)
+                    .is_none()
+                {
+                    // 创建 style 元素
+                    if let Ok(style_element) = document.create_element("style") {
+                        let style_element: HtmlStyleElement = style_element.unchecked_into();
+
+                        // 构建 CSS 变量字符串
+                        let mut css_content = String::from(":root {\n");
+                        for (name, value) in &css_variables {
+                            css_content.push_str(&format!("  {}: {};\n", name, value));
+                        }
+                        css_content.push_str("}\n");
+
+                        // 设置样式内容
+                        style_element.set_text_content(Some(&css_content));
+                        style_element
+                            .set_attribute("data-ant-css-variables", "true")
+                            .ok();
+
+                        // 添加到 head
+                        if let Some(head) = document.head() {
+                            head.append_child(&style_element).ok();
+                            web_sys::console::log_1(&"✅ Ant Design CSS 变量已注入到 DOM".into());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        println!("📝 Ant Design CSS 变量 (非 WASM 环境):");
+        for (name, value) in &css_variables {
+            println!("  {}: {}", name, value);
+        }
+    }
+}
+
 fn main() {
+    // 初始化基础 CSS 系统
+    css_in_rust::init();
+
+    // 初始化 Ant Design 主题系统
+    init_ant_design_theme();
+
     dioxus::launch(App);
 }
