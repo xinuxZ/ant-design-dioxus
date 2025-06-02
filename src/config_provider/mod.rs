@@ -7,8 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::locale::{Locale, LocaleConfig};
+use crate::theme::core::types::Size;
 use crate::theme::{CssThemeBridge, Theme, ThemeConfig};
-use crate::utils::{responsive::Breakpoint, size::Size};
+use crate::utils::responsive::Breakpoint;
 
 /// 组件尺寸配置
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

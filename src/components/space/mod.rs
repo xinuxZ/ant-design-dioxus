@@ -25,7 +25,7 @@
 //! }
 //! ```
 
-use crate::utils::SpaceSize;
+use crate::theme::core::types::SpaceSize;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
