@@ -166,7 +166,7 @@ pub fn List(props: ListProps) -> Element {
                 if props.loading {
                     // 加载状态的骨架屏
                     div { class: "ant-list-loading-content",
-                        for _i in 0..props.loading_count {
+                        for i in 0..props.loading_count {
                             div {
                                 class: "ant-list-item ant-list-item-loading",
                                 key: i.to_string(),

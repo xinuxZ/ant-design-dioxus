@@ -253,7 +253,7 @@ pub fn MessageContainer(props: MessageContainerProps) -> Element {
         div {
             class: "ant-message-container",
             style: "{container_style}",
-            for (_index, message) in messages_to_show.iter().enumerate() {
+            for (index, message) in messages_to_show.iter().enumerate() {
                 Message {
                     key: message.key.clone().unwrap_or_else(|| format!("message-{}", index)),
                     message_type: message.message_type,

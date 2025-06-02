@@ -465,8 +465,8 @@ pub fn NotificationContainer(props: NotificationContainerProps) -> Element {
         style { {NOTIFICATION_STYLES} }
         if !visible_notifications.is_empty() {
             div {
-                class: "{container_class}",
-                style: "{container_style}",
+                class: container_class,
+                style: container_style,
 
                 for notification in visible_notifications {
                     NotificationNotice {
