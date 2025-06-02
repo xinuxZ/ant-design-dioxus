@@ -27,6 +27,9 @@ pub use crate::theme::{
     use_theme, ColorTheme, MotionTheme, SizeTheme, Theme, ThemeConfig, ThemeProvider,
 };
 
+/// 重新导出主题切换组件
+pub use crate::components::theme_switch::{ThemeSwitch, ThemeSwitchMode, ThemeSwitchProps};
+
 /// 重新导出国际化相关类型
 pub use crate::locale::{
     use_locale, use_translate, use_translate_with_args, CurrencyFormat, CurrencySymbolPosition,

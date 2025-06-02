@@ -17,7 +17,7 @@ pub struct ComponentMenuProps {
 #[component]
 pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
     let components = vec![
-        ("通用", vec!["Button", "Icon", "Typography"]),
+        ("通用", vec!["Button", "Icon", "Typography", "ThemeSwitch"]),
         ("布局", vec!["Grid", "Layout", "Flex", "Space", "Divider"]),
         (
             "表单",

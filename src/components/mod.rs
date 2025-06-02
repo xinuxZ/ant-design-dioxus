@@ -10,7 +10,7 @@
 //! - **数据录入**: AutoComplete, Cascader, Checkbox, DatePicker, Form, Input, InputNumber, Mentions, Radio, Rate, Select, Slider, Switch, TimePicker, Transfer, TreeSelect, Upload
 //! - **数据展示**: Avatar, Badge, Calendar, Card, Carousel, Collapse, Comment, Descriptions, Empty, Image, List, Popover, Segmented, Statistic, Table, Tabs, Tag, Timeline, Tooltip, Tour, Tree
 //! - **反馈**: Alert, Drawer, Message, Modal, Notification, Popconfirm, Progress, Result, Skeleton, Spin
-//! - **其他**: Anchor, BackTop, ConfigProvider, FloatButton, QRCode, Theme, Watermark
+//! - **其他**: Anchor, BackTop, ConfigProvider, FloatButton, QRCode, Theme, ThemeSwitch, Watermark
 
 // 基础导入在各个组件中按需引入
 
@@ -74,6 +74,7 @@ pub mod switch;
 pub mod table;
 pub mod tabs;
 pub mod tag;
+pub mod theme_switch;
 pub mod time_picker;
 pub mod timeline;
 pub mod tooltip;
