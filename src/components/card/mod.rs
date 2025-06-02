@@ -6,11 +6,9 @@
 //!
 //! 最基础的卡片容器，可承载文字、列表、图片、段落，常用于后台概览页面。
 
+use css_in_rust_macros::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-// 引入卡片样式
-const CARD_STYLE: &str = include_str!("style.css");
 
 /// 卡片尺寸
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -27,6 +25,27 @@ impl Default for CardSize {
     }
 }
 
+impl CardSize {
+    /// 获取卡片尺寸对应的CSS样式
+    pub fn to_css(&self) -> String {
+        match self {
+            CardSize::Default => css! {
+                ""
+            },
+            CardSize::Small => css! {
+                ".ant-card-small .ant-card-head {
+                    min-height: 38px;
+                    padding: 0 12px;
+                    font-size: 14px;
+                }
+                .ant-card-small .ant-card-body {
+                    padding: 12px;
+                }"
+            },
+        }
+    }
+}
+
 /// 卡片类型
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum CardType {
@@ -39,6 +58,33 @@ pub enum CardType {
 impl Default for CardType {
     fn default() -> Self {
         Self::Default
+    }
+}
+
+impl CardType {
+    /// 获取卡片类型对应的CSS样式
+    pub fn to_css(&self) -> String {
+        match self {
+            CardType::Default => css! {
+                ""
+            },
+            CardType::Inner => css! {
+                ".ant-card-type-inner .ant-card-head {
+                    padding: 0 24px;
+                    background: #fafafa;
+                }
+                .ant-card-type-inner .ant-card-head-title {
+                    padding: 16px 0;
+                    font-size: 14px;
+                }
+                .ant-card-type-inner .ant-card-body {
+                    padding: 16px 24px;
+                }
+                .ant-card-type-inner .ant-card-extra {
+                    padding: 17.5px 0;
+                }"
+            },
+        }
     }
 }
 
@@ -144,33 +190,35 @@ pub fn Card(props: CardProps) -> Element {
     let class_str = class_list.join(" ");
 
     rsx! {
-        style { {CARD_STYLE} }
+        style { {get_card_base_css()} }
+        style { {props.size.to_css()} }
+        style { {props.card_type.to_css()} }
         div {
-            class: class_str.clone(),
+            class: format!("{} {}", get_card_wrapper_css(), class_str),
             style: props.style.unwrap_or_default(),
 
             // 卡片头部
             if props.title.is_some() || props.extra.is_some() {
-                div { class: "ant-card-head",
-                    div { class: "ant-card-head-wrapper",
+                div { class: get_card_head_css(),
+                    div { class: get_card_head_wrapper_css(),
                         if let Some(title) = &props.title {
-                            div { class: "ant-card-head-title", {title.clone()} }
+                            div { class: get_card_head_title_css(), {title.clone()} }
                         }
                         if let Some(extra) = &props.extra {
-                            div { class: "ant-card-extra", {extra} }
+                            div { class: get_card_extra_css(), {extra} }
                         }
                     }
                 }
             }
 
             // 卡片主体
-            div { class: "ant-card-body",
+            div { class: get_card_body_css(),
                 if props.loading {
                     // 加载状态的骨架屏
-                    div { class: "ant-card-loading-content",
-                        div { class: "ant-card-loading-block" }
-                        div { class: "ant-card-loading-block" }
-                        div { class: "ant-card-loading-block" }
+                    div { class: get_card_loading_content_css(),
+                        div { class: get_card_loading_block_css() }
+                        div { class: get_card_loading_block_css() }
+                        div { class: get_card_loading_block_css() }
                     }
                 } else {
                     {props.children}
@@ -179,7 +227,7 @@ pub fn Card(props: CardProps) -> Element {
 
             // 卡片操作区域
             if let Some(actions) = &props.actions {
-                ul { class: "ant-card-actions",
+                ul { class: get_card_actions_css(),
                     {actions}
                 }
             }
@@ -233,20 +281,20 @@ pub fn CardMeta(props: CardMetaProps) -> Element {
 
     rsx! {
         div {
-            class: class_str.clone(),
+            class: format!("{} {}", get_card_meta_css(), class_str),
             style: props.style.unwrap_or_default(),
 
-            div { class: "ant-card-meta-detail",
+            div { class: get_card_meta_detail_css(),
                 if let Some(avatar) = &props.avatar {
-                    div { class: "ant-card-meta-avatar", {avatar} }
+                    div { class: get_card_meta_avatar_css(), {avatar} }
                 }
 
-                div { class: "ant-card-meta-content",
+                div { class: get_card_meta_content_css(),
                     if let Some(title) = &props.title {
-                        div { class: "ant-card-meta-title", {title.clone()} }
+                        div { class: get_card_meta_title_css(), {title.clone()} }
                     }
                     if let Some(description) = &props.description {
-                        div { class: "ant-card-meta-description", {description.clone()} }
+                        div { class: get_card_meta_description_css(), {description.clone()} }
                     }
                 }
             }
@@ -298,9 +346,154 @@ pub fn CardGrid(props: CardGridProps) -> Element {
 
     rsx! {
         div {
-            class: class_str.clone(),
+            class: format!("{} {}", get_card_grid_css(), class_str),
             style: props.style.unwrap_or_default(),
             {props.children}
         }
+    }
+}
+
+// CSS-in-Rust 辅助函数
+
+/// 获取卡片基础CSS样式
+fn get_card_base_css() -> String {
+    css! {
+        ".ant-card {
+            position: relative;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
+            font-size: 14px;
+            font-variant: tabular-nums;
+            line-height: 1.5715;
+            list-style: none;
+            font-feature-settings: 'tnum';
+        }
+        .ant-card-bordered {
+            border: 0;
+        }
+        .ant-card-hoverable {
+            cursor: pointer;
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+        .ant-card-hoverable:hover {
+            border-color: transparent;
+            box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12), 0 5px 12px 4px rgba(0, 0, 0, 0.09);
+        }
+        .ant-card-loading {
+            overflow: hidden;
+        }"
+    }
+}
+
+/// 获取卡片包装器CSS样式
+fn get_card_wrapper_css() -> String {
+    css! {
+        "ant-card"
+    }
+}
+
+/// 获取卡片头部CSS样式
+fn get_card_head_css() -> String {
+    css! {
+        "ant-card-head"
+    }
+}
+
+/// 获取卡片头部包装器CSS样式
+fn get_card_head_wrapper_css() -> String {
+    css! {
+        "ant-card-head-wrapper"
+    }
+}
+
+/// 获取卡片头部标题CSS样式
+fn get_card_head_title_css() -> String {
+    css! {
+        "ant-card-head-title"
+    }
+}
+
+/// 获取卡片额外操作区域CSS样式
+fn get_card_extra_css() -> String {
+    css! {
+        "ant-card-extra"
+    }
+}
+
+/// 获取卡片主体CSS样式
+fn get_card_body_css() -> String {
+    css! {
+        "ant-card-body"
+    }
+}
+
+/// 获取卡片加载内容CSS样式
+fn get_card_loading_content_css() -> String {
+    css! {
+        "ant-card-loading-content"
+    }
+}
+
+/// 获取卡片加载块CSS样式
+fn get_card_loading_block_css() -> String {
+    css! {
+        "ant-card-loading-block"
+    }
+}
+
+/// 获取卡片操作区域CSS样式
+fn get_card_actions_css() -> String {
+    css! {
+        "ant-card-actions"
+    }
+}
+
+/// 获取卡片元信息CSS样式
+fn get_card_meta_css() -> String {
+    css! {
+        "ant-card-meta"
+    }
+}
+
+/// 获取卡片元信息详情CSS样式
+fn get_card_meta_detail_css() -> String {
+    css! {
+        "ant-card-meta-detail"
+    }
+}
+
+/// 获取卡片元信息头像CSS样式
+fn get_card_meta_avatar_css() -> String {
+    css! {
+        "ant-card-meta-avatar"
+    }
+}
+
+/// 获取卡片元信息内容CSS样式
+fn get_card_meta_content_css() -> String {
+    css! {
+        "ant-card-meta-content"
+    }
+}
+
+/// 获取卡片元信息标题CSS样式
+fn get_card_meta_title_css() -> String {
+    css! {
+        "ant-card-meta-title"
+    }
+}
+
+/// 获取卡片元信息描述CSS样式
+fn get_card_meta_description_css() -> String {
+    css! {
+        "ant-card-meta-description"
+    }
+}
+
+/// 获取卡片网格CSS样式
+fn get_card_grid_css() -> String {
+    css! {
+        "ant-card-grid"
     }
 }

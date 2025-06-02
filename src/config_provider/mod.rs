@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::locale::{Locale, LocaleConfig};
-use crate::theme::{Theme, ThemeConfig};
+use crate::theme::{CssThemeBridge, Theme, ThemeConfig};
 use crate::utils::{responsive::Breakpoint, size::Size};
 
 /// 组件尺寸配置
@@ -299,7 +299,15 @@ pub fn ConfigProvider(props: ConfigProviderProps) -> Element {
         config.get_target_container = Some(get_target_container);
     }
 
-    let context = ConfigContext { config };
+    let context = ConfigContext {
+        config: config.clone(),
+    };
+
+    // 初始化主题桥接器并注入样式
+    use_effect(move || {
+        let bridge = CssThemeBridge::new(config.theme.clone());
+        bridge.inject_theme_variables();
+    });
 
     use_context_provider(|| context.clone());
 

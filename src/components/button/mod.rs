@@ -21,11 +21,9 @@
 //! - 禁用：行动点不可用的时候，一般需要文案解释。
 //! - 加载中：用于异步操作等待反馈的时候，也可以避免多次提交。
 
+use css_in_rust_macros::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-// 引入按钮样式
-const BUTTON_STYLE: &str = include_str!("style.css");
 
 // 导出按钮组模块
 mod button_group;
@@ -184,16 +182,15 @@ pub struct ButtonProps {
 /// ```
 #[component]
 pub fn Button(props: ButtonProps) -> Element {
-    let class_name = get_button_class_name(&props);
-    let button_style = get_button_style(&props);
+    // 使用 css! 宏生成样式类名
+    let button_class = get_button_css_class(&props);
+    let custom_style = props.style.clone().unwrap_or_default();
 
     rsx! {
-        // 注入按钮样式
-        style { {BUTTON_STYLE} }
-
         button {
-            class: class_name.clone(),
-            style: button_style.clone(),
+            class: "{button_class} {}",
+            props.class.clone().unwrap_or_default(),
+            style: custom_style,
             r#type: get_html_type(&props.html_type),
             disabled: props.disabled || props.loading,
             onclick: move |evt| {
@@ -221,7 +218,7 @@ pub fn Button(props: ButtonProps) -> Element {
     }
 }
 
-/// 获取按钮的 CSS 类名
+/// 获取按钮的 CSS-in-Rust 样式类名
 ///
 /// # 参数
 ///
@@ -229,75 +226,175 @@ pub fn Button(props: ButtonProps) -> Element {
 ///
 /// # 返回值
 ///
-/// 返回按钮的完整 CSS 类名字符串
-fn get_button_class_name(props: &ButtonProps) -> String {
-    let mut classes = vec!["ant-btn"];
+/// 返回使用 css! 宏生成的样式类名
+fn get_button_css_class(props: &ButtonProps) -> String {
+    // 基础按钮样式
+    let base_class = css!(
+        r#"
+        position: relative;
+        display: inline-block;
+        font-weight: 400;
+        white-space: nowrap;
+        text-align: center;
+        background-image: none;
+        border: 1px solid transparent;
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+        user-select: none;
+        touch-action: manipulation;
+        height: 32px;
+        padding: 4px 15px;
+        font-size: var(--ant-font-size-base);
+        border-radius: var(--ant-border-radius);
+        color: var(--ant-text-color);
+        background: var(--ant-bg-color);
+        border-color: var(--ant-border-color);
+        outline: none;
+        text-decoration: none;
+        line-height: var(--ant-line-height-base);
 
-    // 按钮类型
-    match props.button_type {
-        ButtonType::Primary => classes.push("ant-btn-primary"),
-        ButtonType::Default => classes.push("ant-btn-default"),
-        ButtonType::Dashed => classes.push("ant-btn-dashed"),
-        ButtonType::Text => classes.push("ant-btn-text"),
-        ButtonType::Link => classes.push("ant-btn-link"),
-    }
+        &:hover {
+            color: var(--ant-primary-color);
+            border-color: var(--ant-primary-color);
+        }
 
-    // 按钮尺寸
-    match props.size {
-        ButtonSize::Large => classes.push("ant-btn-lg"),
-        ButtonSize::Middle => {} // 默认尺寸不需要额外类名
-        ButtonSize::Small => classes.push("ant-btn-sm"),
-    }
+        &:focus {
+            color: var(--ant-primary-color);
+            border-color: var(--ant-primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+        }
 
-    // 按钮形状
-    match props.shape {
-        ButtonShape::Circle => classes.push("ant-btn-circle"),
-        ButtonShape::Round => classes.push("ant-btn-round"),
-        ButtonShape::Default => {}
-    }
+        &:active {
+            color: var(--ant-primary-color-active);
+            border-color: var(--ant-primary-color-active);
+        }
+    "#
+    );
 
-    // 状态类名
+    // 按钮类型样式
+    let type_class = match props.button_type {
+        ButtonType::Primary => css!(
+            r#"
+            color: #fff;
+            background: var(--ant-primary-color);
+            border-color: var(--ant-primary-color);
+
+            &:hover {
+                background: var(--ant-primary-color-hover);
+                border-color: var(--ant-primary-color-hover);
+            }
+
+            &:active {
+                background: var(--ant-primary-color-active);
+                border-color: var(--ant-primary-color-active);
+            }
+        "#
+        ),
+        ButtonType::Dashed => css!(
+            r#"
+            border-style: dashed;
+        "#
+        ),
+        ButtonType::Text => css!(
+            r#"
+            color: var(--ant-text-color);
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+
+            &:hover {
+                color: var(--ant-primary-color);
+                background: rgba(0, 0, 0, 0.06);
+            }
+        "#
+        ),
+        ButtonType::Link => css!(
+            r#"
+            color: var(--ant-primary-color);
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+
+            &:hover {
+                color: var(--ant-primary-color-hover);
+            }
+        "#
+        ),
+        _ => String::new(),
+    };
+
+    // 尺寸样式
+    let size_class = match props.size {
+        ButtonSize::Large => {
+            css!("height: 40px; padding: 6px 15px; font-size: var(--ant-font-size-lg);")
+        }
+        ButtonSize::Small => {
+            css!("height: 24px; padding: 0px 7px; font-size: var(--ant-font-size-sm);")
+        }
+        _ => String::new(),
+    };
+
+    // 形状样式
+    let shape_class = match props.shape {
+        ButtonShape::Circle => css!("border-radius: 50%; width: 32px; padding: 0;"),
+        ButtonShape::Round => css!("border-radius: 32px;"),
+        _ => String::new(),
+    };
+
+    // 状态样式
+    let mut state_classes = Vec::new();
+
     if props.danger {
-        classes.push("ant-btn-dangerous");
+        state_classes.push(css!(
+            r#"
+            color: var(--ant-error-color);
+            border-color: var(--ant-error-color);
+
+            &:hover {
+                color: #ff7875;
+                border-color: #ff7875;
+            }
+        "#
+        ));
     }
 
     if props.ghost {
-        classes.push("ant-btn-background-ghost");
+        state_classes.push(css!(
+            r#"
+            background: transparent;
+
+            &:hover {
+                background: transparent;
+            }
+        "#
+        ));
     }
 
-    if props.disabled {
-        classes.push("ant-btn-disabled");
-    }
-
-    if props.loading {
-        classes.push("ant-btn-loading");
+    if props.disabled || props.loading {
+        state_classes.push(css!(
+            r#"
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        "#
+        ));
     }
 
     if props.block {
-        classes.push("ant-btn-block");
+        state_classes.push(css!("width: 100%; display: block;"));
     }
 
-    // 添加自定义类名
-    let mut class_string = classes.join(" ");
-    if let Some(custom_class) = &props.class {
-        class_string.push(' ');
-        class_string.push_str(custom_class);
-    }
+    // 组合所有样式类名
+    let mut combined_classes = vec![base_class, type_class, size_class, shape_class];
+    combined_classes.extend(state_classes);
 
-    class_string
-}
-
-/// 获取按钮的内联样式
-///
-/// # 参数
-///
-/// * `props` - 按钮属性
-///
-/// # 返回值
-///
-/// 返回按钮的内联样式字符串
-fn get_button_style(props: &ButtonProps) -> String {
-    props.style.clone().unwrap_or_default()
+    combined_classes
+        .into_iter()
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 /// 获取 HTML 按钮类型字符串

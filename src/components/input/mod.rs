@@ -27,9 +27,8 @@
 //! }
 //! ```
 
+use css_in_rust_macros::css;
 use dioxus::prelude::*;
-
-const INPUT_STYLE: &str = include_str!("./style.css");
 
 /// Input 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -49,12 +48,16 @@ impl Default for InputSize {
 }
 
 impl InputSize {
-    /// 获取尺寸对应的CSS类名
-    pub fn to_class(&self) -> &'static str {
+    /// 获取尺寸对应的CSS样式
+    pub fn to_css(&self) -> String {
         match self {
-            InputSize::Large => "ant-input-lg",
-            InputSize::Middle => "",
-            InputSize::Small => "ant-input-sm",
+            InputSize::Large => {
+                css!("height: 40px; padding: 6px 11px; font-size: var(--ant-font-size-lg);")
+            }
+            InputSize::Middle => String::new(),
+            InputSize::Small => {
+                css!("height: 24px; padding: 0px 7px; font-size: var(--ant-font-size-sm);")
+            }
         }
     }
 }
@@ -77,12 +80,38 @@ impl Default for InputStatus {
 }
 
 impl InputStatus {
-    /// 获取状态对应的CSS类名
-    pub fn to_class(&self) -> &'static str {
+    /// 获取状态对应的CSS样式
+    pub fn to_css(&self) -> String {
         match self {
-            InputStatus::Normal => "",
-            InputStatus::Error => "ant-input-status-error",
-            InputStatus::Warning => "ant-input-status-warning",
+            InputStatus::Normal => String::new(),
+            InputStatus::Error => css!(
+                r#"
+                border-color: var(--ant-error-color);
+
+                &:hover {
+                    border-color: #ff7875;
+                }
+
+                &:focus {
+                    border-color: #ff7875;
+                    box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+                }
+            "#
+            ),
+            InputStatus::Warning => css!(
+                r#"
+                border-color: var(--ant-warning-color);
+
+                &:hover {
+                    border-color: #ffc53d;
+                }
+
+                &:focus {
+                    border-color: #ffc53d;
+                    box-shadow: 0 0 0 2px rgba(255, 197, 61, 0.2);
+                }
+            "#
+            ),
         }
     }
 }
@@ -232,84 +261,11 @@ pub fn Input(props: InputProps) -> Element {
         }
     };
 
-    let input_class = {
-        let mut classes = vec!["ant-input"];
+    let input_class = get_input_css_class(&props, is_focused());
 
-        let size_class = props.size.to_class();
-        if !size_class.is_empty() {
-            classes.push(size_class);
-        }
+    let wrapper_class = get_wrapper_css_class(&props, is_focused());
 
-        let status_class = props.status.to_class();
-        if !status_class.is_empty() {
-            classes.push(status_class);
-        }
-
-        if props.disabled {
-            classes.push("ant-input-disabled");
-        }
-
-        if !props.bordered {
-            classes.push("ant-input-borderless");
-        }
-
-        if is_focused() {
-            classes.push("ant-input-focused");
-        }
-
-        classes.join(" ")
-    };
-
-    let wrapper_class = {
-        let mut classes = vec![];
-
-        if props.prefix.is_some() || props.suffix.is_some() || props.allow_clear {
-            classes.push("ant-input-affix-wrapper");
-
-            let size_class = props.size.to_class();
-            if !size_class.is_empty() {
-                classes.push(size_class);
-            }
-
-            let status_class = props.status.to_class();
-            if !status_class.is_empty() {
-                classes.push(status_class);
-            }
-
-            if props.disabled {
-                classes.push("ant-input-affix-wrapper-disabled");
-            }
-
-            if !props.bordered {
-                classes.push("ant-input-affix-wrapper-borderless");
-            }
-
-            if is_focused() {
-                classes.push("ant-input-affix-wrapper-focused");
-            }
-        }
-
-        if let Some(ref class) = props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
-    };
-
-    let group_class = {
-        let mut classes = vec![];
-
-        if props.addon_before.is_some() || props.addon_after.is_some() {
-            classes.push("ant-input-group-wrapper");
-
-            let size_class = props.size.to_class();
-            if !size_class.is_empty() {
-                classes.push(size_class);
-            }
-        }
-
-        classes.join(" ")
-    };
+    let group_class = get_group_css_class(&props);
 
     // 计算字符数
     let char_count = internal_value().chars().count();
@@ -318,18 +274,39 @@ pub fn Input(props: InputProps) -> Element {
     // 如果有 addon，使用 group 包装
     if props.addon_before.is_some() || props.addon_after.is_some() {
         rsx! {
-            style { {INPUT_STYLE} }
-
             div {
                 class: group_class,
                 style: props.style,
 
                 div {
-                    class: "ant-input-group",
+                        class: "{}",
+                        css!(r#"
+                            position: relative;
+                            display: table;
+                            width: 100%;
+                            border-collapse: separate;
+                            border-spacing: 0;
+                        "#),
 
                     if let Some(addon_before) = props.addon_before {
                         div {
-                            class: "ant-input-group-addon",
+                            class: "{}",
+                            css!(r#"
+                                position: relative;
+                                padding: 0 11px;
+                                color: var(--ant-text-color);
+                                font-weight: normal;
+                                font-size: var(--ant-font-size-base);
+                                text-align: center;
+                                background-color: var(--ant-bg-color-container);
+                                border: 1px solid var(--ant-border-color);
+                                border-radius: var(--ant-border-radius);
+                                transition: all 0.2s;
+                                display: table-cell;
+                                width: 1px;
+                                white-space: nowrap;
+                                vertical-align: middle;
+                            "#),
                             {addon_before}
                         }
                     }
@@ -340,7 +317,14 @@ pub fn Input(props: InputProps) -> Element {
 
                             if let Some(prefix) = props.prefix {
                                 span {
-                                    class: "ant-input-prefix",
+                                    class: "{}",
+                                    css!(r#"
+                                        display: flex;
+                                        flex: none;
+                                        align-items: center;
+                                        margin-inline-end: 4px;
+                                        color: var(--ant-text-color-tertiary);
+                                    "#),
                                     {prefix}
                                 }
                             }
@@ -361,7 +345,32 @@ pub fn Input(props: InputProps) -> Element {
 
                             if props.allow_clear && !internal_value().is_empty() && !props.disabled {
                                 span {
-                                    class: "ant-input-clear-icon",
+                                    class: "{}",
+                                    css!(r#"
+                                        position: absolute;
+                                        top: 50%;
+                                        inset-inline-end: 8px;
+                                        z-index: 1;
+                                        display: inline-block;
+                                        width: 12px;
+                                        height: 12px;
+                                        margin-top: -6px;
+                                        color: var(--ant-text-color-quaternary);
+                                        font-size: 12px;
+                                        font-style: normal;
+                                        line-height: 1;
+                                        text-align: center;
+                                        text-transform: none;
+                                        background: var(--ant-bg-color-container);
+                                        cursor: pointer;
+                                        opacity: 0;
+                                        transition: color 0.2s ease, opacity 0.15s ease;
+                                        text-rendering: auto;
+
+                                        &:hover {
+                                            color: var(--ant-text-color-tertiary);
+                                        }
+                                    "#),
                                     onclick: handle_clear,
                                     "×"
                                 }
@@ -369,7 +378,14 @@ pub fn Input(props: InputProps) -> Element {
 
                             if let Some(suffix) = props.suffix {
                                 span {
-                                    class: "ant-input-suffix",
+                                    class: "{}",
+                                    css!(r#"
+                                        display: flex;
+                                        flex: none;
+                                        align-items: center;
+                                        margin-inline-start: 4px;
+                                        color: var(--ant-text-color-tertiary);
+                                    "#),
                                     {suffix}
                                 }
                             }
@@ -392,7 +408,23 @@ pub fn Input(props: InputProps) -> Element {
 
                     if let Some(addon_after) = props.addon_after {
                         div {
-                            class: "ant-input-group-addon",
+                            class: "{}",
+                            css!(r#"
+                                position: relative;
+                                padding: 0 11px;
+                                color: var(--ant-text-color);
+                                font-weight: normal;
+                                font-size: var(--ant-font-size-base);
+                                text-align: center;
+                                background-color: var(--ant-bg-color-container);
+                                border: 1px solid var(--ant-border-color);
+                                border-radius: var(--ant-border-radius);
+                                transition: all 0.2s;
+                                display: table-cell;
+                                width: 1px;
+                                white-space: nowrap;
+                                vertical-align: middle;
+                            "#),
                             {addon_after}
                         }
                     }
@@ -417,8 +449,6 @@ pub fn Input(props: InputProps) -> Element {
     } else if !wrapper_class.is_empty() {
         // 有前缀或后缀的情况
         rsx! {
-            style { {INPUT_STYLE} }
-
             div {
                 div {
                     class: wrapper_class,
@@ -480,8 +510,6 @@ pub fn Input(props: InputProps) -> Element {
     } else {
         // 基础输入框
         rsx! {
-            style { {INPUT_STYLE} }
-
             div {
                 input {
                     class: format!("{} {}", input_class, props.class.as_deref().unwrap_or("")),
@@ -515,6 +543,273 @@ pub fn Input(props: InputProps) -> Element {
             }
         }
     }
+}
+
+/// 获取输入框的CSS样式类名
+fn get_input_css_class(props: &InputProps, is_focused: bool) -> String {
+    // 基础输入框样式
+    let base_class = css!(
+        r#"
+        box-sizing: border-box;
+        margin: 0;
+        padding: 4px 11px;
+        color: var(--ant-text-color);
+        font-size: var(--ant-font-size-base);
+        line-height: var(--ant-line-height-base);
+        list-style: none;
+        font-family: inherit;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        min-width: 0;
+        background-color: var(--ant-bg-color-container);
+        background-image: none;
+        border: 1px solid var(--ant-border-color);
+        border-radius: var(--ant-border-radius);
+        transition: all 0.2s;
+
+        &:hover {
+            border-color: var(--ant-primary-color-hover);
+            border-inline-end-width: 1px;
+        }
+
+        &:focus {
+            border-color: var(--ant-primary-color-hover);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+            border-inline-end-width: 1px;
+            outline: 0;
+        }
+
+        &::placeholder {
+            color: var(--ant-text-color-quaternary);
+            user-select: none;
+        }
+    "#
+    );
+
+    // 尺寸样式
+    let size_class = props.size.to_css();
+
+    // 状态样式
+    let status_class = props.status.to_css();
+
+    // 禁用状态
+    let disabled_class = if props.disabled {
+        css!(
+            r#"
+            color: var(--ant-text-color-disabled);
+            background-color: var(--ant-bg-color-disabled);
+            border-color: var(--ant-border-color);
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 1;
+
+            &:hover {
+                border-color: var(--ant-border-color);
+            }
+        "#
+        )
+    } else {
+        String::new()
+    };
+
+    // 无边框样式
+    let borderless_class = if !props.bordered {
+        css!(
+            r#"
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+        "#
+        )
+    } else {
+        String::new()
+    };
+
+    // 聚焦状态
+    let focused_class = if is_focused {
+        css!(
+            r#"
+            border-color: var(--ant-primary-color-hover);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+            border-inline-end-width: 1px;
+            outline: 0;
+        "#
+        )
+    } else {
+        String::new()
+    };
+
+    // 组合所有样式
+    let mut combined_classes = vec![
+        base_class,
+        size_class,
+        status_class,
+        disabled_class,
+        borderless_class,
+        focused_class,
+    ];
+
+    combined_classes
+        .into_iter()
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// 获取包装器的CSS样式类名
+fn get_wrapper_css_class(props: &InputProps, is_focused: bool) -> String {
+    if props.prefix.is_none() && props.suffix.is_none() && !props.allow_clear {
+        return String::new();
+    }
+
+    // 基础包装器样式
+    let base_class = css!(
+        r#"
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        color: var(--ant-text-color);
+        font-size: var(--ant-font-size-base);
+        line-height: var(--ant-line-height-base);
+        list-style: none;
+        font-family: inherit;
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        min-width: 0;
+        padding: 4px 11px;
+        background-color: var(--ant-bg-color-container);
+        background-image: none;
+        border: 1px solid var(--ant-border-color);
+        border-radius: var(--ant-border-radius);
+        transition: all 0.2s;
+
+        &:hover {
+            border-color: var(--ant-primary-color-hover);
+            border-inline-end-width: 1px;
+        }
+
+        &:focus-within {
+            border-color: var(--ant-primary-color-hover);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+            border-inline-end-width: 1px;
+            outline: 0;
+        }
+    "#
+    );
+
+    // 尺寸样式
+    let size_class = props.size.to_css();
+
+    // 状态样式
+    let status_class = props.status.to_css();
+
+    // 禁用状态
+    let disabled_class = if props.disabled {
+        css!(
+            r#"
+            color: var(--ant-text-color-disabled);
+            background-color: var(--ant-bg-color-disabled);
+            border-color: var(--ant-border-color);
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 1;
+
+            &:hover {
+                border-color: var(--ant-border-color);
+            }
+        "#
+        )
+    } else {
+        String::new()
+    };
+
+    // 无边框样式
+    let borderless_class = if !props.bordered {
+        css!(
+            r#"
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+        "#
+        )
+    } else {
+        String::new()
+    };
+
+    // 聚焦状态
+    let focused_class = if is_focused {
+        css!(
+            r#"
+            border-color: var(--ant-primary-color-hover);
+            box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+            border-inline-end-width: 1px;
+            outline: 0;
+        "#
+        )
+    } else {
+        String::new()
+    };
+
+    // 组合所有样式
+    let mut combined_classes = vec![
+        base_class,
+        size_class,
+        status_class,
+        disabled_class,
+        borderless_class,
+        focused_class,
+    ];
+
+    // 添加自定义类名
+    if let Some(ref class) = props.class {
+        combined_classes.push(class.clone());
+    }
+
+    combined_classes
+        .into_iter()
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// 获取分组的CSS样式类名
+fn get_group_css_class(props: &InputProps) -> String {
+    if props.addon_before.is_none() && props.addon_after.is_none() {
+        return String::new();
+    }
+
+    // 基础分组样式
+    let base_class = css!(
+        r#"
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        color: var(--ant-text-color);
+        font-size: var(--ant-font-size-base);
+        line-height: var(--ant-line-height-base);
+        list-style: none;
+        font-family: inherit;
+        position: relative;
+        display: table;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    "#
+    );
+
+    // 尺寸样式
+    let size_class = props.size.to_css();
+
+    // 组合样式
+    let mut combined_classes = vec![base_class, size_class];
+
+    combined_classes
+        .into_iter()
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 // 组件已通过#[component]宏自动导出

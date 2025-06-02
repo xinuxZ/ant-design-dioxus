@@ -25,12 +25,14 @@ js-sys = "0.3"
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 wasm-bindgen = "0.2.100"
 chrono = { version = "0.4.41", features = ["serde"] }
-css-in-rust = { path = "../css-in-rust/css-in-rust" }
 log = "0.4"
-# dioxus-web = { version = "0.6.3", optional = true }
-# dioxus-desktop = { version = "0.6.3", optional = true }
 
-[dev-dependencies]
+css-in-rust = { path = "../css-in-rust/css-in-rust" }
+css-in-rust-macros = { version = "0.1.0", path = "../css-in-rust/css-in-rust-macros" }
+
+# 启用 proc-macro 特性
+[build-dependencies]
+css-in-rust-macros = { path = "../css-in-rust/css-in-rust-macros" }
 wasm-bindgen-test = "0.3"
 
 # [features]

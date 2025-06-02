@@ -56,6 +56,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "css-in-rust",
+ "css-in-rust-macros",
  "dioxus",
  "gloo-timers",
  "js-sys",

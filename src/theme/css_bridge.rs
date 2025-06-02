@@ -2,6 +2,7 @@
 //!
 //! 提供 ant-design-dioxus 主题系统与 css-in-rust 的桥接功能
 
+use css_in_rust::runtime::StyleInjector;
 use css_in_rust::theme::{DesignTokens, Theme as CssTheme, ThemeMode, ThemeProvider};
 // 注意：css! 宏需要在启用 proc-macro 特性时才可用
 use std::collections::HashMap;
@@ -42,6 +43,123 @@ impl CssThemeBridge {
     pub fn update_theme(&mut self, theme_config: ThemeConfig) {
         self.theme_config = theme_config.clone();
         self.css_theme = Self::convert_to_css_theme(&theme_config);
+    }
+
+    /// 注入全局主题变量到 DOM
+    ///
+    /// 将主题配置转换为 CSS 自定义属性并注入到页面中
+    /// 这些变量可以在组件样式中通过 var(--variable-name) 使用
+    pub fn inject_theme_variables(&self) {
+        let css_vars = self.generate_css_variables();
+        StyleInjector::inject_global_styles(&css_vars);
+    }
+
+    /// 生成 CSS 自定义属性
+    ///
+    /// 根据当前主题配置生成完整的 CSS 变量定义
+    /// 包括颜色、尺寸、字体等所有设计令牌
+    fn generate_css_variables(&self) -> String {
+        let colors = &self.theme_config.colors;
+        let sizes = &self.theme_config.sizes;
+
+        format!(
+            r#":root {{
+                /* 主色调 */
+                --ant-primary-color: {};
+                --ant-primary-color-hover: {};
+                --ant-primary-color-active: {};
+
+                /* 功能色 */
+                --ant-success-color: {};
+                --ant-warning-color: {};
+                --ant-error-color: {};
+                --ant-info-color: {};
+
+                /* 文本颜色 */
+                --ant-text-color: {};
+                --ant-text-color-secondary: {};
+                --ant-text-color-disabled: {};
+
+                /* 背景颜色 */
+                --ant-bg-color: {};
+                --ant-bg-color-container: {};
+
+                /* 边框 */
+                --ant-border-color: {};
+                --ant-border-radius: {}px;
+                --ant-border-radius-sm: {}px;
+                --ant-border-radius-lg: {}px;
+
+                /* 字体 */
+                --ant-font-size-base: {}px;
+                --ant-font-size-sm: {}px;
+                --ant-font-size-lg: {}px;
+                --ant-line-height-base: {};
+
+                /* 间距 */
+                --ant-padding-xs: {}px;
+                --ant-padding-sm: {}px;
+                --ant-padding-md: {}px;
+                --ant-padding-lg: {}px;
+                --ant-padding-xl: {}px;
+            }}
+
+            /* 暗色主题变量覆盖 */
+            [data-theme="dark"] {{
+                --ant-text-color: #ffffff;
+                --ant-text-color-secondary: rgba(255, 255, 255, 0.65);
+                --ant-text-color-disabled: rgba(255, 255, 255, 0.25);
+                --ant-bg-color: #141414;
+                --ant-bg-color-container: #1f1f1f;
+                --ant-border-color: #424242;
+            }}
+
+            /* 紧凑主题变量覆盖 */
+            [data-theme="compact"] {{
+                --ant-padding-xs: 2px;
+                --ant-padding-sm: 4px;
+                --ant-padding-md: 8px;
+                --ant-padding-lg: 12px;
+                --ant-padding-xl: 16px;
+                --ant-font-size-base: 12px;
+                --ant-border-radius: 4px;
+            }}"#,
+            colors.primary.base.to_hex(),
+            colors
+                .primary
+                .colors
+                .get("500")
+                .unwrap_or(&colors.primary.base)
+                .to_hex(),
+            colors
+                .primary
+                .colors
+                .get("700")
+                .unwrap_or(&colors.primary.base)
+                .to_hex(),
+            colors.success.base.to_hex(),
+            colors.warning.base.to_hex(),
+            colors.error.base.to_hex(),
+            colors.info.base.to_hex(),
+            colors.text.primary.to_hex(),
+            colors.text.secondary.to_hex(),
+            colors.text.disabled.to_hex(),
+            colors.background.primary.to_hex(),
+            colors.background.container.to_hex(),
+            colors.border.base.to_hex(),
+            sizes.border_radius.base,
+            sizes.border_radius.small,
+            sizes.border_radius.large,
+            sizes.font.base,
+            sizes.font.small,
+            sizes.font.large,
+            sizes.line_height.base,
+            sizes.spacing.extra_small,
+            sizes.spacing.small,
+            sizes.spacing.medium,
+            sizes.spacing.large,
+            sizes.spacing.extra_large
+        )
     }
 
     /// 转换为 CSS-in-Rust 主题
