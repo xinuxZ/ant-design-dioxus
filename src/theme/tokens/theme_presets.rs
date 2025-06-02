@@ -5,7 +5,6 @@
 
 use super::{
     animation_presets::AntDesignEasing,
-    ant_design_tokens::AntDesignTokens,
     color_presets::{AntDesignColors, BorderColors, TextColors},
 };
 use css_in_rust::theme::{DesignTokens, ThemeVariant};
@@ -13,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Ant Design 主题配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AntDesignTheme {
     /// 主题名称
     pub name: String,
@@ -83,6 +82,68 @@ impl BackgroundColors {
 }
 
 impl AntDesignTheme {
+    /// 获取主色调
+    pub fn primary_color(&self) -> String {
+        self.primary_color.clone()
+    }
+
+    /// 获取成功色
+    pub fn success_color(&self) -> String {
+        self.success_color.clone()
+    }
+
+    /// 获取警告色
+    pub fn warning_color(&self) -> String {
+        self.warning_color.clone()
+    }
+
+    /// 获取错误色
+    pub fn error_color(&self) -> String {
+        self.error_color.clone()
+    }
+
+    /// 获取信息色
+    pub fn info_color(&self) -> String {
+        self.info_color.clone()
+    }
+
+    /// 转换为设计令牌
+    pub fn design_tokens(&self) -> DesignTokens {
+        let mut design_tokens = DesignTokens::new();
+
+        // 根据主题变体设置颜色
+        match self.variant {
+            ThemeVariant::Light => {
+                design_tokens.colors.primary = self.primary_color.clone();
+                design_tokens.colors.success = self.success_color.clone();
+                design_tokens.colors.warning = self.warning_color.clone();
+                design_tokens.colors.error = self.error_color.clone();
+                design_tokens.colors.info = self.info_color.clone();
+            }
+            ThemeVariant::Dark => {
+                design_tokens.colors.primary = self.primary_color.clone();
+                design_tokens.colors.success = self.success_color.clone();
+                design_tokens.colors.warning = self.warning_color.clone();
+                design_tokens.colors.error = self.error_color.clone();
+                design_tokens.colors.info = self.info_color.clone();
+            }
+            ThemeVariant::Auto => {
+                design_tokens.colors.primary = self.primary_color.clone();
+                design_tokens.colors.success = self.success_color.clone();
+                design_tokens.colors.warning = self.warning_color.clone();
+                design_tokens.colors.error = self.error_color.clone();
+                design_tokens.colors.info = self.info_color.clone();
+            }
+        }
+
+        design_tokens
+    }
+
+    /// 转换为设计令牌（别名方法）
+    pub fn to_design_tokens(&self) -> DesignTokens {
+        self.design_tokens()
+    }
+
     /// 创建默认的浅色主题
     pub fn light() -> Self {
         Self {
@@ -124,16 +185,16 @@ impl AntDesignTheme {
         theme
     }
 
-    /// 转换为 css-in-rust 的 DesignTokens
-    pub fn to_design_tokens(&self) -> DesignTokens {
-        let tokens = match self.variant {
-            ThemeVariant::Light => AntDesignTokens::get_light_theme_tokens(),
-            ThemeVariant::Dark => AntDesignTokens::get_dark_theme_tokens(),
-            ThemeVariant::Auto => AntDesignTokens::get_light_theme_tokens(), // 默认使用浅色主题
-        };
+    // /// 转换为 css-in-rust 的 DesignTokens
+    // pub fn to_design_tokens(&self) -> DesignTokens {
+    //     let tokens = match self.variant {
+    //         ThemeVariant::Light => AntDesignTokens::get_light_theme_tokens(),
+    //         ThemeVariant::Dark => AntDesignTokens::get_dark_theme_tokens(),
+    //         ThemeVariant::Auto => AntDesignTokens::get_light_theme_tokens(), // 默认使用浅色主题
+    //     };
 
-        DesignTokens::from_token_map(tokens)
-    }
+    //     DesignTokens::from_token_map(tokens)
+    // }
 
     /// 生成完整的 CSS 变量
     pub fn to_css_variables(&self) -> String {

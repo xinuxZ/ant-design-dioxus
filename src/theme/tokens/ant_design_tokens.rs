@@ -306,7 +306,7 @@ impl AntDesignTokens {
 
     /// 创建默认的设计令牌存储（兼容 css-in-rust）
     pub fn create_default_store() -> DesignTokens {
-        DesignTokens::ant_design_default()
+        DesignTokens::new()
     }
 
     /// 获取默认的浅色主题令牌值（兼容 css-in-rust）

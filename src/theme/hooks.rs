@@ -4,12 +4,10 @@
 //! 这些 hooks 简化了主题的使用，并提供了响应式的主题切换功能。
 
 use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use super::tokens::{
     animation_presets::{AntDesignAnimationConfig, AntDesignEasing},
-    ant_design_tokens::AntDesignTokens,
     theme_presets::{AntDesignTheme, AntDesignThemePresets},
 };
 use css_in_rust::theme::{DesignTokens, ThemeVariant};
@@ -33,13 +31,15 @@ impl Default for ThemeContext {
             current_theme: AntDesignTheme::light(),
             available_themes: AntDesignThemePresets::all_presets(),
             auto_theme: false,
-            transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard, 300, 0),
+            transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
+                .with_duration(300)
+                .with_delay(0),
         }
     }
 }
 
 /// 主题提供者组件的属性
-#[derive(Props, PartialEq)]
+#[derive(Props, PartialEq, Clone)]
 pub struct ThemeProviderProps {
     /// 子组件
     children: Element,
@@ -72,11 +72,9 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         current_theme: initial_theme,
         available_themes: AntDesignThemePresets::all_presets(),
         auto_theme: props.auto_theme,
-        transition_config: AntDesignAnimationConfig::new(
-            AntDesignEasing::Standard,
-            props.transition_duration,
-            0,
-        ),
+        transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
+            .with_duration(props.transition_duration as u64)
+            .with_delay(0),
     });
 
     // 监听系统主题变化（如果启用了自动主题）
@@ -119,7 +117,7 @@ impl UseTheme {
     }
 
     /// 切换到指定主题
-    pub fn set_theme(&self, theme_name: &str) {
+    pub fn set_theme(&mut self, theme_name: &str) {
         let mut context = self.context.write();
         if let Some(theme) = context.available_themes.get(theme_name) {
             context.current_theme = theme.clone();
@@ -127,13 +125,13 @@ impl UseTheme {
     }
 
     /// 切换到自定义主题
-    pub fn set_custom_theme(&self, theme: AntDesignTheme) {
+    pub fn set_custom_theme(&mut self, theme: AntDesignTheme) {
         let mut context = self.context.write();
         context.current_theme = theme;
     }
 
     /// 在浅色和深色主题之间切换
-    pub fn toggle_theme(&self) {
+    pub fn toggle_theme(&mut self) {
         let current_variant = self.context.read().current_theme.variant;
         match current_variant {
             ThemeVariant::Light => self.set_theme("dark"),
@@ -183,7 +181,7 @@ impl UseTheme {
     }
 
     /// 启用/禁用自动主题切换
-    pub fn set_auto_theme(&self, enabled: bool) {
+    pub fn set_auto_theme(&mut self, enabled: bool) {
         let mut context = self.context.write();
         context.auto_theme = enabled;
         if enabled {
@@ -204,13 +202,13 @@ impl UseTheme {
     }
 
     /// 添加自定义主题到可用主题列表
-    pub fn add_theme(&self, name: String, theme: AntDesignTheme) {
+    pub fn add_theme(&mut self, name: String, theme: AntDesignTheme) {
         let mut context = self.context.write();
         context.available_themes.insert(name, theme);
     }
 
     /// 移除主题
-    pub fn remove_theme(&self, name: &str) {
+    pub fn remove_theme(&mut self, name: &str) {
         let mut context = self.context.write();
         context.available_themes.remove(name);
     }
@@ -226,7 +224,7 @@ impl UseTheme {
     }
 
     /// 设置主题切换动画配置
-    pub fn set_transition_config(&self, config: AntDesignAnimationConfig) {
+    pub fn set_transition_config(&mut self, config: AntDesignAnimationConfig) {
         let mut context = self.context.write();
         context.transition_config = config;
     }

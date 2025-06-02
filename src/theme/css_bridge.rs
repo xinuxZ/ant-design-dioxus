@@ -6,11 +6,8 @@ use css_in_rust::theme::{DesignTokens, Theme as CssTheme, ThemeMode, ThemeProvid
 // 注意：css! 宏需要在启用 proc-macro 特性时才可用
 use std::collections::HashMap;
 
-use crate::theme::{
-    BackgroundColors, BorderColors, ColorTheme, FillColors, ShadowConfig, SizeConfig, TextColors,
-    Theme, ThemeConfig, TypographyConfig,
-};
-use crate::utils::color::{ColorPalette, RgbColor};
+use crate::theme::{ColorTheme, SizeTheme, Theme, ThemeConfig};
+use crate::utils::color::RgbColor;
 
 /// CSS-in-Rust 主题桥接器
 #[derive(Debug, Clone)]
@@ -63,10 +60,10 @@ impl CssThemeBridge {
         Self::convert_size_tokens(&mut design_tokens, &theme_config.sizes);
 
         // 转换排版令牌
-        Self::convert_typography_tokens(&mut design_tokens, &theme_config.typography);
+        Self::convert_typography_tokens(&mut design_tokens, &theme_config.sizes);
 
         // 转换阴影令牌
-        Self::convert_shadow_tokens(&mut design_tokens, &theme_config.shadow);
+        Self::convert_shadow_tokens(&mut design_tokens, &theme_config.sizes);
 
         let custom_variables = HashMap::new();
 
@@ -81,82 +78,70 @@ impl CssThemeBridge {
     /// 转换颜色令牌
     fn convert_color_tokens(tokens: &mut DesignTokens, color: &ColorTheme) {
         // 设置主色调
-        tokens.set_color("primary", &color.primary.base().to_hex());
-        tokens.set_color("success", &color.success.base().to_hex());
-        tokens.set_color("warning", &color.warning.base().to_hex());
-        tokens.set_color("error", &color.error.base().to_hex());
-        tokens.set_color("info", &color.info.base().to_hex());
+        tokens.colors.primary = color.primary.base.to_hex();
+        tokens.colors.success = color.success.base.to_hex();
+        tokens.colors.warning = color.warning.base.to_hex();
+        tokens.colors.error = color.error.base.to_hex();
+        tokens.colors.info = color.info.base.to_hex();
 
         // 设置文本颜色
-        tokens.set_color("text-primary", &color.text.primary.to_hex());
-        tokens.set_color("text-secondary", &color.text.secondary.to_hex());
-        tokens.set_color("text-disabled", &color.text.disabled.to_hex());
-        tokens.set_color("text-inverse", &color.text.inverse.to_hex());
+        tokens.colors.text.primary = color.text.primary.to_hex();
+        tokens.colors.text.secondary = color.text.secondary.to_hex();
+        tokens.colors.text.disabled = color.text.disabled.to_hex();
+        tokens.colors.text.inverse = color.text.inverse.to_hex();
 
         // 设置背景颜色
-        tokens.set_color("bg-primary", &color.background.primary.to_hex());
-        tokens.set_color("bg-secondary", &color.background.secondary.to_hex());
-        tokens.set_color("bg-container", &color.background.container.to_hex());
-        tokens.set_color("bg-elevated", &color.background.elevated.to_hex());
-        tokens.set_color("bg-layout", &color.background.layout.to_hex());
+        tokens.colors.background.primary = color.background.primary.to_hex();
+        tokens.colors.background.secondary = color.background.secondary.to_hex();
+        tokens.colors.background.tertiary = color.background.container.to_hex();
+        tokens.colors.background.inverse = color.background.elevated.to_hex();
 
         // 设置边框颜色
-        tokens.set_color("border-base", &color.border.base.to_hex());
-        tokens.set_color("border-split", &color.border.split.to_hex());
-
-        // 设置填充颜色
-        tokens.set_color("fill-primary", &color.fill.primary.to_hex());
-        tokens.set_color("fill-secondary", &color.fill.secondary.to_hex());
-        tokens.set_color("fill-tertiary", &color.fill.tertiary.to_hex());
-        tokens.set_color("fill-quaternary", &color.fill.quaternary.to_hex());
+        tokens.colors.border.primary = color.border.base.to_hex();
+        tokens.colors.border.secondary = color.border.split.to_hex();
+        tokens.colors.border.inverse = color.border.base.to_hex();
     }
 
     /// 转换尺寸令牌
-    fn convert_size_tokens(tokens: &mut DesignTokens, size: &SizeConfig) {
+    fn convert_size_tokens(tokens: &mut DesignTokens, size: &SizeTheme) {
         // 设置边框圆角
-        tokens.set_size("border-radius-xs", &format!("{}px", size.border_radius.xs));
-        tokens.set_size("border-radius-sm", &format!("{}px", size.border_radius.sm));
-        tokens.set_size(
-            "border-radius-base",
-            &format!("{}px", size.border_radius.base),
-        );
-        tokens.set_size("border-radius-lg", &format!("{}px", size.border_radius.lg));
+        tokens.borders.radius.sm = format!("{}px", size.border_radius.xs);
+        tokens.borders.radius.md = format!("{}px", size.border_radius.sm);
+        tokens.borders.radius.lg = format!("{}px", size.border_radius.base);
+        tokens.borders.radius.xl = format!("{}px", size.border_radius.lg);
 
         // 设置间距
-        tokens.set_size("spacing-xs", &format!("{}px", size.spacing.xs));
-        tokens.set_size("spacing-sm", &format!("{}px", size.spacing.sm));
-        tokens.set_size("spacing-base", &format!("{}px", size.spacing.base));
-        tokens.set_size("spacing-lg", &format!("{}px", size.spacing.lg));
-        tokens.set_size("spacing-xl", &format!("{}px", size.spacing.xl));
+        tokens.spacing.xs = format!("{}px", size.spacing.xs);
+        tokens.spacing.sm = format!("{}px", size.spacing.sm);
+        tokens.spacing.md = format!("{}px", size.spacing.base);
+        tokens.spacing.lg = format!("{}px", size.spacing.lg);
+        tokens.spacing.xl = format!("{}px", size.spacing.xl);
     }
 
     /// 转换排版令牌
-    fn convert_typography_tokens(tokens: &mut DesignTokens, typography: &TypographyConfig) {
-        // 设置字体家族
-        tokens.set_font_family("base", &typography.font_family.base);
-        tokens.set_font_family("code", &typography.font_family.code);
+    fn convert_typography_tokens(tokens: &mut DesignTokens, size_theme: &SizeTheme) {
+        // 设置字体家族 - 使用默认值
+        tokens.typography.font_family.sans = "system-ui, -apple-system, sans-serif".to_string();
+        tokens.typography.font_family.mono = "ui-monospace, monospace".to_string();
 
         // 设置字体大小
-        tokens.set_size("font-size-xs", &format!("{}px", typography.font_size.xs));
-        tokens.set_size("font-size-sm", &format!("{}px", typography.font_size.sm));
-        tokens.set_size(
-            "font-size-base",
-            &format!("{}px", typography.font_size.base),
-        );
-        tokens.set_size("font-size-lg", &format!("{}px", typography.font_size.lg));
-        tokens.set_size("font-size-xl", &format!("{}px", typography.font_size.xl));
+        tokens.typography.font_size.xs = format!("{}px", size_theme.font_sizes.xs);
+        tokens.typography.font_size.sm = format!("{}px", size_theme.font_sizes.sm);
+        tokens.typography.font_size.md = format!("{}px", size_theme.font_sizes.base);
+        tokens.typography.font_size.lg = format!("{}px", size_theme.font_sizes.lg);
+        tokens.typography.font_size.xl = format!("{}px", size_theme.font_sizes.xl);
 
         // 设置行高
-        tokens.set_number("line-height-base", typography.line_height.base);
-        tokens.set_number("line-height-sm", typography.line_height.sm);
-        tokens.set_number("line-height-lg", typography.line_height.lg);
+        tokens.typography.line_height.normal = size_theme.line_heights.base.to_string();
+        tokens.typography.line_height.tight = size_theme.line_heights.sm.to_string();
+        tokens.typography.line_height.relaxed = size_theme.line_heights.heading.to_string();
     }
 
     /// 转换阴影令牌
-    fn convert_shadow_tokens(tokens: &mut DesignTokens, shadow: &ShadowConfig) {
-        tokens.set_shadow("box-shadow-sm", &shadow.box_shadow.sm);
-        tokens.set_shadow("box-shadow-base", &shadow.box_shadow.base);
-        tokens.set_shadow("box-shadow-lg", &shadow.box_shadow.lg);
+    fn convert_shadow_tokens(tokens: &mut DesignTokens, size_theme: &SizeTheme) {
+        tokens.shadows.sm = size_theme.shadows.sm.clone();
+        tokens.shadows.md = size_theme.shadows.base.clone();
+        tokens.shadows.lg = size_theme.shadows.lg.clone();
     }
 
     /// 生成 CSS 类名
@@ -168,7 +153,7 @@ impl CssThemeBridge {
 
     /// 创建主题提供者
     pub fn create_theme_provider(&self) -> ThemeProvider {
-        ThemeProvider::new(self.css_theme.clone())
+        ThemeProvider::new()
     }
 }
 

@@ -3,6 +3,7 @@
 //! 本模块定义了 Ant Design 设计系统的动画缓动函数和相关配置。
 //! 这些动画预设基于 Ant Design 的动效设计原则。
 
+use css_in_rust::animation::easing::EasingFunction;
 use serde::{Deserialize, Serialize};
 
 /// Ant Design 标准缓动函数
@@ -61,7 +62,14 @@ impl AntDesignEasing {
 
     /// 转换为 css-in-rust 的 EasingFunction
     pub fn to_easing_function(&self) -> EasingFunction {
-        EasingFunction::AntDesign(self.clone())
+        match self {
+            AntDesignEasing::Standard => EasingFunction::CubicBezier(0.34, 0.69, 0.1, 1.0),
+            AntDesignEasing::Emphasized => EasingFunction::CubicBezier(0.05, 0.7, 0.1, 1.0),
+            AntDesignEasing::Decelerated => EasingFunction::CubicBezier(0.0, 0.0, 0.2, 1.0),
+            AntDesignEasing::Accelerated => EasingFunction::CubicBezier(0.4, 0.0, 1.0, 1.0),
+            AntDesignEasing::Bounce => EasingFunction::CubicBezier(0.68, -0.55, 0.265, 1.55),
+            AntDesignEasing::Spring => EasingFunction::CubicBezier(0.175, 0.885, 0.32, 1.275),
+        }
     }
 
     /// 创建标准缓动
@@ -96,7 +104,7 @@ impl AntDesignEasing {
 }
 
 /// Ant Design 动画预设配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, PartialEq, Deserialize)]
 pub struct AntDesignAnimationConfig {
     /// 缓动函数
     pub easing: AntDesignEasing,

@@ -272,7 +272,7 @@ impl BorderColors {
 }
 
 /// 文本颜色配置
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TextColors {
     pub primary: String,
     pub secondary: String,
