@@ -123,7 +123,7 @@ pub fn Watermark(props: WatermarkProps) -> Element {
         width,
         height,
         rotate,
-        z_index,
+        z_index: _,
         font,
         gap,
         offset,

@@ -430,6 +430,7 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
             on_cancel: props.on_cancel.clone(),
             ok_text: props.ok_text.clone(),
             cancel_text: props.cancel_text.clone(),
+            z_index: 1000,
 
             div {
                 class: "ant-modal-confirm-body",
