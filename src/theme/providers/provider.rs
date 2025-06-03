@@ -62,7 +62,7 @@ pub struct ThemeProviderProps {
 /// ```
 #[component]
 pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
-    let initial_theme = props.initial_theme.unwrap_or_else(|| {
+    let initial_preset = props.initial_theme.unwrap_or_else(|| {
         if props.auto_theme {
             crate::theme::tokens::theme_presets::theme_utils::detect_system_theme()
         } else {
@@ -70,8 +70,10 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         }
     });
 
+    // let initial_theme = initial_preset.to_ant_design_theme();
+
     let theme_context = use_signal(|| ThemeContext {
-        current_theme: initial_theme,
+        current_theme: initial_preset,
         available_themes: AntDesignThemePresets::all_presets(),
         auto_theme: props.auto_theme,
         transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
