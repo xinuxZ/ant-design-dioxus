@@ -283,7 +283,7 @@ impl ColorPalette {
 }
 
 /// 颜色工具函数
-pub mod utils {
+pub mod color_utils {
     use super::*;
 
     /// 判断颜色是否为深色
@@ -317,7 +317,7 @@ pub mod utils {
 
 #[cfg(test)]
 mod tests {
-    use super::utils::*;
+    use super::color_utils::*;
     use super::*;
 
     #[test]

@@ -11,7 +11,7 @@
 
 use super::{
     animation_presets::AntDesignEasing,
-    color_presets::{AntDesignColors, BorderColors, TextColors},
+    color_presets::{BorderColors, ColorsPresets, TextColors},
 };
 use css_in_rust::theme::{DesignTokens, ThemeVariant};
 use serde::{Deserialize, Serialize};
@@ -259,7 +259,7 @@ impl ThemePreset {
         ));
 
         // 颜色调色板
-        let colors = AntDesignColors::all_colors();
+        let colors = ColorsPresets::all_colors();
         for (name, scale) in colors {
             css.push_str(&scale.to_css_variables(&format!("color-{}", name)));
         }

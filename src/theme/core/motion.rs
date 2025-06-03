@@ -329,7 +329,7 @@ impl AnimationConfig {
 }
 
 /// 预定义的动画配置
-pub mod presets {
+pub mod motion_presets {
     use super::*;
 
     /// 快速淡入
@@ -424,7 +424,7 @@ pub mod presets {
 }
 
 /// 动画工具函数
-pub mod utils {
+pub mod montion_utils {
     use super::*;
 
     /// 生成关键帧动画的 CSS
@@ -471,7 +471,7 @@ pub mod utils {
 
 #[cfg(test)]
 mod tests {
-    use super::utils::*;
+    use super::montion_utils::*;
     use super::*;
 
     #[test]

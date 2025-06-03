@@ -162,9 +162,9 @@ pub fn use_theme_context() -> Signal<ThemeContext> {
 ///     }
 /// }
 /// ```
-pub fn use_theme_colors() -> crate::theme::tokens::color_presets::AntDesignColors {
+pub fn use_theme_colors() -> crate::theme::tokens::color_presets::ColorsPresets {
     // 返回AntDesignColors实例，调用者可以使用其静态方法获取颜色
-    crate::theme::tokens::color_presets::AntDesignColors
+    crate::theme::tokens::color_presets::ColorsPresets
 }
 
 /// 使用主题动画配置的 Hook

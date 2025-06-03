@@ -76,9 +76,9 @@ impl ColorScale {
 }
 
 /// Ant Design 颜色预设
-pub struct AntDesignColors;
+pub struct ColorsPresets;
 
-impl AntDesignColors {
+impl ColorsPresets {
     /// 蓝色色阶（主色）
     pub fn blue() -> ColorScale {
         ColorScale {

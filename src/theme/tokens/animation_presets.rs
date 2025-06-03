@@ -189,7 +189,7 @@ impl AntDesignAnimationFactory {
 
 /// 常用动画预设
 /// 提供开箱即用的动画配置，符合 Ant Design 设计规范
-pub mod presets {
+pub mod animation_presets {
     use super::*;
 
     /// 淡入动画
