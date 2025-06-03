@@ -7,7 +7,7 @@
 //! - 尺寸规范
 //! - 动画效果
 use crate::theme::core::{
-    config::{DesignTokens, ThemeConfig},
+    config::{DesignTokens, ThemeConfigInterface},
     motion::{AnimationConfig, Duration},
     types::{Size, SpaceSize},
     ColorType, Easing, RgbColor,
@@ -35,7 +35,7 @@ pub use typography::AntDesignTypography;
 /// - 实现复杂的CSS生成和样式计算
 /// - 管理typography、spacing、sizing、animations等子系统
 /// - 提供高级的主题操作API
-/// - 实现DesignTokens和ThemeConfig traits
+/// - 实现DesignTokens和 ThemeConfigInterface traits
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AntDesignThemeEngine {
     /// 主题名称
@@ -163,7 +163,7 @@ impl DesignTokens for AntDesignThemeEngine {
     }
 }
 
-impl ThemeConfig for AntDesignThemeEngine {
+impl ThemeConfigInterface for AntDesignThemeEngine {
     fn name(&self) -> &str {
         &self.name
     }
@@ -410,7 +410,7 @@ mod tests {
     fn test_theme_config_trait() {
         let theme = AntDesignThemeEngine::light();
 
-        // 测试 ThemeConfig trait 方法
+        // 测试 ThemeConfigInterface trait 方法
         let variables: HashMap<String, String> = theme.generate_css_variables();
         assert!(!variables.is_empty());
 

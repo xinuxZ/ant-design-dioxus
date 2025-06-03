@@ -293,11 +293,11 @@ impl ThemeConfig {
         Self {
             theme: Theme::Light,
             colors: ColorTheme {
-                primary: ColorPalette::generate(color::presets::BLUE, 10),
-                success: ColorPalette::generate(color::presets::GREEN, 10),
-                warning: ColorPalette::generate(color::presets::ORANGE, 10),
-                error: ColorPalette::generate(color::presets::RED, 10),
-                info: ColorPalette::generate(color::presets::BLUE, 10),
+                primary: ColorPalette::generate(colors::presets::BLUE, 10),
+                success: ColorPalette::generate(colors::presets::GREEN, 10),
+                warning: ColorPalette::generate(colors::presets::ORANGE, 10),
+                error: ColorPalette::generate(colors::presets::RED, 10),
+                info: ColorPalette::generate(colors::presets::BLUE, 10),
                 text: TextColors {
                     primary: RgbColor::new(0, 0, 0),
                     secondary: RgbColor::new(102, 102, 102),
@@ -929,7 +929,7 @@ mod tests {
     fn test_get_color() {
         let theme = ThemeConfig::light();
         let primary = theme.get_color(ColorType::Primary);
-        assert_eq!(primary.base, color::presets::BLUE);
+        assert_eq!(primary.base, colors::presets::BLUE);
     }
 
     #[test]

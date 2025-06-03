@@ -35,7 +35,7 @@ pub trait DesignTokens {
 /// 主题配置 trait
 ///
 /// 定义主题配置的基础接口
-pub trait ThemeConfig: DesignTokens {
+pub trait ThemeConfigInterface: DesignTokens {
     /// 获取主题名称
     fn name(&self) -> &str;
 
@@ -82,7 +82,7 @@ pub trait CssGenerator {
 ///
 /// 定义主题提供者的接口
 pub trait ThemeProvider {
-    type Theme: ThemeConfig;
+    type Theme: ThemeConfigInterface;
 
     /// 获取当前主题
     fn current_theme(&self) -> &Self::Theme;
@@ -159,13 +159,14 @@ pub trait ThemeChangeListener {
 /// 主题验证器 trait
 pub trait ThemeValidator {
     /// 验证主题配置
-    fn validate_theme<T: ThemeConfig>(&self, theme: &T) -> Result<(), Vec<String>>;
+    fn validate_theme<T: ThemeConfigInterface>(&self, theme: &T) -> Result<(), Vec<String>>;
 
     /// 验证颜色对比度
     fn validate_color_contrast(&self, foreground: &RgbColor, background: &RgbColor) -> bool;
 
     /// 验证可访问性
-    fn validate_accessibility<T: ThemeConfig>(&self, theme: &T) -> Result<(), Vec<String>>;
+    fn validate_accessibility<T: ThemeConfigInterface>(&self, theme: &T)
+        -> Result<(), Vec<String>>;
 }
 
 #[cfg(test)]
