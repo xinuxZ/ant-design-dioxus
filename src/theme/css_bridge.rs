@@ -109,11 +109,27 @@ impl CssThemeBridge {
 
             /* 暗色主题变量覆盖 */
             [data-theme="dark"] {{
+                /* 主色调保持不变，使用亮色主题的颜色 */
+                --ant-primary-color: #1890ff;
+                --ant-primary-color-hover: #40a9ff;
+                --ant-primary-color-active: #096dd9;
+
+                /* 功能色保持不变，使用亮色主题的颜色 */
+                --ant-success-color: #52c41a;
+                --ant-warning-color: #faad14;
+                --ant-error-color: #ff4d4f;
+                --ant-info-color: #1890ff;
+
+                /* 文本颜色 - 暗色主题专用 */
                 --ant-text-color: #ffffff;
                 --ant-text-color-secondary: rgba(255, 255, 255, 0.65);
                 --ant-text-color-disabled: rgba(255, 255, 255, 0.25);
+
+                /* 背景颜色 - 暗色主题专用 */
                 --ant-bg-color: #141414;
                 --ant-bg-color-container: #1f1f1f;
+
+                /* 边框颜色 - 暗色主题专用 */
                 --ant-border-color: #424242;
             }}
 

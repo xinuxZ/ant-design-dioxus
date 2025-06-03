@@ -98,17 +98,13 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                             if !disabled {
                                 let new_theme = if is_dark { Theme::Light } else { Theme::Dark };
 
-                                // 更新主题上下文
+                                // 更新主题上下文（ThemeProvider 会自动处理样式注入）
                                 theme_context.write().current_theme = match new_theme {
                                     Theme::Light => AntDesignTheme::light(),
                                     Theme::Dark => AntDesignTheme::dark(),
                                     Theme::Compact => AntDesignTheme::compact(),
                                     Theme::Custom => AntDesignTheme::light(),
                                 };
-
-                                // 重新注入 CSS 变量
-                                let css_vars = theme_context.read().current_theme.to_css_variables();
-                                inject_theme_variables(&css_vars);
 
                                 // 触发回调
                                 if let Some(callback) = &on_change {
@@ -162,7 +158,8 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                                 // 更新主题上下文
                                 theme_context.write().current_theme = AntDesignTheme::light();
                                 let css_vars = theme_context.read().current_theme.to_css_variables();
-                                inject_theme_variables(&css_vars);
+                                let theme_name = theme_to_string(Theme::Light);
+                                inject_theme_variables(&css_vars, &theme_name);
                                 if let Some(callback) = &on_change {
                                     callback.call(Theme::Light);
                                 }
@@ -178,7 +175,8 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                                 // 更新主题上下文
                                 theme_context.write().current_theme = AntDesignTheme::dark();
                                 let css_vars = theme_context.read().current_theme.to_css_variables();
-                                inject_theme_variables(&css_vars);
+                                let theme_name = theme_to_string(Theme::Dark);
+                                inject_theme_variables(&css_vars, &theme_name);
                                 if let Some(callback) = &on_change {
                                     callback.call(Theme::Dark);
                                 }
@@ -220,7 +218,8 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                                     Theme::Custom => AntDesignTheme::light(),
                                 };
                                 let css_vars = theme_context.read().current_theme.to_css_variables();
-                                inject_theme_variables(&css_vars);
+                                let theme_name = theme_to_string(new_theme);
+                                inject_theme_variables(&css_vars, &theme_name);
                                 if let Some(callback) = &on_change {
                                     callback.call(new_theme);
                                 }
@@ -271,7 +270,7 @@ fn string_to_theme(s: &str) -> Result<Theme, ()> {
 }
 
 /// 注入主题变量到 DOM
-fn inject_theme_variables(css_vars: &str) {
+fn inject_theme_variables(css_vars: &str, theme_name: &str) {
     use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen]
@@ -284,6 +283,9 @@ fn inject_theme_variables(css_vars: &str) {
 
         #[wasm_bindgen(js_namespace = document, js_name = head)]
         static HEAD: web_sys::Element;
+
+        #[wasm_bindgen(js_namespace = document, js_name = documentElement)]
+        static DOCUMENT_ELEMENT: web_sys::Element;
     }
 
     // 移除旧的样式
@@ -298,6 +300,11 @@ fn inject_theme_variables(css_vars: &str) {
 
     // 添加到 head
     HEAD.append_child(&style_element).ok();
+
+    // 更新根元素的 data-theme 属性
+    DOCUMENT_ELEMENT
+        .set_attribute("data-theme", theme_name)
+        .ok();
 }
 
 // 样式生成函数
