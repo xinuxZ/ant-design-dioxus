@@ -7,7 +7,7 @@
 use dioxus::prelude::*;
 
 use super::context::{ThemeContext, UseTheme};
-use crate::theme::tokens::theme_presets::AntDesignTheme;
+use crate::theme::tokens::theme_presets::ThemePreset;
 use css_in_rust::theme::ThemeVariant;
 
 /// 使用主题的 Hook
@@ -77,20 +77,20 @@ pub fn use_theme() -> UseTheme {
 ///         }
 ///         button {
 ///             onclick: move |_| {
-///                 set_theme(AntDesignTheme::dark());
+///                 set_theme(ThemePreset::dark());
 ///             },
 ///             "Switch to Dark Theme"
 ///         }
 ///     }
 /// }
 /// ```
-pub fn use_theme_simple() -> (AntDesignTheme, impl FnMut(AntDesignTheme) + Clone) {
+pub fn use_theme_simple() -> (ThemePreset, impl FnMut(ThemePreset) + Clone) {
     let mut context = use_context::<Signal<ThemeContext>>();
 
     let theme = context.read().current_theme.clone();
 
     let set_theme = {
-        move |new_theme: AntDesignTheme| {
+        move |new_theme: ThemePreset| {
             context.with_mut(|ctx| {
                 ctx.current_theme = new_theme;
             });
@@ -352,9 +352,9 @@ pub fn use_theme_toggle() -> impl FnMut() + Clone {
 
     move || {
         let new_theme = match theme.variant {
-            ThemeVariant::Light => AntDesignTheme::dark(),
-            ThemeVariant::Dark => AntDesignTheme::light(),
-            _ => AntDesignTheme::light(),
+            ThemeVariant::Light => ThemePreset::dark(),
+            ThemeVariant::Dark => ThemePreset::light(),
+            _ => ThemePreset::light(),
         };
         set_theme(new_theme);
     }

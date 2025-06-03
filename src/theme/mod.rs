@@ -25,18 +25,10 @@ pub use providers::*;
 pub use css_bridge::*;
 pub use tokens::*;
 
-// 为了向后兼容，重新导出 hooks 模块的内容
-pub use providers::hooks;
-pub use providers::hooks::*;
-
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
-
-use crate::theme::core::color::{ColorType, RgbColor};
-use crate::theme::core::motion::Duration;
-use crate::theme::core::types::Size;
 
 /// 主题类型枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

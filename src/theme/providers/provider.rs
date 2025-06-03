@@ -5,13 +5,11 @@
 
 use dioxus::prelude::*;
 
-use super::context::{
-    ThemeColors, ThemeContext, UseResponsiveTheme, UseTheme, UseThemePersistence,
-};
+use super::context::{ThemeColors, ThemeContext, UseResponsiveTheme, UseThemePersistence};
 use super::use_theme;
-use crate::theme::tokens::{
+use crate::theme::{
     animation_presets::{AntDesignAnimationConfig, AntDesignEasing},
-    theme_presets::{AntDesignTheme, AntDesignThemePresets},
+    theme_presets::{ThemePreset, ThemePresetFactory},
 };
 use css_in_rust::theme::DesignTokens;
 
@@ -25,7 +23,7 @@ pub struct ThemeProviderProps {
     children: Element,
     /// 初始主题（可选）
     #[props(default)]
-    initial_theme: Option<AntDesignTheme>,
+    initial_theme: Option<ThemePreset>,
     /// 是否启用自动主题切换（可选）
     #[props(default = false)]
     auto_theme: bool,
@@ -43,13 +41,13 @@ pub struct ThemeProviderProps {
 ///
 /// ```rust
 /// use dioxus::prelude::*;
-/// use ant_design_dioxus::theme::{ThemeProvider, AntDesignTheme};
+/// use ant_design_dioxus::theme::{ThemeProvider, ThemePreset};
 ///
 /// #[component]
 /// fn App() -> Element {
 ///     rsx! {
 ///         ThemeProvider {
-///             initial_theme: AntDesignTheme::dark(),
+///             initial_theme: ThemePreset::dark(),
 ///             auto_theme: true,
 ///             transition_duration: 200,
 ///
@@ -66,7 +64,7 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         if props.auto_theme {
             crate::theme::tokens::theme_presets::theme_utils::detect_system_theme()
         } else {
-            AntDesignTheme::light()
+            ThemePreset::light()
         }
     });
 
@@ -74,7 +72,7 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 
     let theme_context = use_signal(|| ThemeContext {
         current_theme: initial_preset,
-        available_themes: AntDesignThemePresets::all_presets(),
+        available_themes: ThemePresetFactory::all_presets(),
         auto_theme: props.auto_theme,
         transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
             .with_duration(props.transition_duration as u64)

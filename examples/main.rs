@@ -40,7 +40,7 @@ fn App() -> Element {
     rsx! {
         // 主题提供者包装整个应用
         ThemeProvider {
-             initial_theme: ant_design_dioxus::theme::theme_presets::AntDesignTheme::dark(),
+             initial_theme: ant_design_dioxus::theme::ThemePreset::dark(),
              auto_theme: true,
              transition_duration: 200,
 

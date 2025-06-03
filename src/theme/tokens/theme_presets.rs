@@ -2,6 +2,12 @@
 //!
 //! 本模块定义了 Ant Design 的完整主题配置，包括浅色和深色主题。
 //! 这些预设基于 Ant Design 5.x 的官方主题规范。
+//!
+//! 职责：
+//! 1. 提供预设的主题配置（light、dark、compact）
+//! 2. 包含具体的颜色值和配置
+//! 3. 提供 `to_css_variables()` 和 `design_tokens()` 方法
+//! 4. 更像是一个"主题数据"层，存储具体的主题值
 
 use super::{
     animation_presets::AntDesignEasing,
@@ -11,9 +17,14 @@ use css_in_rust::theme::{DesignTokens, ThemeVariant};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Ant Design 主题配置
+/// 主题预设数据结构
+///
+/// 职责：纯数据层，存储主题配置的原始值
+/// - 提供基础的主题预设（light、dark、compact）
+/// - 支持简单的颜色定制
+/// - 提供到css-in-rust DesignTokens的转换
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct AntDesignTheme {
+pub struct ThemePreset {
     /// 主题名称
     pub name: String,
     /// 主题变体（浅色/深色）
@@ -81,7 +92,17 @@ impl BackgroundColors {
     }
 }
 
-impl AntDesignTheme {
+impl ThemePreset {
+    /// 获取主题名称
+    pub fn get_theme_name(&self) -> &str {
+        &self.name
+    }
+
+    /// 是否为深色主题
+    pub fn is_dark_theme(&self) -> bool {
+        matches!(self.variant, ThemeVariant::Dark)
+    }
+
     /// 获取主色调
     pub fn primary_color(&self) -> String {
         self.primary_color.clone()
@@ -275,44 +296,95 @@ impl AntDesignTheme {
         self.info_color = color.to_string();
         self
     }
+
+    /// 转换为主题引擎实例
+    /// 将纯数据层的主题预设转换为可执行的主题引擎
+    pub fn to_theme_engine(&self) -> crate::theme::ant_design::AntDesignThemeEngine {
+        use crate::theme::ant_design::*;
+
+        // 根据主题变体创建对应的主题引擎
+        let mut engine = match self.variant {
+            css_in_rust::theme::ThemeVariant::Dark => AntDesignThemeEngine::dark(),
+            _ => AntDesignThemeEngine::light(),
+        };
+
+        // 更新主题名称
+        engine.name = self.name.clone();
+
+        // 如果是紧凑主题，设置compact标志
+        if self.name.contains("Compact") {
+            engine.compact = true;
+        }
+
+        engine
+    }
+
+    /// 从主题引擎实例创建主题预设
+    /// 将主题引擎转换回纯数据层的主题预设
+    pub fn from_theme_engine(engine: &crate::theme::ant_design::AntDesignThemeEngine) -> Self {
+        let variant = if engine.dark {
+            css_in_rust::theme::ThemeVariant::Dark
+        } else {
+            css_in_rust::theme::ThemeVariant::Light
+        };
+
+        Self {
+            name: engine.name.clone(),
+            variant,
+            primary_color: "#1890ff".to_string(),
+            success_color: "#52c41a".to_string(),
+            warning_color: "#faad14".to_string(),
+            error_color: "#ff4d4f".to_string(),
+            info_color: "#1890ff".to_string(),
+            text_colors: TextColors::default(),
+            border_colors: BorderColors::default(),
+            background_colors: BackgroundColors::default(),
+            default_easing: AntDesignEasing::Standard,
+        }
+    }
 }
 
-/// Ant Design 主题预设工厂
-pub struct AntDesignThemePresets;
+/// 主题预设工厂
+///
+/// 职责：提供预设主题数据的工厂方法
+/// - 创建标准主题预设（light、dark、compact）
+/// - 支持基于预设的简单定制
+/// - 返回纯数据结构，无复杂业务逻辑
+pub struct ThemePresetFactory;
 
-impl AntDesignThemePresets {
+impl ThemePresetFactory {
     /// 获取所有预设主题
-    pub fn all_presets() -> HashMap<String, AntDesignTheme> {
+    pub fn all_presets() -> HashMap<String, ThemePreset> {
         let mut presets = HashMap::new();
-        presets.insert("light".to_string(), AntDesignTheme::light());
-        presets.insert("dark".to_string(), AntDesignTheme::dark());
-        presets.insert("compact".to_string(), AntDesignTheme::compact());
+        presets.insert("light".to_string(), ThemePreset::light());
+        presets.insert("dark".to_string(), ThemePreset::dark());
+        presets.insert("compact".to_string(), ThemePreset::compact());
         presets
     }
 
     /// 获取默认主题（浅色）
-    pub fn default() -> AntDesignTheme {
-        AntDesignTheme::light()
+    pub fn default() -> ThemePreset {
+        ThemePreset::light()
     }
 
     /// 根据名称获取预设主题
-    pub fn get_preset(name: &str) -> Option<AntDesignTheme> {
+    pub fn get_preset(name: &str) -> Option<ThemePreset> {
         match name {
-            "light" => Some(AntDesignTheme::light()),
-            "dark" => Some(AntDesignTheme::dark()),
-            "compact" => Some(AntDesignTheme::compact()),
+            "light" => Some(ThemePreset::light()),
+            "dark" => Some(ThemePreset::dark()),
+            "compact" => Some(ThemePreset::compact()),
             _ => None,
         }
     }
 
     /// 创建自定义主题（基于浅色主题）
-    pub fn custom_light(name: &str, primary_color: &str) -> AntDesignTheme {
-        AntDesignTheme::light().with_primary_color(primary_color)
+    pub fn custom_light(name: &str, primary_color: &str) -> ThemePreset {
+        ThemePreset::light().with_primary_color(primary_color)
     }
 
     /// 创建自定义主题（基于深色主题）
-    pub fn custom_dark(name: &str, primary_color: &str) -> AntDesignTheme {
-        AntDesignTheme::dark().with_primary_color(primary_color)
+    pub fn custom_dark(name: &str, primary_color: &str) -> ThemePreset {
+        ThemePreset::dark().with_primary_color(primary_color)
     }
 }
 
@@ -321,14 +393,14 @@ pub mod theme_utils {
     use super::*;
 
     /// 检测系统主题偏好
-    pub fn detect_system_theme() -> AntDesignTheme {
+    pub fn detect_system_theme() -> ThemePreset {
         // 在实际应用中，这里应该检测系统的主题偏好
         // 目前返回默认的浅色主题
-        AntDesignTheme::light()
+        ThemePreset::light()
     }
 
     /// 根据时间自动选择主题
-    pub fn auto_theme_by_time() -> AntDesignTheme {
+    pub fn auto_theme_by_time() -> ThemePreset {
         // 简单的时间判断逻辑：6-18点使用浅色主题，其他时间使用深色主题
         let hour = chrono::Local::now()
             .format("%H")
@@ -336,14 +408,14 @@ pub mod theme_utils {
             .parse::<u32>()
             .unwrap_or(12);
         if hour >= 6 && hour < 18 {
-            AntDesignTheme::light()
+            ThemePreset::light()
         } else {
-            AntDesignTheme::dark()
+            ThemePreset::dark()
         }
     }
 
     /// 主题对比度检查
-    pub fn check_contrast_ratio(theme: &AntDesignTheme) -> f32 {
+    pub fn check_contrast_ratio(theme: &ThemePreset) -> f32 {
         // 简化的对比度计算，实际应用中需要更复杂的算法
         match theme.variant {
             ThemeVariant::Light => 4.5, // WCAG AA 标准

@@ -3,7 +3,7 @@
 //! 提供主题切换功能的用户界面组件，支持在不同主题间切换。
 //! 符合 Ant Design 的设计规范，提供优雅的主题切换体验。
 
-use crate::theme::{tokens::theme_presets::AntDesignTheme, Theme, ThemeContext};
+use crate::theme::{tokens::theme_presets::ThemePreset, Theme, ThemeContext};
 use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -100,10 +100,10 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
 
                                 // 更新主题上下文（ThemeProvider 会自动处理样式注入）
                                 theme_context.write().current_theme = match new_theme {
-                                    Theme::Light => AntDesignTheme::light(),
-                                    Theme::Dark => AntDesignTheme::dark(),
-                                    Theme::Compact => AntDesignTheme::compact(),
-                                    Theme::Custom => AntDesignTheme::light(),
+                                    Theme::Light => ThemePreset::light(),
+                                    Theme::Dark => ThemePreset::dark(),
+                                    Theme::Compact => ThemePreset::compact(),
+                                    Theme::Custom => ThemePreset::light(),
                                 };
 
                                 // 触发回调
@@ -156,7 +156,7 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                             disabled: disabled,
                             onclick: move |_| {
                                 // 更新主题上下文
-                                theme_context.write().current_theme = AntDesignTheme::light();
+                                theme_context.write().current_theme = ThemePreset::light();
                                 let css_vars = theme_context.read().current_theme.to_css_variables();
                                 let theme_name = theme_to_string(Theme::Light);
                                 inject_theme_variables(&css_vars, &theme_name);
@@ -173,7 +173,7 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                             disabled: disabled,
                             onclick: move |_| {
                                 // 更新主题上下文
-                                theme_context.write().current_theme = AntDesignTheme::dark();
+                                theme_context.write().current_theme = ThemePreset::dark();
                                 let css_vars = theme_context.read().current_theme.to_css_variables();
                                 let theme_name = theme_to_string(Theme::Dark);
                                 inject_theme_variables(&css_vars, &theme_name);
@@ -212,10 +212,10 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                             if let Ok(new_theme) = string_to_theme(&evt.value()) {
                                 // 更新主题上下文
                                 theme_context.write().current_theme = match new_theme {
-                                    Theme::Light => AntDesignTheme::light(),
-                                    Theme::Dark => AntDesignTheme::dark(),
-                                    Theme::Compact => AntDesignTheme::compact(),
-                                    Theme::Custom => AntDesignTheme::light(),
+                                    Theme::Light => ThemePreset::light(),
+                                    Theme::Dark => ThemePreset::dark(),
+                                    Theme::Compact => ThemePreset::compact(),
+                                    Theme::Custom => ThemePreset::light(),
                                 };
                                 let css_vars = theme_context.read().current_theme.to_css_variables();
                                 let theme_name = theme_to_string(new_theme);
@@ -239,7 +239,7 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
 // 辅助函数
 
 /// 获取主题类型
-fn get_theme_type(theme: &AntDesignTheme) -> Theme {
+fn get_theme_type(theme: &ThemePreset) -> Theme {
     // 根据主题的变体判断类型
     match theme.variant {
         css_in_rust::theme::ThemeVariant::Dark => Theme::Dark,

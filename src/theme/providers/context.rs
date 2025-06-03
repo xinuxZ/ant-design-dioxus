@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 use crate::theme::tokens::{
     animation_presets::{AntDesignAnimationConfig, AntDesignEasing},
-    theme_presets::{AntDesignTheme, AntDesignThemePresets},
+    theme_presets::{ThemePreset, ThemePresetFactory},
 };
 use css_in_rust::theme::{DesignTokens, ThemeVariant};
 
@@ -16,9 +16,9 @@ use css_in_rust::theme::{DesignTokens, ThemeVariant};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ThemeContext {
     /// 当前主题
-    pub current_theme: AntDesignTheme,
+    pub current_theme: ThemePreset,
     /// 可用的主题列表
-    pub available_themes: HashMap<String, AntDesignTheme>,
+    pub available_themes: HashMap<String, ThemePreset>,
     /// 是否启用自动主题切换
     pub auto_theme: bool,
     /// 主题切换动画配置
@@ -28,8 +28,8 @@ pub struct ThemeContext {
 impl Default for ThemeContext {
     fn default() -> Self {
         Self {
-            current_theme: AntDesignTheme::light(),
-            available_themes: AntDesignThemePresets::all_presets(),
+            current_theme: ThemePreset::light(),
+            available_themes: ThemePresetFactory::all_presets(),
             auto_theme: false,
             transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
                 .with_duration(300)
@@ -50,7 +50,7 @@ impl UseTheme {
     }
 
     /// 获取当前主题
-    pub fn current_theme(&self) -> AntDesignTheme {
+    pub fn current_theme(&self) -> ThemePreset {
         self.context.read().current_theme.clone()
     }
 
@@ -63,7 +63,7 @@ impl UseTheme {
     }
 
     /// 切换到自定义主题
-    pub fn set_custom_theme(&mut self, theme: AntDesignTheme) {
+    pub fn set_custom_theme(&mut self, theme: ThemePreset) {
         let mut context = self.context.write();
         context.current_theme = theme;
     }
@@ -141,7 +141,7 @@ impl UseTheme {
     }
 
     /// 添加自定义主题到可用主题列表
-    pub fn add_theme(&mut self, name: String, theme: AntDesignTheme) {
+    pub fn add_theme(&mut self, name: String, theme: ThemePreset) {
         let mut context = self.context.write();
         context.available_themes.insert(name, theme);
     }
@@ -191,14 +191,14 @@ impl UseResponsiveTheme {
     }
 
     /// 根据屏幕尺寸获取适配的主题
-    pub fn theme_for_breakpoint(&self, breakpoint: &str) -> AntDesignTheme {
+    pub fn theme_for_breakpoint(&self, breakpoint: &str) -> ThemePreset {
         let mut theme = self.theme.current_theme();
 
         // 根据断点调整主题（示例逻辑）
         match breakpoint {
             "xs" | "sm" => {
                 // 小屏幕使用紧凑主题
-                theme = AntDesignTheme::compact();
+                theme = ThemePreset::compact();
             }
             "md" | "lg" | "xl" => {
                 // 大屏幕使用标准主题
