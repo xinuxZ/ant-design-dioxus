@@ -3,6 +3,7 @@
 //! 本模块定义了 Ant Design 设计系统的动画缓动函数和相关配置。
 //! 这些动画预设基于 Ant Design 的动效设计原则。
 
+use crate::theme::core::motion::{AnimationConfig, Duration, Easing, TransitionType};
 use css_in_rust::animation::easing::EasingFunction;
 use serde::{Deserialize, Serialize};
 
@@ -72,6 +73,23 @@ impl AntDesignEasing {
         }
     }
 
+    /// 转换为通用的 Easing 枚举
+    pub fn to_easing(&self) -> Easing {
+        match self {
+            AntDesignEasing::Standard => Easing::CubicBezier(0.34, 0.69, 0.1, 1.0),
+            AntDesignEasing::Emphasized => Easing::CubicBezier(0.05, 0.7, 0.1, 1.0),
+            AntDesignEasing::Decelerated => Easing::CubicBezier(0.0, 0.0, 0.2, 1.0),
+            AntDesignEasing::Accelerated => Easing::CubicBezier(0.4, 0.0, 1.0, 1.0),
+            AntDesignEasing::Bounce => Easing::CubicBezier(0.68, -0.55, 0.265, 1.55),
+            AntDesignEasing::Spring => Easing::CubicBezier(0.175, 0.885, 0.32, 1.275),
+        }
+    }
+
+    /// 转换为通用的 Duration
+    pub fn to_duration(&self) -> Duration {
+        Duration::Custom(self.suggested_duration_ms() as u32)
+    }
+
     /// 创建标准缓动
     pub fn standard() -> Self {
         AntDesignEasing::Standard
@@ -103,134 +121,120 @@ impl AntDesignEasing {
     }
 }
 
-/// Ant Design 动画预设配置
-#[derive(Debug, Clone, Serialize, PartialEq, Deserialize)]
-pub struct AntDesignAnimationConfig {
-    /// 缓动函数
-    pub easing: AntDesignEasing,
-    /// 持续时间（毫秒）
-    pub duration_ms: u64,
-    /// 延迟时间（毫秒）
-    pub delay_ms: u64,
-}
+/// Ant Design 动画配置构建器
+/// 提供便捷的方法创建基于 Ant Design 设计规范的动画配置
+pub struct AntDesignAnimationBuilder;
 
-impl AntDesignAnimationConfig {
-    /// 创建新的动画配置
-    pub fn new(easing: AntDesignEasing) -> Self {
-        let duration_ms = easing.suggested_duration_ms();
-        Self {
-            easing,
-            duration_ms,
-            delay_ms: 0,
-        }
+impl AntDesignAnimationBuilder {
+    /// 基于 Ant Design 缓动创建动画配置
+    pub fn from_easing(easing: AntDesignEasing) -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Fade)
+            .easing(easing.to_easing())
+            .duration(easing.to_duration())
     }
 
-    /// 设置持续时间
-    pub fn with_duration(mut self, duration_ms: u64) -> Self {
-        self.duration_ms = duration_ms;
-        self
+    /// 创建带有指定过渡类型的动画配置
+    pub fn with_transition(
+        easing: AntDesignEasing,
+        transition_type: TransitionType,
+    ) -> AnimationConfig {
+        AnimationConfig::new(transition_type)
+            .easing(easing.to_easing())
+            .duration(easing.to_duration())
     }
 
-    /// 设置延迟时间
-    pub fn with_delay(mut self, delay_ms: u64) -> Self {
-        self.delay_ms = delay_ms;
-        self
-    }
-
-    /// 转换为 CSS 动画属性
-    pub fn to_css_animation(&self, name: &str) -> String {
-        format!(
-            "animation: {} {}ms {} {}ms",
-            name,
-            self.duration_ms,
-            self.easing.to_css(),
-            self.delay_ms
-        )
-    }
-
-    /// 转换为 CSS 过渡属性
-    pub fn to_css_transition(&self, property: &str) -> String {
-        format!(
-            "transition: {} {}ms {} {}ms",
-            property,
-            self.duration_ms,
-            self.easing.to_css(),
-            self.delay_ms
-        )
+    /// 创建自定义持续时间的动画配置
+    pub fn with_custom_duration(easing: AntDesignEasing, duration_ms: u32) -> AnimationConfig {
+        AnimationConfig::new(TransitionType::Fade)
+            .easing(easing.to_easing())
+            .duration(Duration::Custom(duration_ms))
     }
 }
 
 /// Ant Design 动画预设工厂
+/// 提供符合 Ant Design 设计规范的预设动画配置
 pub struct AntDesignAnimationFactory;
 
 impl AntDesignAnimationFactory {
     /// 创建标准动画配置
-    pub fn standard() -> AntDesignAnimationConfig {
-        AntDesignAnimationConfig::new(AntDesignEasing::Standard)
+    pub fn standard() -> AnimationConfig {
+        AntDesignAnimationBuilder::from_easing(AntDesignEasing::Standard)
     }
 
     /// 创建强调动画配置
-    pub fn emphasized() -> AntDesignAnimationConfig {
-        AntDesignAnimationConfig::new(AntDesignEasing::Emphasized)
+    pub fn emphasized() -> AnimationConfig {
+        AntDesignAnimationBuilder::from_easing(AntDesignEasing::Emphasized)
     }
 
     /// 创建进入动画配置
-    pub fn enter() -> AntDesignAnimationConfig {
-        AntDesignAnimationConfig::new(AntDesignEasing::Decelerated)
+    pub fn enter() -> AnimationConfig {
+        AntDesignAnimationBuilder::from_easing(AntDesignEasing::Decelerated)
     }
 
     /// 创建退出动画配置
-    pub fn exit() -> AntDesignAnimationConfig {
-        AntDesignAnimationConfig::new(AntDesignEasing::Accelerated)
+    pub fn exit() -> AnimationConfig {
+        AntDesignAnimationBuilder::from_easing(AntDesignEasing::Accelerated)
     }
 
     /// 创建反馈动画配置
-    pub fn feedback() -> AntDesignAnimationConfig {
-        AntDesignAnimationConfig::new(AntDesignEasing::Bounce)
+    pub fn feedback() -> AnimationConfig {
+        AntDesignAnimationBuilder::from_easing(AntDesignEasing::Bounce)
     }
 
     /// 创建交互动画配置
-    pub fn interaction() -> AntDesignAnimationConfig {
-        AntDesignAnimationConfig::new(AntDesignEasing::Spring)
+    pub fn interaction() -> AnimationConfig {
+        AntDesignAnimationBuilder::from_easing(AntDesignEasing::Spring)
     }
 }
 
 /// 常用动画预设
+/// 提供开箱即用的动画配置，符合 Ant Design 设计规范
 pub mod presets {
     use super::*;
 
     /// 淡入动画
-    pub fn fade_in() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::enter().with_duration(150)
+    pub fn fade_in() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_custom_duration(AntDesignEasing::Decelerated, 150)
     }
 
     /// 淡出动画
-    pub fn fade_out() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::exit().with_duration(100)
+    pub fn fade_out() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_custom_duration(AntDesignEasing::Accelerated, 100)
     }
 
     /// 滑入动画
-    pub fn slide_in() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::standard().with_duration(200)
+    pub fn slide_in() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_transition(AntDesignEasing::Standard, TransitionType::Slide)
+            .duration(Duration::Custom(200))
     }
 
     /// 滑出动画
-    pub fn slide_out() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::standard().with_duration(200)
+    pub fn slide_out() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_transition(AntDesignEasing::Standard, TransitionType::Slide)
+            .duration(Duration::Custom(200))
     }
 
     /// 缩放进入动画
-    pub fn scale_in() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::enter().with_duration(150)
+    pub fn scale_in() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_transition(
+            AntDesignEasing::Decelerated,
+            TransitionType::Scale,
+        )
+        .duration(Duration::Custom(150))
     }
 
     /// 缩放退出动画
-    pub fn scale_out() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::exit().with_duration(100)
+    pub fn scale_out() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_transition(
+            AntDesignEasing::Accelerated,
+            TransitionType::Scale,
+        )
+        .duration(Duration::Custom(100))
     }
 
     /// 弹跳反馈动画
-    pub fn bounce_feedback() -> AntDesignAnimationConfig {
-        AntDesignAnimationFactory::feedback().with_duration(400)
+    pub fn bounce_feedback() -> AnimationConfig {
+        AntDesignAnimationBuilder::with_transition(AntDesignEasing::Bounce, TransitionType::Bounce)
+            .duration(Duration::Custom(400))
     }
 }

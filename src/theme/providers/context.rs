@@ -6,10 +6,8 @@
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-use crate::theme::tokens::{
-    animation_presets::{AntDesignAnimationConfig, AntDesignEasing},
-    theme_presets::{ThemePreset, ThemePresetFactory},
-};
+use crate::theme::core::motion::{AnimationConfig, Duration, Easing, TransitionType};
+use crate::theme::tokens::theme_presets::{ThemePreset, ThemePresetFactory};
 use css_in_rust::theme::{DesignTokens, ThemeVariant};
 
 /// 主题上下文状态
@@ -22,7 +20,7 @@ pub struct ThemeContext {
     /// 是否启用自动主题切换
     pub auto_theme: bool,
     /// 主题切换动画配置
-    pub transition_config: AntDesignAnimationConfig,
+    pub transition_config: AnimationConfig,
 }
 
 impl Default for ThemeContext {
@@ -31,9 +29,16 @@ impl Default for ThemeContext {
             current_theme: ThemePreset::light(),
             available_themes: ThemePresetFactory::all_presets(),
             auto_theme: false,
-            transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
-                .with_duration(300)
-                .with_delay(0),
+            transition_config: AnimationConfig {
+                transition_type: TransitionType::Fade,
+                duration: Duration::Custom(300),
+                easing: Easing::EaseInOut, // 使用标准缓动对应的通用缓动
+                delay: Duration::Custom(0),
+                direction: None,
+                infinite: false,
+                iteration_count: Some(1),
+                reverse: false,
+            },
         }
     }
 }
@@ -158,12 +163,12 @@ impl UseTheme {
     }
 
     /// 获取主题切换动画配置
-    pub fn transition_config(&self) -> AntDesignAnimationConfig {
+    pub fn transition_config(&self) -> AnimationConfig {
         self.context.read().transition_config.clone()
     }
 
     /// 设置主题切换动画配置
-    pub fn set_transition_config(&mut self, config: AntDesignAnimationConfig) {
+    pub fn set_transition_config(&mut self, config: AnimationConfig) {
         let mut context = self.context.write();
         context.transition_config = config;
     }

@@ -8,7 +8,7 @@ use dioxus::prelude::*;
 use super::context::{ThemeColors, ThemeContext, UseResponsiveTheme, UseThemePersistence};
 use super::use_theme;
 use crate::theme::{
-    animation_presets::{AntDesignAnimationConfig, AntDesignEasing},
+    core::motion::{AnimationConfig, Duration, Easing, TransitionType},
     theme_presets::{ThemePreset, ThemePresetFactory},
 };
 use css_in_rust::theme::DesignTokens;
@@ -74,9 +74,16 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         current_theme: initial_preset,
         available_themes: ThemePresetFactory::all_presets(),
         auto_theme: props.auto_theme,
-        transition_config: AntDesignAnimationConfig::new(AntDesignEasing::Standard)
-            .with_duration(props.transition_duration as u64)
-            .with_delay(0),
+        transition_config: AnimationConfig {
+            transition_type: TransitionType::Fade,
+            duration: Duration::Custom(props.transition_duration),
+            easing: Easing::EaseInOut, // 使用标准缓动对应的通用缓动
+            delay: Duration::Custom(0),
+            direction: None,
+            infinite: false,
+            iteration_count: Some(1),
+            reverse: false,
+        },
     });
 
     // 监听系统主题变化（如果启用了自动主题）

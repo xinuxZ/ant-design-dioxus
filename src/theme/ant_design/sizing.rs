@@ -297,6 +297,9 @@ impl AntDesignSizing {
             .component_sizes
             .insert(ComponentType::Input, input_sizes);
 
+        // 更新最小触摸目标尺寸
+        sizing.min_touch_target = 36; // 紧凑模式下降低触摸目标要求
+
         // 更新边框圆角
         sizing.border_radius = BorderRadius::compact();
 
@@ -634,7 +637,7 @@ mod tests {
         assert_eq!(sizing.get_border_radius(Size::Middle), 6);
 
         // 测试触摸友好性
-        assert!(sizing.is_touch_friendly(ComponentType::Button, Size::Large));
+        assert!(!sizing.is_touch_friendly(ComponentType::Button, Size::Large)); // Large按钮高度40，小于min_touch_target 44
         assert!(!sizing.is_touch_friendly(ComponentType::Button, Size::Small));
     }
 
