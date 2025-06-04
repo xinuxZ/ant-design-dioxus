@@ -21,91 +21,14 @@
 //! - 禁用：行动点不可用的时候，一般需要文案解释。
 //! - 加载中：用于异步操作等待反馈的时候，也可以避免多次提交。
 
-mod styles;
-
-use self::styles::{
-    ButtonShape as StyleButtonShape, ButtonSize as StyleButtonSize, ButtonStyleGenerator,
-    ButtonType as StyleButtonType,
-};
-use css_in_rust::css;
-use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
-
 // 导出按钮组模块
 mod button_group;
+mod styles;
 pub use button_group::*;
 
-/// 按钮类型
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum ButtonType {
-    /// 主按钮
-    Primary,
-    /// 默认按钮
-    Default,
-    /// 虚线按钮
-    Dashed,
-    /// 文本按钮
-    Text,
-    /// 链接按钮
-    Link,
-}
+use dioxus::prelude::*;
 
-impl Default for ButtonType {
-    fn default() -> Self {
-        Self::Default
-    }
-}
-
-/// 按钮尺寸
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum ButtonSize {
-    /// 大尺寸
-    Large,
-    /// 中等尺寸（默认）
-    Middle,
-    /// 小尺寸
-    Small,
-}
-
-impl Default for ButtonSize {
-    fn default() -> Self {
-        Self::Middle
-    }
-}
-
-/// 按钮形状
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum ButtonShape {
-    /// 默认形状
-    Default,
-    /// 圆形按钮
-    Circle,
-    /// 圆角按钮
-    Round,
-}
-
-impl Default for ButtonShape {
-    fn default() -> Self {
-        Self::Default
-    }
-}
-
-/// 按钮 HTML 类型
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum ButtonHtmlType {
-    /// 提交按钮
-    Submit,
-    /// 重置按钮
-    Reset,
-    /// 普通按钮
-    Button,
-}
-
-impl Default for ButtonHtmlType {
-    fn default() -> Self {
-        Self::Button
-    }
-}
+use self::styles::{ButtonHtmlType, ButtonShape, ButtonSize, ButtonStyleGenerator, ButtonType};
 
 /// 按钮属性
 #[derive(Props, Clone, PartialEq)]
@@ -234,25 +157,11 @@ pub fn Button(props: ButtonProps) -> Element {
 /// 根据按钮的属性生成对应的 CSS 类名
 fn get_button_css_class(props: &ButtonProps) -> String {
     // 转换枚举类型
-    let style_type = match props.button_type {
-        ButtonType::Primary => StyleButtonType::Primary,
-        ButtonType::Dashed => StyleButtonType::Dashed,
-        ButtonType::Text => StyleButtonType::Text,
-        ButtonType::Link => StyleButtonType::Link,
-        _ => StyleButtonType::Default,
-    };
+    let style_type = props.button_type.clone();
 
-    let style_size = match props.size {
-        ButtonSize::Large => StyleButtonSize::Large,
-        ButtonSize::Small => StyleButtonSize::Small,
-        _ => StyleButtonSize::Middle,
-    };
+    let style_size = props.size.clone();
 
-    let style_shape = match props.shape {
-        ButtonShape::Circle => StyleButtonShape::Circle,
-        ButtonShape::Round => StyleButtonShape::Round,
-        _ => StyleButtonShape::Default,
-    };
+    let style_shape = props.shape.clone();
 
     // 使用样式生成器
     ButtonStyleGenerator::new()

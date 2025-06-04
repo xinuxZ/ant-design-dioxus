@@ -3,34 +3,82 @@
 //! 本模块包含Button组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
-use crate::shared::styles::mixins::*;
-use crate::shared::styles::tokens::DesignToken;
+use serde::{Deserialize, Serialize};
+
 use css_in_rust::css;
 
-/// 按钮类型枚举
-#[derive(Debug, Clone, PartialEq)]
+use crate::shared::styles::mixins::*;
+// use crate::shared::styles::tokens::DesignToken;
+
+/// 按钮类型
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ButtonType {
+    /// 主按钮
     Primary,
+    /// 默认按钮
     Default,
+    /// 虚线按钮
     Dashed,
+    /// 文本按钮
     Text,
+    /// 链接按钮
     Link,
 }
+impl Default for ButtonType {
+    fn default() -> Self {
+        Self::Default
+    }
+}
 
-/// 按钮尺寸枚举
-#[derive(Debug, Clone, PartialEq)]
+/// 按钮尺寸
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ButtonSize {
+    /// 大尺寸
     Large,
+    /// 中等尺寸（默认）
     Middle,
+    /// 小尺寸
     Small,
 }
 
-/// 按钮形状枚举
-#[derive(Debug, Clone, PartialEq)]
+impl Default for ButtonSize {
+    fn default() -> Self {
+        Self::Middle
+    }
+}
+
+/// 按钮形状
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ButtonShape {
+    /// 默认形状
     Default,
+    /// 圆形按钮
     Circle,
+    /// 圆角按钮
     Round,
+}
+
+impl Default for ButtonShape {
+    fn default() -> Self {
+        Self::Default
+    }
+}
+
+/// 按钮 HTML 类型
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ButtonHtmlType {
+    /// 提交按钮
+    Submit,
+    /// 重置按钮
+    Reset,
+    /// 普通按钮
+    Button,
+}
+
+impl Default for ButtonHtmlType {
+    fn default() -> Self {
+        Self::Button
+    }
 }
 
 /// 按钮样式生成器
