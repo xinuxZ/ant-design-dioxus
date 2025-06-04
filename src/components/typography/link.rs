@@ -71,6 +71,8 @@
 //! }
 //! ```
 
+use super::styles::{LinkStyleGenerator, TextType as StyleTextType, TypographyStyleGenerator};
+use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -138,6 +140,16 @@ pub struct LinkProps {
     #[props(default)]
     pub r#type: LinkType,
 
+    /// 是否可复制
+    #[props(default)]
+    pub copyable: bool,
+
+    #[props(default)]
+    pub editable: bool,
+
+    #[props(default)]
+    pub ellipsis: bool,
+
     /// 链接地址
     #[props(default)]
     pub href: Option<String>,
@@ -162,6 +174,26 @@ pub struct LinkProps {
     #[props(default = false)]
     pub block: bool,
 
+    /// 是否使用斜体
+    #[props(default = false)]
+    pub italic: bool,
+
+    /// 是否添加标记样式
+    #[props(default = false)]
+    pub mark: bool,
+
+    /// 是否使用代码样式
+    #[props(default = false)]
+    pub code: bool,
+
+    /// 是否添加删除线
+    #[props(default = false)]
+    pub delete: bool,
+
+    /// 自动溢出省略
+    #[props(default)]
+    pub ellipsis_rows: Option<u32>,
+
     /// 点击事件
     #[props(default)]
     pub onclick: Option<EventHandler<MouseEvent>>,
@@ -175,7 +207,7 @@ pub struct LinkProps {
     pub style: Option<String>,
 
     /// 子元素
-    children: Element,
+    pub children: Element,
 }
 
 /// Link 链接组件
@@ -183,40 +215,28 @@ pub struct LinkProps {
 /// 文字超链接组件。
 #[component]
 pub fn Link(props: LinkProps) -> Element {
-    let mut class_list = vec!["ant-typography", "ant-typography-link"];
+    let style_generator = LinkStyleGenerator::new();
+    let style_text_type = match props.r#type {
+        LinkType::Default => StyleTextType::Default,
+        LinkType::Secondary => StyleTextType::Secondary,
+        LinkType::Success => StyleTextType::Success,
+        LinkType::Warning => StyleTextType::Warning,
+        LinkType::Danger => StyleTextType::Danger,
+    };
 
-    // 添加类型样式
-    class_list.push(match props.r#type {
-        LinkType::Default => "ant-typography-link-default",
-        LinkType::Secondary => "ant-typography-link-secondary",
-        LinkType::Success => "ant-typography-link-success",
-        LinkType::Warning => "ant-typography-link-warning",
-        LinkType::Danger => "ant-typography-link-danger",
-    });
+    let typography_generator = TypographyStyleGenerator::new()
+        .with_type(style_text_type)
+        .with_disabled(props.disabled)
+        .with_underline(props.underline)
+        .with_strong(props.strong);
 
-    // 添加状态样式
-    if props.disabled {
-        class_list.push("ant-typography-link-disabled");
-    }
+    let style_generator = style_generator
+        .with_typography(typography_generator)
+        .with_href(props.href.clone())
+        .with_target(props.target.as_ref().map(|t| t.as_str().to_string()))
+        .with_block(props.block);
 
-    if !props.underline {
-        class_list.push("ant-typography-link-no-underline");
-    }
-
-    if props.strong {
-        class_list.push("ant-typography-link-strong");
-    }
-
-    if props.block {
-        class_list.push("ant-typography-link-block");
-    }
-
-    // 添加自定义类名
-    if let Some(custom_class) = &props.class {
-        class_list.push(custom_class);
-    }
-
-    let class_name = class_list.join(" ");
+    let class_name = style_generator.generate_class();
 
     // 处理点击事件
     let handle_click = move |evt: MouseEvent| {
@@ -251,6 +271,7 @@ pub fn Link(props: LinkProps) -> Element {
     };
 
     rsx! {
+        style { {style_generator.get_styles()} }
         a {
             class: class_name.clone(),
             style: props.style,

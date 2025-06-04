@@ -270,7 +270,7 @@ pub struct TourProps {
 pub fn Tour(props: TourProps) -> Element {
     let mut current_step = use_signal(|| props.current);
     let mut is_open = use_signal(|| props.open);
-    let target_element = use_signal(|| None::<String>);
+    let _target_element = use_signal(|| None::<String>);
 
     // Update current step when props change
     use_effect(move || {

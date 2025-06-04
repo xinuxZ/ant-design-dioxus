@@ -18,15 +18,18 @@
 //! 在大多数业务情况下，我们建议使用默认文本大小。
 
 pub mod link;
+mod styles;
 
 // 重新导出所有组件
+use self::styles::{
+    HeadingLevel as StyleHeadingLevel, LinkStyleGenerator, ParagraphStyleGenerator,
+    TextType as StyleTextType, TitleStyleGenerator, TypographyStyleGenerator,
+};
 pub use link::*;
 
+use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-// 引入排版样式
-const TYPOGRAPHY_STYLE: &str = include_str!("style.css");
 
 /// 标题级别
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -176,65 +179,7 @@ pub struct TextProps {
     #[props(default)]
     pub onclick: Option<EventHandler<MouseEvent>>,
     /// 子元素
-    children: Element,
-}
-
-/// 链接属性
-#[derive(Props, Clone, PartialEq)]
-pub struct LinkProps {
-    /// 链接地址
-    #[props(default)]
-    pub href: Option<String>,
-    /// 链接目标
-    #[props(default)]
-    pub target: Option<String>,
-    /// 是否可复制
-    #[props(default)]
-    pub copyable: bool,
-    /// 是否可编辑
-    #[props(default)]
-    pub editable: bool,
-    /// 是否省略
-    #[props(default)]
-    pub ellipsis: bool,
-    /// 省略行数
-    #[props(default)]
-    pub ellipsis_rows: Option<u32>,
-    /// 文本类型
-    #[props(default)]
-    pub text_type: TextType,
-    /// 是否禁用
-    #[props(default)]
-    pub disabled: bool,
-    /// 是否删除线
-    #[props(default)]
-    pub delete: bool,
-    /// 是否下划线
-    #[props(default)]
-    pub underline: bool,
-    /// 是否强调
-    #[props(default)]
-    pub strong: bool,
-    /// 是否斜体
-    #[props(default)]
-    pub italic: bool,
-    /// 是否标记
-    #[props(default)]
-    pub mark: bool,
-    /// 是否代码
-    #[props(default)]
-    pub code: bool,
-    /// 自定义类名
-    #[props(default)]
-    pub class: Option<String>,
-    /// 自定义样式
-    #[props(default)]
-    pub style: Option<String>,
-    /// 点击事件处理器
-    #[props(default)]
-    pub onclick: Option<EventHandler<MouseEvent>>,
-    /// 子元素
-    children: Element,
+    pub children: Element,
 }
 
 /// 段落属性
@@ -286,7 +231,7 @@ pub struct ParagraphProps {
     #[props(default)]
     pub onclick: Option<EventHandler<MouseEvent>>,
     /// 子元素
-    children: Element,
+    pub children: Element,
 }
 
 /// 标题组件
@@ -312,12 +257,45 @@ pub struct ParagraphProps {
 /// ```
 #[component]
 pub fn Title(props: TitleProps) -> Element {
-    let class_name = get_typography_class_name(&props.text_type, &props.class, true, &props);
+    let style_level = match props.level {
+        HeadingLevel::H1 => StyleHeadingLevel::H1,
+        HeadingLevel::H2 => StyleHeadingLevel::H2,
+        HeadingLevel::H3 => StyleHeadingLevel::H3,
+        HeadingLevel::H4 => StyleHeadingLevel::H4,
+        HeadingLevel::H5 => StyleHeadingLevel::H5,
+    };
+    let style_text_type = match props.text_type {
+        TextType::Default => StyleTextType::Default,
+        TextType::Secondary => StyleTextType::Secondary,
+        TextType::Success => StyleTextType::Success,
+        TextType::Warning => StyleTextType::Warning,
+        TextType::Danger => StyleTextType::Danger,
+        TextType::Disabled => StyleTextType::Disabled,
+    };
+
+    let typography_generator = TypographyStyleGenerator::new()
+        .with_type(style_text_type)
+        .with_disabled(props.disabled)
+        .with_delete(props.delete)
+        .with_underline(props.underline)
+        .with_strong(props.strong)
+        .with_italic(props.italic)
+        .with_mark(props.mark)
+        .with_code(props.code)
+        .with_copyable(props.copyable)
+        .with_editable(props.editable)
+        .with_ellipsis(props.ellipsis)
+        .with_ellipsis_rows(props.ellipsis_rows);
+
+    let style_generator =
+        TitleStyleGenerator::new(style_level.clone()).with_typography(typography_generator);
+
+    let class_name = style_generator.generate_class();
+
     let typography_style = get_typography_style(&props.style, &props.ellipsis_rows);
 
     rsx! {
-        // 注入排版样式
-        style { {TYPOGRAPHY_STYLE} }
+        style { {style_generator.get_styles()} }
 
         {match props.level {
             HeadingLevel::H1 => rsx! {
@@ -477,12 +455,37 @@ pub fn Title(props: TitleProps) -> Element {
 /// ```
 #[component]
 pub fn Text(props: TextProps) -> Element {
-    let class_name = get_typography_class_name(&props.text_type, &props.class, false, &props);
+    let style_text_type = match props.text_type {
+        TextType::Default => StyleTextType::Default,
+        TextType::Secondary => StyleTextType::Secondary,
+        TextType::Success => StyleTextType::Success,
+        TextType::Warning => StyleTextType::Warning,
+        TextType::Danger => StyleTextType::Danger,
+        TextType::Disabled => StyleTextType::Disabled,
+    };
+
+    let typography_generator = TypographyStyleGenerator::new()
+        .with_type(style_text_type)
+        .with_disabled(props.disabled)
+        .with_delete(props.delete)
+        .with_underline(props.underline)
+        .with_strong(props.strong)
+        .with_italic(props.italic)
+        .with_mark(props.mark)
+        .with_code(props.code)
+        .with_copyable(props.copyable)
+        .with_editable(props.editable)
+        .with_ellipsis(props.ellipsis)
+        .with_ellipsis_rows(props.ellipsis_rows);
+
+    let style_generator = ParagraphStyleGenerator::new().with_typography(typography_generator);
+
+    let class_name = style_generator.generate_class();
+
     let typography_style = get_typography_style(&props.style, &props.ellipsis_rows);
 
     rsx! {
-        // 注入排版样式
-        style { {TYPOGRAPHY_STYLE} }
+        style { {style_generator.get_styles()} }
 
         span {
             class: class_name.clone(),
@@ -535,12 +538,37 @@ pub fn Text(props: TextProps) -> Element {
 /// ```
 #[component]
 pub fn Paragraph(props: ParagraphProps) -> Element {
-    let class_name = get_typography_class_name(&props.text_type, &props.class, false, &props);
+    let style_text_type = match props.text_type {
+        TextType::Default => StyleTextType::Default,
+        TextType::Secondary => StyleTextType::Secondary,
+        TextType::Success => StyleTextType::Success,
+        TextType::Warning => StyleTextType::Warning,
+        TextType::Danger => StyleTextType::Danger,
+        TextType::Disabled => StyleTextType::Disabled,
+    };
+
+    let typography_generator = TypographyStyleGenerator::new()
+        .with_type(style_text_type)
+        .with_disabled(props.disabled)
+        .with_delete(props.delete)
+        .with_underline(props.underline)
+        .with_strong(props.strong)
+        .with_italic(props.italic)
+        .with_mark(props.mark)
+        .with_code(props.code)
+        .with_copyable(props.copyable)
+        .with_editable(props.editable)
+        .with_ellipsis(props.ellipsis)
+        .with_ellipsis_rows(props.ellipsis_rows);
+
+    let style_generator = ParagraphStyleGenerator::new().with_typography(typography_generator);
+
+    let class_name = style_generator.generate_class();
+
     let typography_style = get_typography_style(&props.style, &props.ellipsis_rows);
 
     rsx! {
-        // 注入排版样式
-        style { {TYPOGRAPHY_STYLE} }
+        style { {style_generator.get_styles()} }
 
         p {
             class: class_name.clone(),
@@ -592,8 +620,26 @@ pub fn Paragraph(props: ParagraphProps) -> Element {
 /// }
 /// ```
 #[component]
-pub fn Link(props: LinkProps) -> Element {
-    let class_name = get_typography_class_name(&props.text_type, &props.class, false, &props);
+pub fn Link(props: link::LinkProps) -> Element {
+    let typography_generator = TypographyStyleGenerator::new()
+        .with_type(match props.r#type {
+            LinkType::Default => StyleTextType::Default,
+            LinkType::Secondary => StyleTextType::Secondary,
+            LinkType::Success => StyleTextType::Success,
+            LinkType::Warning => StyleTextType::Warning,
+            LinkType::Danger => StyleTextType::Danger,
+        })
+        .with_disabled(props.disabled)
+        .with_underline(props.underline)
+        .with_strong(props.strong);
+
+    let style_generator = LinkStyleGenerator::new()
+        .with_typography(typography_generator)
+        .with_href(props.href.clone())
+        .with_target(props.target.as_ref().map(|t| t.as_str().to_string()))
+        .with_block(props.block);
+
+    let class_name = style_generator.generate_class();
     let typography_style = get_typography_style(&props.style, &props.ellipsis_rows);
 
     // 添加链接特有的类名
@@ -605,13 +651,13 @@ pub fn Link(props: LinkProps) -> Element {
 
     rsx! {
         // 注入排版样式
-        style { {TYPOGRAPHY_STYLE} }
+        style { {style_generator.get_styles()} }
 
         a {
             class: link_class.clone(),
             style: typography_style.clone(),
             href: props.href.as_deref().unwrap_or("#"),
-            target: props.target.as_deref(),
+            target: props.target.as_ref().map(|t| t.as_str()),
             onclick: move |evt| {
                 if props.disabled {
                     evt.prevent_default();
@@ -638,99 +684,6 @@ pub fn Link(props: LinkProps) -> Element {
             }}
         }
     }
-}
-
-/// 获取排版组件的类名
-///
-/// # 参数
-///
-/// * `text_type` - 文本类型
-/// * `custom_class` - 自定义类名
-/// * `is_title` - 是否为标题
-/// * `props` - 组件属性（用于获取其他样式属性）
-///
-/// # 返回值
-///
-/// 返回排版组件的完整类名字符串
-fn get_typography_class_name<T>(
-    text_type: &TextType,
-    custom_class: &Option<String>,
-    is_title: bool,
-    props: &T,
-) -> String
-where
-    T: TypographyProps,
-{
-    let mut classes = vec!["ant-typography"];
-
-    if is_title {
-        classes.push("ant-typography-title");
-    }
-
-    // 添加文本类型类名
-    match text_type {
-        TextType::Default => {}
-        TextType::Secondary => classes.push("ant-typography-caption"),
-        TextType::Success => classes.push("ant-typography-success"),
-        TextType::Warning => classes.push("ant-typography-warning"),
-        TextType::Danger => classes.push("ant-typography-danger"),
-        TextType::Disabled => classes.push("ant-typography-disabled"),
-    }
-
-    // 添加样式修饰类名
-    if props.get_disabled() {
-        classes.push("ant-typography-disabled");
-    }
-
-    if props.get_delete() {
-        classes.push("ant-typography-delete");
-    }
-
-    if props.get_underline() {
-        classes.push("ant-typography-underline");
-    }
-
-    if props.get_strong() {
-        classes.push("ant-typography-strong");
-    }
-
-    if props.get_italic() {
-        classes.push("ant-typography-italic");
-    }
-
-    if props.get_mark() {
-        classes.push("ant-typography-mark");
-    }
-
-    if props.get_code() {
-        classes.push("ant-typography-code");
-    }
-
-    if props.get_copyable() {
-        classes.push("ant-typography-copy");
-    }
-
-    if props.get_editable() {
-        classes.push("ant-typography-edit");
-    }
-
-    if props.get_ellipsis() {
-        classes.push("ant-typography-ellipsis");
-        if props.get_ellipsis_rows().is_some() {
-            classes.push("ant-typography-ellipsis-multiple-line");
-        } else {
-            classes.push("ant-typography-ellipsis-single-line");
-        }
-    }
-
-    // 添加自定义类名
-    let mut class_string = classes.join(" ");
-    if let Some(custom_class) = custom_class {
-        class_string.push(' ');
-        class_string.push_str(custom_class);
-    }
-
-    class_string
 }
 
 /// 获取排版组件的内联样式
@@ -860,7 +813,7 @@ impl TypographyProps for TextProps {
 }
 
 // 为 LinkProps 实现 TypographyProps
-impl TypographyProps for LinkProps {
+impl TypographyProps for link::LinkProps {
     fn get_disabled(&self) -> bool {
         self.disabled
     }
