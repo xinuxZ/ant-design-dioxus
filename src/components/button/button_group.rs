@@ -9,38 +9,8 @@
 //! - 当需要实现工具栏或操作栏时
 
 use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
 
-use super::{ButtonSize, ButtonType};
-
-const BUTTON_GROUP_STYLE: &str = include_str!("./style.css");
-
-/// 按钮组尺寸
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum ButtonGroupSize {
-    /// 大尺寸
-    Large,
-    /// 中等尺寸（默认）
-    Middle,
-    /// 小尺寸
-    Small,
-}
-
-impl Default for ButtonGroupSize {
-    fn default() -> Self {
-        Self::Middle
-    }
-}
-
-impl From<ButtonGroupSize> for ButtonSize {
-    fn from(size: ButtonGroupSize) -> Self {
-        match size {
-            ButtonGroupSize::Large => ButtonSize::Large,
-            ButtonGroupSize::Middle => ButtonSize::Middle,
-            ButtonGroupSize::Small => ButtonSize::Small,
-        }
-    }
-}
+use super::{ButtonGroupSize, ButtonType};
 
 /// 按钮组属性
 #[derive(Props, Clone, PartialEq)]
@@ -99,8 +69,6 @@ pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
     let group_style = get_button_group_style(&props);
 
     rsx! {
-        style { {BUTTON_GROUP_STYLE} }
-
         div {
             class: class_name.clone(),
             style: group_style.clone(),

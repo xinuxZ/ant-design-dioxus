@@ -81,6 +81,33 @@ impl Default for ButtonHtmlType {
     }
 }
 
+/// 按钮组尺寸
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ButtonGroupSize {
+    /// 大尺寸
+    Large,
+    /// 中等尺寸（默认）
+    Middle,
+    /// 小尺寸
+    Small,
+}
+
+impl Default for ButtonGroupSize {
+    fn default() -> Self {
+        Self::Middle
+    }
+}
+
+impl From<ButtonGroupSize> for ButtonSize {
+    fn from(size: ButtonGroupSize) -> Self {
+        match size {
+            ButtonGroupSize::Large => ButtonSize::Large,
+            ButtonGroupSize::Middle => ButtonSize::Middle,
+            ButtonGroupSize::Small => ButtonSize::Small,
+        }
+    }
+}
+
 /// 按钮样式生成器
 pub struct ButtonStyleGenerator {
     pub button_type: ButtonType,

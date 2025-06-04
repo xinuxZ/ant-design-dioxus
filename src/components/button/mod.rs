@@ -28,7 +28,9 @@ pub use button_group::*;
 
 use dioxus::prelude::*;
 
-use self::styles::{ButtonHtmlType, ButtonShape, ButtonSize, ButtonStyleGenerator, ButtonType};
+use self::styles::{
+    ButtonGroupSize, ButtonHtmlType, ButtonShape, ButtonSize, ButtonStyleGenerator, ButtonType,
+};
 
 /// 按钮属性
 #[derive(Props, Clone, PartialEq)]
