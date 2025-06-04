@@ -95,16 +95,23 @@ pub fn ThemeSwitch(props: ThemeSwitchProps) -> Element {
                     div {
                         class: "ant-theme-switch {switch_class}",
                         onclick: move |_| {
+                            dioxus::logger::tracing::debug!("switch clicked");
+
                             if !disabled {
                                 let new_theme = if is_dark { Theme::Light } else { Theme::Dark };
 
+                                dioxus::logger::tracing::debug!("theme: {:?}", new_theme);
                                 // 更新主题上下文（ThemeProvider 会自动处理样式注入）
-                                theme_context.write().current_theme = match new_theme {
+                                let newthene = match new_theme {
                                     Theme::Light => ThemePreset::light(),
                                     Theme::Dark => ThemePreset::dark(),
                                     Theme::Compact => ThemePreset::compact(),
                                     Theme::Custom => ThemePreset::light(),
                                 };
+
+                                theme_context.with_mut(|ctx| {
+                                    ctx.current_theme = newthene;
+                                });
 
                                 // 触发回调
                                 if let Some(callback) = &on_change {

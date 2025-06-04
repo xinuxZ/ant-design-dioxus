@@ -100,12 +100,11 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     // 生成 CSS 变量和主题样式
     let current_theme = &theme_context.read().current_theme;
     let css_variables = current_theme.to_css_variables();
-    let theme_name = &current_theme.name;
 
     // 注入主题样式到 DOM
     use_effect(move || {
         let theme_context = theme_context.read();
-        let theme_name = &theme_context.current_theme.name;
+        let theme_name = &(theme_context.current_theme.variant.to_string());
 
         // 设置根元素的 data-theme 属性（仅在 WASM 环境下）
         #[cfg(target_arch = "wasm32")]

@@ -12,6 +12,8 @@ mod components;
 use common::*;
 use components::*;
 
+use dioxus::logger::tracing::{debug, error, info, Level};
+
 // 引用依赖以避免未使用警告
 #[allow(unused_imports)]
 use gloo_timers as _;
@@ -41,8 +43,6 @@ fn App() -> Element {
         // 主题提供者包装整个应用
         ThemeProvider {
              initial_theme: ant_design_dioxus::theme::ThemePreset::dark(),
-             auto_theme: true,
-             transition_duration: 200,
 
             div {
                 class: "showcase-container",
@@ -291,5 +291,11 @@ fn main() {
     // 初始化 Ant Design 主题系统
     init_ant_design_theme();
 
+    dioxus::logger::init(Level::DEBUG).expect("logger failed to init");
+    info!("App rendered");
+
+    error!("This is an error");
+    info!("This is an info");
+    debug!("This is a debug");
     dioxus::launch(App);
 }
