@@ -309,6 +309,14 @@ pub struct MapToken {
     // 阴影
     /// 弹出层阴影
     pub box_shadow_popup: String,
+
+    // 间距
+    /// 小号内边距
+    pub padding_sm: f32,
+    /// 中号内边距
+    pub padding_md: f32,
+    /// 大号内边距
+    pub padding_lg: f32,
 }
 
 impl Default for MapToken {
@@ -418,6 +426,11 @@ impl Default for MapToken {
 
             // 阴影
             box_shadow_popup: "0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)".to_string(),
+
+            // 间距
+            padding_sm: 12.0,
+            padding_md: 16.0,
+            padding_lg: 24.0,
         }
     }
 }

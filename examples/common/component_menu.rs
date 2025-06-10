@@ -61,6 +61,7 @@ pub fn ComponentMenu(props: ComponentMenuProps) -> Element {
                 "App",
                 "Calendar",
                 "FloatButton",
+                "I18nDemo",
                 "QRCode",
                 "Segmented",
                 "Splitter",

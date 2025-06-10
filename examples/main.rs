@@ -154,6 +154,7 @@ fn App() -> Element {
                         "Segmented" => rsx! { SegmentedDemo{} },
                         "Splitter" => rsx! { SplitterDemo{} },
                         "Watermark" => rsx! { WatermarkDemo{} },
+                        "I18nDemo" => rsx! { I18nAndThemeDemo{} },
                         _ => rsx! {
                             div {
                                 style: "text-align: center; padding: 48px; color: #999;",

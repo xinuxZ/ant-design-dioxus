@@ -138,7 +138,15 @@ impl ThemeConfig {
         self
     }
 
-    /// 设置紧凑模式
+    /// 启用紧凑模式
+    ///
+    /// # 参数
+    ///
+    /// * `compact` - 是否启用紧凑模式
+    ///
+    /// # 返回值
+    ///
+    /// 返回修改后的配置实例
     pub fn compact(mut self, compact: bool) -> Self {
         self.compact = compact;
         self
@@ -216,18 +224,13 @@ impl ThemeConfig {
         }
     }
 
-    /// 创建紧凑主题配置
-    pub fn compact() -> Self {
-        let mut config = Self::light();
-        config.theme_type = Theme::Compact;
-        config.compact = true;
-        config
-    }
-
-    /// 创建暗色紧凑主题配置
-    pub fn compact_dark() -> Self {
-        let mut config = Self::dark();
-        config.theme_type = Theme::Compact;
+    /// 创建紧凑主题
+    ///
+    /// # 返回值
+    ///
+    /// 返回紧凑主题配置
+    pub fn create_compact_theme() -> Self {
+        let mut config = Self::default();
         config.compact = true;
         config
     }

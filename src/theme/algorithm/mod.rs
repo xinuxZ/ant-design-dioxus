@@ -208,6 +208,11 @@ pub fn light_algorithm(seed: &SeedToken) -> MapToken {
     // 阴影
     map_token.box_shadow_popup = "0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05)".to_string();
 
+    // 间距
+    map_token.padding_sm = 12.0;
+    map_token.padding_md = 16.0;
+    map_token.padding_lg = 24.0;
+
     map_token
 }
 
@@ -329,6 +334,11 @@ pub fn dark_algorithm(seed: &SeedToken) -> MapToken {
 
     // 阴影
     map_token.box_shadow_popup = "0 6px 16px 0 rgba(0, 0, 0, 0.85), 0 3px 6px -4px rgba(0, 0, 0, 0.85), 0 9px 28px 8px rgba(0, 0, 0, 0.65)".to_string();
+
+    // 间距
+    map_token.padding_sm = 12.0;
+    map_token.padding_md = 16.0;
+    map_token.padding_lg = 24.0;
 
     map_token
 }

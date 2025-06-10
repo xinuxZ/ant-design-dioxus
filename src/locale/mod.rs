@@ -341,22 +341,94 @@ fn zh_cn_translations() -> HashMap<String, String> {
     translations.insert("edit".to_string(), "编辑".to_string());
     translations.insert("delete".to_string(), "删除".to_string());
     translations.insert("save".to_string(), "保存".to_string());
+    translations.insert("add".to_string(), "添加".to_string());
+    translations.insert("yes".to_string(), "是".to_string());
+    translations.insert("no".to_string(), "否".to_string());
+    translations.insert("close".to_string(), "关闭".to_string());
+    translations.insert("back".to_string(), "返回".to_string());
+    translations.insert("more".to_string(), "更多".to_string());
+
+    // Modal相关
+    translations.insert("modal.confirm".to_string(), "确认".to_string());
+    translations.insert("modal.info".to_string(), "信息".to_string());
+    translations.insert("modal.success".to_string(), "成功".to_string());
+    translations.insert("modal.error".to_string(), "错误".to_string());
+    translations.insert("modal.warning".to_string(), "警告".to_string());
+    translations.insert("modal.okText".to_string(), "确定".to_string());
+    translations.insert("modal.cancelText".to_string(), "取消".to_string());
+    translations.insert("modal.justOkText".to_string(), "知道了".to_string());
 
     // 分页
     translations.insert("pagination.prev".to_string(), "上一页".to_string());
     translations.insert("pagination.next".to_string(), "下一页".to_string());
     translations.insert("pagination.total".to_string(), "共 {0} 条".to_string());
     translations.insert("pagination.page".to_string(), "第 {0} 页".to_string());
+    translations.insert("pagination.itemsPerPage".to_string(), "条/页".to_string());
+    translations.insert("pagination.jump".to_string(), "跳至".to_string());
+    translations.insert("pagination.page.jump".to_string(), "页".to_string());
 
     // 表单
     translations.insert("form.required".to_string(), "必填项".to_string());
     translations.insert("form.optional".to_string(), "选填项".to_string());
     translations.insert("form.error".to_string(), "输入有误".to_string());
+    translations.insert(
+        "form.defaultValidateMessages.default".to_string(),
+        "字段验证错误 {label}".to_string(),
+    );
+    translations.insert(
+        "form.defaultValidateMessages.required".to_string(),
+        "{label} 是必选字段".to_string(),
+    );
+    translations.insert(
+        "form.defaultValidateMessages.enum".to_string(),
+        "{label} 必须是其中一个 [{enum}]".to_string(),
+    );
+
+    // 上传
+    translations.insert("upload.uploading".to_string(), "文件上传中...".to_string());
+    translations.insert("upload.removeFile".to_string(), "删除文件".to_string());
+    translations.insert("upload.uploadError".to_string(), "上传错误".to_string());
+    translations.insert("upload.previewFile".to_string(), "预览文件".to_string());
+    translations.insert("upload.downloadFile".to_string(), "下载文件".to_string());
 
     // 日期
     translations.insert("date.today".to_string(), "今天".to_string());
     translations.insert("date.yesterday".to_string(), "昨天".to_string());
     translations.insert("date.tomorrow".to_string(), "明天".to_string());
+    translations.insert("date.year".to_string(), "年".to_string());
+    translations.insert("date.month".to_string(), "月".to_string());
+    translations.insert("date.day".to_string(), "日".to_string());
+    translations.insert("date.hour".to_string(), "时".to_string());
+    translations.insert("date.minute".to_string(), "分".to_string());
+    translations.insert("date.second".to_string(), "秒".to_string());
+
+    // 日期选择器
+    translations.insert("datePicker.lang.today".to_string(), "今天".to_string());
+    translations.insert("datePicker.lang.now".to_string(), "此刻".to_string());
+    translations.insert("datePicker.lang.ok".to_string(), "确定".to_string());
+    translations.insert(
+        "datePicker.lang.yearSelect".to_string(),
+        "选择年份".to_string(),
+    );
+    translations.insert(
+        "datePicker.lang.monthSelect".to_string(),
+        "选择月份".to_string(),
+    );
+
+    // Select
+    translations.insert(
+        "select.notFoundContent".to_string(),
+        "无匹配结果".to_string(),
+    );
+    translations.insert("select.placeholder".to_string(), "请选择".to_string());
+
+    // 表格
+    translations.insert("table.filterTitle".to_string(), "筛选".to_string());
+    translations.insert("table.filterConfirm".to_string(), "确定".to_string());
+    translations.insert("table.filterReset".to_string(), "重置".to_string());
+    translations.insert("table.emptyText".to_string(), "暂无数据".to_string());
+    translations.insert("table.selectAll".to_string(), "全选当页".to_string());
+    translations.insert("table.selectInvert".to_string(), "反选当页".to_string());
 
     translations
 }
@@ -376,6 +448,22 @@ fn en_translations() -> HashMap<String, String> {
     translations.insert("edit".to_string(), "Edit".to_string());
     translations.insert("delete".to_string(), "Delete".to_string());
     translations.insert("save".to_string(), "Save".to_string());
+    translations.insert("add".to_string(), "Add".to_string());
+    translations.insert("yes".to_string(), "Yes".to_string());
+    translations.insert("no".to_string(), "No".to_string());
+    translations.insert("close".to_string(), "Close".to_string());
+    translations.insert("back".to_string(), "Back".to_string());
+    translations.insert("more".to_string(), "More".to_string());
+
+    // Modal相关
+    translations.insert("modal.confirm".to_string(), "Confirm".to_string());
+    translations.insert("modal.info".to_string(), "Information".to_string());
+    translations.insert("modal.success".to_string(), "Success".to_string());
+    translations.insert("modal.error".to_string(), "Error".to_string());
+    translations.insert("modal.warning".to_string(), "Warning".to_string());
+    translations.insert("modal.okText".to_string(), "OK".to_string());
+    translations.insert("modal.cancelText".to_string(), "Cancel".to_string());
+    translations.insert("modal.justOkText".to_string(), "OK".to_string());
 
     // 分页
     translations.insert("pagination.prev".to_string(), "Previous".to_string());
@@ -385,16 +473,84 @@ fn en_translations() -> HashMap<String, String> {
         "Total {0} items".to_string(),
     );
     translations.insert("pagination.page".to_string(), "Page {0}".to_string());
+    translations.insert("pagination.itemsPerPage".to_string(), "/ page".to_string());
+    translations.insert("pagination.jump".to_string(), "Go to".to_string());
+    translations.insert("pagination.page.jump".to_string(), "".to_string());
 
     // 表单
     translations.insert("form.required".to_string(), "Required".to_string());
     translations.insert("form.optional".to_string(), "Optional".to_string());
     translations.insert("form.error".to_string(), "Invalid input".to_string());
+    translations.insert(
+        "form.defaultValidateMessages.default".to_string(),
+        "Field validation error {label}".to_string(),
+    );
+    translations.insert(
+        "form.defaultValidateMessages.required".to_string(),
+        "{label} is required".to_string(),
+    );
+    translations.insert(
+        "form.defaultValidateMessages.enum".to_string(),
+        "{label} must be one of [{enum}]".to_string(),
+    );
+
+    // 上传
+    translations.insert("upload.uploading".to_string(), "Uploading...".to_string());
+    translations.insert("upload.removeFile".to_string(), "Remove file".to_string());
+    translations.insert("upload.uploadError".to_string(), "Upload error".to_string());
+    translations.insert("upload.previewFile".to_string(), "Preview file".to_string());
+    translations.insert(
+        "upload.downloadFile".to_string(),
+        "Download file".to_string(),
+    );
 
     // 日期
     translations.insert("date.today".to_string(), "Today".to_string());
     translations.insert("date.yesterday".to_string(), "Yesterday".to_string());
     translations.insert("date.tomorrow".to_string(), "Tomorrow".to_string());
+    translations.insert("date.year".to_string(), "".to_string());
+    translations.insert("date.month".to_string(), "".to_string());
+    translations.insert("date.day".to_string(), "".to_string());
+    translations.insert("date.hour".to_string(), ":".to_string());
+    translations.insert("date.minute".to_string(), ":".to_string());
+    translations.insert("date.second".to_string(), "".to_string());
+
+    // 日期选择器
+    translations.insert("datePicker.lang.today".to_string(), "Today".to_string());
+    translations.insert("datePicker.lang.now".to_string(), "Now".to_string());
+    translations.insert("datePicker.lang.ok".to_string(), "OK".to_string());
+    translations.insert(
+        "datePicker.lang.yearSelect".to_string(),
+        "Select Year".to_string(),
+    );
+    translations.insert(
+        "datePicker.lang.monthSelect".to_string(),
+        "Select Month".to_string(),
+    );
+
+    // Select
+    translations.insert(
+        "select.notFoundContent".to_string(),
+        "Not Found".to_string(),
+    );
+    translations.insert(
+        "select.placeholder".to_string(),
+        "Please Select".to_string(),
+    );
+
+    // 表格
+    translations.insert("table.filterTitle".to_string(), "Filter menu".to_string());
+    translations.insert("table.filterConfirm".to_string(), "OK".to_string());
+    translations.insert("table.filterReset".to_string(), "Reset".to_string());
+    translations.insert("table.emptyText".to_string(), "No data".to_string());
+    translations.insert(
+        "table.selectAll".to_string(),
+        "Select current page".to_string(),
+    );
+    translations.insert(
+        "table.selectInvert".to_string(),
+        "Invert current page".to_string(),
+    );
 
     translations
 }

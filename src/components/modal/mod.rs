@@ -34,6 +34,7 @@
 //! }
 //! ```
 
+use crate::locale::use_translate;
 use dioxus::events::MouseData;
 use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
@@ -171,6 +172,17 @@ pub struct ModalProps {
 #[component]
 pub fn Modal(props: ModalProps) -> Element {
     let _is_closing = use_signal(|| false);
+    let translate = use_translate();
+
+    // 获取翻译文本，如果props中没有提供则使用默认翻译
+    let ok_text = props
+        .ok_text
+        .clone()
+        .unwrap_or_else(|| translate("modal.okText"));
+    let cancel_text = props
+        .cancel_text
+        .clone()
+        .unwrap_or_else(|| translate("modal.cancelText"));
 
     // 处理键盘事件
     use_effect(move || {
@@ -342,31 +354,29 @@ pub fn Modal(props: ModalProps) -> Element {
                             } else if props.show_ok_button || props.show_cancel_button {
                                 div {
                                     class: "ant-modal-footer",
+                                    // 取消按钮
                                     if props.show_cancel_button {
                                         button {
                                             class: "ant-btn ant-btn-default",
                                             r#type: "button",
                                             onclick: handle_cancel,
-                                            "{props.cancel_text.as_deref().unwrap_or(\"取消\")}"
+                                            "{cancel_text}"
                                         }
                                     }
+                                    // 确认按钮
                                     if props.show_ok_button {
                                         button {
-                                            class: if props.confirm_loading {
-                                                "ant-btn ant-btn-primary ant-btn-loading"
-                                            } else {
-                                                "ant-btn ant-btn-primary"
-                                            },
+                                            class: "ant-btn ant-btn-primary",
                                             r#type: "button",
                                             disabled: props.confirm_loading,
                                             onclick: handle_ok,
                                             if props.confirm_loading {
                                                 span {
                                                     class: "ant-btn-loading-icon",
-                                                    "⟳"
+                                                    // 此处可添加加载图标
                                                 }
                                             }
-                                            "{props.ok_text.as_deref().unwrap_or(\"确定\")}"
+                                            "{ok_text}"
                                         }
                                     }
                                 }
@@ -417,7 +427,18 @@ pub struct ConfirmModalProps {
 /// 确认对话框组件
 #[component]
 pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
+    let translate = use_translate();
     let icon = props.icon_type.as_deref().unwrap_or("?");
+
+    // 获取翻译文本，如果props中没有提供则使用默认翻译
+    let ok_text = props
+        .ok_text
+        .clone()
+        .unwrap_or_else(|| translate("modal.okText"));
+    let cancel_text = props
+        .cancel_text
+        .clone()
+        .unwrap_or_else(|| translate("modal.cancelText"));
 
     rsx! {
         crate::components::modal::Modal {
@@ -428,8 +449,8 @@ pub fn ConfirmModal(props: ConfirmModalProps) -> Element {
             mask_closable: false,
             on_ok: props.on_ok.clone(),
             on_cancel: props.on_cancel.clone(),
-            ok_text: props.ok_text.clone(),
-            cancel_text: props.cancel_text.clone(),
+            ok_text: Some(ok_text),
+            cancel_text: Some(cancel_text),
             z_index: 1000,
 
             div {
