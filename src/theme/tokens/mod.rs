@@ -2,6 +2,7 @@
 //!
 //! 定义 Ant Design 主题令牌系统
 
+use super::algorithm::{self, ComponentAlgorithm};
 use super::core::types::{AliasToken, MapToken, SeedToken};
 use std::collections::HashMap;
 
@@ -16,9 +17,26 @@ pub fn default_seed_token() -> SeedToken {
         color_warning: "#faad14".to_string(),
         color_error: "#f5222d".to_string(),
         color_info: "#1890ff".to_string(),
+        color_link: "#1890ff".to_string(),
+        color_text_base: "#000000".to_string(),
+        color_bg_base: "#ffffff".to_string(),
         font_size: 14.0,
         border_radius: 2.0,
+        control_height: 32.0,
+        line_width: 1.0,
+        line_type: "solid".to_string(),
+        motion_unit: 0.1,
+        motion_base: 0.0,
+        z_index_base: 0,
+        z_index_popup_base: 1000,
+        opacity_image: 1.0,
+        size_unit: 4.0,
+        size_step: 4.0,
+        size_popup_arrow: 16.0,
+        font_family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'".to_string(),
+        font_family_code: "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace".to_string(),
         wireframe: false,
+        motion: true,
     }
 }
 
@@ -41,11 +59,57 @@ pub fn default_alias_token() -> AliasToken {
 /// * `component` - 组件名称
 /// * `seed` - 种子令牌
 /// * `map` - 映射令牌
+/// * `is_dark` - 是否使用暗色主题
 ///
 /// # 返回值
 ///
 /// 组件特定的令牌映射
 pub fn generate_component_token(
+    component: &str,
+    seed: &SeedToken,
+    map: &MapToken,
+    is_dark: bool,
+) -> HashMap<String, String> {
+    // 使用组件级算法
+    let component_algorithm = match component {
+        "button" => Some(ComponentAlgorithm::Button),
+        "input" => Some(ComponentAlgorithm::Input),
+        "select" => Some(ComponentAlgorithm::Select),
+        "menu" => Some(ComponentAlgorithm::Menu),
+        "table" => Some(ComponentAlgorithm::Table),
+        "card" => Some(ComponentAlgorithm::Card),
+        "modal" => Some(ComponentAlgorithm::Modal),
+        "message" => Some(ComponentAlgorithm::Message),
+        "tag" => Some(ComponentAlgorithm::Tag),
+        "pagination" => Some(ComponentAlgorithm::Pagination),
+        "popover" => Some(ComponentAlgorithm::Popover),
+        "drawer" => Some(ComponentAlgorithm::Drawer),
+        "dropdown" => Some(ComponentAlgorithm::Dropdown),
+        "form" => Some(ComponentAlgorithm::Form),
+        "steps" => Some(ComponentAlgorithm::Steps),
+        "collapse" => Some(ComponentAlgorithm::Collapse),
+        "slider" => Some(ComponentAlgorithm::Slider),
+        "switch" => Some(ComponentAlgorithm::Switch),
+        "datePicker" => Some(ComponentAlgorithm::DatePicker),
+        "notification" => Some(ComponentAlgorithm::Notification),
+        _ => None,
+    };
+
+    if let Some(algo) = component_algorithm {
+        // 使用新的组件级算法
+        algorithm::component_algorithm(algo, seed, map, is_dark)
+    } else {
+        // 使用旧的组件令牌生成方法
+        if is_dark {
+            generate_dark_component_token(component, seed, map)
+        } else {
+            generate_light_component_token(component, seed, map)
+        }
+    }
+}
+
+/// 生成亮色主题组件令牌（兼容旧版API）
+fn generate_light_component_token(
     component: &str,
     seed: &SeedToken,
     map: &MapToken,
@@ -130,19 +194,7 @@ pub fn generate_component_token(
     tokens
 }
 
-/// 生成暗色组件令牌
-///
-/// 基于全局令牌生成特定组件的暗色主题令牌
-///
-/// # 参数
-///
-/// * `component` - 组件名称
-/// * `seed` - 种子令牌
-/// * `map` - 映射令牌
-///
-/// # 返回值
-///
-/// 组件特定的暗色主题令牌映射
+/// 生成暗色主题组件令牌（兼容旧版API）
 pub fn generate_dark_component_token(
     component: &str,
     seed: &SeedToken,

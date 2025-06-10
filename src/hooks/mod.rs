@@ -258,17 +258,21 @@ pub fn use_window_size() -> (Signal<u32>, Signal<u32>) {
 
         let resize_callback = wasm_bindgen::closure::Closure::wrap(Box::new(move || {
             if let Some(window) = web_sys::window() {
-                if let Ok(w) = window.inner_width() {
-                    if let Some(w) = w.as_f64() {
-                        width_clone.set(w as u32);
-                    }
-                }
+                let new_width = window
+                    .inner_width()
+                    .ok()
+                    .and_then(|w| w.as_f64())
+                    .map(|w| w as u32)
+                    .unwrap_or(0);
+                let new_height = window
+                    .inner_height()
+                    .ok()
+                    .and_then(|h| h.as_f64())
+                    .map(|h| h as u32)
+                    .unwrap_or(0);
 
-                if let Ok(h) = window.inner_height() {
-                    if let Some(h) = h.as_f64() {
-                        height_clone.set(h as u32);
-                    }
-                }
+                width_clone.set(new_width);
+                height_clone.set(new_height);
             }
         }) as Box<dyn FnMut()>);
 
@@ -277,14 +281,14 @@ pub fn use_window_size() -> (Signal<u32>, Signal<u32>) {
             .expect("failed to add resize event listener");
 
         // 返回清理函数
-        move || {
+        (move || {
             let cleanup_callback = resize_callback.as_ref().unchecked_ref();
             if let Some(window) = web_sys::window() {
                 window
                     .remove_event_listener_with_callback("resize", cleanup_callback)
                     .expect("failed to remove resize event listener");
             }
-        }
+        })()
     });
 
     (width, height)

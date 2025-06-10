@@ -6,6 +6,8 @@ use css_in_rust::theme_bridge::ThemeBridge;
 use dioxus::prelude::*;
 use std::sync::Arc;
 
+use super::core::types::{AliasToken, MapToken, SeedToken};
+use super::css_vars::{self, CssVariablesOptions};
 use super::ThemeConfig;
 
 /// 主题上下文
@@ -42,6 +44,9 @@ pub struct ThemeProviderProps {
     /// 主题配置
     #[props(into)]
     pub config: Signal<ThemeConfig>,
+    /// 是否启用CSS变量
+    #[props(default = false)]
+    pub enable_css_vars: bool,
 }
 
 /// 主题提供者组件
@@ -60,10 +65,49 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         )
     });
 
+    // CSS变量支持
+    let css_vars_enabled = props.enable_css_vars;
+    let mut css_vars_style = use_signal(|| String::new());
+
+    // 如果启用了CSS变量，生成并注入CSS变量
+    if css_vars_enabled {
+        let mut config = theme_config.read().clone();
+        config.css_vars.enabled = true;
+
+        // 生成种子、映射和别名令牌
+        let seed = SeedToken::default();
+        let mut map = MapToken::default();
+
+        // 根据主题类型应用不同的算法
+        match config.theme.mode {
+            css_in_rust::theme::theme_types::ThemeMode::Light => {
+                map = super::algorithm::light_algorithm(&seed);
+            }
+            css_in_rust::theme::theme_types::ThemeMode::Dark => {
+                map = super::algorithm::dark_algorithm(&seed);
+            }
+            _ => {
+                map = super::algorithm::light_algorithm(&seed);
+            }
+        }
+
+        // 如果是紧凑模式，应用紧凑算法
+        if config.compact {
+            super::algorithm::compact_algorithm(&mut map);
+        }
+
+        let alias = AliasToken::default();
+
+        // 生成CSS变量
+        let css = css_vars::generate_css_variables(&seed, &map, &alias, &config.css_vars);
+        css_vars_style.set(css_vars::create_css_variables_style_element(&css));
+    }
+
     // 创建主题切换函数
     let switch_theme = {
         let mut theme_config = theme_config.clone();
         let mut bridge = bridge.clone();
+        let mut css_vars_style = css_vars_style.clone();
 
         move |new_config: ThemeConfig| {
             // 更新主题配置
@@ -71,6 +115,40 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 
             // 更新主题桥接器
             bridge.write().set_theme(new_config.theme.clone());
+
+            // 如果启用了CSS变量，重新生成CSS变量
+            if css_vars_enabled {
+                let mut config = new_config.clone();
+                config.css_vars.enabled = true;
+
+                // 生成种子、映射和别名令牌
+                let seed = SeedToken::default();
+                let mut map = MapToken::default();
+
+                // 根据主题类型应用不同的算法
+                match config.theme.mode {
+                    css_in_rust::theme::theme_types::ThemeMode::Light => {
+                        map = super::algorithm::light_algorithm(&seed);
+                    }
+                    css_in_rust::theme::theme_types::ThemeMode::Dark => {
+                        map = super::algorithm::dark_algorithm(&seed);
+                    }
+                    _ => {
+                        map = super::algorithm::light_algorithm(&seed);
+                    }
+                }
+
+                // 如果是紧凑模式，应用紧凑算法
+                if config.compact {
+                    super::algorithm::compact_algorithm(&mut map);
+                }
+
+                let alias = AliasToken::default();
+
+                // 生成CSS变量
+                let css = css_vars::generate_css_variables(&seed, &map, &alias, &config.css_vars);
+                css_vars_style.set(css_vars::create_css_variables_style_element(&css));
+            }
         }
     };
 
@@ -90,6 +168,7 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
             class: "ant-theme-provider",
             "data-theme": format!("{:?}", theme_config.read().theme.mode),
             "data-compact": theme_config.read().compact.to_string(),
+            dangerous_inner_html: css_vars_style.read().clone(),
             {props.children}
         }
     }
@@ -152,4 +231,37 @@ pub fn use_component_token(component: &str, token_name: &str) -> String {
         .and_then(|tokens| tokens.get(token_name))
         .cloned()
         .unwrap_or_default()
+}
+
+/// 使用CSS变量的 Hook
+///
+/// 获取CSS变量名称
+///
+/// # 参数
+///
+/// * `token_name` - 令牌名称
+///
+/// # 返回值
+///
+/// CSS变量名称
+pub fn use_css_var_name(token_name: &str) -> String {
+    let theme_context = use_theme();
+    let prefix = &theme_context.config.css_vars.prefix;
+    format!("--{}-{}", prefix, token_name)
+}
+
+/// 使用CSS变量值的 Hook
+///
+/// 获取CSS变量值引用
+///
+/// # 参数
+///
+/// * `token_name` - 令牌名称
+///
+/// # 返回值
+///
+/// CSS变量值引用
+pub fn use_css_var_value(token_name: &str) -> String {
+    let var_name = use_css_var_name(token_name);
+    format!("var({})", var_name)
 }

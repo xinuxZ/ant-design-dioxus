@@ -370,6 +370,7 @@ dependencies = [
  "css-in-rust-macros",
  "hex",
  "lazy_static",
+ "log",
  "num_cpus",
  "proc-macro2",
  "quote",

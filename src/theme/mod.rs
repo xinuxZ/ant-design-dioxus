@@ -47,7 +47,9 @@ impl Default for Theme {
 
 // 主题模块
 pub mod algorithm;
+pub mod color_utils;
 pub mod core;
+pub mod css_vars;
 pub mod hooks;
 pub mod presets;
 pub mod provider;
@@ -55,7 +57,9 @@ pub mod tokens;
 
 // 重新导出常用类型和函数
 pub use algorithm::*;
+pub use color_utils::*;
 pub use core::types::*;
+pub use css_vars::*;
 pub use hooks::*;
 pub use presets::*;
 pub use provider::*;
@@ -76,6 +80,8 @@ pub struct ThemeConfig {
     pub token: HashMap<String, String>,
     /// 组件令牌
     pub components: HashMap<String, HashMap<String, String>>,
+    /// CSS变量选项
+    pub css_vars: css_vars::CssVariablesOptions,
 }
 
 /// 主题算法
@@ -99,20 +105,87 @@ impl Default for ThemeConfig {
             compact: false,
             token: HashMap::new(),
             components: HashMap::new(),
+            css_vars: css_vars::CssVariablesOptions::default(),
         }
     }
 }
 
 impl ThemeConfig {
     /// 创建新的主题配置
-    pub fn new(theme: CssTheme) -> Self {
-        Self {
-            theme,
-            theme_type: Theme::Light,
-            compact: false,
-            token: HashMap::new(),
-            components: HashMap::new(),
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// 设置主题
+    pub fn theme(mut self, theme: Theme) -> Self {
+        match theme {
+            Theme::Light => {
+                self.theme.mode = ThemeMode::Light;
+                self.compact = false;
+            }
+            Theme::Dark => {
+                self.theme.mode = ThemeMode::Dark;
+                self.compact = false;
+            }
+            Theme::Compact => {
+                self.theme.mode = ThemeMode::Light;
+                self.compact = true;
+            }
+            Theme::Custom => {
+                // 不做特殊处理，保持当前设置
+            }
         }
+        self
+    }
+
+    /// 设置紧凑模式
+    pub fn compact(mut self, compact: bool) -> Self {
+        self.compact = compact;
+        self
+    }
+
+    /// 设置令牌
+    pub fn token(mut self, key: &str, value: &str) -> Self {
+        self.token.insert(key.to_string(), value.to_string());
+        self
+    }
+
+    /// 设置组件令牌
+    pub fn component_token(mut self, component: &str, key: &str, value: &str) -> Self {
+        self.components
+            .entry(component.to_string())
+            .or_insert_with(HashMap::new)
+            .insert(key.to_string(), value.to_string());
+        self
+    }
+
+    /// 启用CSS变量
+    pub fn enable_css_vars(mut self, enabled: bool) -> Self {
+        self.css_vars.enabled = enabled;
+        self
+    }
+
+    /// 设置CSS变量前缀
+    pub fn css_vars_prefix(mut self, prefix: &str) -> Self {
+        self.css_vars.prefix = prefix.to_string();
+        self
+    }
+
+    /// 设置CSS变量根选择器
+    pub fn css_vars_root_selector(mut self, selector: &str) -> Self {
+        self.css_vars.root_selector = selector.to_string();
+        self
+    }
+
+    /// 生成并注入CSS变量
+    pub fn inject_css_vars(&self) -> String {
+        let seed = SeedToken::default();
+        let map = MapToken::default();
+        let alias = AliasToken::default();
+
+        let css = css_vars::generate_css_variables(&seed, &map, &alias, &self.css_vars);
+        css_vars::inject_css_variables(&css);
+        css
     }
 
     /// 创建亮色主题配置
@@ -125,6 +198,7 @@ impl ThemeConfig {
             compact: false,
             token: HashMap::new(),
             components: HashMap::new(),
+            css_vars: css_vars::CssVariablesOptions::default(),
         }
     }
 
@@ -138,6 +212,7 @@ impl ThemeConfig {
             compact: false,
             token: HashMap::new(),
             components: HashMap::new(),
+            css_vars: css_vars::CssVariablesOptions::default(),
         }
     }
 
@@ -157,68 +232,50 @@ impl ThemeConfig {
         config
     }
 
-    /// 设置紧凑模式
-    pub fn with_compact(mut self, compact: bool) -> Self {
-        self.compact = compact;
-        self
-    }
-
-    /// 设置主题令牌
-    pub fn with_token(mut self, token: HashMap<String, String>) -> Self {
-        self.token = token;
-        self
-    }
-
-    /// 设置组件令牌
-    pub fn with_components(mut self, components: HashMap<String, HashMap<String, String>>) -> Self {
-        self.components = components;
-        self
-    }
-
     /// 设置主题主色
     pub fn with_primary_color(mut self, color: &str) -> Self {
         self.token
-            .insert("primaryColor".to_string(), color.to_string());
+            .insert("colorPrimary".to_string(), color.to_string());
         self
     }
 
     /// 设置成功色
     pub fn with_success_color(mut self, color: &str) -> Self {
         self.token
-            .insert("successColor".to_string(), color.to_string());
+            .insert("colorSuccess".to_string(), color.to_string());
         self
     }
 
     /// 设置警告色
     pub fn with_warning_color(mut self, color: &str) -> Self {
         self.token
-            .insert("warningColor".to_string(), color.to_string());
+            .insert("colorWarning".to_string(), color.to_string());
         self
     }
 
     /// 设置错误色
     pub fn with_error_color(mut self, color: &str) -> Self {
         self.token
-            .insert("errorColor".to_string(), color.to_string());
+            .insert("colorError".to_string(), color.to_string());
         self
     }
 
     /// 设置信息色
     pub fn with_info_color(mut self, color: &str) -> Self {
         self.token
-            .insert("infoColor".to_string(), color.to_string());
+            .insert("colorInfo".to_string(), color.to_string());
         self
     }
 
     /// 设置边框圆角
-    pub fn with_border_radius(mut self, radius: i32) -> Self {
+    pub fn with_border_radius(mut self, radius: f32) -> Self {
         self.token
             .insert("borderRadius".to_string(), radius.to_string());
         self
     }
 
     /// 设置字体大小
-    pub fn with_font_size(mut self, size: i32) -> Self {
+    pub fn with_font_size(mut self, size: f32) -> Self {
         self.token.insert("fontSize".to_string(), size.to_string());
         self
     }

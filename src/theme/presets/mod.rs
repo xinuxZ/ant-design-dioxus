@@ -2,7 +2,7 @@
 //!
 //! 提供预设的主题配置，方便用户直接使用
 
-use super::{Algorithm, ThemeConfig};
+use super::{Theme, ThemeConfig};
 
 /// 获取亮色主题配置
 ///
@@ -10,14 +10,15 @@ use super::{Algorithm, ThemeConfig};
 ///
 /// 亮色主题配置
 pub fn light_theme() -> ThemeConfig {
-    ThemeConfig::light()
+    ThemeConfig::new()
+        .theme(Theme::Light)
         .with_primary_color("#1890ff")
         .with_success_color("#52c41a")
         .with_warning_color("#faad14")
         .with_error_color("#f5222d")
         .with_info_color("#1890ff")
-        .with_border_radius(2)
-        .with_font_size(14)
+        .with_border_radius(2.0)
+        .with_font_size(14.0)
 }
 
 /// 获取暗色主题配置
@@ -26,14 +27,15 @@ pub fn light_theme() -> ThemeConfig {
 ///
 /// 暗色主题配置
 pub fn dark_theme() -> ThemeConfig {
-    ThemeConfig::dark()
+    ThemeConfig::new()
+        .theme(Theme::Dark)
         .with_primary_color("#1890ff")
         .with_success_color("#52c41a")
         .with_warning_color("#faad14")
         .with_error_color("#f5222d")
         .with_info_color("#1890ff")
-        .with_border_radius(2)
-        .with_font_size(14)
+        .with_border_radius(2.0)
+        .with_font_size(14.0)
 }
 
 /// 获取紧凑主题配置
@@ -42,14 +44,15 @@ pub fn dark_theme() -> ThemeConfig {
 ///
 /// 紧凑主题配置
 pub fn compact_theme() -> ThemeConfig {
-    ThemeConfig::compact()
+    ThemeConfig::new()
+        .theme(Theme::Compact)
         .with_primary_color("#1890ff")
         .with_success_color("#52c41a")
         .with_warning_color("#faad14")
         .with_error_color("#f5222d")
         .with_info_color("#1890ff")
-        .with_border_radius(2)
-        .with_font_size(14)
+        .with_border_radius(2.0)
+        .with_font_size(14.0)
 }
 
 /// 获取暗色紧凑主题配置
@@ -58,14 +61,16 @@ pub fn compact_theme() -> ThemeConfig {
 ///
 /// 暗色紧凑主题配置
 pub fn compact_dark_theme() -> ThemeConfig {
-    ThemeConfig::compact_dark()
+    ThemeConfig::new()
+        .theme(Theme::Dark)
+        .compact(true)
         .with_primary_color("#1890ff")
         .with_success_color("#52c41a")
         .with_warning_color("#faad14")
         .with_error_color("#f5222d")
         .with_info_color("#1890ff")
-        .with_border_radius(2)
-        .with_font_size(14)
+        .with_border_radius(2.0)
+        .with_font_size(14.0)
 }
 
 /// 获取蓝色主题配置
