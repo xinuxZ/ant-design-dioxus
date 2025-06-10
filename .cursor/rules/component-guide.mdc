@@ -1,0 +1,63 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 组件开发指南
+
+## 组件结构
+```rust
+use dioxus::prelude::*;
+use crate::theme::Theme;
+use crate::locale::Locale;
+
+#[derive(Props, PartialEq)]
+pub struct ComponentProps {
+    // 属性定义
+}
+
+pub fn Component(cx: Scope<ComponentProps>) -> Element {
+    // 组件实现
+}
+```
+
+## 开发规范
+
+### 命名规范
+- 组件文件名使用小写下划线命名法
+- 组件函数名使用大驼峰命名法
+- Props 结构体名称以 Props 结尾
+- 内部辅助函数使用小驼峰命名法
+
+### 文档要求
+- 每个组件必须有完整的文档注释
+- 包含组件描述、属性说明和使用示例
+- 示例代码应该简洁且具有代表性
+- 中英文文档同步更新
+
+### 样式规范
+- 使用主题系统中的颜色和尺寸变量
+- 避免硬编码样式值
+- 支持暗色主题
+- 确保样式可定制性
+
+### 国际化
+- 所有文本使用国际化配置
+- 支持 RTL 布局
+- 使用 locale 模块的翻译函数
+- 提供完整的翻译文件
+
+### 可访问性
+- 添加适当的 ARIA 属性
+- 确保键盘可访问性
+- 提供合适的颜色对比度
+- 支持屏幕阅读器
+
+### 测试要求
+- 编写单元测试
+- 包含交互测试
+- 测试不同主题下的表现
+- 测试边界情况
+
+## 示例
+参考 [popconfirm.rs](mdc:css-in-rust/popconfirm.rs) 作为组件实现的范例。

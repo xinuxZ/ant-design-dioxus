@@ -25,11 +25,12 @@
 //! }
 //! ```
 
-use crate::theme::core::types::SpaceSize;
+mod styles;
+
+use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-const SPACE_STYLES: &str = include_str!("./style.css");
+use styles::SpaceStyleGenerator;
 
 /// Space 组件的方向
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -69,11 +70,31 @@ impl SpaceAlign {
     /// 获取CSS类名
     pub fn to_class(&self) -> String {
         match self {
-            SpaceAlign::Start => "ant-space-align-start".to_string(),
-            SpaceAlign::End => "ant-space-align-end".to_string(),
-            SpaceAlign::Center => "ant-space-align-center".to_string(),
-            SpaceAlign::Baseline => "ant-space-align-baseline".to_string(),
+            SpaceAlign::Start => "start",
+            SpaceAlign::End => "end",
+            SpaceAlign::Center => "center",
+            SpaceAlign::Baseline => "baseline",
         }
+        .to_string()
+    }
+}
+
+/// Space 组件的尺寸
+#[derive(Debug, Clone, PartialEq)]
+pub enum SpaceSize {
+    /// 小号间距
+    Small,
+    /// 中号间距（默认）
+    Middle,
+    /// 大号间距
+    Large,
+    /// 自定义间距（像素值）
+    Custom(u32),
+}
+
+impl Default for SpaceSize {
+    fn default() -> Self {
+        Self::Middle
     }
 }
 
@@ -112,6 +133,13 @@ pub struct SpaceProps {
     pub children: Element,
 }
 
+/// 注册全局样式
+fn register_styles() {
+    use_effect(|| {
+        let _ = css!(SpaceStyleGenerator::base_style());
+    });
+}
+
 /// Space 间距组件
 ///
 /// 设置组件之间的间距，避免组件紧贴在一起。
@@ -146,64 +174,65 @@ pub struct SpaceProps {
 /// ```
 #[component]
 pub fn Space(props: SpaceProps) -> Element {
-    let mut classes = vec!["ant-space".to_string()];
+    register_styles();
 
-    // 添加方向类
+    // 构建样式生成器
+    let mut style_generator = SpaceStyleGenerator::new();
+
+    // 设置方向
     match props.direction {
-        SpaceDirection::Horizontal => classes.push("ant-space-horizontal".to_string()),
-        SpaceDirection::Vertical => classes.push("ant-space-vertical".to_string()),
+        SpaceDirection::Horizontal => {
+            style_generator = style_generator.with_direction("horizontal")
+        }
+        SpaceDirection::Vertical => style_generator = style_generator.with_direction("vertical"),
     }
 
-    // 添加尺寸类
-    let size_class = match props.size {
-        SpaceSize::Small => "ant-space-small".to_string(),
-        SpaceSize::Middle => "ant-space-middle".to_string(),
-        SpaceSize::Large => "ant-space-large".to_string(),
-        SpaceSize::Custom(_) => "ant-space-custom".to_string(),
-        _ => "ant-space-small".to_string(),
+    // 设置尺寸
+    let size_str = match props.size {
+        SpaceSize::Small => "small",
+        SpaceSize::Middle => "middle",
+        SpaceSize::Large => "large",
+        SpaceSize::Custom(_) => "custom",
     };
-    classes.push(size_class);
+    style_generator = style_generator.with_size(size_str);
 
-    // 添加对齐类
-    classes.push(props.align.to_class());
+    // 设置对齐方式
+    style_generator = style_generator.with_align(&props.align.to_class());
 
-    // 添加换行类
-    if props.wrap {
-        classes.push("ant-space-wrap".to_string());
-    }
+    // 设置换行
+    style_generator = style_generator.with_wrap(props.wrap);
 
-    // 添加自定义类
-    if let Some(class) = &props.class {
-        classes.push(class.clone());
-    }
-
-    let class_str = classes.join(" ");
+    // 生成类名
+    let space_class = style_generator.generate();
+    let class = format!(
+        "{} {}",
+        space_class,
+        props.class.clone().unwrap_or_default()
+    );
 
     // 构建自定义样式
     let mut style_parts = Vec::new();
 
     // 如果是自定义尺寸，添加CSS变量
     if let SpaceSize::Custom(size) = props.size {
-        let gap_value = format!("{}px", size);
-        style_parts.push(format!("--ant-space-gap: {}", gap_value));
+        let gap_value = format!("{}", size);
+        style_parts.push(format!("--ant-space-gap: {}px", gap_value));
     }
 
     if let Some(style) = &props.style {
         style_parts.push(style.clone());
     }
 
-    let style_str = if style_parts.is_empty() {
-        None
+    let style = if style_parts.is_empty() {
+        props.style.clone().unwrap_or_default()
     } else {
-        Some(style_parts.join("; "))
+        style_parts.join("; ")
     };
 
     rsx! {
-        style { {SPACE_STYLES} }
-
         div {
-            class: class_str.clone(),
-            style: style_str,
+            class: class,
+            style: style,
             {props.children}
         }
     }

@@ -1,0 +1,437 @@
+---
+description: Ant Design 主题系统开发规范，确保主题的一致性和可定制性
+globs:
+  - 'src/theme/**/*.rs'
+  - 'src/components/**/styles.rs'
+  - 'src/config_provider/**/*.rs'
+alwaysApply: true
+priority: high
+---
+
+# Ant Design 主题系统规范
+
+## 目标
+建立完整的主题系统，支持亮色/暗色主题切换、主题定制和设计令牌管理。
+
+## 上下文
+- 基于 Ant Design 5.x 设计令牌系统
+- 集成 CSS-in-Rust 样式解决方案
+- 支持运行时主题切换
+- 兼容服务端渲染 (SSR)
+
+## 规则
+
+### 设计令牌结构
+- 使用分层的令牌系统：种子令牌 → 映射令牌 → 别名令牌
+- 所有令牌必须有明确的语义和用途
+- 支持令牌的继承和覆盖
+
+✅ **设计令牌定义**:
+```rust
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+/// 种子令牌 - 基础设计决策
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SeedToken {
+    // 品牌色
+    pub color_primary: String,
+    pub color_success: String,
+    pub color_warning: String,
+    pub color_error: String,
+    pub color_info: String,
+
+    // 中性色
+    pub color_text_base: String,
+    pub color_bg_base: String,
+
+    // 字体
+    pub font_size: u32,
+    pub font_size_lg: u32,
+    pub font_size_sm: u32,
+
+    // 尺寸
+    pub size_unit: u32,
+    pub size_base: u32,
+    pub size_step: u32,
+
+    // 其他基础令牌
+    pub border_radius: u32,
+    pub wireframe: bool,
+}
+
+/// 映射令牌 - 从种子令牌派生的具体值
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MapToken {
+    // 继承种子令牌
+    #[serde(flatten)]
+    pub seed: SeedToken,
+
+    // 派生的颜色
+    pub color_primary_bg: String,
+    pub color_primary_bg_hover: String,
+    pub color_primary_border: String,
+    pub color_primary_border_hover: String,
+    pub color_primary_hover: String,
+    pub color_primary_active: String,
+    pub color_primary_text_hover: String,
+    pub color_primary_text: String,
+    pub color_primary_text_active: String,
+
+    // 文本颜色
+    pub color_text: String,
+    pub color_text_secondary: String,
+    pub color_text_tertiary: String,
+    pub color_text_quaternary: String,
+
+    // 背景颜色
+    pub color_bg_container: String,
+    pub color_bg_elevated: String,
+    pub color_bg_layout: String,
+    pub color_bg_spotlight: String,
+    pub color_bg_mask: String,
+
+    // 边框颜色
+    pub color_border: String,
+    pub color_border_secondary: String,
+
+    // 控件尺寸
+    pub control_height: u32,
+    pub control_height_lg: u32,
+    pub control_height_sm: u32,
+
+    // 其他映射令牌...
+}
+
+/// 别名令牌 - 组件特定的令牌
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AliasToken {
+    // 继承映射令牌
+    #[serde(flatten)]
+    pub map: MapToken,
+
+    // 组件特定令牌
+    pub color_fill_alter: String,
+    pub color_bg_container_disabled: String,
+    pub color_border_bg: String,
+    pub color_split: String,
+
+    // 动画令牌
+    pub motion_duration_fast: String,
+    pub motion_duration_mid: String,
+    pub motion_duration_slow: String,
+    pub motion_ease_in_out: String,
+    pub motion_ease_in_out_circ: String,
+    pub motion_ease_out_back: String,
+    pub motion_ease_in_back: String,
+    pub motion_ease_in_quint: String,
+    pub motion_ease_out_quint: String,
+}
+```
+
+### 主题提供者
+- 使用 Context API 提供主题
+- 支持嵌套主题提供者
+- 实现主题的动态切换
+
+✅ **主题提供者实现**:
+```rust
+use dioxus::prelude::*;
+use std::rc::Rc;
+
+/// 主题上下文
+#[derive(Clone, Debug)]
+pub struct ThemeContext {
+    pub token: Rc<AliasToken>,
+    pub theme_name: String,
+    pub set_theme: Rc<dyn Fn(String)>,
+}
+
+/// 主题提供者组件
+#[derive(Props, Clone, PartialEq)]
+pub struct ThemeProviderProps {
+    /// 初始主题
+    #[props(default = "light".to_string())]
+    pub initial_theme: String,
+
+    /// 自定义令牌
+    #[props(default)]
+    pub token: Option<AliasToken>,
+
+    /// 主题变化回调
+    #[props(default)]
+    pub on_theme_change: Option<EventHandler<String>>,
+
+    children: Element,
+}
+
+#[component]
+pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
+    let mut current_theme = use_signal(|| props.initial_theme.clone());
+
+    // 计算当前令牌
+    let token = use_memo(move || {
+        let base_token = match current_theme().as_str() {
+            "dark" => get_dark_theme_token(),
+            "compact" => get_compact_theme_token(),
+            _ => get_light_theme_token(),
+        };
+
+        // 合并自定义令牌
+        if let Some(custom_token) = &props.token {
+            merge_tokens(base_token, custom_token.clone())
+        } else {
+            base_token
+        }
+    });
+
+    // 主题切换函数
+    let set_theme = use_callback(move |theme_name: String| {
+        current_theme.set(theme_name.clone());
+
+        if let Some(callback) = &props.on_theme_change {
+            callback.call(theme_name);
+        }
+    });
+
+    let theme_context = ThemeContext {
+        token: Rc::new(token()),
+        theme_name: current_theme(),
+        set_theme: Rc::new(move |name| set_theme(name)),
+    };
+
+    rsx! {
+        div {
+            // 设置 CSS 变量
+            style: generate_css_variables(&token()),
+            class: format!("ant-theme-{}", current_theme()),
+
+            // 提供主题上下文
+            {use_context_provider(|| theme_context)}
+
+            {props.children}
+        }
+    }
+}
+
+/// 使用主题 Hook
+pub fn use_theme() -> ThemeContext {
+    use_context::<ThemeContext>()
+}
+
+/// 使用令牌 Hook
+pub fn use_token() -> Rc<AliasToken> {
+    use_theme().token
+}
+```
+
+### CSS 变量生成
+- 自动生成 CSS 自定义属性
+- 支持运行时更新
+- 确保变量命名的一致性
+
+✅ **CSS 变量生成**:
+```rust
+/// 生成 CSS 变量样式
+pub fn generate_css_variables(token: &AliasToken) -> String {
+    let mut variables = Vec::new();
+
+    // 颜色变量
+    variables.push(format!("--ant-color-primary: {};", token.color_primary));
+    variables.push(format!("--ant-color-primary-hover: {};", token.color_primary_hover));
+    variables.push(format!("--ant-color-primary-active: {};", token.color_primary_active));
+
+    // 文本颜色
+    variables.push(format!("--ant-color-text: {};", token.color_text));
+    variables.push(format!("--ant-color-text-secondary: {};", token.color_text_secondary));
+
+    // 背景颜色
+    variables.push(format!("--ant-color-bg-container: {};", token.color_bg_container));
+    variables.push(format!("--ant-color-bg-layout: {};", token.color_bg_layout));
+
+    // 边框
+    variables.push(format!("--ant-color-border: {};", token.color_border));
+    variables.push(format!("--ant-border-radius: {}px;", token.border_radius));
+
+    // 尺寸
+    variables.push(format!("--ant-control-height: {}px;", token.control_height));
+    variables.push(format!("--ant-font-size: {}px;", token.font_size));
+
+    // 动画
+    variables.push(format!("--ant-motion-duration-slow: {};", token.motion_duration_slow));
+    variables.push(format!("--ant-motion-ease-in-out: {};", token.motion_ease_in_out));
+
+    variables.join(" ")
+}
+
+/// 组件样式中使用 CSS 变量
+pub fn create_button_styles() -> String {
+    css! {
+        background_color: "var(--ant-color-bg-container)",
+        color: "var(--ant-color-text)",
+        border: "1px solid var(--ant-color-border)",
+        border_radius: "var(--ant-border-radius)",
+        height: "var(--ant-control-height)",
+        font_size: "var(--ant-font-size)",
+        transition: "all var(--ant-motion-duration-slow) var(--ant-motion-ease-in-out)",
+
+        "&:hover" {
+            color: "var(--ant-color-primary)",
+            border_color: "var(--ant-color-primary)",
+        },
+
+        "&.ant-btn-primary" {
+            background_color: "var(--ant-color-primary)",
+            border_color: "var(--ant-color-primary)",
+            color: "#fff",
+
+            "&:hover" {
+                background_color: "var(--ant-color-primary-hover)",
+                border_color: "var(--ant-color-primary-hover)",
+            },
+
+            "&:active" {
+                background_color: "var(--ant-color-primary-active)",
+                border_color: "var(--ant-color-primary-active)",
+            }
+        }
+    }
+}
+```
+
+### 主题预设
+- 提供标准主题预设
+- 支持主题的扩展和定制
+- 确保主题间的一致性
+
+✅ **主题预设定义**:
+```rust
+/// 亮色主题预设
+pub fn light_theme() -> AliasToken {
+    let seed = SeedToken {
+        color_primary: "#1677ff".to_string(),
+        color_success: "#52c41a".to_string(),
+        color_warning: "#faad14".to_string(),
+        color_error: "#ff4d4f".to_string(),
+        color_info: "#1677ff".to_string(),
+        color_text_base: "#000000".to_string(),
+        color_bg_base: "#ffffff".to_string(),
+        font_size: 14,
+        font_size_lg: 16,
+        font_size_sm: 12,
+        size_unit: 4,
+        size_base: 4,
+        size_step: 4,
+        border_radius: 6,
+        wireframe: false,
+    };
+
+    generate_alias_token(seed)
+}
+
+/// 暗色主题预设
+pub fn dark_theme() -> AliasToken {
+    let seed = SeedToken {
+        color_primary: "#1677ff".to_string(),
+        color_success: "#52c41a".to_string(),
+        color_warning: "#faad14".to_string(),
+        color_error: "#ff4d4f".to_string(),
+        color_info: "#1677ff".to_string(),
+        color_text_base: "#ffffff".to_string(),
+        color_bg_base: "#000000".to_string(),
+        font_size: 14,
+        font_size_lg: 16,
+        font_size_sm: 12,
+        size_unit: 4,
+        size_base: 4,
+        size_step: 4,
+        border_radius: 6,
+        wireframe: false,
+    };
+
+    generate_alias_token(seed)
+}
+
+/// 紧凑主题预设
+pub fn compact_theme() -> AliasToken {
+    let mut token = light_theme();
+
+    // 调整尺寸令牌
+    token.control_height = 24;
+    token.control_height_lg = 32;
+    token.control_height_sm = 16;
+    token.font_size = 12;
+    token.size_step = 2;
+
+    token
+}
+```
+
+### 主题定制
+- 支持部分令牌覆盖
+- 提供主题构建工具
+- 验证主题的完整性
+
+✅ **主题定制示例**:
+```rust
+/// 自定义主题配置
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomThemeConfig {
+    pub name: String,
+    pub base_theme: String, // "light" | "dark" | "compact"
+    pub overrides: HashMap<String, serde_json::Value>,
+}
+
+/// 创建自定义主题
+pub fn create_custom_theme(config: CustomThemeConfig) -> Result<AliasToken, ThemeError> {
+    // 获取基础主题
+    let mut base_token = match config.base_theme.as_str() {
+        "dark" => dark_theme(),
+        "compact" => compact_theme(),
+        _ => light_theme(),
+    };
+
+    // 应用覆盖
+    for (key, value) in config.overrides {
+        apply_token_override(&mut base_token, &key, value)?;
+    }
+
+    // 验证主题完整性
+    validate_theme(&base_token)?;
+
+    Ok(base_token)
+}
+
+/// 应用令牌覆盖
+fn apply_token_override(
+    token: &mut AliasToken,
+    key: &str,
+    value: serde_json::Value
+) -> Result<(), ThemeError> {
+    match key {
+        "color_primary" => {
+            if let Some(color) = value.as_str() {
+                token.color_primary = color.to_string();
+                // 重新计算相关颜色
+                regenerate_primary_colors(token);
+            }
+        },
+        "font_size" => {
+            if let Some(size) = value.as_u64() {
+                token.font_size = size as u32;
+                // 重新计算相关尺寸
+                regenerate_font_sizes(token);
+            }
+        },
+        // 其他令牌覆盖...
+        _ => return Err(ThemeError::UnknownToken(key.to_string())),
+    }
+
+    Ok(())
+}
+```
+
+## 例外情况
+- 性能关键场景可以直接使用硬编码值
+- 第三方组件集成可能需要特殊的主题处理
+- 实验性功能可以使用简化的主题系统

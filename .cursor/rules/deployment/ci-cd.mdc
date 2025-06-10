@@ -1,0 +1,791 @@
+---
+description: 持续集成和持续部署规范，确保代码质量和自动化发布流程
+globs:
+  - '.github/**/*'
+  - 'scripts/**/*'
+  - 'Cargo.toml'
+  - 'package.json'
+alwaysApply: true
+priority: medium
+---
+
+# CI/CD 规范
+
+## 目标
+建立完整的持续集成和持续部署流程，确保代码质量、自动化测试和可靠的发布管理。
+
+## 上下文
+- 基于 GitHub Actions 的 CI/CD 流程
+- 支持多平台构建 (Web, Desktop, Mobile)
+- 集成代码质量检查和安全扫描
+- 自动化版本管理和发布
+- 支持多环境部署 (开发、测试、生产)
+
+## 规则
+
+### GitHub Actions 工作流配置
+- 使用标准化的工作流模板
+- 实施并行构建和测试
+- 集成缓存机制提高效率
+- 配置适当的触发条件
+
+✅ **主要 CI 工作流**:
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # 每日构建检查依赖更新
+    - cron: '0 2 * * *'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # 代码质量检查
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Check documentation
+        run: cargo doc --no-deps --document-private-items
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+
+      - name: Security audit
+        run: |
+          cargo install cargo-audit
+          cargo audit
+
+      - name: License check
+        run: |
+          cargo install cargo-license
+          cargo license --json | jq '.[] | select(.license != "MIT" and .license != "Apache-2.0" and .license != "BSD-3-Clause")' | jq -s 'if length > 0 then error("Incompatible licenses found") else empty end'
+
+  # 测试矩阵
+  test:
+    name: Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable, beta]
+        exclude:
+          # 减少矩阵大小，只在 Ubuntu 上测试 beta
+          - os: windows-latest
+            rust: beta
+          - os: macos-latest
+            rust: beta
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run tests
+        run: cargo test --verbose --all-features
+
+      - name: Run doctests
+        run: cargo test --doc
+
+      - name: Test examples
+        run: |
+          for example in examples/*.rs; do
+            echo "Testing example: $example"
+            cargo check --example $(basename "$example" .rs)
+          done
+
+  # WebAssembly 构建测试
+  wasm:
+    name: WebAssembly Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: wasm-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build for WebAssembly
+        run: |
+          wasm-pack build --target web --out-dir pkg
+          ls -la pkg/
+
+      - name: Test WebAssembly
+        run: wasm-pack test --headless --firefox
+
+      - name: Check bundle size
+        run: |
+          WASM_SIZE=$(stat -c%s pkg/*.wasm)
+          echo "WASM bundle size: $WASM_SIZE bytes"
+          # 警告如果包大小超过 1MB
+          if [ $WASM_SIZE -gt 1048576 ]; then
+            echo "::warning::WASM bundle size ($WASM_SIZE bytes) exceeds 1MB"
+          fi
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: wasm-build-${{ github.sha }}
+          path: pkg/
+          retention-days: 7
+
+  # 代码覆盖率
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Generate coverage report
+        run: |
+          cargo tarpaulin --verbose --all-features --workspace --timeout 120 \
+            --exclude-files 'examples/*' 'tests/*' \
+            --out xml --output-dir coverage/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/cobertura.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # 性能基准测试
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run benchmarks
+        run: |
+          cargo bench --bench component_benchmarks -- --output-format json | tee benchmark_results.json
+
+      - name: Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'cargo'
+          output-file-path: benchmark_results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          comment-on-alert: true
+          alert-threshold: '200%'
+          fail-on-alert: true
+```
+
+### 发布工作流
+- 自动化版本管理
+- 生成变更日志
+- 创建 GitHub Release
+- 发布到包管理器
+
+✅ **发布工作流**:
+```yaml
+# .github/workflows/release.yml
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # 创建 GitHub Release
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # 获取上一个标签
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges $PREVIOUS_TAG..HEAD)
+          fi
+
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ## Installation
+
+            Add this to your `Cargo.toml`:
+
+            ```toml
+            [dependencies]
+            ant-design-dioxus = "${{ github.ref_name }}"
+            ```
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+
+  # 构建和上传资产
+  build-assets:
+    name: Build Release Assets
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            asset_name: ant-design-dioxus-linux-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset_name: ant-design-dioxus-windows-x86_64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset_name: ant-design-dioxus-macos-x86_64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            asset_name: ant-design-dioxus-macos-aarch64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Create asset archive
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            7z a ${{ matrix.asset_name }}.zip target/${{ matrix.target }}/release/*.exe
+          else
+            tar -czf ${{ matrix.asset_name }}.tar.gz -C target/${{ matrix.target }}/release .
+          fi
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ matrix.asset_name }}.*
+          asset_name: ${{ matrix.asset_name }}.*
+          asset_content_type: application/octet-stream
+
+  # 发布到 crates.io
+  publish-crate:
+    name: Publish to crates.io
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish to crates.io
+        run: |
+          cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+  # 构建和部署文档
+  deploy-docs:
+    name: Deploy Documentation
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build documentation
+        run: |
+          cargo doc --no-deps --all-features
+          echo '<meta http-equiv="refresh" content="0; url=ant_design_dioxus">' > target/doc/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/doc
+          cname: ant-design-dioxus.github.io
+```
+
+### 代码质量门禁
+- 强制代码格式化
+- Clippy 警告检查
+- 测试覆盖率要求
+- 安全漏洞扫描
+
+✅ **质量检查脚本**:
+```bash
+#!/bin/bash
+# scripts/quality-check.sh
+
+set -e
+
+echo "🔍 Running code quality checks..."
+
+# 1. 格式化检查
+echo "📝 Checking code formatting..."
+if ! cargo fmt --all -- --check; then
+    echo "❌ Code formatting check failed. Run 'cargo fmt' to fix."
+    exit 1
+fi
+echo "✅ Code formatting is correct."
+
+# 2. Clippy 检查
+echo "🔧 Running Clippy..."
+if ! cargo clippy --all-targets --all-features -- -D warnings; then
+    echo "❌ Clippy found issues. Please fix them."
+    exit 1
+fi
+echo "✅ Clippy checks passed."
+
+# 3. 测试
+echo "🧪 Running tests..."
+if ! cargo test --all-features; then
+    echo "❌ Tests failed."
+    exit 1
+fi
+echo "✅ All tests passed."
+
+# 4. 文档测试
+echo "📚 Running documentation tests..."
+if ! cargo test --doc; then
+    echo "❌ Documentation tests failed."
+    exit 1
+fi
+echo "✅ Documentation tests passed."
+
+# 5. 示例检查
+echo "💡 Checking examples..."
+for example in examples/*.rs; do
+    if [ -f "$example" ]; then
+        example_name=$(basename "$example" .rs)
+        echo "  Checking example: $example_name"
+        if ! cargo check --example "$example_name"; then
+            echo "❌ Example $example_name failed to compile."
+            exit 1
+        fi
+    fi
+done
+echo "✅ All examples compile successfully."
+
+# 6. 安全审计
+echo "🔒 Running security audit..."
+if ! cargo audit; then
+    echo "❌ Security vulnerabilities found."
+    exit 1
+fi
+echo "✅ No security vulnerabilities found."
+
+# 7. 依赖检查
+echo "📦 Checking dependencies..."
+if ! cargo tree --duplicates; then
+    echo "⚠️  Duplicate dependencies found."
+fi
+
+# 8. 包大小检查
+echo "📏 Checking package size..."
+cargo package --list | wc -l
+echo "Package contains $(cargo package --list | wc -l) files"
+
+# 9. WASM 构建检查
+if command -v wasm-pack &> /dev/null; then
+    echo "🌐 Checking WebAssembly build..."
+    if ! wasm-pack build --target web --dev; then
+        echo "❌ WebAssembly build failed."
+        exit 1
+    fi
+    echo "✅ WebAssembly build successful."
+else
+    echo "⚠️  wasm-pack not found, skipping WASM build check."
+fi
+
+echo "🎉 All quality checks passed!"
+```
+
+### 部署脚本
+- 环境配置管理
+- 自动化部署流程
+- 回滚机制
+- 健康检查
+
+✅ **部署脚本示例**:
+```bash
+#!/bin/bash
+# scripts/deploy.sh
+
+set -e
+
+# 配置
+ENVIRONMENT=${1:-staging}
+VERSION=${2:-latest}
+DEPLOY_DIR="/var/www/ant-design-dioxus"
+BACKUP_DIR="/var/backups/ant-design-dioxus"
+
+echo "🚀 Deploying ant-design-dioxus to $ENVIRONMENT environment..."
+echo "📦 Version: $VERSION"
+
+# 1. 预检查
+echo "🔍 Running pre-deployment checks..."
+if [ ! -d "$DEPLOY_DIR" ]; then
+    echo "❌ Deploy directory $DEPLOY_DIR does not exist."
+    exit 1
+fi
+
+# 2. 备份当前版本
+echo "💾 Creating backup..."
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_PATH="$BACKUP_DIR/backup_$TIMESTAMP"
+mkdir -p "$BACKUP_PATH"
+cp -r "$DEPLOY_DIR"/* "$BACKUP_PATH/" 2>/dev/null || true
+echo "✅ Backup created at $BACKUP_PATH"
+
+# 3. 构建新版本
+echo "🔨 Building for $ENVIRONMENT..."
+case $ENVIRONMENT in
+    "production")
+        cargo build --release
+        wasm-pack build --target web --release
+        ;;
+    "staging")
+        cargo build --release
+        wasm-pack build --target web --dev
+        ;;
+    "development")
+        cargo build
+        wasm-pack build --target web --dev
+        ;;
+    *)
+        echo "❌ Unknown environment: $ENVIRONMENT"
+        exit 1
+        ;;
+esac
+
+# 4. 运行测试
+echo "🧪 Running deployment tests..."
+cargo test --release
+
+# 5. 部署文件
+echo "📂 Deploying files..."
+cp -r pkg/* "$DEPLOY_DIR/"
+cp -r examples/* "$DEPLOY_DIR/examples/" 2>/dev/null || true
+
+# 6. 更新配置
+echo "⚙️  Updating configuration..."
+cat > "$DEPLOY_DIR/config.json" << EOF
+{
+  "environment": "$ENVIRONMENT",
+  "version": "$VERSION",
+  "deployed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+  "build_info": {
+    "rust_version": "$(rustc --version)",
+    "commit_hash": "$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
+  }
+}
+EOF
+
+# 7. 健康检查
+echo "🏥 Running health checks..."
+sleep 5  # 等待服务启动
+
+# 检查文件是否存在
+if [ ! -f "$DEPLOY_DIR/ant_design_dioxus.js" ]; then
+    echo "❌ Main JavaScript file not found after deployment."
+    echo "🔄 Rolling back..."
+    cp -r "$BACKUP_PATH"/* "$DEPLOY_DIR/"
+    exit 1
+fi
+
+# 检查 WASM 文件
+if [ ! -f "$DEPLOY_DIR/ant_design_dioxus_bg.wasm" ]; then
+    echo "❌ WASM file not found after deployment."
+    echo "🔄 Rolling back..."
+    cp -r "$BACKUP_PATH"/* "$DEPLOY_DIR/"
+    exit 1
+fi
+
+# 8. 清理旧备份（保留最近 5 个）
+echo "🧹 Cleaning up old backups..."
+ls -t "$BACKUP_DIR" | tail -n +6 | xargs -I {} rm -rf "$BACKUP_DIR/{}"
+
+echo "🎉 Deployment completed successfully!"
+echo "📊 Deployment summary:"
+echo "  Environment: $ENVIRONMENT"
+echo "  Version: $VERSION"
+echo "  Deployed at: $(date)"
+echo "  Backup location: $BACKUP_PATH"
+
+# 9. 发送通知（可选）
+if [ -n "$SLACK_WEBHOOK_URL" ]; then
+    curl -X POST -H 'Content-type: application/json' \
+        --data "{\"text\":\"🚀 ant-design-dioxus deployed to $ENVIRONMENT (version: $VERSION)\"}" \
+        "$SLACK_WEBHOOK_URL"
+fi
+```
+
+### 环境配置管理
+- 多环境配置
+- 密钥管理
+- 环境变量配置
+- 配置验证
+
+✅ **环境配置示例**:
+```toml
+# config/development.toml
+[environment]
+name = "development"
+debug = true
+log_level = "debug"
+
+[build]
+optimization = false
+source_maps = true
+minify = false
+
+[features]
+experimental = true
+debug_tools = true
+performance_monitoring = false
+
+[cdn]
+base_url = "http://localhost:8080"
+use_cdn = false
+
+[analytics]
+enabled = false
+```
+
+```toml
+# config/production.toml
+[environment]
+name = "production"
+debug = false
+log_level = "warn"
+
+[build]
+optimization = true
+source_maps = false
+minify = true
+
+[features]
+experimental = false
+debug_tools = false
+performance_monitoring = true
+
+[cdn]
+base_url = "https://cdn.ant-design-dioxus.com"
+use_cdn = true
+
+[analytics]
+enabled = true
+tracking_id = "${ANALYTICS_TRACKING_ID}"
+```
+
+```rust
+// src/config/mod.rs
+use serde::{Deserialize, Serialize};
+use std::env;
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Config {
+    pub environment: EnvironmentConfig,
+    pub build: BuildConfig,
+    pub features: FeatureConfig,
+    pub cdn: CdnConfig,
+    pub analytics: AnalyticsConfig,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct EnvironmentConfig {
+    pub name: String,
+    pub debug: bool,
+    pub log_level: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct BuildConfig {
+    pub optimization: bool,
+    pub source_maps: bool,
+    pub minify: bool,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct FeatureConfig {
+    pub experimental: bool,
+    pub debug_tools: bool,
+    pub performance_monitoring: bool,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CdnConfig {
+    pub base_url: String,
+    pub use_cdn: bool,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct AnalyticsConfig {
+    pub enabled: bool,
+    pub tracking_id: Option<String>,
+}
+
+impl Config {
+    pub fn load() -> Result<Self, Box<dyn std::error::Error>> {
+        let env = env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string());
+        let config_path = format!("config/{}.toml", env);
+
+        let config_content = std::fs::read_to_string(&config_path)
+            .map_err(|e| format!("Failed to read config file {}: {}", config_path, e))?;
+
+        // 替换环境变量
+        let config_content = expand_env_vars(&config_content);
+
+        let config: Config = toml::from_str(&config_content)
+            .map_err(|e| format!("Failed to parse config: {}", e))?;
+
+        // 验证配置
+        config.validate()?;
+
+        Ok(config)
+    }
+
+    fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // 验证日志级别
+        match self.environment.log_level.as_str() {
+            "trace" | "debug" | "info" | "warn" | "error" => {},
+            _ => return Err(format!("Invalid log level: {}", self.environment.log_level).into()),
+        }
+
+        // 验证 CDN URL
+        if self.cdn.use_cdn && !self.cdn.base_url.starts_with("https://") {
+            return Err("CDN base URL must use HTTPS in production".into());
+        }
+
+        // 验证分析配置
+        if self.analytics.enabled && self.analytics.tracking_id.is_none() {
+            return Err("Analytics tracking ID is required when analytics is enabled".into());
+        }
+
+        Ok(())
+    }
+}
+
+fn expand_env_vars(content: &str) -> String {
+    let mut result = content.to_string();
+
+    // 简单的环境变量替换
+    for (key, value) in env::vars() {
+        let placeholder = format!("${{{}}}", key);
+        result = result.replace(&placeholder, &value);
+    }
+
+    result
+}
+```
+
+## 例外情况
+- 热修复可以跳过某些检查流程
+- 实验性功能可以使用简化的 CI 流程
+- 开发分支可以有较宽松的质量要求
+- 紧急发布可以使用快速通道

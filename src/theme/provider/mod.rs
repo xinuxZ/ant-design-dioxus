@@ -14,7 +14,7 @@ pub struct ThemeContext {
     /// 主题配置
     pub config: ThemeConfig,
     /// 主题切换函数
-    pub switch_theme: Arc<dyn Fn(ThemeConfig) + 'static>,
+    pub switch_theme: Arc<dyn FnMut(ThemeConfig) + 'static>,
 }
 
 impl PartialEq for ThemeContext {
@@ -26,7 +26,7 @@ impl PartialEq for ThemeContext {
 
 impl ThemeContext {
     /// 创建新的主题上下文
-    pub fn new(config: ThemeConfig, switch_theme: impl Fn(ThemeConfig) + 'static) -> Self {
+    pub fn new(config: ThemeConfig, switch_theme: impl FnMut(ThemeConfig) + 'static) -> Self {
         Self {
             config,
             switch_theme: Arc::new(switch_theme),
@@ -52,7 +52,7 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     let theme_config = props.config;
 
     // 初始化主题桥接器
-    let bridge = use_memo(move || {
+    let mut bridge = use_signal(|| {
         ThemeBridge::new(
             theme_config.read().theme.clone(),
             css_in_rust::theme::core::css::variables::InjectionStrategy::Replace,
@@ -60,14 +60,18 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         )
     });
 
-    // 主题切换函数
-    let switch_theme = move |new_config: ThemeConfig| {
-        // 更新主题配置
-        theme_config.set(new_config.clone());
+    // 创建主题切换函数
+    let switch_theme = {
+        let mut theme_config = theme_config.clone();
+        let mut bridge = bridge.clone();
 
-        // 更新主题桥接器
-        let mut bridge_clone = bridge.clone();
-        let _ = bridge_clone.set_theme(new_config.theme.clone());
+        move |new_config: ThemeConfig| {
+            // 更新主题配置
+            theme_config.set(new_config.clone());
+
+            // 更新主题桥接器
+            bridge.write().set_theme(new_config.theme.clone());
+        }
     };
 
     // 创建主题上下文
@@ -75,8 +79,7 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 
     // 注入主题变量
     use_effect(move || {
-        let mut bridge_clone = bridge.clone();
-        let _ = bridge_clone.sync_theme_variables();
+        bridge.write().sync_theme_variables();
     });
 
     // 提供主题上下文
@@ -102,7 +105,7 @@ pub fn use_theme() -> ThemeContext {
 /// 使用主题切换的 Hook
 ///
 /// 获取主题切换函数
-pub fn use_theme_switch() -> Arc<dyn Fn(ThemeConfig) + 'static> {
+pub fn use_theme_switch() -> Arc<dyn FnMut(ThemeConfig) + 'static> {
     let theme_context = use_theme();
     theme_context.switch_theme
 }

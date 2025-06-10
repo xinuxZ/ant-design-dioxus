@@ -3,7 +3,6 @@
 //! 提供颜色算法和主题派生功能，用于生成完整的主题令牌
 
 use super::core::types::{ColorType, MapToken, SeedToken};
-use std::collections::HashMap;
 
 /// 生成颜色调色板
 ///

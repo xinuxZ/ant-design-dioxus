@@ -1,0 +1,825 @@
+---
+description: 性能优化规范和最佳实践，确保组件库的高性能和良好用户体验
+globs:
+  - 'src/**/*.rs'
+  - 'examples/**/*.rs'
+  - 'build.rs'
+  - 'Cargo.toml'
+alwaysApply: true
+priority: high
+---
+
+# 性能优化规范
+
+## 目标
+建立全面的性能优化体系，确保组件库在各种设备和网络环境下都能提供流畅的用户体验。
+
+## 上下文
+- 基于 Rust 的零成本抽象特性
+- 优化 WebAssembly 包大小和执行效率
+- 支持服务端渲染 (SSR) 性能优化
+- 适配移动设备和低性能设备
+- 遵循 Web Vitals 性能指标
+
+## 规则
+
+### 组件渲染性能
+- 最小化不必要的重新渲染
+- 使用 `use_memo` 缓存计算结果
+- 合理使用 `use_callback` 避免函数重建
+- 实施虚拟化处理大量数据
+
+✅ **高性能组件示例**:
+```rust
+use dioxus::prelude::*;
+use std::collections::HashMap;
+
+/// 高性能列表组件
+#[component]
+pub fn VirtualizedList(props: VirtualizedListProps) -> Element {
+    let container_ref = use_signal(|| None::<web_sys::Element>);
+    let scroll_top = use_signal(|| 0.0);
+    let container_height = use_signal(|| 600.0);
+
+    // 缓存项目高度计算
+    let item_height = props.item_height.unwrap_or(50.0);
+    let visible_count = use_memo(move || {
+        (container_height() / item_height).ceil() as usize + 2 // 缓冲区
+    });
+
+    // 计算可见范围
+    let visible_range = use_memo(move || {
+        let start = (scroll_top() / item_height).floor() as usize;
+        let end = (start + visible_count()).min(props.items.len());
+        start..end
+    });
+
+    // 缓存渲染项目
+    let visible_items = use_memo(move || {
+        visible_range()
+            .clone()
+            .map(|index| {
+                let item = &props.items[index];
+                let top = index as f64 * item_height;
+
+                rsx! {
+                    div {
+                        key: "{index}",
+                        class: "virtual-list-item",
+                        style: "position: absolute; top: {top}px; height: {item_height}px; width: 100%;",
+
+                        {(props.render_item)(item, index)}
+                    }
+                }
+            })
+            .collect::<Vec<_>>()
+    });
+
+    // 滚动事件处理（防抖）
+    let handle_scroll = use_callback(move |evt: Event<ScrollData>| {
+        scroll_top.set(evt.data.scroll_top());
+    });
+
+    rsx! {
+        div {
+            class: "ant-virtual-list",
+            style: "height: {container_height()}px; overflow-y: auto; position: relative;",
+            onscroll: handle_scroll,
+            onmounted: move |evt| {
+                container_ref.set(Some(evt.data.downcast::<web_sys::Element>().unwrap().clone()));
+            },
+
+            // 总高度占位符
+            div {
+                style: "height: {props.items.len() as f64 * item_height}px; position: relative;",
+
+                // 渲染可见项目
+                {visible_items()}
+            }
+        }
+    }
+}
+
+/// 高性能表格组件
+#[component]
+pub fn OptimizedTable<T: Clone + PartialEq + 'static>(props: OptimizedTableProps<T>) -> Element {
+    let sorted_data = use_signal(|| props.data.clone());
+    let sort_config = use_signal(|| None::<SortConfig>);
+    let filter_config = use_signal(|| HashMap::<String, String>::new());
+
+    // 缓存过滤和排序结果
+    let processed_data = use_memo(move || {
+        let mut data = props.data.clone();
+
+        // 应用过滤器
+        for (column, filter_value) in filter_config().iter() {
+            if !filter_value.is_empty() {
+                data.retain(|item| {
+                    // 这里需要根据实际数据结构实现过滤逻辑
+                    true // 简化示例
+                });
+            }
+        }
+
+        // 应用排序
+        if let Some(sort) = sort_config() {
+            data.sort_by(|a, b| {
+                // 这里需要根据实际数据结构实现排序逻辑
+                std::cmp::Ordering::Equal // 简化示例
+            });
+        }
+
+        data
+    });
+
+    // 分页处理
+    let page_size = props.page_size.unwrap_or(50);
+    let current_page = use_signal(|| 0);
+
+    let paginated_data = use_memo(move || {
+        let start = current_page() * page_size;
+        let end = (start + page_size).min(processed_data().len());
+        processed_data()[start..end].to_vec()
+    });
+
+    rsx! {
+        div {
+            class: "ant-table-wrapper",
+
+            // 表格头部
+            div {
+                class: "ant-table-header",
+
+                for column in props.columns.iter() {
+                    div {
+                        key: "{column.key}",
+                        class: "ant-table-header-cell",
+                        onclick: move |_| {
+                            // 处理排序
+                            let new_sort = if let Some(current) = sort_config() {
+                                if current.column == column.key {
+                                    SortConfig {
+                                        column: column.key.clone(),
+                                        direction: match current.direction {
+                                            SortDirection::Asc => SortDirection::Desc,
+                                            SortDirection::Desc => SortDirection::Asc,
+                                        },
+                                    }
+                                } else {
+                                    SortConfig {
+                                        column: column.key.clone(),
+                                        direction: SortDirection::Asc,
+                                    }
+                                }
+                            } else {
+                                SortConfig {
+                                    column: column.key.clone(),
+                                    direction: SortDirection::Asc,
+                                }
+                            };
+                            sort_config.set(Some(new_sort));
+                        },
+
+                        {column.title.clone()}
+
+                        if let Some(sort) = sort_config() {
+                            if sort.column == column.key {
+                                span {
+                                    class: "ant-table-sort-icon",
+                                    match sort.direction {
+                                        SortDirection::Asc => "↑",
+                                        SortDirection::Desc => "↓",
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 表格主体（使用虚拟化）
+            VirtualizedList {
+                items: paginated_data(),
+                item_height: 40.0,
+                render_item: move |item: &T, index: usize| {
+                    rsx! {
+                        div {
+                            class: "ant-table-row",
+
+                            for column in props.columns.iter() {
+                                div {
+                                    key: "{column.key}-{index}",
+                                    class: "ant-table-cell",
+
+                                    {(column.render)(item)}
+                                }
+                            }
+                        }
+                    }
+                },
+            }
+
+            // 分页控件
+            if processed_data().len() > page_size {
+                div {
+                    class: "ant-table-pagination",
+
+                    Button {
+                        disabled: current_page() == 0,
+                        onclick: move |_| {
+                            if current_page() > 0 {
+                                current_page.set(current_page() - 1);
+                            }
+                        },
+                        "Previous"
+                    }
+
+                    span {
+                        class: "ant-pagination-info",
+                        "Page {current_page() + 1} of {(processed_data().len() + page_size - 1) / page_size}"
+                    }
+
+                    Button {
+                        disabled: (current_page() + 1) * page_size >= processed_data().len(),
+                        onclick: move |_| {
+                            if (current_page() + 1) * page_size < processed_data().len() {
+                                current_page.set(current_page() + 1);
+                            }
+                        },
+                        "Next"
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
+struct SortConfig {
+    column: String,
+    direction: SortDirection,
+}
+
+#[derive(Clone, PartialEq)]
+enum SortDirection {
+    Asc,
+    Desc,
+}
+```
+
+### 内存管理优化
+- 及时释放不需要的资源
+- 使用对象池减少分配
+- 避免内存泄漏
+- 优化数据结构选择
+
+✅ **内存优化示例**:
+```rust
+use std::collections::VecDeque;
+use std::sync::{Arc, Mutex};
+
+/// 对象池实现
+pub struct ObjectPool<T> {
+    pool: Arc<Mutex<VecDeque<T>>>,
+    factory: Box<dyn Fn() -> T + Send + Sync>,
+    max_size: usize,
+}
+
+impl<T> ObjectPool<T> {
+    pub fn new<F>(factory: F, max_size: usize) -> Self
+    where
+        F: Fn() -> T + Send + Sync + 'static,
+    {
+        Self {
+            pool: Arc::new(Mutex::new(VecDeque::new())),
+            factory: Box::new(factory),
+            max_size,
+        }
+    }
+
+    pub fn acquire(&self) -> PooledObject<T> {
+        let obj = {
+            let mut pool = self.pool.lock().unwrap();
+            pool.pop_front().unwrap_or_else(|| (self.factory)())
+        };
+
+        PooledObject {
+            obj: Some(obj),
+            pool: self.pool.clone(),
+            max_size: self.max_size,
+        }
+    }
+}
+
+pub struct PooledObject<T> {
+    obj: Option<T>,
+    pool: Arc<Mutex<VecDeque<T>>>,
+    max_size: usize,
+}
+
+impl<T> std::ops::Deref for PooledObject<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        self.obj.as_ref().unwrap()
+    }
+}
+
+impl<T> std::ops::DerefMut for PooledObject<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.obj.as_mut().unwrap()
+    }
+}
+
+impl<T> Drop for PooledObject<T> {
+    fn drop(&mut self) {
+        if let Some(obj) = self.obj.take() {
+            let mut pool = self.pool.lock().unwrap();
+            if pool.len() < self.max_size {
+                pool.push_back(obj);
+            }
+        }
+    }
+}
+
+/// 内存高效的组件状态管理
+#[component]
+pub fn MemoryEfficientComponent(props: MemoryEfficientProps) -> Element {
+    // 使用 Rc 共享不可变数据
+    let shared_data = use_memo(move || {
+        std::rc::Rc::new(props.large_dataset.clone())
+    });
+
+    // 使用弱引用避免循环引用
+    let weak_ref = use_signal(|| None::<std::rc::Weak<LargeData>>);
+
+    // 延迟加载大型资源
+    let heavy_resource = use_resource(move || {
+        async move {
+            // 只在需要时加载
+            if props.load_heavy_resource {
+                load_heavy_resource().await
+            } else {
+                Ok(None)
+            }
+        }
+    });
+
+    // 清理效果
+    use_effect(move || {
+        // 组件卸载时清理资源
+        move || {
+            // 清理逻辑
+            if let Some(resource) = heavy_resource.value() {
+                if let Ok(Some(res)) = resource {
+                    // 释放资源
+                }
+            }
+        }
+    });
+
+    rsx! {
+        div {
+            class: "memory-efficient-component",
+
+            // 只渲染必要的数据
+            if let Some(data) = shared_data.as_ref().get_summary() {
+                div {
+                    class: "data-summary",
+                    {data}
+                }
+            }
+
+            // 条件渲染重型组件
+            if props.show_heavy_component {
+                HeavyComponent {
+                    data: shared_data.clone()
+                }
+            }
+        }
+    }
+}
+```
+
+### WebAssembly 优化
+- 最小化 WASM 包大小
+- 优化编译配置
+- 使用 Tree Shaking
+- 延迟加载模块
+
+✅ **WASM 优化配置**:
+```toml
+# Cargo.toml
+[profile.release]
+# 优化包大小
+opt-level = "s"  # 或 "z" 为最小大小
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# 移除调试信息
+debug = false
+debug-assertions = false
+overflow-checks = false
+
+[profile.release.package."*"]
+opt-level = "s"
+
+# 特定依赖优化
+[profile.release.package.dioxus]
+opt-level = 3  # 性能关键的依赖使用最高优化
+
+[dependencies]
+# 使用最小化特性
+dioxus = { version = "0.6.3", default-features = false, features = ["web"] }
+dioxus-web = { version = "0.6.3", default-features = false }
+
+# 条件编译减少包大小
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+  "console",
+  "Document",
+  "Element",
+  "HtmlElement",
+  "Window",
+] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1.0", features = ["full"] }
+```
+
+```rust
+// build.rs - 构建时优化
+fn main() {
+    // 条件编译优化
+    #[cfg(target_arch = "wasm32")]
+    {
+        // WASM 特定优化
+        println!("cargo:rustc-link-arg=--import-memory");
+        println!("cargo:rustc-link-arg=--max-memory=67108864"); // 64MB
+
+        // 启用 WASM 优化
+        if std::env::var("PROFILE").unwrap_or_default() == "release" {
+            println!("cargo:rustc-link-arg=-O3");
+            println!("cargo:rustc-link-arg=--lto-O3");
+            println!("cargo:rustc-link-arg=--strip-debug");
+        }
+    }
+
+    // 生成优化的样式表
+    generate_optimized_styles();
+}
+
+fn generate_optimized_styles() {
+    use std::fs;
+    use std::path::Path;
+
+    let styles_dir = Path::new("src/styles");
+    let output_dir = Path::new("target/generated");
+
+    if !output_dir.exists() {
+        fs::create_dir_all(output_dir).unwrap();
+    }
+
+    // 合并和压缩 CSS
+    let mut combined_css = String::new();
+
+    for entry in fs::read_dir(styles_dir).unwrap() {
+        let entry = entry.unwrap();
+        if entry.path().extension().and_then(|s| s.to_str()) == Some("css") {
+            let content = fs::read_to_string(entry.path()).unwrap();
+            combined_css.push_str(&minify_css(&content));
+        }
+    }
+
+    fs::write(output_dir.join("styles.min.css"), combined_css).unwrap();
+}
+
+fn minify_css(css: &str) -> String {
+    // 简单的 CSS 压缩
+    css.lines()
+        .map(|line| line.trim())
+        .filter(|line| !line.is_empty() && !line.starts_with("//"))
+        .collect::<Vec<_>>()
+        .join("")
+        .replace(": ", ":")
+        .replace("; ", ";")
+        .replace(" {", "{")
+        .replace("{ ", "{")
+        .replace(" }", "}")
+        .replace("} ", "}")
+}
+```
+
+### 网络性能优化
+- 实施资源预加载
+- 使用 CDN 加速
+- 优化图片和字体加载
+- 实施缓存策略
+
+✅ **网络优化示例**:
+```rust
+/// 资源预加载管理器
+pub struct ResourcePreloader {
+    preloaded: std::collections::HashSet<String>,
+    loading: std::collections::HashSet<String>,
+}
+
+impl ResourcePreloader {
+    pub fn new() -> Self {
+        Self {
+            preloaded: std::collections::HashSet::new(),
+            loading: std::collections::HashSet::new(),
+        }
+    }
+
+    pub async fn preload_image(&mut self, url: &str) -> Result<(), Box<dyn std::error::Error>> {
+        if self.preloaded.contains(url) || self.loading.contains(url) {
+            return Ok(());
+        }
+
+        self.loading.insert(url.to_string());
+
+        // 创建预加载链接
+        let window = web_sys::window().unwrap();
+        let document = window.document().unwrap();
+
+        let link = document.create_element("link")?;
+        link.set_attribute("rel", "preload")?;
+        link.set_attribute("as", "image")?;
+        link.set_attribute("href", url)?;
+
+        document.head().unwrap().append_child(&link)?;
+
+        self.loading.remove(url);
+        self.preloaded.insert(url.to_string());
+
+        Ok(())
+    }
+
+    pub async fn preload_font(&mut self, url: &str, font_type: &str) -> Result<(), Box<dyn std::error::Error>> {
+        if self.preloaded.contains(url) {
+            return Ok(());
+        }
+
+        let window = web_sys::window().unwrap();
+        let document = window.document().unwrap();
+
+        let link = document.create_element("link")?;
+        link.set_attribute("rel", "preload")?;
+        link.set_attribute("as", "font")?;
+        link.set_attribute("type", font_type)?;
+        link.set_attribute("href", url)?;
+        link.set_attribute("crossorigin", "anonymous")?;
+
+        document.head().unwrap().append_child(&link)?;
+
+        self.preloaded.insert(url.to_string());
+
+        Ok(())
+    }
+}
+
+/// 图片懒加载组件
+#[component]
+pub fn LazyImage(props: LazyImageProps) -> Element {
+    let img_ref = use_signal(|| None::<web_sys::Element>);
+    let is_loaded = use_signal(|| false);
+    let is_in_viewport = use_signal(|| false);
+
+    // Intersection Observer 实现
+    use_effect(move || {
+        if let Some(img_element) = img_ref() {
+            let callback = wasm_bindgen::closure::Closure::wrap(Box::new(move |entries: js_sys::Array| {
+                for entry in entries.iter() {
+                    let entry: web_sys::IntersectionObserverEntry = entry.into();
+                    if entry.is_intersecting() {
+                        is_in_viewport.set(true);
+                    }
+                }
+            }) as Box<dyn FnMut(js_sys::Array)>);
+
+            let observer = web_sys::IntersectionObserver::new(callback.as_ref().unchecked_ref()).unwrap();
+            observer.observe(&img_element);
+
+            move || {
+                observer.disconnect();
+                drop(callback);
+            }
+        } else {
+            move || {}
+        }
+    });
+
+    // 加载图片
+    use_effect(move || {
+        if is_in_viewport() && !is_loaded() {
+            spawn(async move {
+                // 预加载图片
+                let img = web_sys::HtmlImageElement::new().unwrap();
+                img.set_src(&props.src);
+
+                // 等待加载完成
+                let promise = js_sys::Promise::new(&mut |resolve, _reject| {
+                    let onload = wasm_bindgen::closure::Closure::wrap(Box::new(move || {
+                        resolve.call0(&wasm_bindgen::JsValue::NULL).unwrap();
+                    }) as Box<dyn FnMut()>);
+
+                    img.set_onload(Some(onload.as_ref().unchecked_ref()));
+                    onload.forget();
+                });
+
+                wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
+                is_loaded.set(true);
+            });
+        }
+    });
+
+    rsx! {
+        div {
+            class: "ant-lazy-image",
+            style: "width: {props.width.unwrap_or("auto".to_string())}; height: {props.height.unwrap_or("auto".to_string())};",
+
+            if is_loaded() {
+                img {
+                    src: props.src.clone(),
+                    alt: props.alt.clone().unwrap_or_default(),
+                    class: "ant-image",
+                    onmounted: move |evt| {
+                        img_ref.set(Some(evt.data.downcast::<web_sys::Element>().unwrap().clone()));
+                    },
+                }
+            } else {
+                div {
+                    class: "ant-image-placeholder",
+                    style: "background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;",
+                    onmounted: move |evt| {
+                        img_ref.set(Some(evt.data.downcast::<web_sys::Element>().unwrap().clone()));
+                    },
+
+                    if props.placeholder.is_some() {
+                        {props.placeholder.unwrap()}
+                    } else {
+                        span {
+                            class: "ant-image-loading",
+                            "Loading..."
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### 渲染性能监控
+- 实施性能指标收集
+- 监控组件渲染时间
+- 检测性能瓶颈
+- 生成性能报告
+
+✅ **性能监控示例**:
+```rust
+use std::time::Instant;
+use std::collections::HashMap;
+
+/// 性能监控器
+pub struct PerformanceMonitor {
+    metrics: HashMap<String, Vec<f64>>,
+    start_times: HashMap<String, Instant>,
+}
+
+impl PerformanceMonitor {
+    pub fn new() -> Self {
+        Self {
+            metrics: HashMap::new(),
+            start_times: HashMap::new(),
+        }
+    }
+
+    pub fn start_timing(&mut self, name: &str) {
+        self.start_times.insert(name.to_string(), Instant::now());
+    }
+
+    pub fn end_timing(&mut self, name: &str) {
+        if let Some(start_time) = self.start_times.remove(name) {
+            let duration = start_time.elapsed().as_secs_f64() * 1000.0; // 转换为毫秒
+            self.metrics.entry(name.to_string()).or_insert_with(Vec::new).push(duration);
+        }
+    }
+
+    pub fn get_average(&self, name: &str) -> Option<f64> {
+        self.metrics.get(name).map(|times| {
+            times.iter().sum::<f64>() / times.len() as f64
+        })
+    }
+
+    pub fn get_percentile(&self, name: &str, percentile: f64) -> Option<f64> {
+        self.metrics.get(name).and_then(|times| {
+            if times.is_empty() {
+                return None;
+            }
+
+            let mut sorted_times = times.clone();
+            sorted_times.sort_by(|a, b| a.partial_cmp(b).unwrap());
+
+            let index = (percentile / 100.0 * (sorted_times.len() - 1) as f64).round() as usize;
+            sorted_times.get(index).copied()
+        })
+    }
+
+    pub fn generate_report(&self) -> String {
+        let mut report = String::from("Performance Report\n");
+        report.push_str("==================\n\n");
+
+        for (name, times) in &self.metrics {
+            if let (Some(avg), Some(p95), Some(p99)) = (
+                self.get_average(name),
+                self.get_percentile(name, 95.0),
+                self.get_percentile(name, 99.0),
+            ) {
+                report.push_str(&format!(
+                    "{}: avg={:.2}ms, p95={:.2}ms, p99={:.2}ms, samples={}\n",
+                    name, avg, p95, p99, times.len()
+                ));
+            }
+        }
+
+        report
+    }
+}
+
+/// 性能监控 Hook
+pub fn use_performance_monitor() -> Signal<PerformanceMonitor> {
+    use_signal(|| PerformanceMonitor::new())
+}
+
+/// 性能监控组件包装器
+#[component]
+pub fn PerformanceWrapper(props: PerformanceWrapperProps) -> Element {
+    let monitor = use_context::<Signal<PerformanceMonitor>>();
+    let component_name = props.name.clone();
+
+    // 渲染开始计时
+    use_effect(move || {
+        monitor.with_mut(|m| m.start_timing(&format!("{}_render", component_name)));
+    });
+
+    // 渲染结束计时
+    use_effect(move || {
+        monitor.with_mut(|m| m.end_timing(&format!("{}_render", component_name)));
+    });
+
+    rsx! {
+        {props.children}
+    }
+}
+
+/// Web Vitals 监控
+#[component]
+pub fn WebVitalsMonitor() -> Element {
+    use_effect(|| {
+        spawn(async {
+            // 监控 Largest Contentful Paint (LCP)
+            if let Ok(observer) = web_sys::PerformanceObserver::new(&js_sys::Function::new_no_args(
+                "console.log('LCP:', arguments[0].getEntries());"
+            )) {
+                observer.observe(&js_sys::Object::from(wasm_bindgen::JsValue::from_str(
+                    r#"{"entryTypes": ["largest-contentful-paint"]}"
+                )).into());
+            }
+
+            // 监控 First Input Delay (FID)
+            if let Ok(observer) = web_sys::PerformanceObserver::new(&js_sys::Function::new_no_args(
+                "console.log('FID:', arguments[0].getEntries());"
+            )) {
+                observer.observe(&js_sys::Object::from(wasm_bindgen::JsValue::from_str(
+                    r#"{"entryTypes": ["first-input"]}"
+                )).into());
+            }
+
+            // 监控 Cumulative Layout Shift (CLS)
+            if let Ok(observer) = web_sys::PerformanceObserver::new(&js_sys::Function::new_no_args(
+                "console.log('CLS:', arguments[0].getEntries());"
+            )) {
+                observer.observe(&js_sys::Object::from(wasm_bindgen::JsValue::from_str(
+                    r#"{"entryTypes": ["layout-shift"]}"
+                )).into());
+            }
+        });
+    });
+
+    rsx! {
+        // 隐藏的监控组件
+        div { style: "display: none;", "data-testid": "web-vitals-monitor" }
+    }
+}
+```
+
+## 例外情况
+- 开发环境可以使用未优化的构建
+- 演示代码可以包含性能较低的实现
+- 原型开发阶段可以暂时忽略某些优化
+- 向后兼容性要求可能限制某些优化

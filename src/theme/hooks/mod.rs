@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 use super::core::types::Size;
 use super::provider::use_theme;
+use super::Theme;
 
 /// 使用暗色模式的 Hook
 ///
@@ -17,11 +18,7 @@ use super::provider::use_theme;
 /// 如果是暗色模式则返回 true，否则返回 false
 pub fn use_dark_mode() -> bool {
     let theme_context = use_theme();
-    theme_context
-        .config
-        .algorithm
-        .iter()
-        .any(|alg| matches!(alg, super::Algorithm::Dark))
+    matches!(theme_context.config.theme_type, Theme::Dark)
 }
 
 /// 使用紧凑模式的 Hook

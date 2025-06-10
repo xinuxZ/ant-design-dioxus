@@ -1,90 +1,366 @@
 //! 配置提供者模块
 //!
-//! 提供全局配置管理，包括主题、国际化、组件默认属性等
+//! 提供全局配置上下文和组件，用于在应用中注入和管理全局配置
 
+use css_in_rust::theme::theme_types::ThemeMode;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::locale::{Locale, LocaleConfig};
 use crate::theme::core::types::Size;
-use crate::theme::{CssThemeBridge, Theme, ThemeConfig};
-use crate::utils::responsive::Breakpoint;
+use crate::theme::ThemeConfig;
+
+/// 方向类型
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Direction {
+    /// 从左到右
+    Ltr,
+    /// 从右到左
+    Rtl,
+}
+
+impl std::fmt::Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Direction::Ltr => write!(f, "ltr"),
+            Direction::Rtl => write!(f, "rtl"),
+        }
+    }
+}
+
+/// 组件尺寸
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ComponentSize {
+    /// 小号
+    Small,
+    /// 中号（默认）
+    Middle,
+    /// 大号
+    Large,
+}
+
+impl std::fmt::Display for ComponentSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ComponentSize::Small => write!(f, "small"),
+            ComponentSize::Middle => write!(f, "middle"),
+            ComponentSize::Large => write!(f, "large"),
+        }
+    }
+}
 
 /// 组件尺寸配置
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ComponentSizeConfig {
     /// 默认组件尺寸
-    pub default_size: Size,
-    /// 紧凑模式
-    pub compact: bool,
+    pub default_size: ComponentSize,
 }
 
 impl Default for ComponentSizeConfig {
     fn default() -> Self {
         Self {
-            default_size: Size::Middle,
-            compact: false,
+            default_size: ComponentSize::Middle,
         }
     }
 }
 
 /// 表单配置
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FormConfig {
-    /// 验证触发方式
-    pub validate_trigger: ValidateTrigger,
+    /// 是否显示验证状态图标
+    pub validate_messages: HashMap<String, String>,
     /// 是否显示必填标记
-    pub required_mark: RequiredMark,
-    /// 标签对齐方式
-    pub label_align: LabelAlign,
-    /// 标签换行
-    pub label_wrap: bool,
-    /// 冒号显示
+    pub required_mark: bool,
+    /// 是否显示冒号
     pub colon: bool,
-}
-
-/// 验证触发方式
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ValidateTrigger {
-    /// 改变时验证
-    OnChange,
-    /// 失焦时验证
-    OnBlur,
-    /// 提交时验证
-    OnSubmit,
-}
-
-/// 必填标记显示方式
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum RequiredMark {
-    /// 显示
-    True,
-    /// 不显示
-    False,
-    /// 可选标记
-    Optional,
-}
-
-/// 标签对齐方式
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum LabelAlign {
-    /// 左对齐
-    Left,
-    /// 右对齐
-    Right,
+    /// 标签对齐方式
+    pub label_align: String,
+    /// 标签宽度
+    pub label_width: Option<String>,
 }
 
 impl Default for FormConfig {
     fn default() -> Self {
         Self {
-            validate_trigger: ValidateTrigger::OnChange,
-            required_mark: RequiredMark::True,
-            label_align: LabelAlign::Right,
-            label_wrap: false,
+            validate_messages: HashMap::new(),
+            required_mark: true,
             colon: true,
+            label_align: "right".to_string(),
+            label_width: None,
         }
     }
+}
+
+/// 主题配置
+#[derive(Debug, Clone, PartialEq)]
+pub struct ThemeProviderConfig {
+    /// 主题配置
+    pub theme: ThemeConfig,
+    /// 是否启用紧凑模式
+    pub compact: bool,
+}
+
+impl Default for ThemeProviderConfig {
+    fn default() -> Self {
+        Self {
+            theme: ThemeConfig::default(),
+            compact: false,
+        }
+    }
+}
+
+/// 语言配置
+#[derive(Debug, Clone, PartialEq)]
+pub struct LocaleProviderConfig {
+    /// 语言
+    pub locale: Locale,
+}
+
+impl Default for LocaleProviderConfig {
+    fn default() -> Self {
+        Self {
+            locale: Locale::ZhCN,
+        }
+    }
+}
+
+/// 全局配置
+#[derive(Debug, Clone, PartialEq)]
+pub struct GlobalConfig {
+    /// 主题配置
+    pub theme: ThemeProviderConfig,
+    /// 语言配置
+    pub locale: LocaleProviderConfig,
+    /// 组件尺寸配置
+    pub component_size: ComponentSizeConfig,
+    /// 方向
+    pub direction: Direction,
+    /// CSS 类名前缀
+    pub prefix_cls: String,
+    /// 按钮中是否自动插入空格
+    pub auto_insert_space_in_button: bool,
+    /// 表单配置
+    pub form: FormConfig,
+    /// 表格配置
+    pub table: TableConfig,
+    /// 获取弹出容器的函数
+    pub get_popup_container: Option<fn() -> Element>,
+    /// 获取目标容器的函数
+    pub get_target_container: Option<fn() -> Element>,
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        Self {
+            theme: ThemeProviderConfig::default(),
+            locale: LocaleProviderConfig::default(),
+            component_size: ComponentSizeConfig::default(),
+            direction: Direction::Ltr,
+            prefix_cls: "ant".to_string(),
+            auto_insert_space_in_button: true,
+            form: FormConfig::default(),
+            table: TableConfig::default(),
+            get_popup_container: None,
+            get_target_container: None,
+        }
+    }
+}
+
+/// 配置上下文
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConfigContext {
+    /// 全局配置
+    pub config: GlobalConfig,
+}
+
+/// 配置提供者属性
+#[derive(Props, Clone, PartialEq)]
+pub struct ConfigProviderProps {
+    /// 子组件
+    pub children: Element,
+    /// 全局配置
+    #[props(default)]
+    pub config: GlobalConfig,
+    /// 主题配置
+    #[props(default)]
+    pub theme: Option<ThemeConfig>,
+    /// 语言配置
+    #[props(default)]
+    pub locale: Option<Locale>,
+    /// 组件尺寸
+    #[props(default)]
+    pub component_size: Option<ComponentSize>,
+    /// 方向
+    #[props(default)]
+    pub direction: Option<Direction>,
+    /// CSS 类名前缀
+    #[props(default)]
+    pub prefix_cls: Option<String>,
+    /// 按钮中是否自动插入空格
+    #[props(default)]
+    pub auto_insert_space_in_button: Option<bool>,
+    /// 表单配置
+    #[props(default)]
+    pub form: Option<FormConfig>,
+    /// 获取弹出容器的函数
+    #[props(default)]
+    pub get_popup_container: Option<fn() -> Element>,
+    /// 获取目标容器的函数
+    #[props(default)]
+    pub get_target_container: Option<fn() -> Element>,
+}
+
+/// 配置提供者组件
+///
+/// 为子组件提供全局配置
+#[component]
+pub fn ConfigProvider(props: ConfigProviderProps) -> Element {
+    let mut config = props.config;
+
+    // 应用传入的配置覆盖
+    if let Some(theme) = props.theme {
+        config.theme.theme.theme = theme.theme;
+    }
+    if let Some(locale) = props.locale {
+        config.locale.locale = locale;
+    }
+    if let Some(size) = props.component_size {
+        config.component_size.default_size = size;
+    }
+    if let Some(direction) = props.direction {
+        config.direction = direction;
+    }
+    if let Some(prefix_cls) = props.prefix_cls {
+        config.prefix_cls = prefix_cls;
+    }
+    if let Some(auto_insert_space) = props.auto_insert_space_in_button {
+        config.auto_insert_space_in_button = auto_insert_space;
+    }
+    if let Some(form_config) = props.form {
+        config.form = form_config;
+    }
+    if let Some(get_popup_container) = props.get_popup_container {
+        config.get_popup_container = Some(get_popup_container);
+    }
+    if let Some(get_target_container) = props.get_target_container {
+        config.get_target_container = Some(get_target_container);
+    }
+
+    let context = ConfigContext {
+        config: config.clone(),
+    };
+
+    // 创建主题配置信号
+    let theme_config = use_signal(|| config.theme.theme.clone());
+
+    // 创建语言配置信号
+    let locale_config = use_signal(|| config.locale.locale);
+
+    // 提供配置上下文
+    use_context_provider(|| context.clone());
+
+    rsx! {
+        // 使用主题提供者
+        crate::theme::provider::ThemeProvider {
+            config: theme_config,
+            // 使用语言提供者
+            crate::locale::LocaleProvider {
+                locale: locale_config,
+                div {
+                    class: format!(
+                        "{}-config-provider {}",
+                        context.config.prefix_cls,
+                        if context.config.direction == Direction::Rtl { "rtl" } else { "ltr" }
+                    ),
+                    "data-theme": format!("{:?}", context.config.theme.theme.theme.mode),
+                    "data-locale": context.config.locale.locale.to_string(),
+                    "data-size": context.config.component_size.default_size.to_string(),
+
+                    {props.children}
+                }
+            }
+        }
+    }
+}
+
+/// 使用配置的 Hook
+///
+/// 获取当前的配置上下文
+pub fn use_config() -> ConfigContext {
+    use_context::<ConfigContext>()
+}
+
+/// 使用 CSS 类名前缀的 Hook
+///
+/// 获取当前的 CSS 类名前缀
+pub fn use_prefix_cls() -> String {
+    let config = use_config();
+    config.config.prefix_cls
+}
+
+/// 使用组件 CSS 类名前缀的 Hook
+///
+/// 获取特定组件的 CSS 类名前缀
+///
+/// # 参数
+///
+/// * `component` - 组件名称
+///
+/// # 返回值
+///
+/// 组件 CSS 类名前缀
+pub fn use_component_prefix_cls(component: &str) -> String {
+    let config = use_config();
+    format!("{}-{}", config.config.prefix_cls, component)
+}
+
+/// 使用方向的 Hook
+///
+/// 获取当前的方向配置
+pub fn use_direction() -> Direction {
+    let config = use_config();
+    config.config.direction
+}
+
+/// 使用组件尺寸的 Hook
+///
+/// 获取当前的组件尺寸配置
+pub fn use_component_size() -> ComponentSize {
+    let config = use_config();
+    config.config.component_size.default_size
+}
+
+/// 使用表单配置的 Hook
+///
+/// 获取当前的表单配置
+pub fn use_form_config() -> FormConfig {
+    let config = use_config();
+    config.config.form.clone()
+}
+
+/// 使用按钮空格配置的 Hook
+///
+/// 获取当前的按钮空格配置
+pub fn use_auto_insert_space_in_button() -> bool {
+    let config = use_config();
+    config.config.auto_insert_space_in_button
+}
+
+/// 使用弹出容器的 Hook
+///
+/// 获取弹出容器的函数
+pub fn use_popup_container() -> Option<fn() -> Element> {
+    let config = use_config();
+    config.config.get_popup_container
+}
+
+/// 使用目标容器的 Hook
+///
+/// 获取目标容器的函数
+pub fn use_target_container() -> Option<fn() -> Element> {
+    let config = use_config();
+    config.config.get_target_container
 }
 
 /// 表格配置
@@ -135,250 +411,6 @@ impl Default for EmptyConfig {
     }
 }
 
-/// 全局配置
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct GlobalConfig {
-    /// 主题配置
-    pub theme: ThemeConfig,
-    /// 国际化配置
-    pub locale: LocaleConfig,
-    /// 组件尺寸配置
-    pub component_size: ComponentSizeConfig,
-    /// 表单配置
-    pub form: FormConfig,
-    /// 表格配置
-    pub table: TableConfig,
-    /// 空状态配置
-    pub empty: EmptyConfig,
-    /// 自动插入空格
-    pub auto_insert_space_in_button: bool,
-    /// 方向（RTL/LTR）
-    pub direction: Direction,
-    /// 虚拟滚动阈值
-    pub virtual_scroll_threshold: usize,
-    /// 响应式断点
-    pub breakpoints: HashMap<Breakpoint, u32>,
-    /// 前缀类名
-    pub prefix_cls: String,
-    /// 图标前缀
-    pub icon_prefix_cls: String,
-    /// 获取容器元素
-    pub get_popup_container: Option<String>,
-    /// 获取目标容器
-    pub get_target_container: Option<String>,
-}
-
-/// 文本方向
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Direction {
-    /// 从左到右
-    Ltr,
-    /// 从右到左
-    Rtl,
-}
-
-impl Default for Direction {
-    fn default() -> Self {
-        Direction::Ltr
-    }
-}
-
-impl Default for GlobalConfig {
-    fn default() -> Self {
-        let mut breakpoints = HashMap::new();
-        breakpoints.insert(Breakpoint::XS, 0);
-        breakpoints.insert(Breakpoint::SM, 576);
-        breakpoints.insert(Breakpoint::MD, 768);
-        breakpoints.insert(Breakpoint::LG, 992);
-        breakpoints.insert(Breakpoint::XL, 1200);
-        breakpoints.insert(Breakpoint::XXL, 1600);
-
-        Self {
-            theme: ThemeConfig::default(),
-            locale: LocaleConfig::default(),
-            component_size: ComponentSizeConfig::default(),
-            form: FormConfig::default(),
-            table: TableConfig::default(),
-            empty: EmptyConfig::default(),
-            auto_insert_space_in_button: true,
-            direction: Direction::Ltr,
-            virtual_scroll_threshold: 100,
-            breakpoints,
-            prefix_cls: "ant".to_string(),
-            icon_prefix_cls: "anticon".to_string(),
-            get_popup_container: None,
-            get_target_container: None,
-        }
-    }
-}
-
-/// 配置提供者属性
-#[derive(Props, Clone, PartialEq)]
-pub struct ConfigProviderProps {
-    /// 子组件
-    pub children: Element,
-    /// 全局配置
-    #[props(default)]
-    pub config: GlobalConfig,
-    /// 主题
-    #[props(into)]
-    pub theme: Option<Theme>,
-    /// 国际化
-    #[props(into)]
-    pub locale: Option<Locale>,
-    /// 组件尺寸
-    #[props(into)]
-    pub component_size: Option<Size>,
-    /// 方向
-    #[props(into)]
-    pub direction: Option<Direction>,
-    /// 前缀类名
-    #[props(into)]
-    pub prefix_cls: Option<String>,
-    /// 自动插入空格
-    #[props(into)]
-    pub auto_insert_space_in_button: Option<bool>,
-    /// 表单配置
-    #[props(into)]
-    pub form: Option<FormConfig>,
-    /// 获取弹出容器
-    #[props(into)]
-    pub get_popup_container: Option<String>,
-    /// 获取目标容器
-    #[props(into)]
-    pub get_target_container: Option<String>,
-}
-
-/// 配置上下文
-#[derive(Clone, PartialEq)]
-pub struct ConfigContext {
-    /// 全局配置
-    pub config: GlobalConfig,
-}
-
-impl Default for ConfigContext {
-    fn default() -> Self {
-        Self {
-            config: GlobalConfig::default(),
-        }
-    }
-}
-
-/// 配置提供者组件
-///
-/// 为子组件提供全局配置
-#[component]
-pub fn ConfigProvider(props: ConfigProviderProps) -> Element {
-    let mut config = props.config;
-
-    // 应用传入的配置覆盖
-    if let Some(theme) = props.theme {
-        config.theme.theme = theme;
-    }
-    if let Some(locale) = props.locale {
-        config.locale.locale = locale;
-    }
-    if let Some(size) = props.component_size {
-        config.component_size.default_size = size;
-    }
-    if let Some(direction) = props.direction {
-        config.direction = direction;
-    }
-    if let Some(prefix_cls) = props.prefix_cls {
-        config.prefix_cls = prefix_cls;
-    }
-    if let Some(auto_insert_space) = props.auto_insert_space_in_button {
-        config.auto_insert_space_in_button = auto_insert_space;
-    }
-    if let Some(form_config) = props.form {
-        config.form = form_config;
-    }
-    if let Some(get_popup_container) = props.get_popup_container {
-        config.get_popup_container = Some(get_popup_container);
-    }
-    if let Some(get_target_container) = props.get_target_container {
-        config.get_target_container = Some(get_target_container);
-    }
-
-    let context = ConfigContext {
-        config: config.clone(),
-    };
-
-    // 初始化主题桥接器并注入样式
-    use_effect(move || {
-        let bridge = CssThemeBridge::new(config.theme.clone());
-        bridge.inject_theme_variables();
-    });
-
-    use_context_provider(|| context.clone());
-
-    rsx! {
-        div {
-            class: format!(
-                "{}-config-provider {}",
-                context.config.prefix_cls,
-                if context.config.direction == Direction::Rtl { "rtl" } else { "ltr" }
-            ),
-            "data-theme": context.config.theme.theme.to_string(),
-            "data-locale": context.config.locale.locale.to_string(),
-            "data-size": context.config.component_size.default_size.to_string(),
-
-            {props.children}
-        }
-    }
-}
-
-/// 使用配置的 Hook
-///
-/// 获取当前的全局配置
-pub fn use_config() -> ConfigContext {
-    use_context::<ConfigContext>()
-}
-
-/// 使用前缀类名的 Hook
-///
-/// 获取带前缀的类名
-pub fn use_prefix_cls(suffix: &str) -> String {
-    let config = use_config();
-    if suffix.is_empty() {
-        config.config.prefix_cls
-    } else {
-        format!("{}-{}", config.config.prefix_cls, suffix)
-    }
-}
-
-/// 使用方向的 Hook
-///
-/// 获取当前的文本方向
-pub fn use_direction() -> Direction {
-    let config = use_config();
-    config.config.direction
-}
-
-/// 使用组件尺寸的 Hook
-///
-/// 获取当前的组件尺寸配置
-pub fn use_component_size() -> ComponentSizeConfig {
-    let config = use_config();
-    config.config.component_size
-}
-
-/// 使用表单配置的 Hook
-///
-/// 获取当前的表单配置
-pub fn use_form_config() -> FormConfig {
-    let config = use_config();
-    config.config.form
-}
-
-/// 使用表格配置的 Hook
-///
-/// 获取当前的表格配置
-pub fn use_table_config() -> TableConfig {
-    let config = use_config();
-    config.config.table
-}
-
 /// 配置提供者构建器
 ///
 /// 用于方便地构建配置提供者
@@ -395,8 +427,33 @@ impl ConfigProviderBuilder {
     }
 
     /// 设置主题
-    pub fn theme(mut self, theme: Theme) -> Self {
-        self.config.theme.theme = theme;
+    pub fn theme(mut self, theme: super::theme::Theme) -> Self {
+        // 将项目内部的Theme转换为css_in_rust的Theme
+        let mut css_theme = self.config.theme.theme.theme.clone();
+        match theme {
+            super::theme::Theme::Light => {
+                css_theme.mode = ThemeMode::Light;
+                self.config.theme.theme.theme = css_theme;
+            }
+            super::theme::Theme::Dark => {
+                css_theme.mode = ThemeMode::Dark;
+                self.config.theme.theme.theme = css_theme;
+            }
+            super::theme::Theme::Compact => {
+                css_theme.mode = ThemeMode::Light;
+                self.config.theme.theme.theme = css_theme;
+                self.config.theme.compact = true;
+            }
+            super::theme::Theme::Custom => {
+                // 自定义主题不做特殊处理，保持当前设置
+            }
+        }
+        self
+    }
+
+    /// 设置CSS主题
+    pub fn css_theme(mut self, theme: css_in_rust::Theme) -> Self {
+        self.config.theme.theme.theme = theme;
         self
     }
 
@@ -407,14 +464,14 @@ impl ConfigProviderBuilder {
     }
 
     /// 设置组件尺寸
-    pub fn component_size(mut self, size: Size) -> Self {
+    pub fn component_size(mut self, size: ComponentSize) -> Self {
         self.config.component_size.default_size = size;
         self
     }
 
     /// 设置紧凑模式
     pub fn compact(mut self, compact: bool) -> Self {
-        self.config.component_size.compact = compact;
+        self.config.theme.compact = compact;
         self
     }
 
@@ -470,16 +527,17 @@ mod tests {
         assert_eq!(config.prefix_cls, "ant");
         assert_eq!(config.direction, Direction::Ltr);
         assert!(config.auto_insert_space_in_button);
-        assert_eq!(config.component_size.default_size, Size::Middle);
+        assert_eq!(config.component_size.default_size, ComponentSize::Middle);
     }
 
     #[test]
     fn test_form_config_default() {
         let form_config = FormConfig::default();
-        assert_eq!(form_config.validate_trigger, ValidateTrigger::OnChange);
-        assert_eq!(form_config.required_mark, RequiredMark::True);
-        assert_eq!(form_config.label_align, LabelAlign::Right);
+        assert_eq!(form_config.validate_messages.len(), 0);
+        assert!(form_config.required_mark);
         assert!(form_config.colon);
+        assert_eq!(form_config.label_align, "right");
+        assert!(form_config.label_width.is_none());
     }
 
     #[test]
@@ -495,39 +553,39 @@ mod tests {
     fn test_config_provider_builder() {
         let config = ConfigProviderBuilder::new()
             .prefix_cls("my-ant")
-            .component_size(Size::Large)
+            .component_size(ComponentSize::Large)
             .direction(Direction::Rtl)
             .compact(true)
             .auto_insert_space_in_button(false)
             .build();
 
         assert_eq!(config.prefix_cls, "my-ant");
-        assert_eq!(config.component_size.default_size, Size::Large);
+        assert_eq!(config.component_size.default_size, ComponentSize::Large);
         assert_eq!(config.direction, Direction::Rtl);
-        assert!(config.component_size.compact);
+        assert!(config.theme.compact);
         assert!(!config.auto_insert_space_in_button);
     }
 
-    #[test]
-    fn test_direction() {
-        assert_eq!(Direction::default(), Direction::Ltr);
-    }
+    // #[test]
+    // fn test_direction() {
+    //     assert_eq!(Direction::default(), Direction::Ltr);
+    // }
 
-    #[test]
-    fn test_validate_trigger() {
-        let trigger = ValidateTrigger::OnChange;
-        assert_eq!(trigger, ValidateTrigger::OnChange);
-    }
+    // #[test]
+    // fn test_validate_trigger() {
+    //     let trigger = ValidateTrigger::OnChange;
+    //     assert_eq!(trigger, ValidateTrigger::OnChange);
+    // }
 
-    #[test]
-    fn test_required_mark() {
-        let mark = RequiredMark::Optional;
-        assert_eq!(mark, RequiredMark::Optional);
-    }
+    // #[test]
+    // fn test_required_mark() {
+    //     let mark = RequiredMark::Optional;
+    //     assert_eq!(mark, RequiredMark::Optional);
+    // }
 
-    #[test]
-    fn test_label_align() {
-        let align = LabelAlign::Left;
-        assert_eq!(align, LabelAlign::Left);
-    }
+    // #[test]
+    // fn test_label_align() {
+    //     let align = LabelAlign::Left;
+    //     assert_eq!(align, LabelAlign::Left);
+    // }
 }

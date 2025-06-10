@@ -18,23 +18,19 @@
 /// 重新导出核心配置相关类型
 pub use crate::config_provider::{
     use_config, use_prefix_cls, ComponentSizeConfig, ConfigProvider, ConfigProviderBuilder,
-    Direction as ConfigDirection, EmptyConfig, FormConfig, GlobalConfig, LabelAlign, RequiredMark,
-    TableConfig, ValidateTrigger,
+    Direction as ConfigDirection, EmptyConfig, FormConfig, GlobalConfig, TableConfig,
 };
 
 /// 重新导出主题相关类型
-pub use crate::theme::{
-    use_theme, ColorTheme, MotionTheme, SizeTheme, SpaceSize, Theme, ThemeConfig, ThemeProvider,
-};
+pub use crate::theme::{core::types::ColorType, use_theme, Theme, ThemeConfig, ThemeProvider};
 
 /// 重新导出主题切换组件
-pub use crate::components::theme_switch::{ThemeSwitch, ThemeSwitchMode, ThemeSwitchProps};
+// pub use crate::components::theme_switch::{ThemeSwitch, ThemeSwitchMode, ThemeSwitchProps};
 
 /// 重新导出国际化相关类型
 pub use crate::locale::{
-    use_locale, use_translate, use_translate_with_args, CurrencyFormat, CurrencySymbolPosition,
-    LanguagePack, Locale, LocaleConfig, LocaleProvider, NumberFormat, TranslationKey,
-    TranslationValue,
+    use_locale, use_translate, CurrencyFormat, CurrencySymbolPosition, LanguagePack, Locale,
+    LocaleConfig, LocaleProvider, NumberFormat, TranslationKey, TranslationValue,
 };
 
 // ================================
@@ -57,12 +53,6 @@ pub use crate::utils::responsive::{
     get_current_breakpoint, Breakpoint, GridConfig, ResponsiveValue,
 };
 
-/// 重新导出颜色工具
-pub use crate::theme::core::color::{ColorType, RgbColor};
-
-/// 重新导出动画工具
-pub use crate::theme::core::motion::Duration;
-
 // ================================
 // 组件通用类型
 // ================================
@@ -84,21 +74,17 @@ pub use crate::components::utils::{
 // ================================
 
 /// 通用组件
-// pub mod general {
-pub use crate::components::button::{
-    Button, ButtonGroup, ButtonHtmlType, ButtonProps, ButtonShape, ButtonSize, ButtonType,
-};
+pub use crate::components::button::{Button, ButtonGroup, ButtonProps};
 pub use crate::components::icon::{Icon, IconProps, IconTheme};
 pub use crate::components::typography::{
-    HeadingLevel, Link, LinkProps, Paragraph, ParagraphProps, Text, TextProps, TextType, Title,
-    TitleProps,
+    link::LinkProps, HeadingLevel, Link, Paragraph, ParagraphProps, Text, TextProps, TextType,
+    Title, TitleProps,
 };
-// }
 
 /// 布局组件
 // pub mod layout {
-pub use crate::components::divider::{Divider, DividerOrientation, DividerProps, DividerType};
-pub use crate::components::flex::{Flex, FlexAlign, FlexGap, FlexJustify, FlexProps, FlexWrap};
+pub use crate::components::divider::{Divider, DividerProps};
+pub use crate::components::flex::{Flex, FlexProps};
 pub use crate::components::grid::{Col, ColProps, Justify as GridJustify, Row, RowProps};
 pub use crate::components::layout::{
     Content, ContentProps, Footer, FooterProps, Header, HeaderProps, Layout, LayoutProps, Sider,

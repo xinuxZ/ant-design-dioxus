@@ -1,0 +1,34 @@
+---
+description: Legacy project structure guidelines - migrated to new rule structure
+globs:
+  - '**/*'
+alwaysApply: false
+priority: low
+---
+
+# Legacy Project Structure Guidelines
+
+⚠️ **DEPRECATED**: This file has been migrated to the new rule structure.
+
+Please refer to the new organized rules:
+- **Core Rules**: `.cursor/rules/core/`
+  - `project-structure.mdc` - Project organization
+  - `naming-conventions.mdc` - Naming standards
+  - `code-style.mdc` - Code formatting
+
+- **Technology Rules**: `.cursor/rules/dioxus/`
+  - `component-development.mdc` - Dioxus component guidelines
+
+- **Design System Rules**: `.cursor/rules/ant-design/`
+  - `design-system.mdc` - Ant Design standards
+  - `theme-system.mdc` - Theme implementation
+
+- **Quality Rules**: `.cursor/rules/quality/`
+  - `testing.mdc` - Testing standards
+  - `security.mdc` - Security practices
+  - `performance.mdc` - Performance optimization
+
+- **Deployment Rules**: `.cursor/rules/deployment/`
+  - `ci-cd.mdc` - CI/CD workflows
+
+This legacy file is kept for reference but should not be used for new development.

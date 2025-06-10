@@ -12,6 +12,90 @@
 //! - **反馈**: Alert, Drawer, Message, Modal, Notification, Popconfirm, Progress, Result, Skeleton, Spin
 //! - **其他**: Anchor, BackTop, ConfigProvider, FloatButton, QRCode, Theme, ThemeSwitch, Watermark
 
+/// # 主题和语言支持
+///
+/// 所有组件都支持主题切换和语言切换功能，通过 `ConfigProvider` 组件进行全局配置。
+///
+/// ## 主题配置示例
+///
+/// ```rust
+/// use ant_design_dioxus::prelude::*;
+///
+/// #[component]
+/// fn App() -> Element {
+///     let theme_config = ThemeBuilder::new()
+///         .add_token("colorPrimary", "#1890ff")
+///         .add_token("colorSuccess", "#52c41a")
+///         .add_token("colorWarning", "#faad14")
+///         .add_token("colorError", "#ff4d4f")
+///         .add_token("colorInfo", "#1890ff")
+///         .build();
+///
+///     rsx! {
+///         ConfigProvider {
+///             theme: Some(theme_config),
+///             div {
+///                 Button { "按钮" }
+///                 Input { placeholder: "请输入" }
+///             }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## 语言配置示例
+///
+/// ```rust
+/// use ant_design_dioxus::prelude::*;
+///
+/// #[component]
+/// fn App() -> Element {
+///     rsx! {
+///         ConfigProvider {
+///             locale: Some(Locale::En),
+///             div {
+///                 Button { "Button" }
+///                 DatePicker {}
+///                 Pagination {
+///                     total: 100,
+///                     show_size_changer: true
+///                 }
+///             }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## 组件中使用主题和语言
+///
+/// 在自定义组件中，可以通过 Hook 函数获取当前的主题和语言配置：
+///
+/// ```rust
+/// use ant_design_dioxus::prelude::*;
+///
+/// #[component]
+/// fn MyComponent() -> Element {
+///     // 获取主题上下文
+///     let theme_context = use_theme();
+///
+///     // 获取特定主题令牌
+///     let primary_color = use_theme_token("colorPrimary");
+///
+///     // 获取组件特定令牌
+///     let button_height = use_component_token("Button", "height");
+///
+///     // 获取翻译函数
+///     let translate = use_translate();
+///     let ok_text = translate("ok"); // 根据当前语言返回"确定"或"OK"等
+///
+///     rsx! {
+///         div {
+///             style: "color: {primary_color}; height: {button_height};",
+///             "{ok_text}"
+///         }
+///     }
+/// }
+/// ```
 // 基础导入在各个组件中按需引入
 
 // 通用组件
@@ -74,7 +158,7 @@ pub mod switch;
 pub mod table;
 pub mod tabs;
 pub mod tag;
-pub mod theme_switch;
+// pub mod theme_switch;
 pub mod time_picker;
 pub mod timeline;
 pub mod tooltip;

@@ -14,11 +14,13 @@
 //! 安装 [Kitchen Sketch 插件 💎](https://kitchen.alipay.com)，
 //! 就可以一键拖拽使用 Ant Design 和 Iconfont 的海量图标，还可以关联自有项目。
 
+mod styles;
+
+use self::styles::{
+    IconRotate as StyleIconRotate, IconSize, IconStyleGenerator, IconTheme as StyleIconTheme,
+};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-// 引入图标样式
-const ICON_STYLE: &str = include_str!("style.css");
 
 /// 图标旋转方向
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -118,16 +120,35 @@ pub struct IconProps {
 /// ```
 #[component]
 pub fn Icon(props: IconProps) -> Element {
-    let class_name = get_icon_class_name(&props);
-    let icon_style = get_icon_style(&props);
+    // 使用 CSS-in-Rust 样式生成器
+    let style_generator = IconStyleGenerator::new()
+        .with_theme(convert_theme(&props.theme))
+        .with_rotate(convert_rotate(&props.rotate))
+        .with_size(convert_size(&props.size))
+        .with_color(props.color.clone())
+        .with_spin(props.spin)
+        .with_disabled(false); // 图标组件暂不支持禁用状态
+
+    // 生成样式类名
+    let css_class = style_generator.generate();
+
+    // 合并自定义类名
+    let class_name = if let Some(custom_class) = &props.class {
+        format!("anticon anticon-{} {}", props.icon_type, custom_class)
+    } else {
+        format!("anticon anticon-{}", props.icon_type)
+    };
+
+    // 合并所有类名
+    let combined_class = format!("{} {}", class_name, css_class);
+
+    // 获取自定义样式
+    let custom_style = props.style.clone().unwrap_or_default();
 
     rsx! {
-        // 注入图标样式
-        style { {ICON_STYLE} }
-
         i {
-            class: class_name.clone(),
-            style: icon_style.clone(),
+            class: combined_class,
+            style: custom_style,
             onclick: move |evt| {
                 if let Some(handler) = &props.onclick {
                     handler.call(evt);
@@ -177,83 +198,43 @@ pub fn Icon(props: IconProps) -> Element {
     }
 }
 
-/// 获取图标的类名
-///
-/// # 参数
-///
-/// * `props` - 图标属性
-///
-/// # 返回值
-///
-/// 返回图标的完整类名字符串
-fn get_icon_class_name(props: &IconProps) -> String {
-    let mut classes = vec!["anticon"];
-
-    // 添加图标类型类名
-    let icon_type_class = format!("anticon-{}", props.icon_type);
-    classes.push(&icon_type_class);
-
-    // 添加主题类名
-    match props.theme {
-        IconTheme::Outlined => {} // 默认不需要额外类名
-        IconTheme::Filled => classes.push("anticon-filled"),
-        IconTheme::TwoTone => classes.push("anticon-two-tone"),
+/// 将组件的主题属性转换为样式生成器的主题枚举
+fn convert_theme(theme: &IconTheme) -> StyleIconTheme {
+    match theme {
+        IconTheme::Outlined => StyleIconTheme::Outlined,
+        IconTheme::Filled => StyleIconTheme::Filled,
+        IconTheme::TwoTone => StyleIconTheme::TwoTone,
     }
-
-    // 添加旋转类名
-    if props.spin {
-        classes.push("anticon-spin");
-    }
-
-    match props.rotate {
-        IconRotate::None => {}
-        IconRotate::Rotate90 => classes.push("anticon-rotate-90"),
-        IconRotate::Rotate180 => classes.push("anticon-rotate-180"),
-        IconRotate::Rotate270 => classes.push("anticon-rotate-270"),
-    }
-
-    // 添加自定义类名
-    let mut class_string = classes.join(" ");
-    if let Some(custom_class) = &props.class {
-        class_string.push(' ');
-        class_string.push_str(custom_class);
-    }
-
-    class_string
 }
 
-/// 获取图标的内联样式
-///
-/// # 参数
-///
-/// * `props` - 图标属性
-///
-/// # 返回值
-///
-/// 返回图标的内联样式字符串
-fn get_icon_style(props: &IconProps) -> String {
-    let mut styles = Vec::new();
-
-    // 设置尺寸
-    if let Some(size) = &props.size {
-        styles.push(format!("font-size: {}", size));
+/// 将组件的旋转属性转换为样式生成器的旋转枚举
+fn convert_rotate(rotate: &IconRotate) -> StyleIconRotate {
+    match rotate {
+        IconRotate::None => StyleIconRotate::None,
+        IconRotate::Rotate90 => StyleIconRotate::Rotate90,
+        IconRotate::Rotate180 => StyleIconRotate::Rotate180,
+        IconRotate::Rotate270 => StyleIconRotate::Rotate270,
     }
+}
 
-    // 设置颜色
-    if let Some(color) = &props.color {
-        styles.push(format!("color: {}", color));
-    }
-
-    // 添加自定义样式
-    let mut style_string = styles.join("; ");
-    if let Some(custom_style) = &props.style {
-        if !style_string.is_empty() {
-            style_string.push_str("; ");
+/// 将组件的尺寸属性转换为样式生成器的尺寸枚举
+fn convert_size(size: &Option<String>) -> IconSize {
+    match size {
+        Some(size_value) => {
+            if size_value == "12px" {
+                IconSize::Small
+            } else if size_value == "16px" {
+                IconSize::Medium
+            } else if size_value == "18px" {
+                IconSize::Large
+            } else if size_value == "24px" {
+                IconSize::ExtraLarge
+            } else {
+                IconSize::Custom(size_value.clone())
+            }
         }
-        style_string.push_str(custom_style);
+        None => IconSize::Medium,
     }
-
-    style_string
 }
 
 /// 渲染图标 SVG 内容

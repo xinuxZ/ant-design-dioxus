@@ -1,0 +1,194 @@
+---
+description: 项目结构和文件组织规范，确保代码库的可维护性和可扩展性
+globs:
+  - 'src/**/*'
+  - 'examples/**/*'
+  - 'tests/**/*'
+  - 'docs/**/*'
+alwaysApply: true
+priority: high
+---
+
+# 项目结构规范
+
+## 目标
+建立清晰的项目结构，确保代码组织合理，便于开发者快速定位和维护代码。
+
+## 上下文
+- 基于 Rust 项目的最佳实践
+- 适配 Dioxus 0.6.3 框架的组件开发模式
+- 遵循 Ant Design 组件库的组织方式
+- 支持多目标编译（Web、Desktop、Mobile）
+
+## 规则
+
+### 根目录结构
+```
+ant-design-dioxus/
+├── .cursor/rules/          # Cursor 编辑器规则
+├── .trae/rules/           # Trae AI 项目规则
+├── src/                   # 源代码目录
+├── examples/              # 示例代码
+├── tests/                 # 测试代码
+├── docs/                  # 文档
+├── assets/                # 静态资源
+├── Cargo.toml            # 项目配置
+├── build.rs              # 构建脚本
+├── README.md             # 英文文档
+└── README-zh_CN.md       # 中文文档
+```
+
+### 源代码结构 (src/)
+```
+src/
+├── lib.rs                 # 库入口文件
+├── prelude.rs            # 预导入模块
+├── components/           # UI 组件
+│   ├── mod.rs           # 组件模块导出
+│   ├── button/          # 按钮组件
+│   │   ├── mod.rs       # 组件主文件
+│   │   ├── styles.rs    # 样式定义
+│   │   └── tests.rs     # 组件测试
+│   └── [component]/     # 其他组件...
+├── theme/               # 主题系统
+│   ├── mod.rs          # 主题模块导出
+│   ├── core/           # 核心主题功能
+│   ├── ant_design/     # Ant Design 主题
+│   ├── providers/      # 主题提供者
+│   └── tokens/         # 设计令牌
+├── config_provider/     # 全局配置
+├── locale/             # 国际化
+├── utils/              # 工具函数
+├── shared/             # 共享代码
+└── [feature]/          # 其他功能模块
+```
+
+### 组件目录结构
+每个组件应遵循以下结构：
+
+```
+components/button/
+├── mod.rs              # 主要组件实现和导出
+├── styles.rs           # 样式生成器和CSS-in-Rust代码
+├── button_group.rs     # 相关子组件（如适用）
+├── types.rs           # 类型定义（如复杂）
+└── tests.rs           # 组件测试（可选）
+```
+
+✅ **正确的组件文件组织**:
+```rust
+// mod.rs - 主要组件实现
+mod styles;
+mod button_group;
+
+pub use button_group::*;
+use styles::*;
+
+#[derive(Props, Clone, PartialEq)]
+pub struct ButtonProps {
+    // 属性定义
+}
+
+#[component]
+pub fn Button(props: ButtonProps) -> Element {
+    // 组件实现
+}
+```
+
+### 示例代码结构 (examples/)
+```
+examples/
+├── main.rs              # 主示例入口
+├── common/              # 共享示例代码
+│   ├── mod.rs
+│   ├── demo_section.rs  # 演示区域组件
+│   └── component_menu.rs # 组件菜单
+└── components/          # 各组件示例
+    ├── mod.rs
+    ├── button.rs        # 按钮示例
+    └── [component].rs   # 其他组件示例
+```
+
+### 测试结构 (tests/)
+```
+tests/
+├── integration/         # 集成测试
+├── components/         # 组件测试
+├── theme/             # 主题测试
+└── utils/             # 工具测试
+```
+
+### 文档结构 (docs/)
+```
+docs/
+├── components/         # 组件文档
+├── guides/            # 使用指南
+├── api/              # API 文档
+└── examples/         # 示例文档
+```
+
+### 文件命名规范
+- 使用 **snake_case** 命名文件和目录
+- 组件目录名与组件名对应（转换为 snake_case）
+- 测试文件以 `_test.rs` 或 `tests.rs` 结尾
+- 示例文件以描述性名称命名
+
+✅ **正确示例**:
+```
+date_picker/mod.rs      # DatePicker 组件
+input_number/mod.rs     # InputNumber 组件
+auto_complete/mod.rs    # AutoComplete 组件
+```
+
+❌ **避免**:
+```
+DatePicker/mod.rs       # 应该使用 snake_case
+inputNumber/mod.rs      # 应该使用 snake_case
+autoComplete/mod.rs     # 应该使用 snake_case
+```
+
+### 模块导出规范
+- 在 `mod.rs` 中明确导出公共 API
+- 使用 `pub use` 重新导出重要类型
+- 保持导出的一致性和简洁性
+
+✅ **正确示例**:
+```rust
+// src/components/mod.rs
+pub mod button;
+pub mod date_picker;
+pub mod input;
+
+// 重新导出主要组件
+pub use button::{Button, ButtonProps, ButtonType};
+pub use date_picker::{DatePicker, DatePickerProps};
+pub use input::{Input, InputProps};
+```
+
+### 依赖管理
+- 将相关依赖组织在一起
+- 使用 feature flags 控制可选功能
+- 明确标注依赖的用途
+
+✅ **Cargo.toml 组织示例**:
+```toml
+[dependencies]
+# 核心框架
+dioxus = { version = "0.6.3", features = ["router", "web"] }
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Web APIs
+web-sys = { version = "0.3", features = ["console", "ScrollToOptions"] }
+js-sys = "0.3"
+
+# 样式系统
+css-in-rust = { path = "../css-in-rust/css-in-rust" }
+```
+
+## 例外情况
+- 第三方库的集成可能需要特殊的目录结构
+- 生成的代码文件可以放在专门的目录中
+- 临时文件和实验性功能可以使用不同的组织方式

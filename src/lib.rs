@@ -1,29 +1,31 @@
-//! Ant Design Dioxus
+//! # Ant Design Dioxus
 //!
-//! 一个基于 Dioxus 框架的 Ant Design 组件库实现
+//! 基于 Dioxus 的 Ant Design 组件库
 //!
 //! ## 特性
 //!
-//! - 🎨 企业级 UI 设计语言
-//! - 📦 开箱即用的高质量 Rust 组件
-//! - 🛡️ 使用 Rust 编写，类型安全
-//! - ⚡ 基于 Dioxus 的高性能渲染
-//! - 🌍 国际化语言支持
-//! - 🎭 主题定制能力
-//! - 📱 响应式设计
+//! - 完整实现 Ant Design 设计规范
+//! - 提供 60+ 高质量组件
+//! - 支持主题定制
+//! - 支持国际化
+//! - 支持服务端渲染
+//! - 支持移动端适配
 //!
-//! ## 快速开始
+//! ## 使用方式
 //!
 //! ```rust
-//! use dioxus::prelude::*;
 //! use ant_design_dioxus::prelude::*;
 //!
-//! fn app() -> Element {
+//! #[component]
+//! fn App() -> Element {
 //!     rsx! {
 //!         ConfigProvider {
-//!             theme: "light",
-//!             locale: "zh_CN",
-//!             // 你的应用内容
+//!             theme: Some(ThemeBuilder::new().add_token("colorPrimary", "#1890ff").build()),
+//!             locale: Some(Locale::ZhCN),
+//!             div {
+//!                 Button { "按钮" }
+//!                 Input { placeholder: "请输入" }
+//!             }
 //!         }
 //!     }
 //! }
@@ -32,6 +34,7 @@
 // 引用依赖以避免未使用警告
 #[allow(unused_imports)]
 use css_in_rust_macros as _;
+use log as _;
 #[allow(unused_imports)]
 use once_cell as _;
 #[allow(unused_imports)]
@@ -46,13 +49,14 @@ use web_sys as _;
 // 核心模块
 pub mod config_provider;
 pub mod locale;
+pub mod prelude;
 pub mod shared;
 pub mod theme;
 pub mod utils;
 
 // 组件模块
 pub mod components;
-pub mod prelude;
+pub mod hooks;
 
 // 预导入模块已移至 prelude.rs 文件
 // 该模块提供了更清晰的组件导出结构，避免命名冲突

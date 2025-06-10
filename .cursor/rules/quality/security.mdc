@@ -1,0 +1,653 @@
+---
+description: 安全规范和最佳实践，确保组件库的安全性和数据保护
+globs:
+  - 'src/**/*.rs'
+  - 'examples/**/*.rs'
+  - 'build.rs'
+alwaysApply: true
+priority: high
+---
+
+# 安全规范
+
+## 目标
+建立全面的安全防护体系，确保组件库在各种环境下的安全性，防范常见的安全漏洞和攻击。
+
+## 上下文
+- 基于 Rust 的内存安全特性
+- 适配 WebAssembly 运行环境
+- 支持服务端渲染 (SSR) 安全
+- 遵循 OWASP 安全指南
+- 符合现代 Web 安全标准
+
+## 规则
+
+### 输入验证和清理
+- 所有用户输入必须进行验证和清理
+- 防止 XSS (跨站脚本攻击)
+- 防止注入攻击
+- 验证数据类型和格式
+
+✅ **安全的输入处理**:
+```rust
+use html_escape::encode_text;
+use regex::Regex;
+
+/// 安全的文本输入组件
+#[component]
+pub fn SafeTextInput(props: SafeTextInputProps) -> Element {
+    let value = use_signal(|| props.initial_value.unwrap_or_default());
+
+    let sanitized_value = use_memo(move || {
+        let raw_value = value();
+
+        // 1. 长度限制
+        if raw_value.len() > props.max_length.unwrap_or(1000) {
+            return Err("Input too long".to_string());
+        }
+
+        // 2. 字符过滤
+        let allowed_chars = Regex::new(r"^[a-zA-Z0-9\s\-_.,!?]*$").unwrap();
+        if !allowed_chars.is_match(&raw_value) {
+            return Err("Invalid characters detected".to_string());
+        }
+
+        // 3. HTML 转义
+        let escaped = encode_text(&raw_value);
+
+        // 4. 危险模式检测
+        let dangerous_patterns = [
+            r"<script",
+            r"javascript:",
+            r"data:text/html",
+            r"vbscript:",
+            r"onload=",
+            r"onerror=",
+        ];
+
+        for pattern in &dangerous_patterns {
+            if raw_value.to_lowercase().contains(pattern) {
+                return Err("Potentially dangerous content detected".to_string());
+            }
+        }
+
+        Ok(escaped.to_string())
+    });
+
+    rsx! {
+        div {
+            class: "ant-input-wrapper",
+
+            input {
+                class: "ant-input",
+                r#type: "text",
+                value: value(),
+                maxlength: props.max_length.unwrap_or(1000),
+                oninput: move |evt| {
+                    value.set(evt.value());
+                },
+                "data-testid": "safe-text-input"
+            }
+
+            if let Err(error) = sanitized_value() {
+                div {
+                    class: "ant-input-error",
+                    "aria-live": "polite",
+                    role: "alert",
+                    {error}
+                }
+            }
+        }
+    }
+}
+```
+
+❌ **避免的不安全做法**:
+```rust
+// 不要直接渲染未转义的用户输入
+rsx! {
+    div {
+        dangerous_inner_html: user_input, // ❌ 危险！
+    }
+}
+
+// 不要在 URL 中直接使用用户输入
+rsx! {
+    a {
+        href: format!("https://example.com/{}", user_input), // ❌ 可能导致开放重定向
+        "Link"
+    }
+}
+```
+
+### 内容安全策略 (CSP)
+- 实施严格的 CSP 头
+- 防止内联脚本执行
+- 限制资源加载来源
+
+✅ **CSP 配置示例**:
+```rust
+// src/security/csp.rs
+pub struct ContentSecurityPolicy {
+    pub directives: Vec<CspDirective>,
+}
+
+pub enum CspDirective {
+    DefaultSrc(Vec<String>),
+    ScriptSrc(Vec<String>),
+    StyleSrc(Vec<String>),
+    ImgSrc(Vec<String>),
+    ConnectSrc(Vec<String>),
+    FontSrc(Vec<String>),
+    ObjectSrc(Vec<String>),
+    MediaSrc(Vec<String>),
+    FrameSrc(Vec<String>),
+}
+
+impl ContentSecurityPolicy {
+    pub fn strict() -> Self {
+        Self {
+            directives: vec![
+                CspDirective::DefaultSrc(vec!["'self'".to_string()]),
+                CspDirective::ScriptSrc(vec![
+                    "'self'".to_string(),
+                    "'unsafe-inline'".to_string(), // 仅在必要时使用
+                ]),
+                CspDirective::StyleSrc(vec![
+                    "'self'".to_string(),
+                    "'unsafe-inline'".to_string(), // CSS-in-JS 需要
+                ]),
+                CspDirective::ImgSrc(vec![
+                    "'self'".to_string(),
+                    "data:".to_string(),
+                    "https:".to_string(),
+                ]),
+                CspDirective::ConnectSrc(vec!["'self'".to_string()]),
+                CspDirective::FontSrc(vec![
+                    "'self'".to_string(),
+                    "data:".to_string(),
+                ]),
+                CspDirective::ObjectSrc(vec!["'none'".to_string()]),
+                CspDirective::MediaSrc(vec!["'self'".to_string()]),
+                CspDirective::FrameSrc(vec!["'none'".to_string()]),
+            ],
+        }
+    }
+
+    pub fn to_header_value(&self) -> String {
+        self.directives
+            .iter()
+            .map(|directive| directive.to_string())
+            .collect::<Vec<_>>()
+            .join("; ")
+    }
+}
+```
+
+### 敏感数据处理
+- 避免在客户端存储敏感信息
+- 实施数据脱敏
+- 安全的密钥管理
+
+✅ **安全的数据处理**:
+```rust
+use zeroize::{Zeroize, ZeroizeOnDrop};
+use serde::{Deserialize, Serialize};
+
+/// 敏感字符串类型，自动清零
+#[derive(Clone, Zeroize, ZeroizeOnDrop)]
+pub struct SensitiveString(String);
+
+impl SensitiveString {
+    pub fn new(value: String) -> Self {
+        Self(value)
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+
+    /// 脱敏显示
+    pub fn masked(&self) -> String {
+        if self.0.len() <= 4 {
+            "****".to_string()
+        } else {
+            format!("{}****{}", &self.0[..2], &self.0[self.0.len()-2..])
+        }
+    }
+}
+
+/// 安全的密码输入组件
+#[component]
+pub fn SecurePasswordInput(props: SecurePasswordInputProps) -> Element {
+    let password = use_signal(|| SensitiveString::new(String::new()));
+    let show_password = use_signal(|| false);
+    let strength = use_signal(|| PasswordStrength::Weak);
+
+    // 密码强度检查
+    let check_strength = use_callback(move |pwd: &str| {
+        let mut score = 0;
+
+        if pwd.len() >= 8 { score += 1; }
+        if pwd.chars().any(|c| c.is_uppercase()) { score += 1; }
+        if pwd.chars().any(|c| c.is_lowercase()) { score += 1; }
+        if pwd.chars().any(|c| c.is_numeric()) { score += 1; }
+        if pwd.chars().any(|c| !c.is_alphanumeric()) { score += 1; }
+
+        match score {
+            0..=2 => PasswordStrength::Weak,
+            3..=4 => PasswordStrength::Medium,
+            5 => PasswordStrength::Strong,
+            _ => PasswordStrength::Weak,
+        }
+    });
+
+    rsx! {
+        div {
+            class: "ant-password-input",
+
+            div {
+                class: "ant-input-group",
+
+                input {
+                    class: "ant-input",
+                    r#type: if show_password() { "text" } else { "password" },
+                    autocomplete: "new-password",
+                    spellcheck: false,
+                    oninput: move |evt| {
+                        let new_password = SensitiveString::new(evt.value());
+                        strength.set(check_strength(new_password.as_str()));
+                        password.set(new_password);
+                    },
+                    "data-testid": "password-input"
+                }
+
+                button {
+                    class: "ant-input-suffix",
+                    r#type: "button",
+                    onclick: move |_| show_password.set(!show_password()),
+                    "aria-label": if show_password() { "Hide password" } else { "Show password" },
+
+                    if show_password() {
+                        "🙈"
+                    } else {
+                        "👁️"
+                    }
+                }
+            }
+
+            // 密码强度指示器
+            div {
+                class: format!("ant-password-strength ant-password-strength-{}",
+                              strength().to_string().to_lowercase()),
+                "aria-live": "polite",
+
+                match strength() {
+                    PasswordStrength::Weak => "Weak password",
+                    PasswordStrength::Medium => "Medium password",
+                    PasswordStrength::Strong => "Strong password",
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum PasswordStrength {
+    Weak,
+    Medium,
+    Strong,
+}
+
+impl ToString for PasswordStrength {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Weak => "weak".to_string(),
+            Self::Medium => "medium".to_string(),
+            Self::Strong => "strong".to_string(),
+        }
+    }
+}
+```
+
+### 访问控制和权限
+- 实施基于角色的访问控制 (RBAC)
+- 最小权限原则
+- 安全的会话管理
+
+✅ **权限控制示例**:
+```rust
+/// 权限检查组件
+#[component]
+pub fn ProtectedComponent(props: ProtectedComponentProps) -> Element {
+    let auth_context = use_context::<AuthContext>();
+
+    // 权限验证
+    let has_permission = use_memo(move || {
+        if let Some(user) = auth_context.current_user() {
+            props.required_permissions.iter().all(|perm| {
+                user.has_permission(perm)
+            })
+        } else {
+            false
+        }
+    });
+
+    if has_permission() {
+        rsx! {
+            {props.children}
+        }
+    } else {
+        rsx! {
+            div {
+                class: "ant-access-denied",
+                role: "alert",
+                "aria-live": "polite",
+
+                h3 { "Access Denied" }
+                p { "You don't have permission to view this content." }
+
+                if auth_context.current_user().is_none() {
+                    Button {
+                        onclick: move |_| {
+                            // 重定向到登录页面
+                            auth_context.redirect_to_login();
+                        },
+                        "Login"
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// 安全的路由保护
+#[component]
+pub fn SecureRoute(props: SecureRouteProps) -> Element {
+    let auth_context = use_context::<AuthContext>();
+    let location = use_location();
+
+    // 检查认证状态
+    let is_authenticated = use_memo(move || {
+        auth_context.current_user().is_some()
+    });
+
+    // 检查会话有效性
+    let is_session_valid = use_memo(move || {
+        if let Some(user) = auth_context.current_user() {
+            user.session_expires_at > chrono::Utc::now()
+        } else {
+            false
+        }
+    });
+
+    if !is_authenticated() || !is_session_valid() {
+        // 保存当前路径用于登录后重定向
+        auth_context.set_redirect_path(location.pathname());
+        auth_context.redirect_to_login();
+
+        rsx! {
+            div {
+                class: "ant-loading",
+                "Redirecting to login..."
+            }
+        }
+    } else {
+        rsx! {
+            {props.children}
+        }
+    }
+}
+```
+
+### 安全的 HTTP 通信
+- 强制使用 HTTPS
+- 实施 CSRF 保护
+- 安全的 Cookie 设置
+
+✅ **安全的 API 客户端**:
+```rust
+use reqwest::{Client, header};
+use serde::{Deserialize, Serialize};
+
+pub struct SecureApiClient {
+    client: Client,
+    base_url: String,
+    csrf_token: Option<String>,
+}
+
+impl SecureApiClient {
+    pub fn new(base_url: String) -> Result<Self, Box<dyn std::error::Error>> {
+        // 确保使用 HTTPS
+        if !base_url.starts_with("https://") && !base_url.starts_with("http://localhost") {
+            return Err("Only HTTPS URLs are allowed in production".into());
+        }
+
+        let mut headers = header::HeaderMap::new();
+        headers.insert(
+            header::USER_AGENT,
+            header::HeaderValue::from_static("AntDesignDioxus/1.0")
+        );
+        headers.insert(
+            header::ACCEPT,
+            header::HeaderValue::from_static("application/json")
+        );
+
+        let client = Client::builder()
+            .default_headers(headers)
+            .timeout(std::time::Duration::from_secs(30))
+            .redirect(reqwest::redirect::Policy::limited(3))
+            .build()?;
+
+        Ok(Self {
+            client,
+            base_url,
+            csrf_token: None,
+        })
+    }
+
+    pub async fn get_csrf_token(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let response = self.client
+            .get(&format!("{}/api/csrf-token", self.base_url))
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            let token: CsrfTokenResponse = response.json().await?;
+            self.csrf_token = Some(token.token);
+        }
+
+        Ok(())
+    }
+
+    pub async fn post<T, R>(&self, endpoint: &str, data: &T) -> Result<R, Box<dyn std::error::Error>>
+    where
+        T: Serialize,
+        R: for<'de> Deserialize<'de>,
+    {
+        let mut request = self.client
+            .post(&format!("{}{}", self.base_url, endpoint))
+            .json(data);
+
+        // 添加 CSRF 令牌
+        if let Some(ref token) = self.csrf_token {
+            request = request.header("X-CSRF-Token", token);
+        }
+
+        let response = request.send().await?;
+
+        if response.status().is_success() {
+            Ok(response.json().await?)
+        } else {
+            Err(format!("API request failed: {}", response.status()).into())
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct CsrfTokenResponse {
+    token: String,
+}
+```
+
+### 错误处理和日志安全
+- 避免泄露敏感信息
+- 安全的错误消息
+- 审计日志记录
+
+✅ **安全的错误处理**:
+```rust
+/// 安全的错误类型
+#[derive(Debug, Clone)]
+pub enum SecureError {
+    /// 用户友好的错误消息
+    UserFriendly(String),
+    /// 系统内部错误（不暴露给用户）
+    Internal {
+        message: String,
+        error_id: String,
+    },
+    /// 验证错误
+    Validation(Vec<ValidationError>),
+}
+
+impl SecureError {
+    /// 获取用户安全的错误消息
+    pub fn user_message(&self) -> String {
+        match self {
+            Self::UserFriendly(msg) => msg.clone(),
+            Self::Internal { error_id, .. } => {
+                format!("An internal error occurred. Error ID: {}", error_id)
+            },
+            Self::Validation(errors) => {
+                errors.iter()
+                    .map(|e| e.message.clone())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            },
+        }
+    }
+
+    /// 记录错误到安全日志
+    pub fn log_securely(&self) {
+        match self {
+            Self::Internal { message, error_id } => {
+                // 记录完整错误信息到安全日志
+                log::error!("Internal error [{}]: {}", error_id, message);
+            },
+            Self::UserFriendly(msg) => {
+                log::info!("User error: {}", msg);
+            },
+            Self::Validation(errors) => {
+                log::info!("Validation errors: {:?}", errors);
+            },
+        }
+    }
+}
+
+/// 安全的错误边界组件
+#[component]
+pub fn SecureErrorBoundary(props: SecureErrorBoundaryProps) -> Element {
+    let error_state = use_signal(|| None::<SecureError>);
+
+    // 错误恢复处理
+    let handle_error = use_callback(move |error: SecureError| {
+        // 记录错误
+        error.log_securely();
+
+        // 设置用户友好的错误状态
+        error_state.set(Some(error));
+    });
+
+    if let Some(error) = error_state() {
+        rsx! {
+            div {
+                class: "ant-error-boundary",
+                role: "alert",
+                "aria-live": "polite",
+
+                div {
+                    class: "ant-error-content",
+
+                    h3 {
+                        class: "ant-error-title",
+                        "Something went wrong"
+                    }
+
+                    p {
+                        class: "ant-error-message",
+                        {error.user_message()}
+                    }
+
+                    div {
+                        class: "ant-error-actions",
+
+                        Button {
+                            onclick: move |_| {
+                                error_state.set(None);
+                            },
+                            "Try Again"
+                        }
+
+                        Button {
+                            button_type: ButtonType::Link,
+                            onclick: move |_| {
+                                // 重定向到首页或安全页面
+                                web_sys::window()
+                                    .unwrap()
+                                    .location()
+                                    .set_href("/")
+                                    .unwrap();
+                            },
+                            "Go Home"
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        rsx! {
+            {props.children}
+        }
+    }
+}
+```
+
+### 依赖安全管理
+- 定期更新依赖
+- 安全漏洞扫描
+- 最小化依赖数量
+
+✅ **安全的依赖管理**:
+```toml
+# Cargo.toml - 安全配置
+[dependencies]
+# 使用具体版本号，避免自动更新
+dioxus = "=0.6.3"
+dioxus-web = "=0.6.3"
+
+# 安全相关依赖
+html-escape = "0.2"
+regex = "1.10"
+zeroize = { version = "1.7", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+
+# 开发依赖
+[dev-dependencies]
+cargo-audit = "0.20"
+
+# 安全配置
+[profile.release]
+# 启用所有安全优化
+panic = "abort"
+codegen-units = 1
+lto = true
+strip = true
+```
+
+## 例外情况
+- 开发环境可以使用 HTTP (localhost)
+- 演示代码可以包含模拟的敏感数据
+- 测试代码可以使用简化的安全检查
+- 向后兼容性要求可能需要保留某些不安全的 API

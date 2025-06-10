@@ -67,165 +67,11 @@
 //! ```
 
 use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
 
-const FLEX_STYLE: &str = include_str!("./style.css");
-
-/// Flex 主轴对齐方式
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum FlexJustify {
-    /// 起始位置对齐
-    FlexStart,
-    /// 居中对齐
-    Center,
-    /// 末尾位置对齐
-    FlexEnd,
-    /// 两端对齐，项目之间的间隔都相等
-    SpaceBetween,
-    /// 每个项目两侧的间隔相等
-    SpaceAround,
-    /// 每个项目的间隔与项目和容器之间的间隔相等
-    SpaceEvenly,
-}
-
-impl Default for FlexJustify {
-    fn default() -> Self {
-        Self::FlexStart
-    }
-}
-
-impl FlexJustify {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::FlexStart => "flex-start",
-            Self::Center => "center",
-            Self::FlexEnd => "flex-end",
-            Self::SpaceBetween => "space-between",
-            Self::SpaceAround => "space-around",
-            Self::SpaceEvenly => "space-evenly",
-        }
-    }
-}
-
-/// Flex 交叉轴对齐方式
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum FlexAlign {
-    /// 起始位置对齐
-    FlexStart,
-    /// 居中对齐
-    Center,
-    /// 末尾位置对齐
-    FlexEnd,
-    /// 基线对齐
-    Baseline,
-    /// 拉伸对齐
-    Stretch,
-}
-
-impl Default for FlexAlign {
-    fn default() -> Self {
-        Self::FlexStart
-    }
-}
-
-impl FlexAlign {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::FlexStart => "flex-start",
-            Self::Center => "center",
-            Self::FlexEnd => "flex-end",
-            Self::Baseline => "baseline",
-            Self::Stretch => "stretch",
-        }
-    }
-}
-
-/// Flex 换行方式
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum FlexWrap {
-    /// 不换行
-    NoWrap,
-    /// 换行，第一行在上方
-    Wrap,
-    /// 换行，第一行在下方
-    WrapReverse,
-}
-
-impl Default for FlexWrap {
-    fn default() -> Self {
-        Self::NoWrap
-    }
-}
-
-impl FlexWrap {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::NoWrap => "nowrap",
-            Self::Wrap => "wrap",
-            Self::WrapReverse => "wrap-reverse",
-        }
-    }
-}
-
-/// Flex 方向
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum FlexDirection {
-    /// 水平方向，起点在左端
-    Row,
-    /// 水平方向，起点在右端
-    RowReverse,
-    /// 垂直方向，起点在上沿
-    Column,
-    /// 垂直方向，起点在下沿
-    ColumnReverse,
-}
-
-impl Default for FlexDirection {
-    fn default() -> Self {
-        Self::Row
-    }
-}
-
-impl FlexDirection {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Self::Row => "row",
-            Self::RowReverse => "row-reverse",
-            Self::Column => "column",
-            Self::ColumnReverse => "column-reverse",
-        }
-    }
-}
-
-/// Flex 间距大小
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum FlexGap {
-    /// 小间距
-    Small,
-    /// 中等间距
-    Middle,
-    /// 大间距
-    Large,
-    /// 自定义间距（像素值）
-    Custom(u32),
-}
-
-impl Default for FlexGap {
-    fn default() -> Self {
-        Self::Small
-    }
-}
-
-impl FlexGap {
-    pub fn to_px(&self) -> String {
-        match self {
-            Self::Small => "8px".to_string(),
-            Self::Middle => "16px".to_string(),
-            Self::Large => "24px".to_string(),
-            Self::Custom(px) => format!("{}px", px),
-        }
-    }
-}
+mod styles;
+use styles::{
+    register_styles, FlexAlign, FlexDirection, FlexGap, FlexJustify, FlexStyleGenerator, FlexWrap,
+};
 
 /// Flex 组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -262,8 +108,16 @@ pub struct FlexProps {
     #[props(default)]
     pub style: Option<String>,
 
+    pub direction: FlexDirection, // 新增属性：FlexDirection 枚举，用于指定主轴方向，默认值为 FlexDirection::Row，可选值为 FlexDirection::Row 和 FlexDirection::Column，分别表示水平和垂直方向
+
+    // ... 其他属性，如 flex、class、style 等，根据需要添加
     /// 子元素
     children: Element,
+}
+
+/// 注册 Flex 组件样式
+pub fn register_flex_styles() -> String {
+    register_styles()
 }
 
 /// Flex 弹性布局组件
@@ -271,54 +125,22 @@ pub struct FlexProps {
 /// 基于 CSS Flexbox 的弹性布局组件。
 #[component]
 pub fn Flex(props: FlexProps) -> Element {
-    let mut class_list = vec!["ant-flex"];
+    // 使用样式生成器生成类名
+    let style_generator = FlexStyleGenerator::new()
+        .with_vertical(props.vertical)
+        .with_justify(props.justify.clone())
+        .with_align(props.align.clone())
+        .with_wrap(props.wrap.clone())
+        .with_gap(props.gap.clone());
 
-    // 添加方向样式
-    if props.vertical {
-        class_list.push("ant-flex-vertical");
-    }
-
-    // 添加对齐样式
-    class_list.push(match props.justify {
-        FlexJustify::FlexStart => "ant-flex-justify-start",
-        FlexJustify::Center => "ant-flex-justify-center",
-        FlexJustify::FlexEnd => "ant-flex-justify-end",
-        FlexJustify::SpaceBetween => "ant-flex-justify-between",
-        FlexJustify::SpaceAround => "ant-flex-justify-around",
-        FlexJustify::SpaceEvenly => "ant-flex-justify-evenly",
-    });
-
-    class_list.push(match props.align {
-        FlexAlign::FlexStart => "ant-flex-align-start",
-        FlexAlign::Center => "ant-flex-align-center",
-        FlexAlign::FlexEnd => "ant-flex-align-end",
-        FlexAlign::Baseline => "ant-flex-align-baseline",
-        FlexAlign::Stretch => "ant-flex-align-stretch",
-    });
-
-    // 添加换行样式
-    class_list.push(match props.wrap {
-        FlexWrap::NoWrap => "ant-flex-nowrap",
-        FlexWrap::Wrap => "ant-flex-wrap",
-        FlexWrap::WrapReverse => "ant-flex-wrap-reverse",
-    });
-
-    // 添加间距样式
-    if let Some(gap) = &props.gap {
-        class_list.push(match gap {
-            FlexGap::Small => "ant-flex-gap-small",
-            FlexGap::Middle => "ant-flex-gap-middle",
-            FlexGap::Large => "ant-flex-gap-large",
-            FlexGap::Custom(_) => "ant-flex-gap-custom",
-        });
-    }
+    let class_name = style_generator.generate();
 
     // 添加自定义类名
-    if let Some(custom_class) = &props.class {
-        class_list.push(custom_class);
-    }
-
-    let class_name = class_list.join(" ");
+    let class_name = if let Some(custom_class) = &props.class {
+        format!("{} {}", class_name, custom_class)
+    } else {
+        class_name
+    };
 
     // 构建样式
     let mut style_parts = Vec::new();
@@ -328,9 +150,9 @@ pub fn Flex(props: FlexProps) -> Element {
         style_parts.push(format!("flex: {}", flex_value));
     }
 
-    // 添加间距样式
-    if let Some(gap) = &props.gap {
-        style_parts.push(format!("gap: {}", gap.to_px()));
+    // 添加间距样式（自定义间距）
+    if let Some(FlexGap::Custom(px)) = &props.gap {
+        style_parts.push(format!("gap: {}px", px));
     }
 
     // 添加自定义样式
@@ -345,10 +167,11 @@ pub fn Flex(props: FlexProps) -> Element {
     };
 
     rsx! {
-        style { {FLEX_STYLE} }
+        // 注册样式
+        style { {register_flex_styles()} }
 
         div {
-            class: class_name.clone(),
+            class: class_name,
             style: style_attr,
             {props.children}
         }

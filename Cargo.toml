@@ -20,10 +20,24 @@ web-sys = { version = "0.3", features = [
     "console",
     "ScrollToOptions",
     "ScrollBehavior",
+    "Document",
+    "Element",
+    "Window",
+    "Storage",
+    "MediaQueryList",
+    "MediaQueryListEvent",
+    "Navigator",
+    "Clipboard",
+    "HtmlDivElement",
+    "VisibilityState",
+    "Event",
+    "EventTarget",
+    "DomRect",
 ] }
 js-sys = "0.3"
 gloo-timers = { version = "0.3.0", features = ["futures"] }
 wasm-bindgen = "0.2.100"
+wasm-bindgen-futures = "0.4.40"
 chrono = { version = "0.4.41", features = ["serde"] }
 log = "0.4"
 

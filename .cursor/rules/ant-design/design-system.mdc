@@ -1,0 +1,421 @@
+---
+description: Ant Design 设计系统规范，确保组件符合 Ant Design 设计语言
+globs:
+  - 'src/components/**/*.rs'
+  - 'src/theme/**/*.rs'
+  - 'examples/**/*.rs'
+alwaysApply: true
+priority: high
+---
+
+# Ant Design 设计系统规范
+
+## 目标
+确保所有组件严格遵循 Ant Design 设计语言，提供一致的用户体验和视觉效果。
+
+## 上下文
+- 基于 Ant Design 5.x 设计规范
+- 适配 Dioxus 框架的组件开发模式
+- 支持亮色/暗色主题切换
+- 兼容国际化和本地化需求
+
+## 规则
+
+### 组件 API 设计
+- 组件 API 必须与 Ant Design React 版本保持一致
+- 属性命名遵循 Ant Design 约定
+- 支持所有 Ant Design 标准属性
+
+✅ **正确的 API 设计**:
+```rust
+// 按钮组件 - 与 Ant Design React 版本对应
+#[derive(Props, Clone, PartialEq)]
+pub struct ButtonProps {
+    /// 按钮类型：primary | default | dashed | text | link
+    #[props(default = ButtonType::Default)]
+    pub r#type: ButtonType,
+
+    /// 按钮尺寸：large | middle | small
+    #[props(default = ButtonSize::Middle)]
+    pub size: ButtonSize,
+
+    /// 按钮形状：default | circle | round
+    #[props(default = ButtonShape::Default)]
+    pub shape: ButtonShape,
+
+    /// 设置危险按钮
+    #[props(default = false)]
+    pub danger: bool,
+
+    /// 幽灵属性，使按钮背景透明
+    #[props(default = false)]
+    pub ghost: bool,
+
+    /// 按钮失效状态
+    #[props(default = false)]
+    pub disabled: bool,
+
+    /// 设置按钮载入状态
+    #[props(default = false)]
+    pub loading: bool,
+
+    /// 将按钮宽度调整为其父宽度的选项
+    #[props(default = false)]
+    pub block: bool,
+
+    /// 点击跳转的地址，指定此属性 button 的行为和 a 链接一致
+    #[props(default)]
+    pub href: Option<String>,
+
+    /// 相当于 a 链接的 target 属性
+    #[props(default)]
+    pub target: Option<String>,
+
+    /// 点击事件
+    #[props(default)]
+    pub onclick: Option<EventHandler<MouseEvent>>,
+
+    children: Element,
+}
+```
+
+### 设计令牌使用
+- 严格使用 Ant Design 设计令牌
+- 禁止硬编码颜色、尺寸等值
+- 支持主题定制和令牌覆盖
+
+✅ **正确的设计令牌使用**:
+```rust
+use crate::theme::{AntDesignToken, use_token};
+
+#[component]
+pub fn Button(props: ButtonProps) -> Element {
+    let token = use_token();
+
+    let button_style = css! {
+        // 使用设计令牌而不是硬编码值
+        height: token.control_height,
+        padding: format!("0 {}", token.padding_content_horizontal),
+        font_size: token.font_size,
+        border_radius: token.border_radius,
+
+        // 颜色令牌
+        color: token.color_text,
+        background: token.color_bg_container,
+        border: format!("1px solid {}", token.color_border),
+
+        // 交互状态
+        "&:hover" {
+            color: token.color_primary_hover,
+            border_color: token.color_primary_hover,
+        },
+
+        "&:active" {
+            color: token.color_primary_active,
+            border_color: token.color_primary_active,
+        }
+    };
+
+    // 组件实现...
+}
+```
+
+### 组件状态和变体
+- 实现所有 Ant Design 标准状态
+- 支持所有官方变体和尺寸
+- 确保状态间的平滑过渡
+
+✅ **完整的状态支持**:
+```rust
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ButtonType {
+    Primary,   // 主按钮
+    Default,   // 默认按钮
+    Dashed,    // 虚线按钮
+    Text,      // 文本按钮
+    Link,      // 链接按钮
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ButtonSize {
+    Large,     // 大号按钮
+    Middle,    // 中等按钮（默认）
+    Small,     // 小号按钮
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ButtonShape {
+    Default,   // 默认形状
+    Circle,    // 圆形按钮
+    Round,     // 圆角按钮
+}
+
+// 状态组合示例
+fn get_button_class(button_type: ButtonType, size: ButtonSize, danger: bool, disabled: bool) -> String {
+    let mut classes = vec!["ant-btn"];
+
+    // 类型样式
+    match button_type {
+        ButtonType::Primary => classes.push("ant-btn-primary"),
+        ButtonType::Dashed => classes.push("ant-btn-dashed"),
+        ButtonType::Text => classes.push("ant-btn-text"),
+        ButtonType::Link => classes.push("ant-btn-link"),
+        _ => {}
+    }
+
+    // 尺寸样式
+    match size {
+        ButtonSize::Large => classes.push("ant-btn-lg"),
+        ButtonSize::Small => classes.push("ant-btn-sm"),
+        _ => {}
+    }
+
+    // 状态样式
+    if danger { classes.push("ant-btn-dangerous"); }
+    if disabled { classes.push("ant-btn-disabled"); }
+
+    classes.join(" ")
+}
+```
+
+### 响应式设计
+- 使用 Ant Design 断点系统
+- 支持移动端适配
+- 实现响应式组件行为
+
+✅ **响应式断点使用**:
+```rust
+use crate::utils::responsive::{Breakpoint, use_breakpoint};
+
+#[component]
+pub fn ResponsiveGrid() -> Element {
+    let breakpoint = use_breakpoint();
+
+    let columns = match breakpoint {
+        Breakpoint::Xs => 1,   // < 576px
+        Breakpoint::Sm => 2,   // ≥ 576px
+        Breakpoint::Md => 3,   // ≥ 768px
+        Breakpoint::Lg => 4,   // ≥ 992px
+        Breakpoint::Xl => 6,   // ≥ 1200px
+        Breakpoint::Xxl => 8,  // ≥ 1600px
+    };
+
+    rsx! {
+        div {
+            class: "ant-row",
+            for i in 0..columns {
+                div {
+                    class: format!("ant-col ant-col-{}", 24 / columns),
+                    "Column {i + 1}"
+                }
+            }
+        }
+    }
+}
+```
+
+### 国际化支持
+- 所有文本使用国际化键
+- 支持 RTL 布局
+- 提供完整的语言包
+
+✅ **国际化实现**:
+```rust
+use crate::locale::{use_locale, LocaleKey};
+
+#[component]
+pub fn DatePicker(props: DatePickerProps) -> Element {
+    let locale = use_locale();
+
+    rsx! {
+        div {
+            class: "ant-picker",
+            input {
+                placeholder: locale.get(LocaleKey::DatePickerPlaceholder),
+                // 其他属性...
+            }
+
+            // 日历弹窗
+            div {
+                class: "ant-picker-dropdown",
+
+                // 月份导航
+                div {
+                    class: "ant-picker-header",
+                    button {
+                        "aria-label": locale.get(LocaleKey::DatePickerPrevMonth),
+                        "‹"
+                    }
+                    span {
+                        class: "ant-picker-header-view",
+                        "{current_month} {current_year}"
+                    }
+                    button {
+                        "aria-label": locale.get(LocaleKey::DatePickerNextMonth),
+                        "›"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### 可访问性 (A11y)
+- 实现完整的键盘导航
+- 添加适当的 ARIA 属性
+- 确保颜色对比度符合标准
+
+✅ **可访问性实现**:
+```rust
+#[component]
+pub fn Modal(props: ModalProps) -> Element {
+    let mut visible = use_signal(|| props.open);
+
+    // 键盘事件处理
+    use_effect(move || {
+        let handle_keydown = move |evt: KeyboardEvent| {
+            if evt.key() == "Escape" && visible() {
+                visible.set(false);
+                if let Some(oncancel) = &props.oncancel {
+                    oncancel.call(());
+                }
+            }
+        };
+
+        // 注册全局键盘事件
+        // ...
+    });
+
+    rsx! {
+        if visible() {
+            div {
+                class: "ant-modal-mask",
+                onclick: move |_| {
+                    if props.mask_closable {
+                        visible.set(false);
+                    }
+                },
+
+                div {
+                    class: "ant-modal-wrap",
+
+                    div {
+                        class: "ant-modal",
+                        role: "dialog",
+                        "aria-modal": "true",
+                        "aria-labelledby": "modal-title",
+                        "aria-describedby": "modal-content",
+                        tabindex: "-1",
+
+                        // 模态框内容
+                        div {
+                            class: "ant-modal-content",
+
+                            if props.closable {
+                                button {
+                                    class: "ant-modal-close",
+                                    "aria-label": "Close",
+                                    onclick: move |_| visible.set(false),
+                                    span {
+                                        class: "ant-modal-close-x",
+                                        "×"
+                                    }
+                                }
+                            }
+
+                            if let Some(title) = &props.title {
+                                div {
+                                    id: "modal-title",
+                                    class: "ant-modal-header",
+                                    {title.clone()}
+                                }
+                            }
+
+                            div {
+                                id: "modal-content",
+                                class: "ant-modal-body",
+                                {props.children}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### 动画和过渡
+- 使用 Ant Design 标准动画
+- 确保动画性能和流畅性
+- 支持动画的开启/关闭
+
+✅ **动画实现**:
+```rust
+use crate::theme::motion::{MotionToken, use_motion};
+
+#[component]
+pub fn Collapse(props: CollapseProps) -> Element {
+    let motion = use_motion();
+    let mut expanded = use_signal(|| props.default_active_key.is_some());
+
+    let collapse_style = css! {
+        overflow: "hidden",
+        transition: format!(
+            "height {} {}",
+            motion.duration_slow,
+            motion.ease_in_out
+        ),
+
+        // 展开状态
+        "&.ant-collapse-item-active" {
+            height: "auto",
+        },
+
+        // 收起状态
+        "&.ant-collapse-item-inactive" {
+            height: "0",
+        }
+    };
+
+    rsx! {
+        div {
+            class: "ant-collapse-item",
+
+            div {
+                class: "ant-collapse-header",
+                onclick: move |_| expanded.toggle(),
+
+                span {
+                    class: format!(
+                        "ant-collapse-arrow {}",
+                        if expanded() { "ant-collapse-arrow-active" } else { "" }
+                    ),
+                    "▶"
+                }
+
+                {props.header}
+            }
+
+            div {
+                class: format!(
+                    "ant-collapse-content {}",
+                    if expanded() { "ant-collapse-item-active" } else { "ant-collapse-item-inactive" }
+                ),
+                style: "{collapse_style}",
+
+                div {
+                    class: "ant-collapse-content-box",
+                    {props.children}
+                }
+            }
+        }
+    }
+}
+```
+
+## 例外情况
+- 实验性功能可以暂时偏离标准
+- 性能优化可能需要调整某些设计细节
+- 平台特定功能可以有适当的变化
