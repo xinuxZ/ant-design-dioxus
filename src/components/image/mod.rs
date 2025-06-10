@@ -10,8 +10,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
-// 引入图片样式
-const IMAGE_STYLE: &str = include_str!("style.css");
+mod styles;
+use styles::use_image_style;
 
 /// 图片适应方式
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -126,7 +126,9 @@ pub fn Image(props: ImageProps) -> Element {
     let mut preview_visible = use_signal(|| false);
     let mut current_src = use_signal(|| props.src.clone());
 
-    let mut class_list = vec!["ant-image"];
+    // 获取样式
+    let style_class = use_image_style();
+    let mut class_list = vec![&style_class, "ant-image"];
 
     // 添加自定义类
     if let Some(custom_class) = &props.class {
@@ -188,7 +190,6 @@ pub fn Image(props: ImageProps) -> Element {
     );
 
     rsx! {
-        style { {IMAGE_STYLE} }
         div {
             class: class_str.clone(),
 

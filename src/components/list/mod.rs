@@ -9,8 +9,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
-// 引入列表样式
-const LIST_STYLE: &str = include_str!("style.css");
+mod styles;
+use styles::use_list_style;
 
 /// 列表尺寸
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -113,7 +113,9 @@ pub struct ListProps {
 /// - `children`: 子元素
 #[component]
 pub fn List(props: ListProps) -> Element {
-    let mut class_list = vec!["ant-list"];
+    // 获取样式
+    let style_class = use_list_style();
+    let mut class_list = vec![&style_class, "ant-list"];
 
     // 添加尺寸类
     match props.size {
@@ -151,7 +153,6 @@ pub fn List(props: ListProps) -> Element {
     let class_str = class_list.join(" ");
 
     rsx! {
-        style { {LIST_STYLE} }
         div {
             class: class_str.clone(),
             style: props.style.unwrap_or_default(),

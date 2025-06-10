@@ -6,11 +6,13 @@
 //!
 //! 一般出现在通知图标或头像的右上角，用于显示需要处理的消息条数，通过醒目视觉形式吸引用户处理。
 
+mod styles;
+
+use self::styles::{
+    generate_badge_style, BadgeSize as StyleBadgeSize, BadgeStatus as StyleBadgeStatus,
+};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-// 引入徽标样式
-const BADGE_STYLE: &str = include_str!("style.css");
 
 /// 徽标状态类型
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -33,6 +35,18 @@ impl Default for BadgeStatus {
     }
 }
 
+impl From<BadgeStatus> for StyleBadgeStatus {
+    fn from(status: BadgeStatus) -> Self {
+        match status {
+            BadgeStatus::Success => StyleBadgeStatus::Success,
+            BadgeStatus::Processing => StyleBadgeStatus::Processing,
+            BadgeStatus::Default => StyleBadgeStatus::Default,
+            BadgeStatus::Error => StyleBadgeStatus::Error,
+            BadgeStatus::Warning => StyleBadgeStatus::Warning,
+        }
+    }
+}
+
 /// 徽标尺寸
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BadgeSize {
@@ -45,6 +59,15 @@ pub enum BadgeSize {
 impl Default for BadgeSize {
     fn default() -> Self {
         Self::Default
+    }
+}
+
+impl From<BadgeSize> for StyleBadgeSize {
+    fn from(size: BadgeSize) -> Self {
+        match size {
+            BadgeSize::Default => StyleBadgeSize::Default,
+            BadgeSize::Small => StyleBadgeSize::Small,
+        }
     }
 }
 
@@ -99,6 +122,10 @@ pub struct BadgeProps {
     #[props(default)]
     pub style: Option<String>,
 
+    /// 是否使用 RTL 模式
+    #[props(default = false)]
+    pub rtl: bool,
+
     /// 子元素
     children: Element,
 }
@@ -112,9 +139,20 @@ pub fn Badge(props: BadgeProps) -> Element {
     // 判断是否显示徽标
     let should_show_badge = should_show_badge(&props);
 
+    // 生成 CSS 样式
+    let status_option = props.status.as_ref().map(|s| s.clone().into());
+    let css_style = generate_badge_style(
+        status_option,
+        props.size.clone().into(),
+        props.dot,
+        props.color.clone(),
+        props.rtl,
+        props.show_zero,
+    );
+
     rsx! {
         // 注入徽标样式
-        style { {BADGE_STYLE} }
+        style { {css_style} }
 
         if props.children.is_ok() {
             // 有子元素时，作为包装器
@@ -168,6 +206,10 @@ fn get_badge_class_name(props: &BadgeProps) -> String {
 
     if matches!(props.size, BadgeSize::Small) {
         classes.push("ant-badge-small");
+    }
+
+    if props.rtl {
+        classes.push("ant-badge-rtl");
     }
 
     if let Some(class) = &props.class {

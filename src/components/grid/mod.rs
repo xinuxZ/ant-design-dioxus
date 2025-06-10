@@ -27,66 +27,9 @@ use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
 // 引入栅格样式
-const ROW_STYLE: &str = include_str!("row.css");
-const COL_STYLE: &str = include_str!("col.css");
-const RESPONSIVE_STYLE: &str = include_str!("responsive.css");
-
-/// 栅格对齐方式
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Justify {
-    /// 左对齐
-    Start,
-    /// 右对齐
-    End,
-    /// 居中对齐
-    Center,
-    /// 两端对齐
-    SpaceBetween,
-    /// 分散对齐
-    SpaceAround,
-    /// 均匀分布
-    SpaceEvenly,
-}
-
-impl Default for Justify {
-    fn default() -> Self {
-        Self::Start
-    }
-}
-
-/// 栅格垂直对齐方式
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum Align {
-    /// 顶部对齐
-    Top,
-    /// 中间对齐
-    Middle,
-    /// 底部对齐
-    Bottom,
-    /// 拉伸对齐
-    Stretch,
-}
-
-impl Default for Align {
-    fn default() -> Self {
-        Self::Top
-    }
-}
-
-/// 响应式断点
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct ResponsiveConfig {
-    /// 栅格占位格数
-    pub span: Option<u32>,
-    /// 栅格左侧的间隔格数
-    pub offset: Option<u32>,
-    /// 栅格向右移动格数
-    pub push: Option<u32>,
-    /// 栅格向左移动格数
-    pub pull: Option<u32>,
-    /// 栅格顺序
-    pub order: Option<i32>,
-}
+mod styles;
+use styles::{use_grid_style, ColStyleGenerator, RowStyleGenerator};
+pub use styles::{Align, Justify, ResponsiveConfig};
 
 /// 行属性
 #[derive(Props, Clone, PartialEq)]
@@ -204,18 +147,27 @@ pub struct ColProps {
 /// ```
 #[component]
 pub fn Row(props: RowProps) -> Element {
-    let class_name = get_row_class_name(&props);
-    let row_style = get_row_style(&props);
+    // 确保样式已注入
+    use_grid_style();
+
+    // 使用样式生成器生成行样式
+    let style_gen = RowStyleGenerator::new()
+        .with_gutter(props.gutter)
+        .with_justify(props.justify.clone())
+        .with_align(props.align.clone())
+        .with_wrap(props.wrap);
+
+    let mut row_style = style_gen.generate();
+
+    // 添加自定义样式
+    if let Some(ref style) = props.style {
+        row_style.push_str(" ");
+        row_style.push_str(style);
+    }
 
     rsx! {
-        // 注入栅格样式
-        style { {ROW_STYLE} }
-        style { {COL_STYLE} }
-        style { {RESPONSIVE_STYLE} }
-
         div {
-            class: class_name.clone(),
-            style: row_style.clone(),
+            style: row_style,
             {props.children}
         }
     }
@@ -245,206 +197,40 @@ pub fn Row(props: RowProps) -> Element {
 /// ```
 #[component]
 pub fn Col(props: ColProps) -> Element {
-    let class_name = get_col_class_name(&props);
-    let col_style = get_col_style(&props);
+    // 确保样式已注入
+    use_grid_style();
+
+    // 获取上下文中的gutter值
+    // 这里应该从父组件Row中获取gutter值，简化实现直接使用props
+    let gutter = 0; // 理想情况下应从Row上下文获取
+
+    // 使用样式生成器生成列样式
+    let style_gen = ColStyleGenerator::new()
+        .with_span(props.span)
+        .with_offset(props.offset)
+        .with_push(props.push)
+        .with_pull(props.pull)
+        .with_order(props.order)
+        .with_gutter(gutter)
+        .with_xs(props.xs.clone())
+        .with_sm(props.sm.clone())
+        .with_md(props.md.clone())
+        .with_lg(props.lg.clone())
+        .with_xl(props.xl.clone())
+        .with_xxl(props.xxl.clone());
+
+    let mut col_style = style_gen.generate();
+
+    // 添加自定义样式
+    if let Some(ref style) = props.style {
+        col_style.push_str(" ");
+        col_style.push_str(style);
+    }
 
     rsx! {
         div {
-            class: class_name.clone(),
-            style: col_style.clone(),
+            style: col_style,
             {props.children}
-        }
-    }
-}
-
-/// 获取行类名
-///
-/// # 参数
-///
-/// * `props` - 行属性
-///
-/// # 返回值
-///
-/// 返回行的CSS类名字符串
-fn get_row_class_name(props: &RowProps) -> String {
-    let mut classes = vec!["ant-row".to_string()];
-
-    // 添加对齐方式类名
-    match props.justify {
-        Justify::Start => {}
-        Justify::End => classes.push("ant-row-end".to_string()),
-        Justify::Center => classes.push("ant-row-center".to_string()),
-        Justify::SpaceBetween => classes.push("ant-row-space-between".to_string()),
-        Justify::SpaceAround => classes.push("ant-row-space-around".to_string()),
-        Justify::SpaceEvenly => classes.push("ant-row-space-evenly".to_string()),
-    }
-
-    // 添加垂直对齐方式类名
-    match props.align {
-        Align::Top => {}
-        Align::Middle => classes.push("ant-row-middle".to_string()),
-        Align::Bottom => classes.push("ant-row-bottom".to_string()),
-        Align::Stretch => classes.push("ant-row-stretch".to_string()),
-    }
-
-    // 添加换行类名
-    if !props.wrap {
-        classes.push("ant-row-nowrap".to_string());
-    }
-
-    // 添加自定义类名
-    if let Some(custom_class) = &props.class {
-        classes.push(custom_class.clone());
-    }
-
-    classes.join(" ")
-}
-
-/// 获取行样式
-///
-/// # 参数
-///
-/// * `props` - 行属性
-///
-/// # 返回值
-///
-/// 返回行的内联样式字符串
-fn get_row_style(props: &RowProps) -> String {
-    let mut styles = Vec::new();
-
-    // 添加间隔样式
-    if props.gutter > 0 {
-        let margin = -(props.gutter as i32) / 2;
-        styles.push(format!("margin-left: {}px", margin));
-        styles.push(format!("margin-right: {}px", margin));
-    }
-
-    // 添加自定义样式
-    if let Some(custom_style) = &props.style {
-        styles.push(custom_style.clone());
-    }
-
-    styles.join("; ")
-}
-
-/// 获取列类名
-///
-/// # 参数
-///
-/// * `props` - 列属性
-///
-/// # 返回值
-///
-/// 返回列的CSS类名字符串
-fn get_col_class_name(props: &ColProps) -> String {
-    let mut classes = vec!["ant-col".to_string()];
-
-    // 添加span类名
-    if let Some(span) = props.span {
-        if span == 0 {
-            classes.push("ant-col-0".to_string());
-        } else {
-            classes.push(format!("ant-col-{}", span));
-        }
-    }
-
-    // 添加offset类名
-    if props.offset > 0 {
-        classes.push(format!("ant-col-offset-{}", props.offset));
-    }
-
-    // 添加push类名
-    if props.push > 0 {
-        classes.push(format!("ant-col-push-{}", props.push));
-    }
-
-    // 添加pull类名
-    if props.pull > 0 {
-        classes.push(format!("ant-col-pull-{}", props.pull));
-    }
-
-    // 添加order类名
-    if let Some(order) = props.order {
-        classes.push(format!("ant-col-order-{}", order));
-    }
-
-    // 添加响应式类名
-    add_responsive_classes(&mut classes, "xs", &props.xs);
-    add_responsive_classes(&mut classes, "sm", &props.sm);
-    add_responsive_classes(&mut classes, "md", &props.md);
-    add_responsive_classes(&mut classes, "lg", &props.lg);
-    add_responsive_classes(&mut classes, "xl", &props.xl);
-    add_responsive_classes(&mut classes, "xxl", &props.xxl);
-
-    // 添加自定义类名
-    if let Some(custom_class) = &props.class {
-        classes.push(custom_class.clone());
-    }
-
-    classes.join(" ")
-}
-
-/// 获取列样式
-///
-/// # 参数
-///
-/// * `props` - 列属性
-///
-/// # 返回值
-///
-/// 返回列的内联样式字符串
-fn get_col_style(props: &ColProps) -> String {
-    let mut styles = Vec::new();
-
-    // 添加自定义样式
-    if let Some(custom_style) = &props.style {
-        styles.push(custom_style.clone());
-    }
-
-    styles.join("; ")
-}
-
-/// 添加响应式类名
-///
-/// # 参数
-///
-/// * `classes` - 类名列表
-/// * `breakpoint` - 断点名称
-/// * `config` - 响应式配置
-fn add_responsive_classes(
-    classes: &mut Vec<String>,
-    breakpoint: &str,
-    config: &Option<ResponsiveConfig>,
-) {
-    if let Some(config) = config {
-        if let Some(span) = config.span {
-            if span == 0 {
-                classes.push(format!("ant-col-{}-0", breakpoint));
-            } else {
-                classes.push(format!("ant-col-{}-{}", breakpoint, span));
-            }
-        }
-
-        if let Some(offset) = config.offset {
-            if offset > 0 {
-                classes.push(format!("ant-col-{}-offset-{}", breakpoint, offset));
-            }
-        }
-
-        if let Some(push) = config.push {
-            if push > 0 {
-                classes.push(format!("ant-col-{}-push-{}", breakpoint, push));
-            }
-        }
-
-        if let Some(pull) = config.pull {
-            if pull > 0 {
-                classes.push(format!("ant-col-{}-pull-{}", breakpoint, pull));
-            }
-        }
-
-        if let Some(order) = config.order {
-            classes.push(format!("ant-col-{}-order-{}", breakpoint, order));
         }
     }
 }

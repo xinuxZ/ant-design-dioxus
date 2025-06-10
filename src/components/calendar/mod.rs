@@ -2,7 +2,8 @@ use chrono::{Datelike, Duration, NaiveDate, Weekday};
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-const CALENDAR_STYLE: &str = include_str!("./style.css");
+mod styles;
+use styles::use_calendar_style;
 
 /// Calendar mode
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -208,8 +209,12 @@ pub fn Calendar(props: CalendarProps) -> Element {
     let mut current_mode = use_signal(|| props.mode.clone());
     let mut view_date = use_signal(|| *current_value.read());
 
+    // 使用CSS-in-Rust样式
+    let style_class = use_calendar_style();
+
     let class_name = format!(
-        "ant-calendar {} {} {} {}",
+        "{} {} {} {} {}",
+        style_class,
         if props.fullscreen {
             "ant-calendar-fullscreen"
         } else {
@@ -261,8 +266,6 @@ pub fn Calendar(props: CalendarProps) -> Element {
     };
 
     rsx! {
-        style { {CALENDAR_STYLE} }
-
         div {
             class: "{class_name}",
             id: props.id,

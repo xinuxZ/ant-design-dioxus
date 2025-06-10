@@ -35,8 +35,8 @@
 //! ```
 
 use dioxus::prelude::*;
-
-const BREADCRUMB_STYLE: &str = include_str!("./style.css");
+mod styles;
+use styles::use_breadcrumb_style;
 
 /// 面包屑项数据结构
 #[derive(Debug, Clone, PartialEq)]
@@ -182,6 +182,9 @@ pub fn BreadcrumbItem(props: BreadcrumbItemProps) -> Element {
 /// 显示当前页面在系统层级结构中的位置，并能向上返回。
 #[component]
 pub fn Breadcrumb(props: BreadcrumbProps) -> Element {
+    // 使用 CSS-in-Rust 注入样式
+    let style_class = use_breadcrumb_style();
+
     // 处理子元素，在每个项之间插入分隔符
     let render_children_with_separators = || {
         rsx! {
@@ -220,10 +223,8 @@ pub fn Breadcrumb(props: BreadcrumbProps) -> Element {
     };
 
     rsx! {
-        style { {BREADCRUMB_STYLE} }
-
         div {
-            class: "ant-breadcrumb",
+            class: format!("{} {}", style_class, props.class),
             style: props.style.clone(),
             "aria-label": "Breadcrumb",
 

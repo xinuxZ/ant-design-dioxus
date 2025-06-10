@@ -28,7 +28,8 @@
 use dioxus::prelude::*;
 use gloo_timers::future::TimeoutFuture;
 
-const MESSAGE_STYLES: &str = include_str!("./style.css");
+mod styles;
+use styles::use_message_style;
 
 /// Message 组件类型
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -169,15 +170,17 @@ pub fn Message(props: MessageProps) -> Element {
     };
 
     let container_class = {
-        let mut classes = vec!["ant-message"];
+        let mut classes = vec![&style_class, "ant-message"];
         if !visible() {
             classes.push("ant-message-hidden");
         }
         classes.join(" ")
     };
 
+    // 获取样式
+    let style_class = use_message_style();
+
     rsx! {
-        style { {MESSAGE_STYLES} }
         if visible() {
             div {
                 class: "{container_class}",

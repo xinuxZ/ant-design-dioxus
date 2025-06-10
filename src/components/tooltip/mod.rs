@@ -25,9 +25,13 @@
 //! }
 //! ```
 
-use dioxus::prelude::*;
+mod styles;
 
-const TOOLTIP_STYLES: &str = include_str!("./style.css");
+use self::styles::{
+    generate_tooltip_style, TooltipColor as StyleTooltipColor,
+    TooltipPlacement as StyleTooltipPlacement, TooltipTrigger as StyleTooltipTrigger,
+};
+use dioxus::prelude::*;
 
 /// Tooltip 触发方式
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -40,6 +44,17 @@ pub enum TooltipTrigger {
     Focus,
     /// 手动触发
     Manual,
+}
+
+impl From<TooltipTrigger> for StyleTooltipTrigger {
+    fn from(trigger: TooltipTrigger) -> Self {
+        match trigger {
+            TooltipTrigger::Hover => StyleTooltipTrigger::Hover,
+            TooltipTrigger::Click => StyleTooltipTrigger::Click,
+            TooltipTrigger::Focus => StyleTooltipTrigger::Focus,
+            TooltipTrigger::Manual => StyleTooltipTrigger::Manual,
+        }
+    }
 }
 
 /// Tooltip 弹出位置
@@ -59,6 +74,25 @@ pub enum TooltipPlacement {
     RightBottom,
 }
 
+impl From<TooltipPlacement> for StyleTooltipPlacement {
+    fn from(placement: TooltipPlacement) -> Self {
+        match placement {
+            TooltipPlacement::Top => StyleTooltipPlacement::Top,
+            TooltipPlacement::TopLeft => StyleTooltipPlacement::TopLeft,
+            TooltipPlacement::TopRight => StyleTooltipPlacement::TopRight,
+            TooltipPlacement::Bottom => StyleTooltipPlacement::Bottom,
+            TooltipPlacement::BottomLeft => StyleTooltipPlacement::BottomLeft,
+            TooltipPlacement::BottomRight => StyleTooltipPlacement::BottomRight,
+            TooltipPlacement::Left => StyleTooltipPlacement::Left,
+            TooltipPlacement::LeftTop => StyleTooltipPlacement::LeftTop,
+            TooltipPlacement::LeftBottom => StyleTooltipPlacement::LeftBottom,
+            TooltipPlacement::Right => StyleTooltipPlacement::Right,
+            TooltipPlacement::RightTop => StyleTooltipPlacement::RightTop,
+            TooltipPlacement::RightBottom => StyleTooltipPlacement::RightBottom,
+        }
+    }
+}
+
 /// Tooltip 主题
 #[derive(Debug, Clone, PartialEq)]
 pub enum TooltipColor {
@@ -66,6 +100,15 @@ pub enum TooltipColor {
     Default,
     /// 自定义颜色
     Custom(String),
+}
+
+impl From<TooltipColor> for StyleTooltipColor {
+    fn from(color: TooltipColor) -> Self {
+        match color {
+            TooltipColor::Default => StyleTooltipColor::Default,
+            TooltipColor::Custom(color) => StyleTooltipColor::Custom(color),
+        }
+    }
 }
 
 /// Tooltip 组件属性
@@ -109,6 +152,15 @@ pub struct TooltipProps {
     /// 自定义内联样式
     #[props(default = String::new())]
     pub style: String,
+    /// 是否使用高对比度模式
+    #[props(default = false)]
+    pub high_contrast: bool,
+    /// 是否使用暗黑模式
+    #[props(default = false)]
+    pub dark_mode: bool,
+    /// 是否适配移动端
+    #[props(default = true)]
+    pub mobile: bool,
 }
 
 /// Tooltip 文字提示组件
@@ -275,8 +327,19 @@ pub fn Tooltip(props: TooltipProps) -> Element {
         TooltipColor::Custom(color) => format!("background-color: {};", color),
     };
 
+    // 生成样式
+    let tooltip_style = generate_tooltip_style(
+        props.placement.into(),
+        props.trigger.into(),
+        props.color.clone().into(),
+        props.arrow,
+        props.high_contrast,
+        props.dark_mode,
+        props.mobile,
+    );
+
     rsx! {
-        style { {TOOLTIP_STYLES} }
+        style { {tooltip_style} }
 
         div {
             class: format!("ant-tooltip-wrapper {}", props.class),
@@ -316,10 +379,10 @@ pub fn Tooltip(props: TooltipProps) -> Element {
             }
 
             // Tooltip 内容
-            if visible() {
+            if visible() || (!props.destroy_tooltip_on_hide && props.open.is_some()) {
                 div {
                     class: format!("ant-tooltip {}", placement_class),
-                    style: format!("z-index: {};", props.z_index),
+                    style: format!("z-index: {}; {}", props.z_index, if !visible() { "display: none;" } else { "" }),
                     role: "tooltip",
 
                     div {

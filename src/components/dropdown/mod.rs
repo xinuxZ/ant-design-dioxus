@@ -8,6 +8,8 @@
 //! - 用于收罗一组命令操作。
 //! - Select 用于选择，而 Dropdown 是命令集合。
 
+mod styles;
+
 // use crate::components::menu::{Menu, MenuItem, MenuItemProps}; // 暂时注释掉未使用的导入
 use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
@@ -15,7 +17,10 @@ use wasm_bindgen::JsCast;
 use web_sys::{window, Element as WebElement};
 // use web_sys::MouseEvent; // 暂时注释掉未使用的导入
 
-const DROPDOWN_STYLE: &str = include_str!("./style.css");
+use self::styles::{
+    generate_dropdown_style, DropdownPlacement as StyleDropdownPlacement, DropdownSize,
+    DropdownTheme, DropdownTrigger as StyleDropdownTrigger,
+};
 
 /// 下拉菜单触发方式
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -31,6 +36,16 @@ pub enum DropdownTrigger {
 impl Default for DropdownTrigger {
     fn default() -> Self {
         DropdownTrigger::Hover
+    }
+}
+
+impl From<DropdownTrigger> for StyleDropdownTrigger {
+    fn from(trigger: DropdownTrigger) -> Self {
+        match trigger {
+            DropdownTrigger::Click => StyleDropdownTrigger::Click,
+            DropdownTrigger::Hover => StyleDropdownTrigger::Hover,
+            DropdownTrigger::ContextMenu => StyleDropdownTrigger::ContextMenu,
+        }
     }
 }
 
@@ -54,6 +69,19 @@ pub enum DropdownPlacement {
 impl Default for DropdownPlacement {
     fn default() -> Self {
         DropdownPlacement::BottomLeft
+    }
+}
+
+impl From<DropdownPlacement> for StyleDropdownPlacement {
+    fn from(placement: DropdownPlacement) -> Self {
+        match placement {
+            DropdownPlacement::BottomLeft => StyleDropdownPlacement::BottomLeft,
+            DropdownPlacement::Bottom => StyleDropdownPlacement::Bottom,
+            DropdownPlacement::BottomRight => StyleDropdownPlacement::BottomRight,
+            DropdownPlacement::TopLeft => StyleDropdownPlacement::TopLeft,
+            DropdownPlacement::Top => StyleDropdownPlacement::Top,
+            DropdownPlacement::TopRight => StyleDropdownPlacement::TopRight,
+        }
     }
 }
 
@@ -137,6 +165,12 @@ pub struct DropdownProps {
     /// 点击菜单项后是否收起菜单
     #[props(default = true)]
     pub close_on_select: bool,
+    /// 菜单主题
+    #[props(default = DropdownTheme::Light)]
+    pub theme: DropdownTheme,
+    /// 菜单尺寸
+    #[props(default = DropdownSize::Middle)]
+    pub size: DropdownSize,
     /// 菜单项点击事件
     pub on_menu_click: Option<EventHandler<String>>,
     /// 菜单显示状态变化事件
@@ -155,6 +189,15 @@ pub fn Dropdown(props: DropdownProps) -> Element {
     let mut visible = use_signal(|| false);
     let mut dropdown_ref = use_signal(|| None::<WebElement>);
     let mut overlay_ref = use_signal(|| None::<WebElement>);
+
+    // 生成样式
+    let dropdown_style = generate_dropdown_style(
+        props.placement.into(),
+        props.theme.clone(),
+        props.size.clone(),
+        props.arrow,
+        props.disabled,
+    );
 
     // 显示下拉菜单
     let show_dropdown = use_callback(move |_| {
@@ -207,157 +250,174 @@ pub fn Dropdown(props: DropdownProps) -> Element {
                             }
                         }
 
+                        // 隐藏菜单
                         if is_outside {
-                            hide_dropdown_clone(());
+                            hide_dropdown_clone.call(());
                         }
                     }
                 }) as Box<dyn FnMut(_)>);
 
-            window()
-                .unwrap()
-                .document()
-                .unwrap()
-                .add_event_listener_with_callback("click", closure.as_ref().unchecked_ref())
-                .ok();
+            // 添加全局点击监听器
+            if let Some(window) = window() {
+                window
+                    .add_event_listener_with_callback("click", closure.as_ref().unchecked_ref())
+                    .unwrap();
 
-            closure.forget();
+                return closure;
+            }
         }
+
+        // 返回空闭包
+        wasm_bindgen::closure::Closure::wrap(Box::new(|_: web_sys::Event| {}) as Box<dyn FnMut(_)>)
     });
 
-    let dropdown_class = conditional_class_names_array(&[
+    // 绑定触发事件
+    let events = match props.trigger {
+        DropdownTrigger::Click => use_memo(move || {
+            vec![
+                ("onclick", show_dropdown.clone()),
+                ("onblur", hide_dropdown.clone()),
+            ]
+        }),
+        DropdownTrigger::Hover => use_memo(move || {
+            vec![
+                ("onmouseenter", show_dropdown.clone()),
+                ("onmouseleave", hide_dropdown.clone()),
+            ]
+        }),
+        DropdownTrigger::ContextMenu => use_memo(move || {
+            vec![
+                ("oncontextmenu", show_dropdown.clone()),
+                ("onblur", hide_dropdown.clone()),
+            ]
+        }),
+    };
+
+    // 类名生成
+    let class_names = conditional_class_names_array(&[
         ("ant-dropdown", true),
         ("ant-dropdown-disabled", props.disabled),
+        ("ant-dropdown-show", *visible.read()),
         (&props.class, !props.class.is_empty()),
     ]);
 
-    let overlay_class = conditional_class_names_array(&[
-        ("ant-dropdown-menu", true),
-        ("ant-dropdown-menu-root", true),
-        ("ant-dropdown-menu-vertical", true),
-        ("ant-dropdown-hidden", !visible.read().clone()),
-        (
-            &props.overlay_class_name,
-            !props.overlay_class_name.is_empty(),
-        ),
-    ]);
-
-    let placement_class = match props.placement {
-        DropdownPlacement::BottomLeft => "ant-dropdown-placement-bottomLeft",
-        DropdownPlacement::Bottom => "ant-dropdown-placement-bottom",
-        DropdownPlacement::BottomRight => "ant-dropdown-placement-bottomRight",
-        DropdownPlacement::TopLeft => "ant-dropdown-placement-topLeft",
-        DropdownPlacement::Top => "ant-dropdown-placement-top",
-        DropdownPlacement::TopRight => "ant-dropdown-placement-topRight",
+    // 渲染菜单内容
+    let menu_content = if let Some(items) = &props.menu_items {
+        let handle_menu_click_event = EventHandler::new(move |key: String| handle_menu_click(key));
+        render_menu_items_recursive(items, &handle_menu_click_event)
+    } else if let Some(overlay) = &props.overlay {
+        overlay.clone()
+    } else {
+        rsx! { div { class: "ant-dropdown-menu", "无菜单内容" } }
     };
 
-    // 渲染菜单项的递归函数
-    fn render_menu_items_recursive(
-        items: &[DropdownMenuItem],
-        handle_menu_click: &EventHandler<String>,
-    ) -> Element {
-        rsx! {
-            for item in items {
-                if item.divider {
-                    li { class: "ant-dropdown-menu-item-divider" }
-                }
-
-                li {
-                    class: conditional_class_names_array(&[
-                        ("ant-dropdown-menu-item", true),
-                        ("ant-dropdown-menu-item-disabled", item.disabled),
-                    ]),
-                    onclick: {
-                        let key = item.key.clone();
-                        let disabled = item.disabled;
-                        let handler = handle_menu_click.clone();
-                        move |_| {
-                            if !disabled {
-                                handler.call(key.clone());
-                            }
-                        }
-                    },
-
-                    if let Some(icon) = &item.icon {
-                        span { class: "ant-dropdown-menu-item-icon", "{icon}" }
-                    }
-
-                    span { class: "ant-dropdown-menu-title-content", "{item.label}" }
-
-                    if !item.children.is_empty() {
-                        span { class: "ant-dropdown-menu-submenu-arrow", "▶" }
-                        ul { class: "ant-dropdown-menu ant-dropdown-menu-sub",
-                            {render_menu_items_recursive(&item.children, handle_menu_click)}
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // 渲染菜单箭头
+    let arrow = if props.arrow {
+        rsx! { div { class: "ant-dropdown-arrow" } }
+    } else {
+        rsx! { "" }
+    };
 
     rsx! {
-        style { {DROPDOWN_STYLE} }
-
+        style { {dropdown_style} }
         div {
-            class: "{dropdown_class} {placement_class}",
-            style: "{props.style}",
-            onmounted: move |evt| {
-                dropdown_ref.set(Some(evt.data().downcast::<WebElement>().unwrap().clone()));
-            },
+            class: class_names,
+            style: props.style.clone(),
+            ref: |el| dropdown_ref.set(el),
 
-            // 触发元素
+            // 触发器
             div {
                 class: "ant-dropdown-trigger",
-                onclick: move |_| {
-                    if props.trigger == DropdownTrigger::Click {
-                        if visible.read().clone() {
-                            hide_dropdown(());
-                        } else {
-                            show_dropdown(());
-                        }
-                    }
-                },
-                onmouseenter: move |_| {
-                    if props.trigger == DropdownTrigger::Hover {
+                onclick: if props.trigger == DropdownTrigger::Click && !props.disabled { move |_| show_dropdown(()) } else { move |_| {} },
+                onmouseenter: if props.trigger == DropdownTrigger::Hover && !props.disabled { move |_| show_dropdown(()) } else { move |_| {} },
+                onmouseleave: if props.trigger == DropdownTrigger::Hover && !props.disabled { move |_| hide_dropdown(()) } else { move |_| {} },
+                oncontextmenu: if props.trigger == DropdownTrigger::ContextMenu && !props.disabled {
+                    move |e: MouseEvent| {
+                        e.prevent_default();
+                        e.stop_propagation();
                         show_dropdown(());
                     }
-                },
-                onmouseleave: move |_| {
-                    if props.trigger == DropdownTrigger::Hover {
-                        hide_dropdown(());
-                    }
-                },
-                oncontextmenu: move |evt| {
-                    if props.trigger == DropdownTrigger::ContextMenu {
-                        evt.prevent_default();
-                        show_dropdown(());
-                    }
+                } else {
+                    move |_| {}
                 },
 
                 {props.children}
             }
 
-            // 下拉菜单内容
-            if visible.read().clone() {
+            // 下拉菜单
+            div {
+                class: if *visible.read() {
+                    format!("ant-dropdown-wrap {}", props.overlay_class_name)
+                } else {
+                    format!("ant-dropdown-wrap ant-dropdown-hidden {}", props.overlay_class_name)
+                },
+                style: props.overlay_style.clone(),
+                ref: |el| overlay_ref.set(el),
+
+                {arrow}
+                {menu_content}
+            }
+        }
+    }
+}
+
+/// 递归渲染菜单项
+fn render_menu_items_recursive(
+    items: &[DropdownMenuItem],
+    handle_menu_click: &EventHandler<String>,
+) -> Element {
+    rsx! {
+        div {
+            class: "ant-dropdown-menu ant-dropdown-menu-root ant-dropdown-menu-vertical",
+
+            for item in items.iter() {
+                if item.divider {
+                    div {
+                        class: "ant-dropdown-menu-item-divider",
+                        key: "{item.key}-divider"
+                    }
+                }
+
                 div {
-                    class: "ant-dropdown-wrap",
-                    onmounted: move |evt| {
-                        overlay_ref.set(Some(evt.data().downcast::<WebElement>().unwrap().clone()));
+                    key: "{item.key}",
+                    class: if item.disabled {
+                        "ant-dropdown-menu-item ant-dropdown-menu-item-disabled"
+                    } else {
+                        "ant-dropdown-menu-item"
+                    },
+                    onclick: if !item.disabled {
+                        let key = item.key.clone();
+                        let handle_menu_click = handle_menu_click.clone();
+                        move |e: MouseEvent| {
+                            e.stop_propagation();
+                            handle_menu_click.call(key.clone());
+                        }
+                    } else {
+                        move |_| {}
                     },
 
-                    if props.arrow {
-                        div { class: "ant-dropdown-arrow" }
+                    if let Some(icon) = &item.icon {
+                        span {
+                            class: "ant-dropdown-menu-item-icon",
+                            "{icon}"
+                        }
                     }
 
-                    div {
-                        class: "{overlay_class}",
-                        style: "{props.overlay_style}",
+                    span {
+                        class: "ant-dropdown-menu-title-content",
+                        "{item.label}"
+                    }
 
-                        if let Some(overlay) = &props.overlay {
-                            {overlay.clone()}
-                        } else if let Some(menu_items) = &props.menu_items {
-                            ul { class: "ant-dropdown-menu-root ant-dropdown-menu-vertical",
-                                {render_menu_items_recursive(menu_items, &EventHandler::new(handle_menu_click))}
-                            }
+                    if !item.children.is_empty() {
+                        span {
+                            class: "ant-dropdown-menu-submenu-arrow",
+                            "›"
+                        }
+
+                        // 子菜单
+                        div {
+                            class: "ant-dropdown-menu-sub",
+                            {render_menu_items_recursive(&item.children, handle_menu_click)}
                         }
                     }
                 }
@@ -367,6 +427,7 @@ pub fn Dropdown(props: DropdownProps) -> Element {
 }
 
 /// 下拉菜单项构建器
+#[derive(Debug, Clone)]
 pub struct DropdownMenuItemBuilder {
     item: DropdownMenuItem,
 }
@@ -379,22 +440,22 @@ impl DropdownMenuItemBuilder {
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
-        self.item.disabled = disabled;
+        self.item = self.item.disabled(disabled);
         self
     }
 
     pub fn with_divider(mut self) -> Self {
-        self.item.divider = true;
+        self.item = self.item.with_divider();
         self
     }
 
     pub fn with_icon(mut self, icon: &str) -> Self {
-        self.item.icon = Some(icon.to_string());
+        self.item = self.item.with_icon(icon);
         self
     }
 
     pub fn with_children(mut self, children: Vec<DropdownMenuItem>) -> Self {
-        self.item.children = children;
+        self.item = self.item.with_children(children);
         self
     }
 
@@ -426,12 +487,14 @@ mod tests {
 
     #[test]
     fn test_dropdown_trigger_default() {
-        assert_eq!(DropdownTrigger::default(), DropdownTrigger::Hover);
+        let trigger = DropdownTrigger::default();
+        assert_eq!(trigger, DropdownTrigger::Hover);
     }
 
     #[test]
     fn test_dropdown_placement_default() {
-        assert_eq!(DropdownPlacement::default(), DropdownPlacement::BottomLeft);
+        let placement = DropdownPlacement::default();
+        assert_eq!(placement, DropdownPlacement::BottomLeft);
     }
 
     #[test]
@@ -439,9 +502,9 @@ mod tests {
         let item = DropdownMenuItem::new("key1", "Label 1");
         assert_eq!(item.key, "key1");
         assert_eq!(item.label, "Label 1");
-        assert!(!item.disabled);
-        assert!(!item.divider);
-        assert!(item.icon.is_none());
+        assert_eq!(item.disabled, false);
+        assert_eq!(item.divider, false);
+        assert_eq!(item.icon, None);
         assert!(item.children.is_empty());
     }
 
@@ -455,8 +518,8 @@ mod tests {
 
         assert_eq!(item.key, "key1");
         assert_eq!(item.label, "Label 1");
-        assert!(item.disabled);
-        assert!(item.divider);
+        assert_eq!(item.disabled, true);
+        assert_eq!(item.divider, true);
         assert_eq!(item.icon, Some("icon".to_string()));
     }
 }

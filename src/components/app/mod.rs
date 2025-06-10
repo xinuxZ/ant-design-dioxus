@@ -1,5 +1,14 @@
+//! App component module
+//!
+//! The App component is the root component of your application, providing
+//! global configuration and context for message, notification, and modal services.
+
+mod styles;
+
 use dioxus::prelude::*;
 use std::rc::Rc;
+
+use self::styles::{generate_app_style, AppTheme};
 
 /// Message configuration
 #[derive(Clone, Debug, PartialEq)]
@@ -147,6 +156,10 @@ pub struct AppProps {
     #[props(default)]
     pub notification: Option<NotificationConfig>,
 
+    /// App theme
+    #[props(default = AppTheme::Default)]
+    pub theme: AppTheme,
+
     /// Children components
     pub children: Element,
 
@@ -201,140 +214,185 @@ pub fn App(props: AppProps) -> Element {
     });
 
     // Create notification handlers
-    let notification_success = Rc::new(|message: String, description: Option<String>| {
-        let desc = description.unwrap_or_default();
-        web_sys::console::log_1(&format!("Notification Success: {} - {}", message, desc).into());
+    let notification_success = Rc::new(|title: String, description: Option<String>| {
+        web_sys::console::log_1(
+            &format!(
+                "Notification Success: {}, {}",
+                title,
+                description.unwrap_or_default()
+            )
+            .into(),
+        );
     });
 
-    let notification_error = Rc::new(|message: String, description: Option<String>| {
-        let desc = description.unwrap_or_default();
-        web_sys::console::log_1(&format!("Notification Error: {} - {}", message, desc).into());
+    let notification_error = Rc::new(|title: String, description: Option<String>| {
+        web_sys::console::log_1(
+            &format!(
+                "Notification Error: {}, {}",
+                title,
+                description.unwrap_or_default()
+            )
+            .into(),
+        );
     });
 
-    let notification_info = Rc::new(|message: String, description: Option<String>| {
-        let desc = description.unwrap_or_default();
-        web_sys::console::log_1(&format!("Notification Info: {} - {}", message, desc).into());
+    let notification_info = Rc::new(|title: String, description: Option<String>| {
+        web_sys::console::log_1(
+            &format!(
+                "Notification Info: {}, {}",
+                title,
+                description.unwrap_or_default()
+            )
+            .into(),
+        );
     });
 
-    let notification_warning = Rc::new(|message: String, description: Option<String>| {
-        let desc = description.unwrap_or_default();
-        web_sys::console::log_1(&format!("Notification Warning: {} - {}", message, desc).into());
+    let notification_warning = Rc::new(|title: String, description: Option<String>| {
+        web_sys::console::log_1(
+            &format!(
+                "Notification Warning: {}, {}",
+                title,
+                description.unwrap_or_default()
+            )
+            .into(),
+        );
     });
 
     // Create modal handlers
     let modal_info = Rc::new(|title: String, content: Option<String>| {
-        let cont = content.unwrap_or_default();
-        web_sys::console::log_1(&format!("Modal Info: {} - {}", title, cont).into());
+        web_sys::console::log_1(
+            &format!("Modal Info: {}, {}", title, content.unwrap_or_default()).into(),
+        );
     });
 
     let modal_success = Rc::new(|title: String, content: Option<String>| {
-        let cont = content.unwrap_or_default();
-        web_sys::console::log_1(&format!("Modal Success: {} - {}", title, cont).into());
+        web_sys::console::log_1(
+            &format!("Modal Success: {}, {}", title, content.unwrap_or_default()).into(),
+        );
     });
 
     let modal_error = Rc::new(|title: String, content: Option<String>| {
-        let cont = content.unwrap_or_default();
-        web_sys::console::log_1(&format!("Modal Error: {} - {}", title, cont).into());
+        web_sys::console::log_1(
+            &format!("Modal Error: {}, {}", title, content.unwrap_or_default()).into(),
+        );
     });
 
     let modal_warning = Rc::new(|title: String, content: Option<String>| {
-        let cont = content.unwrap_or_default();
-        web_sys::console::log_1(&format!("Modal Warning: {} - {}", title, cont).into());
+        web_sys::console::log_1(
+            &format!("Modal Warning: {}, {}", title, content.unwrap_or_default()).into(),
+        );
     });
 
     let modal_confirm = Rc::new(|title: String, content: Option<String>| {
-        let cont = content.unwrap_or_default();
-        web_sys::console::log_1(&format!("Modal Confirm: {} - {}", title, cont).into());
+        web_sys::console::log_1(
+            &format!("Modal Confirm: {}, {}", title, content.unwrap_or_default()).into(),
+        );
     });
+
+    // Create instances
+    let message_instance = MessageInstance {
+        success: message_success,
+        error: message_error,
+        info: message_info,
+        warning: message_warning,
+        loading: message_loading,
+    };
+
+    let notification_instance = NotificationInstance {
+        success: notification_success,
+        error: notification_error,
+        info: notification_info,
+        warning: notification_warning,
+    };
+
+    let modal_instance = ModalInstance {
+        info: modal_info,
+        success: modal_success,
+        error: modal_error,
+        warning: modal_warning,
+        confirm: modal_confirm,
+    };
 
     // Create app context
     let app_context = AppContext {
-        message: MessageInstance {
-            success: message_success,
-            error: message_error,
-            info: message_info,
-            warning: message_warning,
-            loading: message_loading,
-        },
-        notification: NotificationInstance {
-            success: notification_success,
-            error: notification_error,
-            info: notification_info,
-            warning: notification_warning,
-        },
-        modal: ModalInstance {
-            info: modal_info,
-            success: modal_success,
-            error: modal_error,
-            warning: modal_warning,
-            confirm: modal_confirm,
-        },
+        message: message_instance,
+        notification: notification_instance,
+        modal: modal_instance,
     };
 
-    // Set global context
-    use_effect(move || {
-        *APP_CONTEXT.write() = Some(app_context.clone());
-    });
+    // 这里应该使用 set_signal_effect 来设置全局状态
+    APP_CONTEXT.write().replace(app_context);
 
-    let class_name = format!("ant-app {}", props.class.as_deref().unwrap_or(""))
-        .trim()
-        .to_string();
+    // 生成样式
+    let app_style = generate_app_style(props.theme.clone());
+
+    // Class name
+    let class_name = format!(
+        "ant-app {}",
+        props.class.clone().unwrap_or_else(|| String::new())
+    );
+
+    // Style
+    let style_str = props.style.clone().unwrap_or_else(|| String::new());
 
     match props.component {
         AppComponent::None => {
-            // Don't create DOM node, just render children
-            rsx! {
-                {props.children}
-            }
+            // Just render children without container
+            app_without_wrapper(props.children)
         }
         AppComponent::Div => {
             rsx! {
+                style { {app_style} }
                 div {
-                    class: "{class_name}",
-                    id: props.id,
-                    style: props.style,
+                    id: props.id.clone(),
+                    class: class_name,
+                    style: style_str,
                     {props.children}
                 }
             }
         }
         AppComponent::Section => {
             rsx! {
+                style { {app_style} }
                 section {
-                    class: "{class_name}",
-                    id: props.id,
-                    style: props.style,
+                    id: props.id.clone(),
+                    class: class_name,
+                    style: style_str,
                     {props.children}
                 }
             }
         }
         AppComponent::Main => {
             rsx! {
+                style { {app_style} }
                 main {
-                    class: "{class_name}",
-                    id: props.id,
-                    style: props.style,
+                    id: props.id.clone(),
+                    class: class_name,
+                    style: style_str,
                     {props.children}
                 }
             }
         }
         AppComponent::Article => {
             rsx! {
+                style { {app_style} }
                 article {
-                    class: "{class_name}",
-                    id: props.id,
-                    style: props.style,
+                    id: props.id.clone(),
+                    class: class_name,
+                    style: style_str,
                     {props.children}
                 }
             }
         }
         AppComponent::Custom(tag) => {
-            // For custom tags, we'll use div as fallback since Dioxus has limited dynamic tag support
+            // Dynamic element generation is more complex in Dioxus
+            // For now, we'll default to div when custom is requested
             rsx! {
+                style { {app_style} }
                 div {
-                    class: "{class_name}",
-                    id: props.id,
-                    style: props.style,
-                    "data-tag": "{tag}",
+                    id: props.id.clone(),
+                    class: class_name,
+                    style: style_str,
                     {props.children}
                 }
             }
@@ -342,13 +400,12 @@ pub fn App(props: AppProps) -> Element {
     }
 }
 
-/// Helper function to create App component with false component prop
+/// Render children without wrapper
+///
+/// This is used when component is set to None
 pub fn app_without_wrapper(children: Element) -> Element {
     rsx! {
-        App {
-            component: AppComponent::None,
-            children
-        }
+        {children}
     }
 }
 
@@ -373,6 +430,6 @@ mod tests {
     #[test]
     fn test_app_component_default() {
         let component = AppComponent::default();
-        assert_eq!(component, AppComponent::Div);
+        assert!(matches!(component, AppComponent::Div));
     }
 }

@@ -11,7 +11,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
-const CAROUSEL_STYLE: &str = include_str!("./style.css");
+mod styles;
+use styles::use_carousel_style;
 
 /// Carousel 走马灯组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -94,6 +95,9 @@ pub fn Carousel(props: CarouselProps) -> Element {
     let mut current_index = use_signal(|| 0usize);
     let mut is_playing = use_signal(|| props.autoplay);
 
+    // 获取CSS-in-Rust样式类名
+    let style_class = use_carousel_style();
+
     // 获取子元素数量
     let children_count = props.children.as_ref().map_or(0, |_children| {
         // In Dioxus 0.6, Element is an opaque type
@@ -161,7 +165,8 @@ pub fn Carousel(props: CarouselProps) -> Element {
     };
 
     let class_name = format!(
-        "ant-carousel ant-carousel-{} {}",
+        "{} ant-carousel-{} {}",
+        style_class,
         match props.dot_position {
             DotPosition::Top => "dots-top",
             DotPosition::Bottom => "dots-bottom",
@@ -172,8 +177,6 @@ pub fn Carousel(props: CarouselProps) -> Element {
     );
 
     rsx! {
-        style { {CAROUSEL_STYLE} }
-
         div {
             class: class_name.clone(),
             style: props.style.clone(),
@@ -205,33 +208,36 @@ pub fn Carousel(props: CarouselProps) -> Element {
             }
 
             // 指示器
-            if props.dots && children_count > 1 {
+            if props.dots {
                 ul {
-                    class: "ant-carousel-dots",
+                    class: format!("ant-carousel-dots ant-carousel-dots-{}", match props.dot_position {
+                        DotPosition::Top => "top",
+                        DotPosition::Bottom => "bottom",
+                        DotPosition::Left => "left",
+                        DotPosition::Right => "right",
+                    }),
 
                     for i in 0..children_count {
                         li {
-                            key: i.to_string(),
-                            class: if i == current_index() { "ant-carousel-dot ant-carousel-dot-active" } else { "ant-carousel-dot" },
-                            onclick: {
-                                let mut go_to = go_to.clone();
-                                move |_| go_to(i)
-                            },
+                            key: "{i}",
+                            class: format!("ant-carousel-dot {}", if i == current_index() { "ant-carousel-dot-active" } else { "" }),
+                            onclick: move |_| go_to(i),
 
                             button {
-                                class: "ant-carousel-dot-button"
+                                class: "ant-carousel-dot-button",
+                                // aria attributes for accessibility
+                                "aria-label": format!("Go to slide {}", i + 1),
+                                ""
                             }
                         }
                     }
                 }
             }
         }
-
-        style { {include_str!("./style.css")} }
     }
 }
 
-/// CarouselItem 走马灯项组件属性
+/// Carousel 走马灯项目属性
 #[derive(Props, Clone, PartialEq)]
 pub struct CarouselItemProps {
     /// 自定义类名
@@ -246,18 +252,13 @@ pub struct CarouselItemProps {
     pub children: Element,
 }
 
-/// CarouselItem 走马灯项组件
+/// Carousel 走马灯项目
 #[component]
 pub fn CarouselItem(props: CarouselItemProps) -> Element {
-    let class_name = format!("ant-carousel-item {}", props.class);
-
     rsx! {
         div {
-            class: class_name.clone(),
+            class: format!("ant-carousel-item {}", props.class),
             style: props.style.clone(),
-            // onmouseenter: on_mouse_enter,
-            // onmouseleave: on_mouse_leave,
-
             {props.children}
         }
     }

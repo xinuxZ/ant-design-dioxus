@@ -12,22 +12,9 @@ use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{window, Element as WebElement};
 
-const AFFIX_STYLE: &str = include_str!("./style.css");
-
-/// 固钉位置
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum AffixPosition {
-    /// 固定在顶部
-    Top,
-    /// 固定在底部
-    Bottom,
-}
-
-impl Default for AffixPosition {
-    fn default() -> Self {
-        AffixPosition::Top
-    }
-}
+mod styles;
+pub use styles::AffixPosition;
+use styles::{use_affix_style, AffixStyleGenerator};
 
 /// Affix 组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -59,6 +46,9 @@ pub fn Affix(props: AffixProps) -> Element {
     let mut placeholder_width = use_signal(|| 0);
     let mut affix_ref = use_signal(|| None::<WebElement>);
     let mut placeholder_ref = use_signal(|| None::<WebElement>);
+
+    // 确保样式已注入
+    use_affix_style();
 
     let position = if props.offset_bottom.is_some() {
         AffixPosition::Bottom
@@ -137,32 +127,16 @@ pub fn Affix(props: AffixProps) -> Element {
         (&props.class, !props.class.is_empty()),
     ]);
 
-    let affix_style = if is_fixed.read().clone() {
-        let mut style = props.style.clone();
-        match position {
-            AffixPosition::Top => {
-                style.push_str(&format!(
-                    "position: fixed; top: {}px; z-index: 10;",
-                    props.offset_top
-                ));
-            }
-            AffixPosition::Bottom => {
-                if let Some(offset_bottom) = props.offset_bottom {
-                    style.push_str(&format!(
-                        "position: fixed; bottom: {}px; z-index: 10;",
-                        offset_bottom
-                    ));
-                }
-            }
-        }
-        style
-    } else {
-        props.style.clone()
-    };
+    // 使用AffixStyleGenerator生成样式
+    let affix_style = AffixStyleGenerator::new()
+        .with_fixed(is_fixed.read().clone())
+        .with_position(position)
+        .with_offset_top(props.offset_top)
+        .with_offset_bottom(props.offset_bottom)
+        .with_custom_style(&props.style)
+        .generate();
 
     rsx! {
-        style { {AFFIX_STYLE} }
-
         if is_fixed.read().clone() {
             div {
                 class: "ant-affix-placeholder",

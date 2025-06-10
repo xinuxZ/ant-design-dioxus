@@ -10,12 +10,17 @@
 //! - 既可用于容器顶部，也可用于容器内部，是最通用的 Tabs。
 //! - Radio.Button 可作为更次级的页签来使用。
 
+mod styles;
+
 use crate::utils::class_names::class_names;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
-const TABS_STYLES: &str = include_str!("./style.css");
+use self::styles::{
+    generate_tabs_style, TabsPosition as StyleTabsPosition, TabsSize as StyleTabsSize,
+    TabsType as StyleTabsType,
+};
 
 /// Tabs 标签页组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -56,6 +61,10 @@ pub struct TabsProps {
     #[props(default = false)]
     pub editable: bool,
 
+    /// 是否使用暗色模式
+    #[props(default = false)]
+    pub dark: bool,
+
     /// 切换面板的回调
     #[props(default)]
     pub on_change: Option<EventHandler<String>>,
@@ -91,6 +100,16 @@ impl Default for TabsType {
     }
 }
 
+impl From<TabsType> for StyleTabsType {
+    fn from(tab_type: TabsType) -> Self {
+        match tab_type {
+            TabsType::Line => StyleTabsType::Line,
+            TabsType::Card => StyleTabsType::Card,
+            TabsType::EditableCard => StyleTabsType::EditableCard,
+        }
+    }
+}
+
 /// 页签位置
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub enum TabsPosition {
@@ -106,6 +125,17 @@ impl Default for TabsPosition {
     }
 }
 
+impl From<TabsPosition> for StyleTabsPosition {
+    fn from(position: TabsPosition) -> Self {
+        match position {
+            TabsPosition::Top => StyleTabsPosition::Top,
+            TabsPosition::Right => StyleTabsPosition::Right,
+            TabsPosition::Bottom => StyleTabsPosition::Bottom,
+            TabsPosition::Left => StyleTabsPosition::Left,
+        }
+    }
+}
+
 /// 大小
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub enum TabsSize {
@@ -117,6 +147,16 @@ pub enum TabsSize {
 impl Default for TabsSize {
     fn default() -> Self {
         Self::Default
+    }
+}
+
+impl From<TabsSize> for StyleTabsSize {
+    fn from(size: TabsSize) -> Self {
+        match size {
+            TabsSize::Large => StyleTabsSize::Large,
+            TabsSize::Default => StyleTabsSize::Default,
+            TabsSize::Small => StyleTabsSize::Small,
+        }
     }
 }
 
@@ -184,6 +224,14 @@ pub fn Tabs(props: TabsProps) -> Element {
         }
     };
 
+    // 生成样式
+    let tab_style = generate_tabs_style(
+        props.tab_type.clone().into(),
+        props.tab_position.clone().into(),
+        props.size.clone().into(),
+        props.dark,
+    );
+
     let class_name = format!(
         "ant-tabs ant-tabs-{} ant-tabs-{} ant-tabs-{} {}",
         match props.tab_position {
@@ -206,7 +254,7 @@ pub fn Tabs(props: TabsProps) -> Element {
     );
 
     rsx! {
-        style { {TABS_STYLES} }
+        style { {tab_style} }
 
         div {
             class: class_name.clone(),
@@ -250,14 +298,13 @@ pub fn Tabs(props: TabsProps) -> Element {
                             "+"
                         }
                     }
-                }
 
-                // 额外内容
-                if let Some(extra_content) = &props.tab_bar_extra_content {
-                    div {
-                        class: "ant-tabs-extra-content",
-
-                        {extra_content.clone()}
+                    // 额外内容
+                    if let Some(extra_content) = &props.tab_bar_extra_content {
+                        div {
+                            class: "ant-tabs-extra-content",
+                            extra_content.clone()
+                        }
                     }
                 }
             }
@@ -265,12 +312,9 @@ pub fn Tabs(props: TabsProps) -> Element {
             // 内容区域
             div {
                 class: "ant-tabs-content ant-tabs-content-animated",
-
-                {render_tab_content(&props, &current_key)}
+                render_tab_content(&props, &current_key)
             }
         }
-
-        style { {include_str!("./style.css")} }
     }
 }
 

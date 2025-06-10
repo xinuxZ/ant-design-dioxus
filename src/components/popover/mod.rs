@@ -7,10 +7,14 @@
 //! 当目标元素有进一步的描述和相关操作时，可以收纳到卡片中，根据用户的操作行为进行展现。
 //! 和 Tooltip 的区别是，用户可以对浮层上的元素进行操作，因此它可以承载更复杂的内容，比如链接或按钮等。
 
+mod styles;
+
+use self::styles::{
+    generate_popover_style, PopoverPlacement as StylePopoverPlacement,
+    PopoverTrigger as StylePopoverTrigger,
+};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-const POPOVER_STYLES: &str = include_str!("./style.css");
 
 /// Popover 气泡卡片组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -70,6 +74,14 @@ pub struct PopoverProps {
     #[props(default = 0.1)]
     pub mouse_leave_delay: f64,
 
+    /// 是否使用深色主题
+    #[props(default = false)]
+    pub dark_theme: bool,
+
+    /// 是否使用 RTL 方向
+    #[props(default = false)]
+    pub is_rtl: bool,
+
     /// 子元素
     pub children: Element,
 }
@@ -91,6 +103,25 @@ pub enum PopoverPlacement {
     RightBottom,
 }
 
+impl From<PopoverPlacement> for StylePopoverPlacement {
+    fn from(placement: PopoverPlacement) -> Self {
+        match placement {
+            PopoverPlacement::Top => StylePopoverPlacement::Top,
+            PopoverPlacement::TopLeft => StylePopoverPlacement::TopLeft,
+            PopoverPlacement::TopRight => StylePopoverPlacement::TopRight,
+            PopoverPlacement::Bottom => StylePopoverPlacement::Bottom,
+            PopoverPlacement::BottomLeft => StylePopoverPlacement::BottomLeft,
+            PopoverPlacement::BottomRight => StylePopoverPlacement::BottomRight,
+            PopoverPlacement::Left => StylePopoverPlacement::Left,
+            PopoverPlacement::LeftTop => StylePopoverPlacement::LeftTop,
+            PopoverPlacement::LeftBottom => StylePopoverPlacement::LeftBottom,
+            PopoverPlacement::Right => StylePopoverPlacement::Right,
+            PopoverPlacement::RightTop => StylePopoverPlacement::RightTop,
+            PopoverPlacement::RightBottom => StylePopoverPlacement::RightBottom,
+        }
+    }
+}
+
 impl Default for PopoverPlacement {
     fn default() -> Self {
         Self::Top
@@ -104,6 +135,17 @@ pub enum PopoverTrigger {
     Click,
     Focus,
     ContextMenu,
+}
+
+impl From<PopoverTrigger> for StylePopoverTrigger {
+    fn from(trigger: PopoverTrigger) -> Self {
+        match trigger {
+            PopoverTrigger::Hover => StylePopoverTrigger::Hover,
+            PopoverTrigger::Click => StylePopoverTrigger::Click,
+            PopoverTrigger::Focus => StylePopoverTrigger::Focus,
+            PopoverTrigger::ContextMenu => StylePopoverTrigger::ContextMenu,
+        }
+    }
 }
 
 impl Default for PopoverTrigger {
@@ -208,8 +250,18 @@ pub fn Popover(props: PopoverProps) -> Element {
         props.overlay_class_name.as_ref().map_or("", |s| s.as_str())
     );
 
+    // 生成 CSS 样式
+    let popover_style = generate_popover_style(
+        props.placement.into(),
+        props.trigger.into(),
+        props.arrow,
+        props.dark_theme,
+        props.title.is_some(),
+        props.is_rtl,
+    );
+
     rsx! {
-        style { {POPOVER_STYLES} }
+        style { {popover_style} }
 
         div {
             class: class_name.clone(),
@@ -307,7 +359,5 @@ pub fn Popover(props: PopoverProps) -> Element {
                 }
             }
         }
-
-        style { {include_str!("./style.css")} }
     }
 }

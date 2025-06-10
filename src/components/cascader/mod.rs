@@ -12,7 +12,8 @@ use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-const CASCADER_STYLE: &str = include_str!("./style.css");
+mod styles;
+use styles::use_cascader_style;
 
 /// 级联选择器选项
 #[derive(Debug, Clone, PartialEq)]
@@ -361,11 +362,12 @@ pub fn Cascader(
         ),
     ]);
 
-    rsx! {
-        style { {CASCADER_STYLE} }
+    // 获取CSS-in-Rust样式类名
+    let style_class = use_cascader_style();
 
+    rsx! {
         div {
-            class: "{container_class}",
+            class: format!("{} {}", style_class, container_class),
             style: "{style.as_ref().map_or(\"\", |s| s)}",
 
             // 选择器

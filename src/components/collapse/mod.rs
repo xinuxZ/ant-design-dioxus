@@ -10,8 +10,8 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
-// 引入折叠面板样式
-const COLLAPSE_STYLE: &str = include_str!("style.css");
+mod styles;
+use styles::use_collapse_style;
 
 /// 折叠面板尺寸
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -122,7 +122,10 @@ pub fn Collapse(props: CollapseProps) -> Element {
             .unwrap_or_else(|| props.default_active_key.clone().unwrap_or_default())
     });
 
-    let mut class_list = vec!["ant-collapse"];
+    // 获取样式
+    let style_class = use_collapse_style();
+
+    let mut class_list = vec![&style_class];
 
     // 添加尺寸类
     match props.size {
@@ -178,7 +181,6 @@ pub fn Collapse(props: CollapseProps) -> Element {
     };
 
     rsx! {
-        style { {COLLAPSE_STYLE} }
         div {
             class: class_str.clone(),
             style: props.style.unwrap_or_default(),

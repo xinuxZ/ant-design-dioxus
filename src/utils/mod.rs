@@ -4,6 +4,7 @@
 
 pub mod class_names;
 pub mod responsive;
+pub mod style_injector;
 
 // 重新导出常用工具
 pub use class_names::*;

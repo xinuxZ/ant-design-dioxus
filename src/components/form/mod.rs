@@ -7,12 +7,18 @@
 //! - 用于创建一个实体或收集信息。
 //! - 需要对输入的数据类型进行校验时。
 
+mod styles;
+
 use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-const FORM_STYLE: &str = include_str!("./style.css");
+use self::styles::{
+    generate_form_item_style, generate_form_style, FormLayout as StyleFormLayout,
+    FormSize as StyleFormSize, LabelAlign as StyleLabelAlign,
+    ValidateStatus as StyleValidateStatus,
+};
 
 /// 表单布局类型
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -28,6 +34,16 @@ pub enum FormLayout {
 impl Default for FormLayout {
     fn default() -> Self {
         FormLayout::Horizontal
+    }
+}
+
+impl From<FormLayout> for StyleFormLayout {
+    fn from(layout: FormLayout) -> Self {
+        match layout {
+            FormLayout::Horizontal => StyleFormLayout::Horizontal,
+            FormLayout::Vertical => StyleFormLayout::Vertical,
+            FormLayout::Inline => StyleFormLayout::Inline,
+        }
     }
 }
 
@@ -48,6 +64,16 @@ impl Default for FormSize {
     }
 }
 
+impl From<FormSize> for StyleFormSize {
+    fn from(size: FormSize) -> Self {
+        match size {
+            FormSize::Small => StyleFormSize::Small,
+            FormSize::Middle => StyleFormSize::Middle,
+            FormSize::Large => StyleFormSize::Large,
+        }
+    }
+}
+
 /// 标签对齐方式
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LabelAlign {
@@ -63,6 +89,15 @@ impl Default for LabelAlign {
     }
 }
 
+impl From<LabelAlign> for StyleLabelAlign {
+    fn from(align: LabelAlign) -> Self {
+        match align {
+            LabelAlign::Left => StyleLabelAlign::Left,
+            LabelAlign::Right => StyleLabelAlign::Right,
+        }
+    }
+}
+
 /// 校验状态
 #[derive(Clone, PartialEq)]
 pub enum ValidateStatus {
@@ -74,6 +109,17 @@ pub enum ValidateStatus {
     Error,
     /// 校验中
     Validating,
+}
+
+impl From<ValidateStatus> for StyleValidateStatus {
+    fn from(status: ValidateStatus) -> Self {
+        match status {
+            ValidateStatus::Success => StyleValidateStatus::Success,
+            ValidateStatus::Warning => StyleValidateStatus::Warning,
+            ValidateStatus::Error => StyleValidateStatus::Error,
+            ValidateStatus::Validating => StyleValidateStatus::Validating,
+        }
+    }
 }
 
 /// 校验规则
@@ -206,7 +252,7 @@ impl FormField {
                 return false;
             }
 
-            // 长度校验
+            // 最小长度校验
             if let Some(min) = rule.min {
                 if self.value.len() < min {
                     self.error = Some(rule.message.clone());
@@ -215,6 +261,7 @@ impl FormField {
                 }
             }
 
+            // 最大长度校验
             if let Some(max) = rule.max {
                 if self.value.len() > max {
                     self.error = Some(rule.message.clone());
@@ -225,11 +272,8 @@ impl FormField {
 
             // 正则校验
             if let Some(pattern) = &rule.pattern {
-                // 简单的正则校验实现
-                if !self.value.is_empty() {
-                    // 这里可以使用 regex crate 进行更复杂的正则校验
-                    // 暂时使用简单的字符串匹配
-                    if pattern == "email" && !self.value.contains('@') {
+                if let Ok(re) = regex::Regex::new(pattern) {
+                    if !re.is_match(&self.value) {
                         self.error = Some(rule.message.clone());
                         self.status = Some(ValidateStatus::Error);
                         return false;
@@ -247,12 +291,16 @@ impl FormField {
             }
         }
 
-        self.status = Some(ValidateStatus::Success);
+        // 校验通过
+        if !self.rules.is_empty() {
+            self.status = Some(ValidateStatus::Success);
+        }
+
         true
     }
 }
 
-/// Form 组件属性
+/// Form 表单组件属性
 #[derive(Props, Clone, PartialEq)]
 pub struct FormProps {
     /// 表单子元素
@@ -287,106 +335,122 @@ pub struct FormProps {
     pub style: String,
 }
 
+/// 表单上下文
+static FORM_CONTEXT: GlobalSignal<Option<FormContext>> = Signal::global(|| None::<FormContext>);
+
 /// Form 表单组件
 #[component]
 pub fn Form(props: FormProps) -> Element {
-    let mut form_fields = use_signal(|| HashMap::<String, FormField>::new());
+    let fields = use_signal(HashMap::<String, FormField>::new);
 
-    // 提供表单上下文
-    use_context_provider(|| FormContext {
+    // 字段值变化处理
+    let on_field_change = Rc::new(move |name: String, value: String| {
+        fields.write().entry(name.clone()).and_modify(|field| {
+            field.value = value.clone();
+            field.validate();
+        });
+
+        if let Some(callback) = &props.on_values_change {
+            callback.call((name, value));
+        }
+    });
+
+    // 字段注册处理
+    let on_field_register = Rc::new(move |name: String, rules: Vec<FormRule>| {
+        fields.write().entry(name).or_insert_with(|| {
+            let mut field = FormField::new(&name);
+            field.rules = rules;
+            field
+        });
+    });
+
+    // 创建表单上下文
+    let context = FormContext {
         layout: props.layout,
         size: props.size,
         label_align: props.label_align,
         label_col: props.label_col,
         wrapper_col: props.wrapper_col,
         disabled: props.disabled,
-        fields: form_fields.clone(),
-        on_field_change: Rc::new(move |name: String, value: String| {
-            let mut form_fields = form_fields.clone();
-            form_fields.with_mut(|fields| {
-                if let Some(field) = fields.get_mut(&name) {
-                    field.value = value.clone();
-                    field.validate();
-                } else {
-                    let mut field = FormField::new(&name);
-                    field.value = value.clone();
-                    fields.insert(name.clone(), field);
-                }
-            });
+        fields: fields.clone(),
+        on_field_change,
+        on_field_register,
+    };
 
-            if let Some(callback) = &props.on_values_change {
-                callback.call((name, value));
+    // 设置表单上下文
+    FORM_CONTEXT.write().replace(context);
+
+    // 生成表单样式
+    let form_style = generate_form_style(
+        props.layout.into(),
+        props.size.into(),
+        props.label_align.into(),
+        props.disabled,
+    );
+
+    // 表单提交处理
+    let handle_submit = move |event: FormEvent| {
+        event.prevent_default();
+
+        let mut values = HashMap::new();
+        let mut is_valid = true;
+
+        // 校验所有字段
+        for (name, field) in fields.read().iter() {
+            values.insert(name.clone(), field.value.clone());
+        }
+
+        for (_, field) in fields.write().iter_mut() {
+            if !field.validate() {
+                is_valid = false;
             }
-        }),
-        on_field_register: Rc::new(move |name: String, rules: Vec<FormRule>| {
-            let mut form_fields = form_fields.clone();
-            form_fields.with_mut(|fields| {
-                if let Some(field) = fields.get_mut(&name) {
-                    field.rules = rules;
-                } else {
-                    let mut field = FormField::new(&name);
-                    field.rules = rules;
-                    fields.insert(name, field);
-                }
-            });
-        }),
-    });
+        }
 
-    // 处理表单提交
-    let handle_submit = move |evt: FormEvent| {
-        evt.prevent_default();
-
-        let mut all_valid = true;
-        let mut form_data = HashMap::new();
-
-        form_fields.with_mut(|fields| {
-            for (name, field) in fields.iter_mut() {
-                if !field.validate() {
-                    all_valid = false;
-                }
-                form_data.insert(name.clone(), field.value.clone());
-            }
-        });
-
-        if all_valid {
+        // 触发回调
+        if is_valid {
             if let Some(callback) = &props.on_finish {
-                callback.call(form_data);
+                callback.call(values);
             }
-        } else {
-            if let Some(callback) = &props.on_finish_failed {
-                callback.call(form_data);
-            }
+        } else if let Some(callback) = &props.on_finish_failed {
+            callback.call(values);
         }
     };
 
-    let form_class = conditional_class_names_array(&[
+    // 表单类名
+    let class_name = conditional_class_names_array(&[
         ("ant-form", true),
         (
-            "ant-form-horizontal",
-            props.layout == FormLayout::Horizontal,
+            match props.layout {
+                FormLayout::Horizontal => "ant-form-horizontal",
+                FormLayout::Vertical => "ant-form-vertical",
+                FormLayout::Inline => "ant-form-inline",
+            },
+            true,
         ),
-        ("ant-form-vertical", props.layout == FormLayout::Vertical),
-        ("ant-form-inline", props.layout == FormLayout::Inline),
-        ("ant-form-small", props.size == FormSize::Small),
-        ("ant-form-large", props.size == FormSize::Large),
+        (
+            match props.size {
+                FormSize::Small => "ant-form-small",
+                FormSize::Middle => "",
+                FormSize::Large => "ant-form-large",
+            },
+            props.size != FormSize::Middle,
+        ),
         ("ant-form-disabled", props.disabled),
         (&props.class, !props.class.is_empty()),
     ]);
 
     rsx! {
-        style { {FORM_STYLE} }
-
+        style { {form_style} }
         form {
-            class: "{form_class}",
-            style: "{props.style}",
+            class: class_name,
+            style: props.style.clone(),
             onsubmit: handle_submit,
-
             {props.children}
         }
     }
 }
 
-/// FormItem 组件属性
+/// FormItem 表单项属性
 #[derive(Props, Clone, PartialEq)]
 pub struct FormItemProps {
     /// 表单项子元素
@@ -421,138 +485,154 @@ pub struct FormItemProps {
 /// FormItem 表单项组件
 #[component]
 pub fn FormItem(props: FormItemProps) -> Element {
-    let form_context = use_context::<FormContext>();
-    let mut field_status = use_signal(|| None::<ValidateStatus>);
-    let mut field_error = use_signal(|| None::<String>);
+    // 获取表单上下文
+    let form_ctx = FORM_CONTEXT.read();
+    let form_context = form_ctx
+        .as_ref()
+        .expect("FormItem must be used within Form");
+
+    // 字段名
+    let field_name = props.name.clone();
+
+    // 合并规则
+    let mut rules = props.rules.clone();
+    if props.required {
+        rules.push(FormRule::required("This field is required"));
+    }
 
     // 注册字段
-    let name_clone = props.name.clone();
-    use_effect(move || {
-        if let Some(name) = &name_clone {
-            let mut rules = props.rules.clone();
-            if props.required && !rules.iter().any(|r| r.required) {
-                rules.push(FormRule::required("此字段为必填项"));
-            }
-            (form_context.on_field_register)(name.clone(), rules);
-        }
+    if let Some(name) = &field_name {
+        (form_context.on_field_register)(name.clone(), rules.clone());
+    }
+
+    // 获取字段状态
+    let field_status = field_name.as_ref().and_then(|name| {
+        form_context
+            .fields
+            .read()
+            .get(name)
+            .and_then(|field| field.status.clone())
     });
 
-    // 监听字段状态变化
-    let name_clone2 = props.name.clone();
-    use_effect(move || {
-        if let Some(name) = &name_clone2 {
-            let fields = form_context.fields.read();
-            if let Some(field) = fields.get(name) {
-                field_status.set(field.status.clone());
-                field_error.set(field.error.clone());
-            }
-        }
+    let field_error = field_name.as_ref().and_then(|name| {
+        form_context
+            .fields
+            .read()
+            .get(name)
+            .and_then(|field| field.error.clone())
     });
 
-    let label_col = props.label_col.or(form_context.label_col).unwrap_or(6);
-    let wrapper_col = props.wrapper_col.or(form_context.wrapper_col).unwrap_or(18);
+    // 生成表单项样式
+    let form_item_style = generate_form_item_style(
+        field_status.clone().map(|s| s.into()),
+        props.required,
+        props.colon,
+    );
 
-    let item_class = conditional_class_names_array(&[
+    // 值变化处理
+    let handle_value_change = move |value: String| {
+        if let Some(name) = &field_name {
+            (form_context.on_field_change)(name.clone(), value);
+        }
+    };
+
+    // 标签宽度样式
+    let label_style = if let Some(col) = props.label_col.or(form_context.label_col) {
+        format!("width: {}%;", col)
+    } else {
+        String::new()
+    };
+
+    // 控件宽度样式
+    let wrapper_style = if let Some(col) = props.wrapper_col.or(form_context.wrapper_col) {
+        format!("width: {}%;", col)
+    } else {
+        String::new()
+    };
+
+    // 类名
+    let class_name = conditional_class_names_array(&[
         ("ant-form-item", true),
-        ("ant-form-item-required", props.required),
         (
-            "ant-form-item-has-success",
-            field_status.read().as_ref() == Some(&ValidateStatus::Success),
+            match &field_status {
+                Some(ValidateStatus::Success) => "ant-form-item-has-success",
+                Some(ValidateStatus::Warning) => "ant-form-item-has-warning",
+                Some(ValidateStatus::Error) => "ant-form-item-has-error",
+                Some(ValidateStatus::Validating) => "ant-form-item-is-validating",
+                None => "",
+            },
+            field_status.is_some(),
         ),
         (
-            "ant-form-item-has-warning",
-            field_status.read().as_ref() == Some(&ValidateStatus::Warning),
-        ),
-        (
-            "ant-form-item-has-error",
-            field_status.read().as_ref() == Some(&ValidateStatus::Error),
-        ),
-        (
-            "ant-form-item-is-validating",
-            field_status.read().as_ref() == Some(&ValidateStatus::Validating),
+            "ant-form-item-with-help",
+            field_error.is_some() || props.extra.is_some(),
         ),
         (&props.class, !props.class.is_empty()),
     ]);
 
+    // 标签类名
+    let label_class = conditional_class_names_array(&[
+        ("ant-form-item-required", props.required),
+        ("ant-form-item-no-colon", !props.colon),
+    ]);
+
+    // 克隆子元素并注入值变更处理
+    let children = if field_name.is_some() {
+        props.children.clone()
+    } else {
+        props.children.clone()
+    };
+
     rsx! {
+        style { {form_item_style} }
         div {
-            class: "{item_class}",
-            style: "{props.style}",
+            class: class_name,
+            style: props.style.clone(),
 
-            if form_context.layout == FormLayout::Horizontal {
-                div { class: "ant-row ant-form-item-row",
-                    // 标签列
-                    if let Some(label) = &props.label {
-                        div {
-                            class: "ant-col ant-form-item-label",
-                            style: "flex: 0 0 {label_col * 100 / 24}%;",
+            div {
+                class: "ant-form-item-row",
 
-                            label {
-                                class: conditional_class_names_array(&[
-                                    ("ant-form-item-required", props.required),
-                                    ("ant-form-item-no-colon", !props.colon),
-                                ]),
-                                title: "{label}",
-                                "{label}"
-                                if props.colon { ":" }
-                            }
-                        }
-                    }
-
-                    // 控件列
-                    div {
-                        class: "ant-col ant-form-item-control",
-                        style: "flex: 0 0 {wrapper_col * 100 / 24}%;",
-
-                        div { class: "ant-form-item-control-input",
-                            {props.children}
-                        }
-
-                        // 错误信息
-                        if let Some(error) = field_error.read().as_ref() {
-                            div { class: "ant-form-item-explain ant-form-item-explain-error",
-                                "{error}"
-                            }
-                        }
-
-                        // 额外信息
-                        if let Some(extra) = &props.extra {
-                            div { class: "ant-form-item-extra", "{extra}" }
-                        }
-                    }
-                }
-            } else {
-                // 垂直或内联布局
+                // 标签
                 if let Some(label) = &props.label {
-                    div { class: "ant-form-item-label",
-                        label {
-                            class: conditional_class_names_array(&[
-                                ("ant-form-item-required", props.required),
-                                ("ant-form-item-no-colon", !props.colon),
-                            ]),
-                            title: "{label}",
+                    div {
+                        class: "ant-form-item-label",
+                        style: label_style,
 
+                        label {
+                            class: label_class,
                             "{label}"
-                            if props.colon { ":" }
                         }
                     }
                 }
 
-                div { class: "ant-form-item-control",
-                    div { class: "ant-form-item-control-input",
-                        {props.children}
+                // 控件
+                div {
+                    class: "ant-form-item-control",
+                    style: wrapper_style,
+
+                    div {
+                        class: "ant-form-item-control-input",
+
+                        div {
+                            class: "ant-form-item-control-input-content",
+                            {children}
+                        }
                     }
 
                     // 错误信息
-                    if let Some(error) = field_error.read().as_ref() {
-                        div { class: "ant-form-item-explain ant-form-item-explain-error",
+                    if let Some(error) = &field_error {
+                        div {
+                            class: "ant-form-item-explain ant-form-item-explain-error",
                             "{error}"
                         }
                     }
 
                     // 额外信息
                     if let Some(extra) = &props.extra {
-                        div { class: "ant-form-item-extra", "{extra}" }
+                        div {
+                            class: "ant-form-item-extra",
+                            "{extra}"
+                        }
                     }
                 }
             }
@@ -585,22 +665,18 @@ impl PartialEq for FormContext {
     }
 }
 
-/// 便捷的表单规则创建宏
-#[macro_export]
-macro_rules! form_rules {
-    [required($msg:expr)] => {
-        vec![FormRule::required($msg)]
-    };
-    [required($msg:expr), $($rule:expr),*] => {
-        {
-            let mut rules = vec![FormRule::required($msg)];
-            rules.extend(vec![$($rule),*]);
-            rules
-        }
-    };
-    [$($rule:expr),*] => {
-        vec![$($rule),*]
-    };
+/// 获取表单上下文
+pub fn use_form_context() -> FormContext {
+    let context = FORM_CONTEXT.read();
+    context
+        .as_ref()
+        .expect("useFormContext must be used within Form")
+        .clone()
+}
+
+/// 表单钩子
+pub fn use_form() -> FormContext {
+    use_form_context()
 }
 
 #[cfg(test)]
@@ -609,23 +685,26 @@ mod tests {
 
     #[test]
     fn test_form_layout_default() {
-        assert_eq!(FormLayout::default(), FormLayout::Horizontal);
+        let layout = FormLayout::default();
+        assert_eq!(layout, FormLayout::Horizontal);
     }
 
     #[test]
     fn test_form_size_default() {
-        assert_eq!(FormSize::default(), FormSize::Middle);
+        let size = FormSize::default();
+        assert_eq!(size, FormSize::Middle);
     }
 
     #[test]
     fn test_label_align_default() {
-        assert_eq!(LabelAlign::default(), LabelAlign::Right);
+        let align = LabelAlign::default();
+        assert_eq!(align, LabelAlign::Right);
     }
 
     #[test]
     fn test_form_field_new() {
-        let field = FormField::new("username");
-        assert_eq!(field.name, "username");
+        let field = FormField::new("test");
+        assert_eq!(field.name, "test");
         assert_eq!(field.value, "");
         assert!(field.rules.is_empty());
         assert!(field.status.is_none());
@@ -635,38 +714,40 @@ mod tests {
 
     #[test]
     fn test_form_field_validate_required() {
-        let mut field = FormField::new("username");
-        field.rules.push(FormRule::required("用户名不能为空"));
+        let mut field = FormField::new("test");
+        field.rules.push(FormRule::required("Required"));
 
         // 空值校验失败
         assert!(!field.validate());
-        assert_eq!(field.error, Some("用户名不能为空".to_string()));
-        // assert_eq!(field.status, Some(ValidateStatus::Error));
+        assert_eq!(field.error, Some("Required".to_string()));
+        assert!(matches!(field.status, Some(ValidateStatus::Error)));
 
-        // 有值校验成功
-        field.value = "test".to_string();
+        // 有值校验通过
+        field.value = "value".to_string();
         assert!(field.validate());
-        assert!(field.error.is_none());
-        // assert_eq!(field.status, Some(ValidateStatus::Success));
+        assert_eq!(field.error, None);
+        assert!(matches!(field.status, Some(ValidateStatus::Success)));
     }
 
     #[test]
     fn test_form_rule_creation() {
-        let rule = FormRule::required("必填");
-        assert!(rule.required);
-        assert_eq!(rule.message, "必填");
+        let rule1 = FormRule::required("Required");
+        assert!(rule1.required);
+        assert_eq!(rule1.message, "Required");
 
-        let rule = FormRule::min_length(3, "最少3个字符");
-        assert!(!rule.required);
-        assert_eq!(rule.min, Some(3));
-        assert_eq!(rule.message, "最少3个字符");
+        let rule2 = FormRule::min_length(3, "Too short");
+        assert!(!rule2.required);
+        assert_eq!(rule2.min, Some(3));
+        assert_eq!(rule2.message, "Too short");
 
-        let rule = FormRule::max_length(10, "最多10个字符");
-        assert_eq!(rule.max, Some(10));
-        assert_eq!(rule.message, "最多10个字符");
+        let rule3 = FormRule::max_length(10, "Too long");
+        assert!(!rule3.required);
+        assert_eq!(rule3.max, Some(10));
+        assert_eq!(rule3.message, "Too long");
 
-        let rule = FormRule::pattern("email", "邮箱格式不正确");
-        assert_eq!(rule.pattern, Some("email".to_string()));
-        assert_eq!(rule.message, "邮箱格式不正确");
+        let rule4 = FormRule::pattern(r"^\d+$", "Numbers only");
+        assert!(!rule4.required);
+        assert_eq!(rule4.pattern, Some(r"^\d+$".to_string()));
+        assert_eq!(rule4.message, "Numbers only");
     }
 }

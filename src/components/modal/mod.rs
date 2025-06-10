@@ -40,7 +40,8 @@ use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::window;
 
-const MODAL_STYLES: &str = include_str!("./style.css");
+mod styles;
+use styles::ModalStyleBuilder;
 
 /// Modal 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -184,6 +185,14 @@ pub fn Modal(props: ModalProps) -> Element {
         .clone()
         .unwrap_or_else(|| translate("modal.cancelText"));
 
+    // 生成样式
+    let style_builder = ModalStyleBuilder::new()
+        .centered(props.centered)
+        .z_index(props.z_index)
+        .width(props.width.clone());
+
+    let modal_styles = style_builder.build();
+
     // 处理键盘事件
     use_effect(move || {
         if props.open && props.keyboard {
@@ -198,136 +207,66 @@ pub fn Modal(props: ModalProps) -> Element {
                 },
             ) as Box<dyn FnMut(_)>);
 
+            // 添加事件监听器
             if let Some(window) = window() {
-                if let Some(document) = window.document() {
-                    let _ = document.add_event_listener_with_callback(
+                let _ = window
+                    .add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref());
+            }
+
+            // 清理函数
+            move || {
+                if let Some(window) = window() {
+                    let _ = window.remove_event_listener_with_callback(
                         "keydown",
                         closure.as_ref().unchecked_ref(),
                     );
                 }
             }
-
-            closure.forget();
+        } else {
+            || {}
         }
     });
 
-    let modal_width = props
-        .width
-        .as_deref()
-        .unwrap_or(ModalSize::default().to_width());
-    let modal_height = props.height.as_deref().unwrap_or("auto");
+    // 如果不可见，则不渲染
+    if !props.open {
+        return None;
+    }
 
-    let modal_style = {
-        let mut styles = vec![
-            format!("width: {}", modal_width),
-            format!("height: {}", modal_height),
-            format!("z-index: {}", props.z_index),
-        ];
-
-        if let Some(style) = &props.style {
-            styles.push(style.clone());
-        }
-
-        styles.join("; ")
-    };
-
-    let wrap_class = {
-        let mut classes = vec!["ant-modal-wrap"];
-
-        if props.centered {
-            classes.push("ant-modal-centered");
-        }
-
-        if let Some(wrap_class_name) = &props.wrap_class_name {
-            classes.push(wrap_class_name);
-        }
-
-        classes.join(" ")
-    };
-
-    let modal_class = {
-        let mut classes = vec!["ant-modal"];
-
-        if let Some(class_name) = &props.class_name {
-            classes.push(class_name);
-        }
-
-        classes.join(" ")
-    };
-
-    let handle_mask_click = move |_event: Event<MouseData>| {
-        if props.mask_closable {
-            // 在 Dioxus 中，通过检查事件目标来处理遮罩点击
-            // 这里简化处理，直接调用取消回调
-            if let Some(on_cancel) = &props.on_cancel {
-                on_cancel.call(());
-            }
-        }
-    };
-
-    let handle_close = move |_event: Event<MouseData>| {
-        if let Some(on_cancel) = &props.on_cancel {
-            on_cancel.call(());
-        }
-    };
-
-    let handle_ok = move |_event: Event<MouseData>| {
-        if let Some(on_ok) = &props.on_ok {
-            on_ok.call(());
-        }
-    };
-
-    let handle_cancel = move |_event: Event<MouseData>| {
-        if let Some(on_cancel) = &props.on_cancel {
-            on_cancel.call(());
-        }
-    };
-
+    // 渲染Modal
     rsx! {
-        style { {MODAL_STYLES} }
-        if props.open {
-            div {
-                class: "ant-modal-root",
-                // 遮罩层
-                if props.mask {
+        style { "{modal_styles}" }
+        div {
+            class: "ant-modal-root",
+            if props.mask {
+                rsx! {
                     div {
                         class: "ant-modal-mask",
-                        style: format!("z-index: {}", props.z_index - 1),
                     }
                 }
-                // 对话框容器
+            }
+            div {
+                class: "ant-modal-wrap {props.wrap_class_name.clone().unwrap_or_default()}",
+                class: {
+                    if props.centered { "ant-modal-centered" } else { "" }
+                },
+                onclick: move |e: MouseEvent| {
+                    // 如果点击的是遮罩层，且允许点击遮罩层关闭
+                    let target = e.target();
+                    let current_target = e.current_target();
+                    if props.mask_closable && target == current_target {
+                        if let Some(on_cancel) = &props.on_cancel {
+                            on_cancel.call(());
+                        }
+                    }
+                },
                 div {
-                    class: "{wrap_class}",
-                    style: format!("z-index: {}", props.z_index),
-                    onclick: handle_mask_click,
+                    class: "ant-modal {props.class_name.clone().unwrap_or_default()}",
+                    style: props.style.clone().unwrap_or_default(),
                     div {
-                        class: "{modal_class}",
-                        style: "{modal_style}",
-                        onclick: |event| event.stop_propagation(),
-
-                        // 对话框内容
-                        div {
-                            class: "ant-modal-content",
-
-                            // 关闭按钮
-                            if props.closable {
-                                button {
-                                    class: "ant-modal-close",
-                                    r#type: "button",
-                                    "aria-label": "Close",
-                                    onclick: handle_close,
-                                    span {
-                                        class: "ant-modal-close-x",
-                                        span {
-                                            class: "ant-modal-close-icon",
-                                            "×"
-                                        }
-                                    }
-                                }
-                            }
-
-                            // 标题
-                            if let Some(title) = &props.title {
+                        class: "ant-modal-content",
+                        // 标题部分
+                        if let Some(title) = &props.title {
+                            rsx! {
                                 div {
                                     class: "ant-modal-header",
                                     div {
@@ -336,47 +275,77 @@ pub fn Modal(props: ModalProps) -> Element {
                                     }
                                 }
                             }
-
-                            // 主体内容
-                            div {
-                                class: "ant-modal-body",
-                                if let Some(children) = &props.children {
-                                    {children}
+                        }
+                        // 关闭按钮
+                        if props.closable {
+                            rsx! {
+                                button {
+                                    class: "ant-modal-close",
+                                    "aria-label": "Close",
+                                    onclick: move |_| {
+                                        if let Some(on_cancel) = &props.on_cancel {
+                                            on_cancel.call(());
+                                        }
+                                    },
+                                    span {
+                                        class: "ant-modal-close-x",
+                                        "×"
+                                    }
                                 }
                             }
-
-                            // 页脚
-                            if let Some(footer) = &props.footer {
+                        }
+                        // 内容部分
+                        div {
+                            class: "ant-modal-body",
+                            props.children.clone().unwrap_or(rsx!{ "" })
+                        }
+                        // 页脚部分
+                        if props.footer.is_some() || props.show_ok_button || props.show_cancel_button {
+                            rsx! {
                                 div {
                                     class: "ant-modal-footer",
-                                    {footer}
-                                }
-                            } else if props.show_ok_button || props.show_cancel_button {
-                                div {
-                                    class: "ant-modal-footer",
-                                    // 取消按钮
-                                    if props.show_cancel_button {
-                                        button {
-                                            class: "ant-btn ant-btn-default",
-                                            r#type: "button",
-                                            onclick: handle_cancel,
-                                            "{cancel_text}"
-                                        }
-                                    }
-                                    // 确认按钮
-                                    if props.show_ok_button {
-                                        button {
-                                            class: "ant-btn ant-btn-primary",
-                                            r#type: "button",
-                                            disabled: props.confirm_loading,
-                                            onclick: handle_ok,
-                                            if props.confirm_loading {
-                                                span {
-                                                    class: "ant-btn-loading-icon",
-                                                    // 此处可添加加载图标
+                                    if let Some(footer) = props.footer.clone() {
+                                        footer
+                                    } else {
+                                        rsx! {
+                                            if props.show_cancel_button {
+                                                rsx! {
+                                                    button {
+                                                        class: "ant-btn ant-btn-default",
+                                                        onclick: move |_| {
+                                                            if let Some(on_cancel) = &props.on_cancel {
+                                                                on_cancel.call(());
+                                                            }
+                                                        },
+                                                        "{cancel_text}"
+                                                    }
                                                 }
                                             }
-                                            "{ok_text}"
+                                            if props.show_ok_button {
+                                                rsx! {
+                                                    button {
+                                                        class: "ant-btn ant-btn-primary",
+                                                        class: {
+                                                            if props.confirm_loading { "ant-btn-loading" } else { "" }
+                                                        },
+                                                        onclick: move |_| {
+                                                            if let Some(on_ok) = &props.on_ok {
+                                                                on_ok.call(());
+                                                            }
+                                                        },
+                                                        if props.confirm_loading {
+                                                            rsx! {
+                                                                span {
+                                                                    class: "ant-btn-loading-icon",
+                                                                    // 这里可以添加一个Loading图标
+                                                                    "⟳"
+                                                                }
+                                                            }
+                                                        }
+                                                        "{ok_text}"
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }

@@ -37,7 +37,8 @@ use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::window;
 
-const DRAWER_STYLES: &str = include_str!("./style.css");
+mod styles;
+use styles::use_drawer_style;
 
 /// Drawer 抽屉位置
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -312,11 +313,13 @@ pub fn Drawer(props: DrawerProps) -> Element {
         }
     };
 
+    // 获取样式
+    let style_class = use_drawer_style();
+
     rsx! {
-        style { {DRAWER_STYLES} }
         if props.open || (!props.destroy_on_close && is_animating()) {
             div {
-                class: "ant-drawer-root",
+                  class: format!("{} ant-drawer-root", style_class),
 
                 // 遮罩层
                 if props.mask {

@@ -11,7 +11,10 @@ use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
-const AUTO_STYLE: &str = include_str!("./style.css");
+mod styles;
+use styles::{
+    generate_auto_complete_style, AutoCompleteSize as StyleSize, AutoCompleteStatus as StyleStatus,
+};
 
 /// 自动完成选项
 #[derive(Debug, Clone, PartialEq)]
@@ -138,6 +141,9 @@ pub struct AutoCompleteProps {
     /// 自定义样式
     #[props(default = String::new())]
     pub style: String,
+    /// 是否使用暗色主题
+    #[props(default = false)]
+    pub dark_theme: bool,
 }
 
 /// AutoComplete 自动完成组件
@@ -202,105 +208,174 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
     });
 
     // 处理输入变化
-    let handle_input_change = move |evt: FormEvent| {
-        let value = evt.value();
-        input_value.set(value.clone());
-        is_open.set(!value.is_empty());
+    let handle_input_change = move |evt: Event<FormData>| {
+        let new_value = evt.value.clone();
+        input_value.set(new_value.clone());
 
-        if let Some(callback) = &on_change_static {
-            callback.call(value.clone());
+        // 触发搜索回调
+        if let Some(on_search) = &on_search_static {
+            on_search.call(new_value.clone());
         }
 
-        if let Some(callback) = &on_search_static {
-            callback.call(value);
+        // 触发变化回调
+        if let Some(on_change) = &on_change_static {
+            on_change.call(new_value);
         }
+
+        is_open.set(true);
     };
 
     // 处理选项选择
-    let mut handle_option_select = move |option: AutoCompleteOption| {
-        input_value.set(option.value.clone());
-        is_open.set(false);
-
-        if let Some(callback) = &on_select_static {
-            callback.call(option.clone());
+    let handle_select = move |option: AutoCompleteOption| {
+        if option.disabled {
+            return;
         }
 
-        if let Some(callback) = &on_change_static {
-            callback.call(option.value);
+        input_value.set(option.label.clone());
+        is_open.set(false);
+
+        // 触发选择回调
+        if let Some(on_select) = &on_select_static {
+            on_select.call(option.clone());
+        }
+
+        // 触发变化回调
+        if let Some(on_change) = &on_change_static {
+            on_change.call(option.label);
+        }
+    };
+
+    // 处理焦点获取
+    let handle_focus = move |evt: Event<FocusData>| {
+        is_open.set(true);
+
+        if let Some(on_focus) = &on_focus_static {
+            on_focus.call(evt);
+        }
+    };
+
+    // 处理焦点丢失
+    let handle_blur = move |evt: Event<FocusData>| {
+        // 延迟关闭下拉菜单，以便用户可以点击选项
+        use_future(move || async move {
+            // 模拟延迟，让点击事件先触发
+            #[cfg(target_arch = "wasm32")]
+            {
+                use wasm_bindgen::prelude::*;
+                let promise = js_sys::Promise::new(&mut |resolve, _| {
+                    let closure = Closure::once_into_js(move || {
+                        resolve.call0(&JsValue::NULL).unwrap();
+                    });
+                    web_sys::window()
+                        .unwrap()
+                        .set_timeout_with_callback_and_timeout_and_arguments_0(
+                            closure.as_ref().unchecked_ref(),
+                            150,
+                        )
+                        .unwrap();
+                });
+                wasm_bindgen_futures::JsFuture::from(promise).await.unwrap();
+            }
+
+            is_open.set(false);
+        });
+
+        if let Some(on_blur) = &on_blur_static {
+            on_blur.call(evt);
         }
     };
 
     // 处理键盘事件
-    let handle_key_down = move |evt: KeyboardEvent| {
-        let options = filtered_options.read().clone();
-        let current_index = *active_index.read();
+    let handle_key_down = move |evt: Event<KeyboardData>| {
+        match evt.key.as_str() {
+            "ArrowDown" => {
+                evt.stop_propagation();
+                evt.prevent_default();
 
-        match evt.key() {
-            Key::ArrowDown => {
-                evt.prevent_default();
-                if !options.is_empty() {
-                    let new_index = if current_index < options.len() as i32 - 1 {
-                        current_index + 1
-                    } else {
-                        0
-                    };
-                    active_index.set(new_index);
+                if !is_open.get() {
                     is_open.set(true);
+                    return;
                 }
-            }
-            Key::ArrowUp => {
-                evt.prevent_default();
-                if !options.is_empty() {
-                    let new_index = if current_index > 0 {
-                        current_index - 1
-                    } else {
-                        options.len() as i32 - 1
-                    };
-                    active_index.set(new_index);
-                    is_open.set(true);
+
+                let options_len = filtered_options.read().len() as i32;
+                if options_len == 0 {
+                    return;
                 }
-            }
-            Key::Enter => {
-                evt.prevent_default();
-                if *is_open.read() && current_index >= 0 && (current_index as usize) < options.len()
+
+                let mut new_index = active_index.get() + 1;
+                if new_index >= options_len {
+                    new_index = 0;
+                }
+
+                // 跳过禁用的选项
+                let mut attempts = 0;
+                while attempts < options_len
+                    && filtered_options
+                        .read()
+                        .get(new_index as usize)
+                        .map_or(false, |o| o.disabled)
                 {
-                    let option = options[current_index as usize].clone();
-                    handle_option_select(option);
+                    new_index = (new_index + 1) % options_len;
+                    attempts += 1;
                 }
 
-                if let Some(callback) = &on_press_enter_static {
-                    callback.call(evt);
+                active_index.set(new_index);
+            }
+            "ArrowUp" => {
+                evt.stop_propagation();
+                evt.prevent_default();
+
+                if !is_open.get() {
+                    is_open.set(true);
+                    return;
+                }
+
+                let options_len = filtered_options.read().len() as i32;
+                if options_len == 0 {
+                    return;
+                }
+
+                let mut new_index = active_index.get() - 1;
+                if new_index < 0 {
+                    new_index = options_len - 1;
+                }
+
+                // 跳过禁用的选项
+                let mut attempts = 0;
+                while attempts < options_len
+                    && filtered_options
+                        .read()
+                        .get(new_index as usize)
+                        .map_or(false, |o| o.disabled)
+                {
+                    new_index = (new_index - 1 + options_len) % options_len;
+                    attempts += 1;
+                }
+
+                active_index.set(new_index);
+            }
+            "Enter" => {
+                if is_open.get() && active_index.get() >= 0 {
+                    evt.stop_propagation();
+                    evt.prevent_default();
+
+                    if let Some(option) = filtered_options
+                        .read()
+                        .get(active_index.get() as usize)
+                        .cloned()
+                    {
+                        handle_select(option);
+                    }
+                } else if let Some(on_press_enter) = &on_press_enter_static {
+                    on_press_enter.call(evt);
                 }
             }
-            Key::Escape => {
+            "Escape" => {
+                evt.stop_propagation();
                 evt.prevent_default();
                 is_open.set(false);
-                active_index.set(-1);
             }
             _ => {}
-        }
-    };
-
-    // 处理焦点事件
-    let handle_focus = move |evt: FocusEvent| {
-        if !input_value.read().is_empty() {
-            is_open.set(true);
-        }
-
-        if let Some(callback) = &on_focus_static {
-            callback.call(evt);
-        }
-    };
-
-    let handle_blur = move |evt: FocusEvent| {
-        // 延迟关闭，允许点击选项
-        spawn(async move {
-            gloo_timers::future::TimeoutFuture::new(150).await;
-            is_open.set(false);
-        });
-
-        if let Some(callback) = &on_blur_static {
-            callback.call(evt);
         }
     };
 
@@ -309,119 +384,122 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
         input_value.set(String::new());
         is_open.set(false);
 
-        if let Some(callback) = &on_change_static {
-            callback.call(String::new());
+        // 触发变化回调
+        if let Some(on_change) = &on_change_static {
+            on_change.call(String::new());
         }
     };
 
+    // 生成CSS样式
+    let auto_complete_style = generate_auto_complete_style(
+        props.size.into(),
+        props.status.into(),
+        props.disabled,
+        props.allow_clear,
+        props.dropdown_max_height,
+        props.dark_theme,
+    );
+
+    // 构建类名
     let container_class = conditional_class_names_array(&[
         ("ant-auto-complete", true),
-        ("ant-auto-complete-open", *is_open.read()),
+        (props.class.as_str(), !props.class.is_empty()),
+        (
+            match props.size {
+                AutoCompleteSize::Small => "ant-auto-complete-small",
+                AutoCompleteSize::Middle => "",
+                AutoCompleteSize::Large => "ant-auto-complete-large",
+            },
+            props.size != AutoCompleteSize::Middle,
+        ),
+        (
+            match props.status {
+                AutoCompleteStatus::Default => "",
+                AutoCompleteStatus::Error => "ant-auto-complete-status-error",
+                AutoCompleteStatus::Warning => "ant-auto-complete-status-warning",
+            },
+            props.status != AutoCompleteStatus::Default,
+        ),
         ("ant-auto-complete-disabled", props.disabled),
-        (
-            "ant-auto-complete-small",
-            props.size == AutoCompleteSize::Small,
-        ),
-        (
-            "ant-auto-complete-large",
-            props.size == AutoCompleteSize::Large,
-        ),
-        (
-            "ant-auto-complete-status-error",
-            props.status == AutoCompleteStatus::Error,
-        ),
-        (
-            "ant-auto-complete-status-warning",
-            props.status == AutoCompleteStatus::Warning,
-        ),
-        (&props.class, !props.class.is_empty()),
+        ("ant-auto-complete-open", is_open.get()),
     ]);
 
+    // 构建输入框类名
     let input_class = conditional_class_names_array(&[
         ("ant-input", true),
+        (
+            match props.size {
+                AutoCompleteSize::Small => "ant-input-sm",
+                AutoCompleteSize::Middle => "",
+                AutoCompleteSize::Large => "ant-input-lg",
+            },
+            props.size != AutoCompleteSize::Middle,
+        ),
+        (
+            match props.status {
+                AutoCompleteStatus::Default => "",
+                AutoCompleteStatus::Error => "ant-input-status-error",
+                AutoCompleteStatus::Warning => "ant-input-status-warning",
+            },
+            props.status != AutoCompleteStatus::Default,
+        ),
         ("ant-input-disabled", props.disabled),
-        ("ant-input-sm", props.size == AutoCompleteSize::Small),
-        ("ant-input-lg", props.size == AutoCompleteSize::Large),
-        (
-            "ant-input-status-error",
-            props.status == AutoCompleteStatus::Error,
-        ),
-        (
-            "ant-input-status-warning",
-            props.status == AutoCompleteStatus::Warning,
-        ),
     ]);
 
     rsx! {
-        style { {AUTO_STYLE} }
-
+        style { {auto_complete_style} }
         div {
             class: container_class,
-            style: props.style,
-
-            div { class: "ant-auto-complete-input",
+            style: props.style.clone(),
+            div {
+                class: "ant-auto-complete-input",
                 input {
-                    class: "{input_class}",
-                    r#type: "text",
-                    value: "{input_value.read()}",
-                    placeholder: "{props.placeholder}",
+                    class: input_class,
+                    type: "text",
+                    value: input_value.read().clone(),
+                    placeholder: props.placeholder.clone(),
                     disabled: props.disabled,
                     autofocus: props.auto_focus,
                     oninput: handle_input_change,
-                    onkeydown: handle_key_down,
                     onfocus: handle_focus,
                     onblur: handle_blur,
+                    onkeydown: handle_key_down,
                 }
-
-                // 清除按钮
                 if props.allow_clear && !input_value.read().is_empty() && !props.disabled {
                     span {
                         class: "ant-auto-complete-clear",
+                        aria_label: "Clear",
+                        role: "button",
                         onclick: handle_clear,
                         "×"
                     }
                 }
             }
-
-            // 下拉选项
-            if *is_open.read() && !display_options.read().is_empty() {
-                {
-                    let options_list = display_options.read().clone();
-                    let current_active_index = *active_index.read();
-
-                    rsx! {
-                        div {
-                            class: "ant-auto-complete-dropdown",
-                            style: "max-height: {props.dropdown_max_height}px;",
-
-                            div { class: "ant-auto-complete-dropdown-menu",
-                                for (index, option) in options_list.iter().enumerate() {
-                                    {
-                                        let option_clone = option.clone();
-                                        let option_clone2 = option.clone();
-                                        rsx! {
-                                            div {
-                                                key: "{option.value}-{index}",
-                                                class: conditional_class_names_array(&[
-                                                    ("ant-auto-complete-dropdown-menu-item", true),
-                                                    ("ant-auto-complete-dropdown-menu-item-active", index == current_active_index as usize),
-                                                    ("ant-auto-complete-dropdown-menu-item-disabled", option.disabled),
-                                                ]),
-                                                onclick: move |_| {
-                                                    if !option_clone.disabled {
-                                                        handle_option_select(option_clone.clone());
-                                                    }
-                                                },
-                                                onmouseenter: move |_| {
-                                                    if !option_clone2.disabled {
-                                                        active_index.set(index as i32);
-                                                    }
-                                                },
-
-                                                "{option.label}"
-                                            }
-                                        }
-                                    }
+            if is_open.get() && !props.disabled {
+                div {
+                    class: "ant-auto-complete-dropdown",
+                    ul {
+                        class: "ant-auto-complete-dropdown-menu",
+                        if display_options.is_empty() {
+                            li {
+                                class: "ant-auto-complete-dropdown-menu-empty",
+                                "No options"
+                            }
+                        } else {
+                            for (index, option) in display_options.iter().enumerate() {
+                                let is_active = active_index.get() == index as i32;
+                                let is_disabled = option.disabled;
+                                li {
+                                    key: "{option.value}",
+                                    class: conditional_class_names_array(&[
+                                        ("ant-auto-complete-dropdown-menu-item", true),
+                                        ("ant-auto-complete-dropdown-menu-item-active", is_active),
+                                        ("ant-auto-complete-dropdown-menu-item-disabled", is_disabled),
+                                    ]),
+                                    onclick: move |_| {
+                                        handle_select(option.clone());
+                                    },
+                                    {option.label.clone()}
                                 }
                             }
                         }
@@ -432,28 +510,32 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
     }
 }
 
-/// 自动完成选项构建器
+/// AutoComplete 选项构建器
 pub struct AutoCompleteOptionBuilder {
     option: AutoCompleteOption,
 }
 
 impl AutoCompleteOptionBuilder {
+    /// 创建新的选项构建器
     pub fn new(value: &str, label: &str) -> Self {
         Self {
             option: AutoCompleteOption::new(value, label),
         }
     }
 
+    /// 设置为禁用
     pub fn disabled(mut self) -> Self {
         self.option.disabled = true;
         self
     }
 
+    /// 添加自定义数据
     pub fn with_data(mut self, key: &str, value: &str) -> Self {
         self.option.data.insert(key.to_string(), value.to_string());
         self
     }
 
+    /// 构建选项
     pub fn build(self) -> AutoCompleteOption {
         self.option
     }
@@ -510,48 +592,47 @@ mod tests {
 
     #[test]
     fn test_auto_complete_option_new() {
-        let option = AutoCompleteOption::new("value1", "Label 1");
-        assert_eq!(option.value, "value1");
-        assert_eq!(option.label, "Label 1");
+        let option = AutoCompleteOption::new("value", "label");
+        assert_eq!(option.value, "value");
+        assert_eq!(option.label, "label");
         assert!(!option.disabled);
         assert!(option.data.is_empty());
     }
 
     #[test]
     fn test_auto_complete_option_disabled() {
-        let option = AutoCompleteOption::new("value1", "Label 1").disabled();
+        let option = AutoCompleteOption::new("value", "label").disabled();
         assert!(option.disabled);
     }
 
     #[test]
     fn test_auto_complete_option_with_data() {
-        let option = AutoCompleteOption::new("value1", "Label 1")
-            .with_data("key1", "value1")
-            .with_data("key2", "value2");
-        assert_eq!(option.data.get("key1"), Some(&"value1".to_string()));
-        assert_eq!(option.data.get("key2"), Some(&"value2".to_string()));
+        let option = AutoCompleteOption::new("value", "label").with_data("key", "value");
+        assert_eq!(option.data.get("key"), Some(&"value".to_string()));
     }
 
     #[test]
     fn test_auto_complete_size_default() {
-        assert_eq!(AutoCompleteSize::default(), AutoCompleteSize::Middle);
+        let size = AutoCompleteSize::default();
+        assert_eq!(size, AutoCompleteSize::Middle);
     }
 
     #[test]
     fn test_auto_complete_status_default() {
-        assert_eq!(AutoCompleteStatus::default(), AutoCompleteStatus::Default);
+        let status = AutoCompleteStatus::default();
+        assert_eq!(status, AutoCompleteStatus::Default);
     }
 
     #[test]
     fn test_auto_complete_option_builder() {
-        let option = AutoCompleteOptionBuilder::new("value1", "Label 1")
+        let option = AutoCompleteOptionBuilder::new("value", "label")
             .disabled()
-            .with_data("key1", "value1")
+            .with_data("key", "value")
             .build();
 
-        assert_eq!(option.value, "value1");
-        assert_eq!(option.label, "Label 1");
+        assert_eq!(option.value, "value");
+        assert_eq!(option.label, "label");
         assert!(option.disabled);
-        assert_eq!(option.data.get("key1"), Some(&"value1".to_string()));
+        assert_eq!(option.data.get("key"), Some(&"value".to_string()));
     }
 }

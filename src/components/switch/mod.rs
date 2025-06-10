@@ -28,11 +28,11 @@
 //! }
 //! ```
 
+mod styles;
+
+use self::styles::{generate_switch_style, SwitchSize as StyleSwitchSize};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-
-// 引入样式
-const STYLE: &str = include_str!("./style.css");
 
 /// Switch 组件尺寸
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -54,6 +54,15 @@ impl SwitchSize {
         match self {
             SwitchSize::Default => "",
             SwitchSize::Small => "ant-switch-small",
+        }
+    }
+}
+
+impl From<SwitchSize> for StyleSwitchSize {
+    fn from(size: SwitchSize) -> Self {
+        match size {
+            SwitchSize::Default => StyleSwitchSize::Default,
+            SwitchSize::Small => StyleSwitchSize::Small,
         }
     }
 }
@@ -112,6 +121,10 @@ pub struct SwitchProps {
     /// 自定义 id
     #[props(default = None)]
     pub id: Option<String>,
+
+    /// 是否使用 RTL 方向
+    #[props(default = false)]
+    pub rtl: bool,
 }
 
 /// Switch 开关组件
@@ -131,6 +144,7 @@ pub struct SwitchProps {
 /// - `class`: 自定义类名
 /// - `style`: 自定义样式
 /// - `id`: 自定义 id
+/// - `rtl`: 是否使用 RTL 方向
 #[component]
 pub fn Switch(props: SwitchProps) -> Element {
     // 内部状态管理
@@ -187,14 +201,27 @@ pub fn Switch(props: SwitchProps) -> Element {
         class_names.push(size_class);
     }
 
+    if props.rtl {
+        class_names.push("ant-switch-rtl");
+    }
+
     if let Some(custom_class) = &props.class {
         class_names.push(custom_class);
     }
 
     let class_str = class_names.join(" ");
 
+    // 生成样式
+    let switch_style = generate_switch_style(
+        props.size.into(),
+        current_checked,
+        props.disabled,
+        props.loading,
+        props.rtl,
+    );
+
     rsx! {
-        style { {STYLE} }
+        style { {switch_style} }
         button {
             class: "{class_str}",
             style: props.style.as_deref().unwrap_or(""),

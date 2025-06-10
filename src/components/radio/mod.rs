@@ -9,20 +9,9 @@
 
 use dioxus::prelude::*;
 
-const RADIO_STYLE: &str = include_str!("./style.css");
-
-#[derive(Clone, PartialEq)]
-pub enum RadioSize {
-    Small,
-    Middle,
-    Large,
-}
-
-impl Default for RadioSize {
-    fn default() -> Self {
-        RadioSize::Middle
-    }
-}
+mod styles;
+use styles::{use_radio_style, RadioGroupStyleGenerator, RadioStyleGenerator};
+pub use styles::{RadioButtonStyle, RadioSize};
 
 #[derive(Props, Clone, PartialEq)]
 pub struct RadioProps {
@@ -52,6 +41,9 @@ pub struct RadioProps {
 pub fn Radio(props: RadioProps) -> Element {
     let mut checked = use_signal(|| props.default_checked);
 
+    // 确保样式已注入
+    use_radio_style();
+
     // 如果传入了 checked 属性，使用受控模式
     let is_checked = if props.checked != props.default_checked {
         props.checked
@@ -59,22 +51,27 @@ pub fn Radio(props: RadioProps) -> Element {
         checked.read().clone()
     };
 
-    let class_name = {
-        let mut classes = vec!["ant-radio-wrapper"];
+    // 使用RadioStyleGenerator生成样式
+    let style_gen = RadioStyleGenerator::new()
+        .with_checked(is_checked)
+        .with_disabled(props.disabled);
 
-        if props.disabled {
-            classes.push("ant-radio-wrapper-disabled");
-        }
+    // 获取生成的样式字符串
+    let mut radio_style = style_gen.generate();
 
-        if is_checked {
-            classes.push("ant-radio-wrapper-checked");
-        }
+    // 添加自定义样式
+    if let Some(ref style) = props.style {
+        radio_style.push_str(" ");
+        radio_style.push_str(style);
+    }
 
-        if !props.class.is_empty() {
-            classes.push(&props.class);
-        }
-
-        classes.join(" ")
+    // 从生成的字符串中提取radio内部使用的类名
+    let parts: Vec<&str> = radio_style.split("data-radio-inner-class").collect();
+    let wrapper_style = parts[0].trim();
+    let inner_class = if parts.len() > 1 {
+        parts[1].trim()
+    } else {
+        "ant-radio"
     };
 
     let handle_change = move |_| {
@@ -91,13 +88,11 @@ pub fn Radio(props: RadioProps) -> Element {
     };
 
     rsx! {
-        style { {RADIO_STYLE} }
         label {
-            class: "{class_name}",
-            style: props.style.as_deref().unwrap_or(""),
+            style: wrapper_style,
             onclick: handle_change,
             span {
-                class: if is_checked { "ant-radio ant-radio-checked" } else { "ant-radio" },
+                class: inner_class,
                 input {
                     r#type: "radio",
                     class: "ant-radio-input",
@@ -135,6 +130,15 @@ pub struct RadioGroupProps {
     pub name: Option<String>,
     /// 以配置形式设置子元素
     pub options: Option<Vec<RadioOption>>,
+    /// 是否使用按钮样式
+    #[props(default = false)]
+    pub button_style: bool,
+    /// 按钮样式，只对按钮样式生效
+    #[props(default = RadioButtonStyle::Outline)]
+    pub button_type: RadioButtonStyle,
+    /// 是否垂直排列
+    #[props(default = false)]
+    pub vertical: bool,
     /// 自定义 CSS 类名
     #[props(default = "".to_string())]
     pub class: String,
@@ -155,6 +159,9 @@ pub struct RadioOption {
 pub fn RadioGroup(props: RadioGroupProps) -> Element {
     let mut selected_value = use_signal(|| props.default_value.clone().unwrap_or_default());
 
+    // 确保样式已注入
+    use_radio_style();
+
     // 如果传入了 value 属性，使用受控模式
     let current_value = if let Some(ref value) = props.value {
         value.clone()
@@ -162,21 +169,20 @@ pub fn RadioGroup(props: RadioGroupProps) -> Element {
         selected_value.read().clone()
     };
 
-    let class_name = {
-        let mut classes = vec!["ant-radio-group"];
+    // 使用RadioGroupStyleGenerator生成样式
+    let style_gen = RadioGroupStyleGenerator::new()
+        .with_size(props.size.clone())
+        .with_button_style(props.button_style)
+        .with_vertical(props.vertical);
 
-        match props.size {
-            RadioSize::Small => classes.push("ant-radio-group-small"),
-            RadioSize::Large => classes.push("ant-radio-group-large"),
-            _ => {}
-        }
+    // 获取生成的样式字符串
+    let mut group_style = style_gen.generate();
 
-        if !props.class.is_empty() {
-            classes.push(&props.class);
-        }
-
-        classes.join(" ")
-    };
+    // 添加自定义样式
+    if let Some(ref style) = props.style {
+        group_style.push_str(" ");
+        group_style.push_str(style);
+    }
 
     let handle_change = move |value: String| {
         selected_value.set(value.clone());
@@ -187,10 +193,8 @@ pub fn RadioGroup(props: RadioGroupProps) -> Element {
     };
 
     rsx! {
-        style { {RADIO_STYLE} }
         div {
-            class: class_name,
-            style: props.style.as_deref().unwrap_or(""),
+            style: group_style,
 
             // 如果提供了 options，渲染选项
             if let Some(ref options) = props.options {
@@ -201,6 +205,9 @@ pub fn RadioGroup(props: RadioGroupProps) -> Element {
                         value: option.value.clone(),
                         checked: current_value == option.value,
                         disabled: props.disabled || option.disabled.unwrap_or(false),
+                        is_button: props.button_style,
+                        button_type: props.button_type,
+                        size: props.size.clone(),
                         name: props.name.clone(),
                         on_change: handle_change.clone(),
                     }
@@ -219,12 +226,39 @@ struct RadioGroupItemProps {
     value: String,
     checked: bool,
     disabled: bool,
+    is_button: bool,
+    button_type: RadioButtonStyle,
+    size: RadioSize,
     name: Option<String>,
     on_change: EventHandler<String>,
 }
 
 #[component]
 fn RadioGroupItem(props: RadioGroupItemProps) -> Element {
+    // 使用RadioStyleGenerator生成样式
+    let style_gen = RadioStyleGenerator::new()
+        .with_checked(props.checked)
+        .with_disabled(props.disabled)
+        .with_size(props.size.clone())
+        .with_button(props.is_button)
+        .with_button_style(props.button_type);
+
+    // 获取生成的样式字符串
+    let radio_style = style_gen.generate();
+
+    // 从生成的字符串中提取radio内部使用的类名
+    let parts: Vec<&str> = radio_style.split("data-radio-inner-class").collect();
+    let wrapper_style = parts[0].trim();
+    let inner_class = if parts.len() > 1 {
+        parts[1].trim()
+    } else {
+        if props.is_button {
+            "ant-radio-button"
+        } else {
+            "ant-radio"
+        }
+    };
+
     let handle_click = {
         let value = props.value.clone();
         let on_change = props.on_change.clone();
@@ -235,41 +269,27 @@ fn RadioGroupItem(props: RadioGroupItemProps) -> Element {
         }
     };
 
-    let class_name = {
-        let mut classes = vec!["ant-radio-wrapper"];
-
-        if props.disabled {
-            classes.push("ant-radio-wrapper-disabled");
-        }
-
-        if props.checked {
-            classes.push("ant-radio-wrapper-checked");
-        }
-
-        classes.join(" ")
-    };
-
     rsx! {
         label {
-            class: "{class_name}",
+            style: wrapper_style,
             onclick: handle_click,
             span {
-                class: if props.checked { "ant-radio ant-radio-checked" } else { "ant-radio" },
+                class: inner_class,
                 input {
                     r#type: "radio",
-                    class: "ant-radio-input",
+                    class: if props.is_button { "ant-radio-button-input" } else { "ant-radio-input" },
+                    name: props.name.clone().unwrap_or_default(),
                     checked: props.checked,
                     disabled: props.disabled,
-                    value: "{props.value}",
-                    name: props.name.as_deref().unwrap_or(""),
+                    value: props.value.clone(),
                 }
                 span {
-                    class: "ant-radio-inner"
+                    class: if props.is_button { "ant-radio-button-inner" } else { "ant-radio-inner" }
                 }
             }
             span {
-                class: "ant-radio-label",
-                "{props.label}"
+                class: if props.is_button { "ant-radio-button-label" } else { "ant-radio-label" },
+                {props.label.clone()}
             }
         }
     }

@@ -30,7 +30,8 @@
 use dioxus::prelude::*;
 use std::fmt;
 
-const IN_STYLE: &str = include_str!("style.css");
+mod styles;
+use styles::use_input_number_style;
 
 /// 数字输入框尺寸
 #[derive(Debug, Clone, PartialEq)]
@@ -371,8 +372,11 @@ pub fn InputNumber(props: InputNumberProps) -> Element {
 
     let can_down = current_value().map_or(true, |v| props.min.map_or(true, |min| v > min));
 
+    // 获取样式
+    let style_class = use_input_number_style();
+    let class_name = format!("{} {}", style_class, class_name);
+
     rsx! {
-        style { {IN_STYLE} }
         div {
             class: class_name,
             style: props.style.as_deref().unwrap_or(""),

@@ -25,50 +25,12 @@
 //! }
 //! ```
 
+use crate::utils::class_names::conditional_class_names_array;
 use dioxus::prelude::*;
 
-const ALERT_STYLES: &str = include_str!("./style.css");
-
-/// Alert 组件类型
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum AlertType {
-    /// 成功提示
-    Success,
-    /// 消息通知
-    Info,
-    /// 警告提示
-    Warning,
-    /// 错误提示
-    Error,
-}
-
-impl Default for AlertType {
-    fn default() -> Self {
-        Self::Info
-    }
-}
-
-impl AlertType {
-    /// 获取类型对应的CSS类名
-    pub fn to_class(&self) -> &'static str {
-        match self {
-            AlertType::Success => "ant-alert-success",
-            AlertType::Info => "ant-alert-info",
-            AlertType::Warning => "ant-alert-warning",
-            AlertType::Error => "ant-alert-error",
-        }
-    }
-
-    /// 获取默认图标
-    pub fn default_icon(&self) -> &'static str {
-        match self {
-            AlertType::Success => "✓",
-            AlertType::Info => "ℹ",
-            AlertType::Warning => "⚠",
-            AlertType::Error => "✕",
-        }
-    }
-}
+mod styles;
+pub use styles::AlertType;
+use styles::{use_alert_style, AlertStyleGenerator};
 
 /// Alert 组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -128,6 +90,9 @@ pub struct AlertProps {
 pub fn Alert(props: AlertProps) -> Element {
     let mut visible = use_signal(|| true);
 
+    // 确保样式已注入
+    use_alert_style();
+
     let handle_close = move |_| {
         visible.set(false);
         if let Some(on_close) = &props.on_close {
@@ -139,40 +104,27 @@ pub fn Alert(props: AlertProps) -> Element {
         return rsx! { div {} };
     }
 
-    let alert_class = {
-        let mut classes = vec!["ant-alert"];
+    // 使用AlertStyleGenerator生成样式
+    let style_gen = AlertStyleGenerator::new()
+        .with_type(props.alert_type)
+        .with_icon(props.show_icon)
+        .with_description(props.description.is_some())
+        .with_closable(props.closable)
+        .with_banner(props.banner);
 
-        classes.push(props.alert_type.to_class());
+    // 获取生成的样式字符串，其中已包含类名和基础样式
+    let mut alert_style = style_gen.generate();
 
-        if props.show_icon {
-            classes.push("ant-alert-with-icon");
-        }
-
-        if props.description.is_some() {
-            classes.push("ant-alert-with-description");
-        }
-
-        if props.banner {
-            classes.push("ant-alert-banner");
-        }
-
-        if props.closable {
-            classes.push("ant-alert-closable");
-        }
-
-        if let Some(ref class) = props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
-    };
+    // 添加自定义样式
+    if let Some(ref style) = props.style {
+        alert_style.push_str(" ");
+        alert_style.push_str(style);
+    }
 
     rsx! {
-        style { {ALERT_STYLES} }
-
         div {
-            class: alert_class,
-            style: props.style,
+            // 不再单独设置class，因为样式字符串中已包含类名
+            style: alert_style,
             role: "alert",
 
             if props.show_icon {
@@ -182,7 +134,6 @@ pub fn Alert(props: AlertProps) -> Element {
                         {icon}
                     } else {
                         span {
-                            class: "ant-alert-icon-default",
                             {props.alert_type.default_icon()}
                         }
                     }
@@ -226,7 +177,6 @@ pub fn Alert(props: AlertProps) -> Element {
                         }
                     } else {
                         span {
-                            class: "ant-alert-close-icon-default",
                             "×"
                         }
                     }

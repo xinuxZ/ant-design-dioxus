@@ -29,34 +29,10 @@
 
 use dioxus::prelude::*;
 
-const CHECKBOX_STYLE: &str = include_str!("./style.css");
+mod styles;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum CheckboxSize {
-    /// 大尺寸
-    Large,
-    /// 中等尺寸（默认）
-    Middle,
-    /// 小尺寸
-    Small,
-}
-
-impl Default for CheckboxSize {
-    fn default() -> Self {
-        Self::Middle
-    }
-}
-
-impl CheckboxSize {
-    /// 获取尺寸对应的CSS类名
-    pub fn to_class(&self) -> &'static str {
-        match self {
-            CheckboxSize::Large => "ant-checkbox-lg",
-            CheckboxSize::Middle => "",
-            CheckboxSize::Small => "ant-checkbox-sm",
-        }
-    }
-}
+pub use styles::CheckboxSize;
+use styles::{use_checkbox_style, CheckboxStyleGenerator};
 
 /// Checkbox 组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -116,6 +92,9 @@ pub struct CheckboxProps {
 pub fn Checkbox(props: CheckboxProps) -> Element {
     let mut internal_checked = use_signal(|| props.default_checked);
 
+    // 确保样式已注入
+    use_checkbox_style();
+
     // 使用外部传入的 checked 值，如果没有则使用内部状态
     let is_checked = props.checked || internal_checked();
 
@@ -141,49 +120,34 @@ pub fn Checkbox(props: CheckboxProps) -> Element {
         }
     };
 
-    let checkbox_class = {
-        let mut classes = vec!["ant-checkbox-wrapper"];
+    // 使用CheckboxStyleGenerator生成样式
+    let style_gen = CheckboxStyleGenerator::new()
+        .with_checked(is_checked)
+        .with_disabled(props.disabled)
+        .with_indeterminate(props.indeterminate)
+        .with_size(props.size);
 
-        if props.disabled {
-            classes.push("ant-checkbox-wrapper-disabled");
-        }
+    // 获取生成的样式字符串，其中已包含类名和基础样式
+    let mut checkbox_style = style_gen.generate();
 
-        let size_class = props.size.to_class();
-        if !size_class.is_empty() {
-            classes.push(size_class);
-        }
+    // 添加自定义样式
+    if let Some(ref style) = props.style {
+        checkbox_style.push_str(" ");
+        checkbox_style.push_str(style);
+    }
 
-        if let Some(ref class) = props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
-    };
-
-    let inner_class = {
-        let mut classes = vec!["ant-checkbox"];
-
-        if is_checked {
-            classes.push("ant-checkbox-checked");
-        }
-
-        if props.indeterminate {
-            classes.push("ant-checkbox-indeterminate");
-        }
-
-        if props.disabled {
-            classes.push("ant-checkbox-disabled");
-        }
-
-        classes.join(" ")
+    // 从生成的字符串中提取checkbox内部使用的类名
+    let parts: Vec<&str> = checkbox_style.split("data-checkbox-inner-class").collect();
+    let wrapper_style = parts[0].trim();
+    let inner_class = if parts.len() > 1 {
+        parts[1].trim()
+    } else {
+        "ant-checkbox"
     };
 
     rsx! {
-        style { {CHECKBOX_STYLE} }
-
         label {
-            class: checkbox_class,
-            style: props.style,
+            style: wrapper_style,
             onclick: handle_change,
 
             span {

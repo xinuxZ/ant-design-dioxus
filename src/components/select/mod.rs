@@ -38,7 +38,8 @@
 
 use dioxus::prelude::*;
 
-const SELECT_STYLES: &str = include_str!("./style.css");
+mod styles;
+use styles::{SelectSize as StyleSize, SelectStatus as StyleStatus, SelectStyleBuilder};
 
 /// Select 组件尺寸
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -198,7 +199,7 @@ pub struct SelectProps {
     #[props(default)]
     pub on_dropdown_visible_change: Option<EventHandler<bool>>,
 
-    /// 清除时的回调
+    /// 清除内容时的回调
     #[props(default)]
     pub on_clear: Option<EventHandler<()>>,
 
@@ -207,81 +208,89 @@ pub struct SelectProps {
 }
 
 /// Select 选择器组件
-///
-/// 下拉选择器
 #[component]
 pub fn Select(props: SelectProps) -> Element {
-    let mut is_open = use_signal(|| false);
-    let mut search_value = use_signal(|| String::new());
-    let mut is_focused = use_signal(|| false);
-    let mut selected_values = use_signal(|| {
-        if props.multiple {
-            props.values.clone()
-        } else if !props.value.is_empty() {
-            vec![props.value.clone()]
-        } else {
-            vec![]
-        }
-    });
+    let mut search_value = use_signal(|| props.search_value.clone().unwrap_or_default());
+    let mut dropdown_visible = use_signal(|| false);
+    let mut focused = use_signal(|| false);
 
-    // 同步外部值到内部状态
-    use_effect(move || {
-        if props.multiple {
-            selected_values.set(props.values.clone());
-        } else if !props.value.is_empty() {
-            selected_values.set(vec![props.value.clone()]);
-        } else {
-            selected_values.set(vec![]);
-        }
-    });
+    // 提取所有选项
+    let mut option_datas: Vec<OptionData> = vec![];
+    if let Some(children) = props.children.as_ref() {
+        extract_options(children, &mut option_datas);
+    }
 
-    let handle_click = move |_| {
-        if !props.disabled {
-            is_open.set(!is_open());
-            if let Some(on_dropdown_visible_change) = &props.on_dropdown_visible_change {
-                on_dropdown_visible_change.call(!is_open());
-            }
-        }
+    // 当前选中项的标签
+    let selected_label = if props.multiple {
+        String::new() // 多选时不显示单个标签
+    } else if props.value.is_empty() {
+        String::new() // 未选中任何项
+    } else {
+        // 根据值查找选项标签
+        option_datas
+            .iter()
+            .find(|option| option.value == props.value)
+            .map(|option| option.label.clone())
+            .unwrap_or_default()
     };
 
-    let _handle_option_click = move |value: String| {
+    // 多选下选中的选项
+    let selected_options = if props.multiple {
+        option_datas
+            .iter()
+            .filter(|option| props.values.contains(&option.value))
+            .cloned()
+            .collect::<Vec<_>>()
+    } else {
+        vec![]
+    };
+
+    // 处理选项点击
+    let handle_option_click = move |value: String| {
+        if props.disabled {
+            return;
+        }
+
         if props.multiple {
-            let mut current_values = selected_values();
-            if current_values.contains(&value) {
-                current_values.retain(|v| v != &value);
+            let mut new_values = props.values.clone();
+            if new_values.contains(&value) {
+                new_values.retain(|v| v != &value);
             } else {
-                current_values.push(value);
+                new_values.push(value.clone());
             }
-            selected_values.set(current_values.clone());
+
             if let Some(on_change_multiple) = &props.on_change_multiple {
-                on_change_multiple.call(current_values);
+                on_change_multiple.call(new_values);
             }
+
             if props.auto_clear_search_value {
                 search_value.set(String::new());
             }
         } else {
-            selected_values.set(vec![value.clone()]);
             if let Some(on_change) = &props.on_change {
                 on_change.call(value);
             }
-            is_open.set(false);
-            if let Some(on_dropdown_visible_change) = &props.on_dropdown_visible_change {
-                on_dropdown_visible_change.call(false);
-            }
+            dropdown_visible.set(false);
+            search_value.set(String::new());
         }
     };
 
-    let handle_search = move |evt: FormEvent| {
-        let value = evt.value();
+    // 处理搜索输入
+    let handle_search = move |e: Event<FormData>| {
+        let value = e.value.clone();
         search_value.set(value.clone());
+
         if let Some(on_search) = &props.on_search {
             on_search.call(value);
         }
     };
 
+    // 处理清除
     let handle_clear = move |_| {
-        selected_values.set(vec![]);
-        search_value.set(String::new());
+        if props.disabled {
+            return;
+        }
+
         if props.multiple {
             if let Some(on_change_multiple) = &props.on_change_multiple {
                 on_change_multiple.call(vec![]);
@@ -291,173 +300,226 @@ pub fn Select(props: SelectProps) -> Element {
                 on_change.call(String::new());
             }
         }
+
         if let Some(on_clear) = &props.on_clear {
             on_clear.call(());
         }
+
+        search_value.set(String::new());
     };
 
-    let handle_focus = move |evt: FocusEvent| {
-        is_focused.set(true);
+    // 处理下拉框显示/隐藏
+    let toggle_dropdown = move |_| {
+        if props.disabled {
+            return;
+        }
+
+        let new_visible = !dropdown_visible.get();
+        dropdown_visible.set(new_visible);
+
+        if let Some(on_dropdown_visible_change) = &props.on_dropdown_visible_change {
+            on_dropdown_visible_change.call(new_visible);
+        }
+    };
+
+    // 处理焦点
+    let handle_focus = move |e: FocusEvent| {
+        if props.disabled {
+            return;
+        }
+
+        focused.set(true);
+
         if let Some(on_focus) = &props.on_focus {
-            on_focus.call(evt);
+            on_focus.call(e);
         }
     };
 
-    let handle_blur = move |evt: FocusEvent| {
-        is_focused.set(false);
+    // 处理失焦
+    let handle_blur = move |e: FocusEvent| {
+        focused.set(false);
+
         if let Some(on_blur) = &props.on_blur {
-            on_blur.call(evt);
+            on_blur.call(e);
         }
     };
 
+    // 筛选选项
+    let filtered_options = if props.filter_option && search_value.get().len() > 0 {
+        option_datas
+            .iter()
+            .filter(|option| {
+                option
+                    .label
+                    .to_lowercase()
+                    .contains(&search_value.get().to_lowercase())
+            })
+            .cloned()
+            .collect::<Vec<_>>()
+    } else {
+        option_datas.clone()
+    };
+
+    // CSS 类名
     let select_class = {
         let mut classes = vec!["ant-select"];
 
+        // 尺寸
         let size_class = props.size.to_class();
         if !size_class.is_empty() {
             classes.push(size_class);
         }
 
+        // 状态
         let status_class = props.status.to_class();
         if !status_class.is_empty() {
             classes.push(status_class);
         }
 
+        // 禁用
         if props.disabled {
             classes.push("ant-select-disabled");
         }
 
-        if !props.bordered {
-            classes.push("ant-select-borderless");
-        }
-
-        if is_open() {
-            classes.push("ant-select-open");
-        }
-
-        if is_focused() {
+        // 聚焦
+        if focused.get() {
             classes.push("ant-select-focused");
         }
 
+        // 下拉框显示
+        if dropdown_visible.get() {
+            classes.push("ant-select-open");
+        }
+
+        // 多选
         if props.multiple {
             classes.push("ant-select-multiple");
         }
 
+        // 搜索
         if props.show_search {
             classes.push("ant-select-show-search");
         }
 
-        if let Some(ref class) = props.class {
+        // 无边框
+        if !props.bordered {
+            classes.push("ant-select-borderless");
+        }
+
+        // 自定义类名
+        if let Some(class) = &props.class {
             classes.push(class);
         }
 
         classes.join(" ")
     };
 
-    // 获取显示文本
-    let display_text = if props.multiple {
-        if selected_values().is_empty() {
-            props.placeholder.unwrap_or_default()
-        } else {
-            format!("{} 项已选择", selected_values().len())
-        }
-    } else {
-        if selected_values().is_empty() {
-            props.placeholder.unwrap_or_default()
-        } else {
-            selected_values().first().cloned().unwrap_or_default()
-        }
-    };
+    // 生成CSS样式
+    let style_builder = SelectStyleBuilder::new()
+        .size(props.size.into())
+        .status(props.status.into())
+        .disabled(props.disabled)
+        .multiple(props.multiple)
+        .show_search(props.show_search)
+        .bordered(props.bordered);
 
-    let has_value = !selected_values().is_empty();
+    let select_styles = style_builder.build();
 
     rsx! {
-        style { {SELECT_STYLES} }
-
+        style { {select_styles} }
         div {
-            class: select_class,
-            style: props.style,
-
+            class: "{select_class}",
+            style: props.style.clone().unwrap_or_default(),
+            onclick: toggle_dropdown,
             div {
                 class: "ant-select-selector",
-                onclick: handle_click,
-                onfocus: handle_focus,
-                onblur: handle_blur,
-                tabindex: "0",
-
-                // 多选标签
-                if props.multiple && !selected_values().is_empty() {
+                if props.multiple {
+                    // 多选模式
                     div {
                         class: "ant-select-selection-overflow",
-
-                        for value in selected_values() {
+                        for option in &selected_options {
                             div {
                                 class: "ant-select-selection-overflow-item",
-
-                                span {
+                                div {
                                     class: "ant-select-selection-item",
-
                                     span {
                                         class: "ant-select-selection-item-content",
-                                        {value.clone()}
+                                        "{option.label}"
                                     }
-
                                     span {
                                         class: "ant-select-selection-item-remove",
-                                        onclick: {
-                                            let value_clone = value.clone();
-                                            move |_| {
-                                                let mut current_values = selected_values();
-                                                current_values.retain(|v| v != &value_clone);
-                                                selected_values.set(current_values.clone());
-                                                if let Some(on_change_multiple) = &props.on_change_multiple {
-                                                    on_change_multiple.call(current_values);
-                                                }
-                                            }
+                                        onclick: move |e| {
+                                            e.stop_propagation();
+                                            handle_option_click(option.value.clone());
                                         },
                                         "×"
                                     }
                                 }
                             }
                         }
-                    }
-                }
-
-                // 搜索输入框
-                if props.show_search {
-                    div {
-                        class: "ant-select-selection-search",
-
-                        input {
-                            class: "ant-select-selection-search-input",
-                            value: search_value(),
-                            placeholder: if has_value { "" } else { display_text.as_str() },
-                            oninput: handle_search
+                        if props.show_search {
+                            div {
+                                class: "ant-select-selection-overflow-item",
+                                div {
+                                    class: "ant-select-selection-search",
+                                    input {
+                                        class: "ant-select-selection-search-input",
+                                        value: search_value.get(),
+                                        placeholder: if selected_options.is_empty() {
+                                            props.placeholder.clone().unwrap_or_default()
+                                        } else {
+                                            String::new()
+                                        },
+                                        oninput: handle_search,
+                                        onfocus: handle_focus,
+                                        onblur: handle_blur,
+                                    }
+                                }
+                            }
+                        } else if selected_options.is_empty() {
+                            span {
+                                class: "ant-select-selection-placeholder",
+                                "{props.placeholder.clone().unwrap_or_default()}"
+                            }
                         }
                     }
                 } else {
-                    // 选择项显示
-                    div {
-                        class: "ant-select-selection-item",
-                        title: display_text.clone(),
-                        {display_text.clone()}
-                    }
-                }
-
-                // 占位符
-                if !has_value && !props.show_search {
-                    div {
-                        class: "ant-select-selection-placeholder",
-                        {display_text.clone()}
+                    // 单选模式
+                    if props.show_search {
+                        div {
+                            class: "ant-select-selection-search",
+                            input {
+                                class: "ant-select-selection-search-input",
+                                value: if dropdown_visible.get() { search_value.get() } else { selected_label.clone() },
+                                placeholder: if selected_label.is_empty() { props.placeholder.clone().unwrap_or_default() } else { String::new() },
+                                oninput: handle_search,
+                                onfocus: handle_focus,
+                                onblur: handle_blur,
+                            }
+                        }
+                    } else {
+                        span {
+                            class: "ant-select-selection-item",
+                            "{selected_label}"
+                        }
+                        if selected_label.is_empty() {
+                            span {
+                                class: "ant-select-selection-placeholder",
+                                "{props.placeholder.clone().unwrap_or_default()}"
+                            }
+                        }
                     }
                 }
             }
 
             // 清除按钮
-            if props.allow_clear && has_value && !props.disabled {
+            if props.allow_clear && !props.disabled && ((props.multiple && !props.values.is_empty()) || (!props.multiple && !props.value.is_empty())) {
                 span {
                     class: "ant-select-clear",
-                    onclick: handle_clear,
+                    onclick: move |e| {
+                        e.stop_propagation();
+                        handle_clear(());
+                    },
                     "×"
                 }
             }
@@ -465,23 +527,49 @@ pub fn Select(props: SelectProps) -> Element {
             // 下拉箭头
             span {
                 class: "ant-select-arrow",
-                span {
-                    class: "ant-select-suffix",
-                    if is_open() { "▲" } else { "▼" }
-                }
+                "▼"
             }
 
             // 下拉菜单
-            if is_open() {
+            if dropdown_visible.get() {
                 div {
                     class: "ant-select-dropdown",
-                    style: format!("max-height: {}px; overflow-y: auto;", props.list_height),
-
+                    style: format!("width: 100%; max-height: {}px;", props.list_height),
+                    onclick: move |e| e.stop_propagation(),
                     div {
                         class: "ant-select-dropdown-menu",
+                        for option in &filtered_options {
+                            div {
+                                class: "ant-select-item ant-select-item-option",
+                                class: {
+                                    if option.disabled {
+                                        "ant-select-item-option-disabled"
+                                    } else if (props.multiple && props.values.contains(&option.value)) || (!props.multiple && props.value == option.value) {
+                                        "ant-select-item-option-selected"
+                                    } else {
+                                        ""
+                                    }
+                                },
+                                onclick: move |e| {
+                                    e.stop_propagation();
+                                    if !option.disabled {
+                                        handle_option_click(option.value.clone());
+                                    }
+                                },
+                                div {
+                                    class: "ant-select-item-option-content",
+                                    "{option.label}"
+                                }
+                            }
+                        }
 
-                        // 渲染选项
-                        {props.children}
+                        if filtered_options.is_empty() {
+                            div {
+                                class: "ant-select-item",
+                                style: "cursor: default;",
+                                "无匹配结果"
+                            }
+                        }
                     }
                 }
             }
@@ -489,7 +577,74 @@ pub fn Select(props: SelectProps) -> Element {
     }
 }
 
-/// SelectOption 选项组件属性
+// 递归提取所有选项
+fn extract_options(element: &VNode, options: &mut Vec<OptionData>) {
+    match element {
+        VNode::Component(comp) => {
+            // 检查是否是 SelectOption 组件
+            if comp.name.contains("SelectOption") {
+                let mut value = String::new();
+                let mut disabled = false;
+                let mut label = String::new();
+
+                // 提取属性
+                for (key, val) in comp.props.iter() {
+                    match key.as_str() {
+                        "value" => {
+                            if let Some(v) = val.as_string() {
+                                value = v.to_string();
+                            }
+                        }
+                        "disabled" => {
+                            if let Some(d) = val.as_bool() {
+                                disabled = d;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+
+                // 提取子元素作为标签
+                if let Some(children) = &comp.children {
+                    for child in children.iter() {
+                        if let VNode::Text(text) = child {
+                            label = text.clone();
+                            break;
+                        }
+                    }
+                }
+
+                options.push(OptionData {
+                    value,
+                    label,
+                    disabled,
+                });
+            }
+            // SelectOptGroup 组件中提取子选项
+            else if comp.name.contains("SelectOptGroup") {
+                if let Some(children) = &comp.children {
+                    for child in children.iter() {
+                        extract_options(child, options);
+                    }
+                }
+            }
+            // 处理可能包含选项的其他组件
+            else if let Some(children) = &comp.children {
+                for child in children.iter() {
+                    extract_options(child, options);
+                }
+            }
+        }
+        VNode::Fragment(frag) => {
+            for child in frag.children.iter() {
+                extract_options(child, options);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// SelectOption 选项属性
 #[derive(Props, Clone, PartialEq)]
 pub struct SelectOptionProps {
     /// 选项值
@@ -512,39 +667,21 @@ pub struct SelectOptionProps {
 }
 
 /// SelectOption 选项组件
-///
-/// Select 的选项
 #[component]
 pub fn SelectOption(props: SelectOptionProps) -> Element {
-    let option_class = {
-        let mut classes = vec!["ant-select-item", "ant-select-item-option"];
-
-        if props.disabled {
-            classes.push("ant-select-item-option-disabled");
-        }
-
-        if let Some(ref class) = props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
-    };
-
+    // SelectOption 不会直接渲染，而是被 Select 组件提取并使用
+    // 但为了在组件树中保留它们，我们需要返回一个空的元素
     rsx! {
         div {
-            class: option_class,
-            style: props.style,
-            "data-value": props.value.clone(),
-
-            div {
-                class: "ant-select-item-option-content",
-                {props.children}
-            }
+            style: "display: none;",
+            value: "{props.value}",
+            disabled: props.disabled,
+            {props.children}
         }
     }
 }
 
-/// SelectOptGroup 选项组组件属性
+/// SelectOptGroup 选项组属性
 #[derive(Props, Clone, PartialEq)]
 pub struct SelectOptGroupProps {
     /// 组标签
@@ -563,30 +700,14 @@ pub struct SelectOptGroupProps {
 }
 
 /// SelectOptGroup 选项组组件
-///
-/// Select 的选项组
 #[component]
 pub fn SelectOptGroup(props: SelectOptGroupProps) -> Element {
-    let group_class = {
-        let mut classes = vec!["ant-select-item", "ant-select-item-group"];
-
-        if let Some(ref class) = props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
-    };
-
+    // SelectOptGroup 不会直接渲染，而是被 Select 组件提取并使用
+    // 但为了在组件树中保留它们，我们需要返回一个空的元素
     rsx! {
         div {
-            class: group_class,
-            style: props.style,
-
-            div {
-                class: "ant-select-item-group-label",
-                {props.label.clone()}
-            }
-
+            style: "display: none;",
+            label: "{props.label}",
             {props.children}
         }
     }
