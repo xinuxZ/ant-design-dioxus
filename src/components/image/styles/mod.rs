@@ -1,5 +1,5 @@
-use crate::theme::{use_token, AliasToken};
-use css_in_rust::Style;
+use crate::theme::AliasToken;
+use css_in_rust::css;
 
 pub struct ImageStyleGenerator {
     token: AliasToken,
@@ -7,33 +7,35 @@ pub struct ImageStyleGenerator {
 
 impl ImageStyleGenerator {
     pub fn new() -> Self {
-        Self { token: use_token() }
+        Self {
+            token: AliasToken::default(),
+        }
     }
 
     pub fn generate_style(&self) -> String {
-        let style = Style::new(format!(
+        css!(
             r#"
             /* Image 图片组件样式 */
 
-            .ant-image {{
+            .ant-image {
               position: relative;
               display: inline-block;
-            }}
+            }
 
-            .ant-image-img {{
+            .ant-image-img {
               width: 100%;
               height: auto;
               vertical-align: middle;
               border-style: none;
-            }}
+            }
 
-            .ant-image-img-wrapper {{
+            .ant-image-img-wrapper {
               position: relative;
               display: inline-block;
               overflow: hidden;
-            }}
+            }
 
-            .ant-image-placeholder {{
+            .ant-image-placeholder {
               position: absolute;
               top: 0;
               right: 0;
@@ -42,13 +44,13 @@ impl ImageStyleGenerator {
               display: flex;
               align-items: center;
               justify-content: center;
-              color: {};
-              font-size: {}px;
-              background-color: {};
-              border-radius: {}px;
-            }}
+              color: ${placeholder_color};
+              font-size: ${font_size}px;
+              background-color: ${placeholder_bg};
+              border-radius: ${border_radius_sm}px;
+            }
 
-            .ant-image-error {{
+            .ant-image-error {
               position: absolute;
               top: 0;
               right: 0;
@@ -57,17 +59,17 @@ impl ImageStyleGenerator {
               display: flex;
               align-items: center;
               justify-content: center;
-              color: {};
-              font-size: {}px;
-              background-color: {};
-              border-radius: {}px;
-            }}
+              color: ${error_color};
+              font-size: ${font_size}px;
+              background-color: ${error_bg};
+              border-radius: ${border_radius_sm}px;
+            }
 
-            .ant-image-error-icon {{
-              font-size: {}px;
-            }}
+            .ant-image-error-icon {
+              font-size: ${error_icon_size}px;
+            }
 
-            .ant-image-mask {{
+            .ant-image-mask {
               position: absolute;
               top: 0;
               right: 0;
@@ -76,62 +78,62 @@ impl ImageStyleGenerator {
               display: flex;
               align-items: center;
               justify-content: center;
-              color: {};
-              background: {};
+              color: ${mask_text_color};
+              background: ${mask_bg};
               cursor: pointer;
               opacity: 0;
               transition: opacity 0.3s;
-            }}
+            }
 
-            .ant-image:hover .ant-image-mask {{
+            .ant-image:hover .ant-image-mask {
               opacity: 1;
-            }}
+            }
 
-            .ant-image-mask-info {{
+            .ant-image-mask-info {
               padding: 0 4px;
               overflow: hidden;
               white-space: nowrap;
               text-overflow: ellipsis;
-            }}
+            }
 
-            .ant-image-preview-icon {{
+            .ant-image-preview-icon {
               display: inline-block;
-              font-size: {}px;
-            }}
+              font-size: ${preview_icon_size}px;
+            }
 
-            .ant-image-preview-wrap {{
+            .ant-image-preview-wrap {
               position: fixed;
               top: 0;
               right: 0;
               bottom: 0;
               left: 0;
               z-index: 1000;
-              background: {};
+              background: ${preview_bg};
               text-align: center;
               opacity: 1;
               animation: ant-fade-in 0.3s;
-            }}
+            }
 
-            .ant-image-preview {{
+            .ant-image-preview {
               position: relative;
               top: 50%;
               display: inline-block;
-              padding: 0 {}px;
+              padding: 0 ${padding_md}px;
               text-align: left;
               vertical-align: middle;
               transform: translateY(-50%);
-            }}
+            }
 
-            .ant-image-preview-content {{
+            .ant-image-preview-content {
               position: relative;
-            }}
+            }
 
-            .ant-image-preview-body {{
+            .ant-image-preview-body {
               overflow: hidden;
               text-align: center;
-            }}
+            }
 
-            .ant-image-preview-img {{
+            .ant-image-preview-img {
               max-width: 100%;
               max-height: 70vh;
               vertical-align: middle;
@@ -140,146 +142,170 @@ impl ImageStyleGenerator {
               transition: transform 0.3s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
               user-select: none;
               pointer-events: auto;
-            }}
+            }
 
-            .ant-image-preview-img:active {{
+            .ant-image-preview-img:active {
               cursor: grabbing;
-            }}
+            }
 
-            .ant-image-preview-operations {{
+            .ant-image-preview-operations {
               position: absolute;
-              top: {}px;
-              right: {}px;
+              top: ${padding_md}px;
+              right: ${padding_md}px;
               z-index: 1;
               display: flex;
               flex-direction: row-reverse;
               align-items: center;
-              color: {};
+              color: ${operations_color};
               list-style: none;
-              background: {};
-              border-radius: {}px;
+              background: ${operations_bg};
+              border-radius: ${border_radius}px;
               pointer-events: auto;
-            }}
+            }
 
-            .ant-image-preview-operations-operation {{
-              margin-left: {}px;
-              padding: {}px;
+            .ant-image-preview-operations-operation {
+              margin-left: ${margin_xs}px;
+              padding: ${padding_xs}px;
               cursor: pointer;
               transition: all 0.3s;
-            }}
+            }
 
-            .ant-image-preview-operations-operation:hover {{
-              color: {};
-            }}
+            .ant-image-preview-operations-operation:hover {
+              color: ${operations_hover_color};
+            }
 
-            .ant-image-preview-operations-operation:first-child {{
+            .ant-image-preview-operations-operation:first-child {
               margin-left: 0;
-            }}
+            }
 
-            .ant-image-preview-close {{
-              font-size: {}px;
-            }}
+            .ant-image-preview-close {
+              font-size: ${close_size}px;
+            }
 
-            .ant-image-preview-group {{
+            .ant-image-preview-group {
               display: inline-block;
-            }}
+            }
 
             /* 动画效果 */
-            @keyframes ant-fade-in {{
-              0% {{
+            @keyframes ant-fade-in {
+              0% {
                 opacity: 0;
-              }}
+              }
 
-              100% {{
+              100% {
                 opacity: 1;
-              }}
-            }}
+              }
+            }
 
-            @keyframes ant-fade-out {{
-              0% {{
+            @keyframes ant-fade-out {
+              0% {
                 opacity: 1;
-              }}
+              }
 
-              100% {{
+              100% {
                 opacity: 0;
-              }}
-            }}
+              }
+            }
+
+            /* 预览动画 */
+            .ant-image-preview-moving .ant-image-preview-img {
+              cursor: grabbing;
+            }
+
+            /* 预览导航 */
+            .ant-image-preview-switch-left,
+            .ant-image-preview-switch-right {
+              position: absolute;
+              top: 50%;
+              z-index: 1;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 44px;
+              height: 44px;
+              margin-top: -22px;
+              color: ${switch_color};
+              background: ${switch_bg};
+              border-radius: 50%;
+              cursor: pointer;
+              transition: all 0.3s;
+              pointer-events: auto;
+            }
+
+            .ant-image-preview-switch-left:hover,
+            .ant-image-preview-switch-right:hover {
+              color: ${switch_hover_color};
+            }
+
+            .ant-image-preview-switch-left {
+              left: ${padding_lg}px;
+            }
+
+            .ant-image-preview-switch-right {
+              right: ${padding_lg}px;
+            }
 
             /* 响应式设计 */
-            @media (max-width: 768px) {{
-              .ant-image-preview {{
-                padding: 0 {}px;
-              }}
+            @media (max-width: 768px) {
+              .ant-image-preview-operations {
+                top: ${padding_xs}px;
+                right: ${padding_xs}px;
+              }
 
-              .ant-image-preview-img {{
-                max-height: 60vh;
-              }}
+              .ant-image-preview-switch-left {
+                left: ${padding_xs}px;
+              }
 
-              .ant-image-preview-operations {{
-                top: {}px;
-                right: {}px;
-              }}
+              .ant-image-preview-switch-right {
+                right: ${padding_xs}px;
+              }
+            }
 
-              .ant-image-preview-operations-operation {{
-                margin-left: {}px;
-                padding: {}px;
-              }}
-            }}
+            /* 高对比度模式支持 */
+            @media (prefers-contrast: high) {
+              .ant-image-preview-img {
+                border: 1px solid #fff;
+              }
+            }
 
-            /* RTL 支持 */
-            .ant-image-rtl .ant-image-preview-operations {{
-              right: auto;
-              left: {}px;
-              flex-direction: row;
-            }}
-
-            .ant-image-rtl .ant-image-preview-operations-operation {{
-              margin-right: {}px;
-              margin-left: 0;
-            }}
-
-            .ant-image-rtl .ant-image-preview-operations-operation:first-child {{
-              margin-right: 0;
-            }}
+            /* 减少动画模式支持 */
+            @media (prefers-reduced-motion: reduce) {
+              .ant-image-preview-wrap,
+              .ant-image-preview-img,
+              .ant-image-mask,
+              .ant-image-preview-operations-operation {
+                animation: none;
+                transition: none;
+              }
+            }
             "#,
-            self.token.color_text_quaternary, // 占位符颜色
-            self.token.font_size,             // 占位符字体大小
-            self.token.color_bg_layout,       // 占位符背景色
-            self.token.border_radius_sm,      // 占位符边框圆角
-            self.token.color_text_quaternary, // 错误状态颜色
-            self.token.font_size,             // 错误状态字体大小
-            self.token.color_bg_layout,       // 错误状态背景色
-            self.token.border_radius_sm,      // 错误状态边框圆角
-            self.token.font_size_lg + self.token.font_size_sm, // 错误图标大小
-            self.token.color_white,           // 遮罩层文本颜色
-            self.token.color_bg_mask,         // 遮罩层背景色
-            self.token.font_size,             // 预览图标大小
-            self.token.color_bg_mask,         // 预览包装器背景色
-            self.token.padding_lg * 2,        // 预览内边距
-            self.token.padding_md,            // 操作区顶部边距
-            self.token.padding_md,            // 操作区右侧边距
-            self.token.color_white,           // 操作区文本颜色
-            self.token.color_bg_mask,         // 操作区背景色
-            self.token.border_radius,         // 操作区边框圆角
-            self.token.margin_md,             // 操作项间距
-            self.token.padding_md,            // 操作项内边距
-            self.token.color_white,           // 操作项悬浮文本颜色
-            self.token.font_size_lg,          // 关闭按钮字体大小
-            self.token.padding_md,            // 移动设备预览内边距
-            self.token.padding_xs,            // 移动设备操作区顶部边距
-            self.token.padding_xs,            // 移动设备操作区右侧边距
-            self.token.margin_xs,             // 移动设备操作项间距
-            self.token.padding_xs,            // 移动设备操作项内边距
-            self.token.padding_md,            // RTL模式下操作区左侧边距
-            self.token.margin_md,             // RTL模式下操作项右侧间距
-        ))
-        .unwrap();
-
-        style.get_class_name()
+            placeholder_color = self.token.color_text_secondary,
+            font_size = self.token.font_size,
+            placeholder_bg = self.token.color_bg_layout,
+            border_radius_sm = self.token.border_radius_sm,
+            error_color = self.token.color_text_secondary,
+            error_bg = self.token.color_bg_layout,
+            error_icon_size = self.token.font_size_lg + self.token.font_size_sm,
+            mask_text_color = self.token.color_text,
+            mask_bg = self.token.component_background,
+            preview_icon_size = self.token.font_size,
+            preview_bg = self.token.component_background,
+            padding_md = self.token.padding_md,
+            operations_color = self.token.color_text,
+            operations_bg = self.token.color_bg_container,
+            border_radius = self.token.border_radius,
+            margin_xs = self.token.margin_xs,
+            padding_xs = self.token.padding_xs,
+            operations_hover_color = self.token.color_primary,
+            close_size = self.token.font_size_lg,
+            switch_color = self.token.color_text,
+            switch_bg = self.token.color_bg_container,
+            switch_hover_color = self.token.color_primary,
+            padding_lg = self.token.padding_lg
+        )
     }
 }
 
 pub fn use_image_style() -> String {
-    let style_generator = ImageStyleGenerator::new();
-    style_generator.generate_style()
+    ImageStyleGenerator::new().generate_style()
 }

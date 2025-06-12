@@ -154,8 +154,8 @@ impl FlexGap {
 
 /// Flex 样式生成器
 pub struct FlexStyleGenerator {
-    /// 是否垂直布局
-    vertical: bool,
+    /// 主轴方向
+    direction: FlexDirection,
     /// 主轴对齐方式
     justify: FlexJustify,
     /// 交叉轴对齐方式
@@ -164,16 +164,19 @@ pub struct FlexStyleGenerator {
     wrap: FlexWrap,
     /// 间距大小
     gap: Option<FlexGap>,
+    /// 是否启用RTL支持
+    rtl: bool,
 }
 
 impl Default for FlexStyleGenerator {
     fn default() -> Self {
         Self {
-            vertical: false,
+            direction: FlexDirection::Row,
             justify: FlexJustify::FlexStart,
             align: FlexAlign::FlexStart,
             wrap: FlexWrap::NoWrap,
             gap: None,
+            rtl: false,
         }
     }
 }
@@ -184,9 +187,19 @@ impl FlexStyleGenerator {
         Self::default()
     }
 
-    /// 设置是否垂直布局
+    /// 设置主轴方向
+    pub fn with_direction(mut self, direction: FlexDirection) -> Self {
+        self.direction = direction;
+        self
+    }
+
+    /// 设置是否垂直布局（向后兼容）
     pub fn with_vertical(mut self, vertical: bool) -> Self {
-        self.vertical = vertical;
+        if vertical {
+            self.direction = FlexDirection::Column;
+        } else {
+            self.direction = FlexDirection::Row;
+        }
         self
     }
 
@@ -214,13 +227,22 @@ impl FlexStyleGenerator {
         self
     }
 
+    /// 设置是否启用RTL支持
+    pub fn with_rtl(mut self, rtl: bool) -> Self {
+        self.rtl = rtl;
+        self
+    }
+
     /// 生成 CSS 类名
     pub fn generate(&self) -> String {
         let mut classes = vec!["ant-flex"];
 
         // 添加方向样式
-        if self.vertical {
-            classes.push("ant-flex-vertical");
+        match self.direction {
+            FlexDirection::Row => {} // 默认行方向，不需要额外类名
+            FlexDirection::RowReverse => classes.push("ant-flex-row-reverse"),
+            FlexDirection::Column => classes.push("ant-flex-vertical"),
+            FlexDirection::ColumnReverse => classes.push("ant-flex-vertical-reverse"),
         }
 
         // 添加对齐样式
@@ -258,6 +280,11 @@ impl FlexStyleGenerator {
             });
         }
 
+        // 添加RTL支持
+        if self.rtl {
+            classes.push("ant-flex-rtl");
+        }
+
         classes.join(" ")
     }
 
@@ -267,10 +294,19 @@ impl FlexStyleGenerator {
             ".ant-flex" {
                 display: "flex";
                 flex-direction: "row";
+                box-sizing: "border-box";
             }
 
             ".ant-flex-vertical" {
                 flex-direction: "column";
+            }
+
+            ".ant-flex-vertical-reverse" {
+                flex-direction: "column-reverse";
+            }
+
+            ".ant-flex-row-reverse" {
+                flex-direction: "row-reverse";
             }
 
             // 主轴对齐方式
@@ -343,6 +379,80 @@ impl FlexStyleGenerator {
 
             ".ant-flex-gap-large" {
                 gap: "24px";
+            }
+
+            // 常用布局模式
+            ".ant-flex-center" {
+                justify-content: "center";
+                align-items: "center";
+            }
+
+            ".ant-flex-space-between" {
+                justify-content: "space-between";
+                align-items: "center";
+            }
+
+            // 子元素样式
+            ".ant-flex > *" {
+                flex-shrink: "0";
+            }
+
+            ".ant-flex-item" {
+                flex: "1";
+            }
+
+            // 响应式设计
+            "@media (max-width: 576px)" {
+                ".ant-flex-sm-vertical" {
+                    flex-direction: "column";
+                }
+
+                ".ant-flex-gap-small" {
+                    gap: "6px";
+                }
+
+                ".ant-flex-gap-middle" {
+                    gap: "12px";
+                }
+
+                ".ant-flex-gap-large" {
+                    gap: "18px";
+                }
+            }
+
+            "@media (max-width: 768px)" {
+                ".ant-flex-md-wrap" {
+                    flex-wrap: "wrap";
+                }
+            }
+
+            // RTL 支持
+            ".ant-flex-rtl" {
+                direction: "rtl";
+            }
+
+            ".ant-flex-rtl.ant-flex-justify-start" {
+                justify-content: "flex-end";
+            }
+
+            ".ant-flex-rtl.ant-flex-justify-end" {
+                justify-content: "flex-start";
+            }
+
+            // 打印样式
+            "@media print" {
+                ".ant-flex" {
+                    display: "block";
+                }
+
+                ".ant-flex > *" {
+                    display: "block";
+                    margin-bottom: "8px";
+                }
+
+                ".ant-flex > *:last-child" {
+                    margin-bottom: "0";
+                }
             }
         }
         .to_string()

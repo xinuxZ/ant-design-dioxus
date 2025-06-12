@@ -129,20 +129,22 @@ pub fn Collapse(props: CollapseProps) -> Element {
 
     // 添加尺寸类
     match props.size {
-        CollapseSize::Large => class_list.push("ant-collapse-large"),
-        CollapseSize::Small => class_list.push("ant-collapse-small"),
+        CollapseSize::Large => class_list.push(&"ant-collapse-large".to_string()),
+        CollapseSize::Small => class_list.push(&"ant-collapse-small".to_string()),
         CollapseSize::Middle => {}
     }
 
     // 添加边框类
     if !props.bordered {
-        class_list.push("ant-collapse-borderless");
+        class_list.push(&"ant-collapse-borderless".to_string());
     }
 
     // 添加图标位置类
     match props.expand_icon_position {
-        ExpandIconPosition::End => class_list.push("ant-collapse-icon-position-end"),
-        ExpandIconPosition::Start => class_list.push("ant-collapse-icon-position-start"),
+        ExpandIconPosition::End => class_list.push(&"ant-collapse-icon-position-end".to_string()),
+        ExpandIconPosition::Start => {
+            class_list.push(&"ant-collapse-icon-position-start".to_string())
+        }
     }
 
     // 添加自定义类

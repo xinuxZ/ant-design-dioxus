@@ -3,6 +3,7 @@
 //! 本模块包含 Tabs 组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
+use crate::theme::AliasToken;
 use css_in_rust::css;
 use serde::{Deserialize, Serialize};
 
@@ -69,6 +70,8 @@ pub struct TabsStyleGenerator {
     pub size: TabsSize,
     /// 是否为暗色模式
     pub dark: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl TabsStyleGenerator {
@@ -79,6 +82,7 @@ impl TabsStyleGenerator {
             tab_position: TabsPosition::default(),
             size: TabsSize::default(),
             dark: false,
+            token: AliasToken::default(),
         }
     }
 
@@ -106,697 +110,521 @@ impl TabsStyleGenerator {
         self
     }
 
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
+
     /// 生成完整的标签页样式类名
     pub fn generate(&self) -> String {
-        let mut classes = vec![
-            self.base_style(),
-            self.position_style(),
-            self.type_style(),
-            self.size_style(),
-        ];
+        let mut classes = vec!["ant-tabs"];
 
+        // 添加位置相关的类名
+        match self.tab_position {
+            TabsPosition::Top => classes.push("ant-tabs-top"),
+            TabsPosition::Right => classes.push("ant-tabs-right"),
+            TabsPosition::Bottom => classes.push("ant-tabs-bottom"),
+            TabsPosition::Left => classes.push("ant-tabs-left"),
+        }
+
+        // 添加类型相关的类名
+        match self.tab_type {
+            TabsType::Line => {}
+            TabsType::Card => classes.push("ant-tabs-card"),
+            TabsType::EditableCard => {
+                classes.push("ant-tabs-card");
+                classes.push("ant-tabs-editable-card");
+            }
+        }
+
+        // 添加尺寸相关的类名
+        match self.size {
+            TabsSize::Large => classes.push("ant-tabs-large"),
+            TabsSize::Default => {}
+            TabsSize::Small => classes.push("ant-tabs-small"),
+        }
+
+        // 添加暗色模式类名
         if self.dark {
-            classes.push(self.dark_style());
+            classes.push("ant-tabs-dark");
         }
 
         classes.join(" ")
     }
 
-    /// 基础标签页样式
-    fn base_style(&self) -> String {
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
         css!(
             r#"
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            color: rgba(0, 0, 0, 0.85);
-            font-size: 14px;
-            font-variant: tabular-nums;
-            line-height: 1.5715;
-            list-style: none;
-            font-feature-settings: 'tnum';
-            position: relative;
-            overflow: hidden;
-            zoom: 1;
+            .ant-tabs {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                color: ${color_text};
+                font-size: ${font_size}px;
+                font-variant: tabular-nums;
+                line-height: ${line_height};
+                list-style: none;
+                font-feature-settings: 'tnum';
+                position: relative;
+                overflow: hidden;
+                zoom: 1;
+            }
 
-            &::before {
+            .ant-tabs::before,
+            .ant-tabs::after {
                 display: table;
                 content: '';
             }
 
-            &::after {
-                display: table;
+            .ant-tabs::after {
                 clear: both;
                 content: '';
             }
-            "#
-        )
-    }
 
-    /// 标签页位置样式
-    fn position_style(&self) -> String {
-        match self.tab_position {
-            TabsPosition::Top => css!(
-                r#"
-                &.ant-tabs-top {
-                    .ant-tabs-bar {
-                        border-bottom: 1px solid #f0f0f0;
-                        margin: 0 0 16px 0;
-                    }
-                }
-                "#
-            ),
-            TabsPosition::Right => css!(
-                r#"
-                &.ant-tabs-right {
-                    .ant-tabs-bar {
-                        float: right;
-                        border-left: 1px solid #f0f0f0;
-                        margin: 0 0 0 16px;
-                    }
-
-                    .ant-tabs-bar .ant-tabs-ink-bar {
-                        left: 1px;
-                        right: auto;
-                    }
-
-                    .ant-tabs-content {
-                        margin-right: -1px;
-                        border-right: 1px solid #f0f0f0;
-                    }
-                }
-                "#
-            ),
-            TabsPosition::Bottom => css!(
-                r#"
-                &.ant-tabs-bottom {
-                    .ant-tabs-bar {
-                        border-top: 1px solid #f0f0f0;
-                        border-bottom: none;
-                        margin: 16px 0 0 0;
-                    }
-
-                    .ant-tabs-ink-bar {
-                        top: 1px;
-                        bottom: auto;
-                    }
-
-                    .ant-tabs-nav-container {
-                        margin-top: -1px;
-                        margin-bottom: 0;
-                    }
-                }
-                "#
-            ),
-            TabsPosition::Left => css!(
-                r#"
-                &.ant-tabs-left {
-                    .ant-tabs-bar {
-                        float: left;
-                        border-right: 1px solid #f0f0f0;
-                        margin: 0 16px 0 0;
-                    }
-
-                    .ant-tabs-bar .ant-tabs-tab {
-                        display: block;
-                        margin-right: 0;
-                        margin-bottom: 24px;
-                        text-align: right;
-                    }
-
-                    .ant-tabs-bar .ant-tabs-nav-container {
-                        margin-right: -1px;
-                    }
-
-                    .ant-tabs-bar .ant-tabs-nav-wrap {
-                        margin-right: -1px;
-                    }
-
-                    .ant-tabs-bar .ant-tabs-nav {
-                        padding-left: 0;
-                    }
-
-                    .ant-tabs-bar .ant-tabs-ink-bar {
-                        right: 1px;
-                        left: auto;
-                        width: 2px;
-                        height: auto;
-                    }
-
-                    .ant-tabs-bar {
-                        .ant-tabs-tab:last-child {
-                            margin-bottom: 0;
-                        }
-                    }
-
-                    .ant-tabs-bar .ant-tabs-ink-bar {
-                        right: 1px;
-                        left: auto;
-                    }
-
-                    .ant-tabs-content {
-                        margin-left: -1px;
-                        border-left: 1px solid #f0f0f0;
-                    }
-                }
-                "#
-            ),
-        }
-    }
-
-    /// 标签页类型样式
-    fn type_style(&self) -> String {
-        match self.tab_type {
-            TabsType::Line => css!(
-                r#"
-                &.ant-tabs-line {
-                    .ant-tabs-ink-bar {
-                        position: absolute;
-                        background: #1890ff;
-                        pointer-events: none;
-                        height: 2px;
-                        bottom: 1px;
-                        left: 0;
-                        background-color: #1890ff;
-                        transform-origin: 0 0;
-                        transition: transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-                    }
-
-                    .ant-tabs-ink-bar-animated {
-                        transition: transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-                    }
-                }
-                "#
-            ),
-            TabsType::Card => css!(
-                r#"
-                &.ant-tabs-card {
-                    .ant-tabs-bar {
-                        border-bottom: 1px solid #f0f0f0;
-                    }
-
-                    .ant-tabs-nav-container {
-                        height: 40px;
-                    }
-
-                    .ant-tabs-tab {
-                        margin: 0;
-                        padding: 8px 16px;
-                        background: #fafafa;
-                        border: 1px solid #f0f0f0;
-                        border-bottom: 0;
-                        border-radius: 4px 4px 0 0;
-                        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-                        line-height: 22px;
-                    }
-
-                    .ant-tabs-tab-active {
-                        background: #fff;
-                        border-color: #f0f0f0;
-                        border-bottom: 1px solid #fff;
-                        margin-bottom: -1px;
-                    }
-
-                    .ant-tabs-tab:hover {
-                        color: #40a9ff;
-                    }
-
-                    .ant-tabs-ink-bar {
-                        visibility: hidden;
-                    }
-                }
-                "#
-            ),
-            TabsType::EditableCard => css!(
-                r#"
-                &.ant-tabs-editable-card {
-                    .ant-tabs-nav-add {
-                        background: #fff;
-                        border: 1px dashed #d9d9d9;
-                        border-radius: 2px;
-                        margin: 0 10px;
-                    }
-
-                    .ant-tabs-nav-add:hover {
-                        color: #40a9ff;
-                        border-color: #40a9ff;
-                    }
-
-                    .ant-tabs-tab {
-                        padding: 8px 8px 8px 16px;
-                        background: #fafafa;
-                        border: 1px solid #f0f0f0;
-                        border-radius: 4px 4px 0 0;
-                        margin: 0 4px 0 0;
-                    }
-
-                    .ant-tabs-tab-active {
-                        background: #fff;
-                    }
-
-                    .ant-tabs-tab:hover {
-                        color: #40a9ff;
-                    }
-                }
-                "#
-            ),
-        }
-    }
-
-    /// 标签页大小样式
-    fn size_style(&self) -> String {
-        match self.size {
-            TabsSize::Large => css!(
-                r#"
-                &.ant-tabs-large {
-                    .ant-tabs-nav-container {
-                        font-size: 16px;
-                    }
-
-                    .ant-tabs-tab {
-                        padding: 16px 20px;
-                    }
-                }
-                "#
-            ),
-            TabsSize::Default => css!(
-                r#"
-                &.ant-tabs-default {
-
-                }
-                "#
-            ),
-            TabsSize::Small => css!(
-                r#"
-                &.ant-tabs-small {
-                    .ant-tabs-nav-container {
-                        font-size: 12px;
-                    }
-
-                    .ant-tabs-tab {
-                        padding: 8px 12px;
-                    }
-
-                    &.ant-tabs-card .ant-tabs-tab {
-                        padding: 6px 12px;
-                        font-size: 12px;
-                        line-height: 18px;
-                    }
-                }
-                "#
-            ),
-        }
-    }
-
-    /// 暗色模式样式
-    fn dark_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-tabs-dark {
-                color: #fff;
+            .ant-tabs-nav {
+                position: relative;
+                display: flex;
+                flex: none;
+                align-items: center;
+                margin: 0 0 ${margin_md}px 0;
             }
 
-            &.ant-tabs-dark .ant-tabs-bar {
-                border-bottom: 1px solid #303030;
+            .ant-tabs-nav-wrap {
+                position: relative;
+                display: inline-block;
+                flex: auto;
+                align-self: stretch;
+                overflow: hidden;
+                white-space: nowrap;
+                transform: translate(0);
             }
 
-            &.ant-tabs-dark .ant-tabs-tab {
-                color: rgba(255, 255, 255, 0.65);
+            .ant-tabs-nav-list {
+                position: relative;
+                display: flex;
+                transition: transform 0.3s;
             }
 
-            &.ant-tabs-dark .ant-tabs-tab:hover {
-                color: #fff;
-            }
-
-            &.ant-tabs-dark .ant-tabs-tab-active {
-                color: #fff;
-            }
-
-            &.ant-tabs-dark .ant-tabs-ink-bar {
-                background-color: #fff;
-            }
-
-            &.ant-tabs-dark.ant-tabs-card .ant-tabs-tab {
-                background: #262626;
-                border-color: #303030;
-            }
-
-            &.ant-tabs-dark.ant-tabs-card .ant-tabs-tab-active {
-                background: #1f1f1f;
-                border-color: #303030;
-            }
-            "#
-        )
-    }
-}
-
-/// 标签页内容样式
-pub fn tabs_content_style() -> String {
-    css!(
-        r#"
-        .ant-tabs-content {
-            width: 100%;
-        }
-
-        .ant-tabs-content-animated {
-            transition: margin-left 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-            will-change: margin-left;
-        }
-        "#
-    )
-}
-
-/// 标签页面板样式
-pub fn tabs_pane_style() -> String {
-    css!(
-        r#"
-        .ant-tabs-tabpane {
-            flex-shrink: 0;
-            width: 100%;
-            opacity: 1;
-            transition: opacity 0.45s;
-        }
-
-        .ant-tabs-tabpane-inactive {
-            opacity: 0;
-            height: 0;
-            padding: 0 !important;
-            pointer-events: none;
-        }
-
-        .ant-tabs-tabpane-inactive * {
-            visibility: hidden;
-        }
-        "#
-    )
-}
-
-/// 标签导航区域样式
-pub fn tabs_nav_style() -> String {
-    css!(
-        r#"
-        .ant-tabs-bar {
-            border-bottom: 1px solid #f0f0f0;
-            margin: 0 0 16px 0;
-            outline: none;
-            transition: padding 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-        }
-
-        .ant-tabs-nav-container {
-            overflow: hidden;
-            font-size: 14px;
-            line-height: 1.5715;
-            box-sizing: border-box;
-            position: relative;
-            white-space: nowrap;
-            margin-bottom: -1px;
-            zoom: 1;
-        }
-
-        .ant-tabs-nav-container::before {
-            display: table;
-            content: '';
-        }
-
-        .ant-tabs-nav-container::after {
-            display: table;
-            clear: both;
-            content: '';
-        }
-
-        .ant-tabs-nav-wrap {
-            overflow: hidden;
-            margin-bottom: -1px;
-        }
-
-        .ant-tabs-nav-scroll {
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .ant-tabs-nav {
-            box-sizing: border-box;
-            padding-left: 0;
-            transition: transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-            position: relative;
-            margin: 0;
-            list-style: none;
-            display: inline-block;
-        }
-
-        .ant-tabs-nav::before {
-            display: table;
-            content: '';
-        }
-
-        .ant-tabs-nav::after {
-            display: table;
-            clear: both;
-            content: '';
-        }
-
-        .ant-tabs-extra-content {
-            float: right;
-            line-height: 45px;
-        }
-        "#
-    )
-}
-
-/// 标签项样式
-pub fn tabs_tab_style() -> String {
-    css!(
-        r#"
-        .ant-tabs-tab {
-            position: relative;
-            display: inline-block;
-            box-sizing: border-box;
-            height: 100%;
-            padding: 12px 16px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-            margin-right: 32px;
-        }
-
-        .ant-tabs-tab::before {
-            position: absolute;
-            top: -1px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 6px 6px 0 0;
-            border: 1px solid transparent;
-            content: '';
-            transition: all 0.3s;
-        }
-
-        .ant-tabs-tab:last-child {
-            margin-right: 0;
-        }
-
-        .ant-tabs-tab:hover {
-            color: #40a9ff;
-        }
-
-        .ant-tabs-tab:active {
-            color: #096dd9;
-        }
-
-        .ant-tabs-tab-btn {
-            outline: none;
-            transition: all 0.3s;
-            border: 0;
-            margin: 0;
-            padding: 0;
-            background: transparent;
-            color: inherit;
-            font-size: inherit;
-            line-height: inherit;
-            cursor: pointer;
-        }
-
-        .ant-tabs-tab-btn:focus,
-        .ant-tabs-tab-btn:active {
-            color: #096dd9;
-        }
-
-        .ant-tabs-tab-active {
-            color: #1890ff;
-            font-weight: 500;
-        }
-
-        .ant-tabs-tab-disabled {
-            color: rgba(0, 0, 0, 0.25);
-            cursor: not-allowed;
-        }
-
-        .ant-tabs-tab-disabled:hover {
-            color: rgba(0, 0, 0, 0.25);
-        }
-
-        .ant-tabs-tab-remove {
-            flex: none;
-            margin-right: -4px;
-            margin-left: 8px;
-            color: rgba(0, 0, 0, 0.45);
-            font-size: 12px;
-            background: transparent;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            font-weight: 400;
-            transition: all 0.3s;
-        }
-
-        .ant-tabs-tab-remove:hover {
-            color: rgba(0, 0, 0, 0.85);
-        }
-        "#
-    )
-}
-
-/// 标签添加按钮样式
-pub fn tabs_nav_add_style() -> String {
-    css!(
-        r#"
-        .ant-tabs-nav-add {
-            min-width: 40px;
-            margin-left: 2px;
-            padding: 0 8px;
-            background: #fafafa;
-            border: 1px solid #d9d9d9;
-            border-radius: 2px;
-            outline: none;
-            cursor: pointer;
-            color: rgba(0, 0, 0, 0.65);
-            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ant-tabs-nav-add:hover {
-            color: #40a9ff;
-            border-color: #40a9ff;
-        }
-
-        .ant-tabs-nav-add:active {
-            color: #096dd9;
-            border-color: #096dd9;
-        }
-        "#
-    )
-}
-
-/// 响应式样式
-pub fn tabs_responsive_style() -> String {
-    css!(
-        r#"
-        @media (max-width: 575px) {
             .ant-tabs-tab {
-                margin-right: 12px;
-                padding: 8px 8px;
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                padding: ${padding_xs}px 0;
+                font-size: ${font_size}px;
+                background: transparent;
+                border: 0;
+                outline: none;
+                cursor: pointer;
             }
 
-            .ant-tabs-large .ant-tabs-tab {
-                padding: 10px 12px;
+            .ant-tabs-tab-btn {
+                outline: none;
+                transition: all 0.3s;
             }
 
-            .ant-tabs-small .ant-tabs-tab {
-                padding: 6px 6px;
+            .ant-tabs-tab-btn:focus,
+            .ant-tabs-tab-btn:active {
+                color: ${color_primary};
             }
 
-            .ant-tabs-extra-content {
-                display: none;
+            .ant-tabs-tab-btn:hover {
+                color: ${color_primary_hover};
             }
-        }
 
-        @media (max-width: 480px) {
-            .ant-tabs {
+            .ant-tabs-tab-remove {
+                margin-left: ${margin_xs}px;
+                color: ${color_text_secondary};
+                font-size: ${font_size}px;
+                background: transparent;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .ant-tabs-tab-remove:hover {
+                color: ${color_text};
+            }
+
+            .ant-tabs-tab-active {
+                color: ${color_primary};
+                font-weight: 500;
+            }
+
+            .ant-tabs-ink-bar {
+                position: absolute;
+                background: ${color_primary};
+                pointer-events: none;
+            }
+
+            .ant-tabs-top > .ant-tabs-nav,
+            .ant-tabs-bottom > .ant-tabs-nav {
+                flex-direction: row;
+            }
+
+            .ant-tabs-top > .ant-tabs-nav .ant-tabs-ink-bar,
+            .ant-tabs-bottom > .ant-tabs-nav .ant-tabs-ink-bar {
+                height: 2px;
+            }
+
+            .ant-tabs-top > .ant-tabs-nav .ant-tabs-ink-bar {
+                bottom: 0;
+            }
+
+            .ant-tabs-bottom > .ant-tabs-nav .ant-tabs-ink-bar {
+                top: 0;
+            }
+
+            .ant-tabs-left > .ant-tabs-nav,
+            .ant-tabs-right > .ant-tabs-nav {
+                flex-direction: column;
+                min-width: 50px;
+            }
+
+            .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab,
+            .ant-tabs-right > .ant-tabs-nav .ant-tabs-tab {
+                padding: ${padding_sm}px ${padding_md}px;
+                text-align: center;
+            }
+
+            .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab,
+            .ant-tabs-right > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab {
+                margin: ${margin_sm}px 0 0 0;
+            }
+
+            .ant-tabs-left > .ant-tabs-nav .ant-tabs-ink-bar,
+            .ant-tabs-right > .ant-tabs-nav .ant-tabs-ink-bar {
+                width: 2px;
+            }
+
+            .ant-tabs-left > .ant-tabs-nav .ant-tabs-ink-bar {
+                right: 0;
+            }
+
+            .ant-tabs-right > .ant-tabs-nav .ant-tabs-ink-bar {
+                left: 0;
+            }
+
+            .ant-tabs-content {
+                display: flex;
                 width: 100%;
             }
 
-            .ant-tabs-tab {
-                margin-right: 6px;
-                font-size: 13px;
+            .ant-tabs-content-holder {
+                flex: auto;
+                min-width: 0;
+                min-height: 0;
             }
 
-            .ant-tabs-nav-add {
-                padding: 0 4px;
-                min-width: 32px;
+            .ant-tabs-content-animated {
+                transition: margin 0.3s;
             }
-        }
-        "#
-    )
+
+            .ant-tabs-tabpane {
+                flex: none;
+                width: 100%;
+                outline: none;
+            }
+
+            /* Card 样式 */
+            .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                margin: 0;
+                padding: ${padding_xs}px ${padding_md}px;
+                background: ${color_bg_container_disabled};
+                border: 1px solid ${color_border};
+                transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            }
+
+            .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                color: ${color_primary};
+                background: ${color_bg_container};
+            }
+
+            .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-disabled {
+                color: ${color_text_disabled};
+                cursor: not-allowed;
+            }
+
+            .ant-tabs-card > .ant-tabs-nav .ant-tabs-nav-wrap {
+                margin-bottom: 0;
+            }
+
+            .ant-tabs-top.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab {
+                margin-left: 2px;
+            }
+
+            .ant-tabs-top.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                border-radius: ${border_radius}px ${border_radius}px 0 0;
+            }
+
+            .ant-tabs-top.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                border-bottom-color: ${color_bg_container};
+            }
+
+            .ant-tabs-bottom.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab {
+                margin-left: 2px;
+            }
+
+            .ant-tabs-bottom.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                border-radius: 0 0 ${border_radius}px ${border_radius}px;
+            }
+
+            .ant-tabs-bottom.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                border-top-color: ${color_bg_container};
+            }
+
+            .ant-tabs-left.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab {
+                margin-top: 2px;
+            }
+
+            .ant-tabs-left.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                border-radius: ${border_radius}px 0 0 ${border_radius}px;
+            }
+
+            .ant-tabs-left.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                border-right-color: ${color_bg_container};
+            }
+
+            .ant-tabs-right.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab {
+                margin-top: 2px;
+            }
+
+            .ant-tabs-right.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                border-radius: 0 ${border_radius}px ${border_radius}px 0;
+            }
+
+            .ant-tabs-right.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                border-left-color: ${color_bg_container};
+            }
+
+            /* 可编辑卡片样式 */
+            .ant-tabs-editable-card > .ant-tabs-nav .ant-tabs-tab {
+                padding: ${padding_xs}px ${padding_xs}px ${padding_xs}px ${padding_md}px;
+            }
+
+            .ant-tabs-editable-card > .ant-tabs-nav .ant-tabs-nav-add {
+                padding: 0 ${padding_xs}px;
+                background: ${color_bg_container_disabled};
+                border: 1px solid ${color_border};
+                border-radius: ${border_radius}px;
+                outline: none;
+                cursor: pointer;
+                color: ${color_text};
+                transition: all 0.3s;
+            }
+
+            .ant-tabs-editable-card > .ant-tabs-nav .ant-tabs-nav-add:hover {
+                color: ${color_primary_hover};
+            }
+
+            .ant-tabs-editable-card > .ant-tabs-nav .ant-tabs-nav-add:active {
+                color: ${color_primary_active};
+            }
+
+            /* 尺寸样式 */
+            .ant-tabs-large > .ant-tabs-nav .ant-tabs-tab {
+                padding: ${padding_md}px 0;
+                font-size: ${font_size_lg}px;
+            }
+
+            .ant-tabs-small > .ant-tabs-nav .ant-tabs-tab {
+                padding: ${padding_xs / 2}px 0;
+                font-size: ${font_size_sm}px;
+            }
+
+            .ant-tabs-small > .ant-tabs-nav .ant-tabs-nav-more {
+                font-size: ${font_size_sm}px;
+            }
+
+            .ant-tabs-card.ant-tabs-large > .ant-tabs-nav .ant-tabs-tab {
+                padding: ${padding_sm}px ${padding_lg}px;
+            }
+
+            .ant-tabs-card.ant-tabs-small > .ant-tabs-nav .ant-tabs-tab {
+                padding: ${padding_xs / 2}px ${padding_sm}px;
+            }
+
+            /* 响应式样式 */
+            @media (max-width: 575px) {
+                .ant-tabs-nav .ant-tabs-tab {
+                    padding: ${padding_xs}px ${padding_xs}px;
+                    margin: 0 ${margin_xs}px 0 0;
+                }
+                .ant-tabs-nav .ant-tabs-tab:last-child {
+                    margin-right: 0;
+                }
+                .ant-tabs-left > .ant-tabs-nav,
+                .ant-tabs-right > .ant-tabs-nav {
+                    width: 100%;
+                }
+                .ant-tabs-left > .ant-tabs-content-holder,
+                .ant-tabs-right > .ant-tabs-content-holder {
+                    margin-top: ${margin_sm}px;
+                }
+            }
+
+            /* RTL 样式 */
+            .ant-tabs-rtl {
+                direction: rtl;
+            }
+
+            .ant-tabs-rtl .ant-tabs-nav .ant-tabs-tab {
+                margin: 0 0 0 ${margin_md}px;
+            }
+
+            .ant-tabs-rtl .ant-tabs-nav .ant-tabs-tab:last-child {
+                margin-left: 0;
+            }
+
+            .ant-tabs-rtl .ant-tabs-nav .ant-tabs-tab .ant-tabs-tab-remove {
+                margin-right: ${margin_xs}px;
+                margin-left: 0;
+            }
+
+            .ant-tabs-rtl.ant-tabs-left > .ant-tabs-nav {
+                order: 1;
+            }
+
+            .ant-tabs-rtl.ant-tabs-right > .ant-tabs-nav {
+                order: 0;
+            }
+
+            .ant-tabs-rtl.ant-tabs-card.ant-tabs-top > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab,
+            .ant-tabs-rtl.ant-tabs-card.ant-tabs-bottom > .ant-tabs-nav .ant-tabs-tab + .ant-tabs-tab {
+                margin-right: 2px;
+                margin-left: 0;
+            }
+
+            /* 暗色模式 */
+            .ant-tabs-dark > .ant-tabs-nav {
+                background-color: ${color_bg_container_dark};
+            }
+
+            .ant-tabs-dark > .ant-tabs-nav .ant-tabs-tab {
+                color: ${color_text_secondary_dark};
+            }
+
+            .ant-tabs-dark > .ant-tabs-nav .ant-tabs-tab:hover {
+                color: ${color_text_dark};
+            }
+
+            .ant-tabs-dark > .ant-tabs-nav .ant-tabs-tab-active {
+                color: ${color_primary};
+            }
+
+            .ant-tabs-dark > .ant-tabs-nav .ant-tabs-ink-bar {
+                background: ${color_primary};
+            }
+
+            .ant-tabs-dark.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                background: ${color_bg_container_dark};
+                border-color: ${color_split_dark};
+            }
+
+            .ant-tabs-dark.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                background: ${color_bg_text_active_dark};
+                border-color: ${color_split_dark};
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .ant-tabs {
+                    color: ${color_text_dark};
+                }
+                .ant-tabs-tab {
+                    color: ${color_text_secondary_dark};
+                }
+                .ant-tabs-tab:hover {
+                    color: ${color_text_dark};
+                }
+                .ant-tabs-tab-active {
+                    color: ${color_primary};
+                }
+                .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+                    background: ${color_bg_container_dark};
+                    border-color: ${color_split_dark};
+                }
+                .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+                    background: ${color_bg_text_active_dark};
+                    border-color: ${color_split_dark};
+                }
+            }
+
+            @media (prefers-contrast: high) {
+                .ant-tabs-tab {
+                    background: transparent;
+                }
+                .ant-tabs-tab-active {
+                    outline: 2px solid;
+                }
+                .ant-tabs-ink-bar {
+                    background: currentColor;
+                    height: 3px;
+                }
+            }
+            "#,
+            color_text = self.token.color_text,
+            font_size = self.token.font_size,
+            line_height = self.token.line_height,
+            margin_md = self.token.margin_md,
+            padding_xs = self.token.padding_xs,
+            color_primary = self.token.color_primary,
+            color_primary_hover = self.token.color_primary_hover,
+            margin_xs = self.token.margin_xs,
+            color_text_secondary = self.token.color_text_secondary,
+            padding_sm = self.token.padding_sm,
+            padding_md = self.token.padding_md,
+            margin_sm = self.token.margin_sm,
+            color_bg_container_disabled = self.token.color_bg_container_disabled,
+            color_border = self.token.color_border,
+            color_bg_container = self.token.color_bg_container,
+            color_text_disabled = self.token.color_text_disabled,
+            border_radius = self.token.border_radius,
+            color_primary_active = self.token.color_primary_active,
+            font_size_lg = self.token.font_size_lg,
+            font_size_sm = self.token.font_size_sm,
+            padding_lg = self.token.padding_lg,
+            color_bg_container_dark = "#141414",
+            color_text_secondary_dark = "rgba(255, 255, 255, 0.65)",
+            color_text_dark = "rgba(255, 255, 255, 0.85)",
+            color_split_dark = "#303030",
+            color_bg_text_active_dark = "#111b26"
+        ).to_string()
+    }
 }
 
-/// RTL 方向样式
-pub fn tabs_rtl_style() -> String {
-    css!(
-        r#"
-        .ant-tabs-rtl {
-            direction: rtl;
-        }
-
-        .ant-tabs-rtl .ant-tabs-tab {
-            margin-right: 0;
-            margin-left: 32px;
-        }
-
-        .ant-tabs-rtl .ant-tabs-tab:last-child {
-            margin-left: 0;
-        }
-
-        .ant-tabs-rtl .ant-tabs-nav-add {
-            margin-right: 2px;
-            margin-left: 0;
-        }
-
-        .ant-tabs-rtl .ant-tabs-extra-content {
-            float: left;
-        }
-
-        .ant-tabs-rtl.ant-tabs-left .ant-tabs-bar {
-            float: right;
-            margin-right: 0;
-            margin-left: 16px;
-            border-right: none;
-            border-left: 1px solid #f0f0f0;
-        }
-
-        .ant-tabs-rtl.ant-tabs-right .ant-tabs-bar {
-            float: left;
-            margin-right: 16px;
-            margin-left: 0;
-            border-right: 1px solid #f0f0f0;
-            border-left: none;
-        }
-        "#
-    )
-}
-
-/// 生成完整的标签页样式
+/// 生成 Tabs 样式
 pub fn generate_tabs_style(
     tab_type: TabsType,
     tab_position: TabsPosition,
     size: TabsSize,
     dark: bool,
 ) -> String {
-    format!(
-        "{} {} {} {} {} {} {}",
-        TabsStyleGenerator::new()
-            .with_type(tab_type)
-            .with_position(tab_position)
-            .with_size(size)
-            .with_dark(dark)
-            .generate(),
-        tabs_content_style(),
-        tabs_pane_style(),
-        tabs_nav_style(),
-        tabs_tab_style(),
-        tabs_nav_add_style(),
-        tabs_responsive_style(),
-        tabs_rtl_style(),
-    )
+    TabsStyleGenerator::new()
+        .with_type(tab_type)
+        .with_position(tab_position)
+        .with_size(size)
+        .with_dark(dark)
+        .generate()
+}
+
+/// 生成 Tabs CSS 样式
+pub fn generate_tabs_css(
+    tab_type: TabsType,
+    tab_position: TabsPosition,
+    size: TabsSize,
+    dark: bool,
+) -> String {
+    TabsStyleGenerator::new()
+        .with_type(tab_type)
+        .with_position(tab_position)
+        .with_size(size)
+        .with_dark(dark)
+        .generate_css()
+}
+
+/// 默认 Tabs 样式
+pub fn default_tabs_style() -> String {
+    TabsStyleGenerator::new().generate()
 }

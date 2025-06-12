@@ -13,6 +13,7 @@ use self::styles::{
     generate_popover_style, PopoverPlacement as StylePopoverPlacement,
     PopoverTrigger as StylePopoverTrigger,
 };
+use crate::theme::{get_theme, ThemeMode};
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -81,6 +82,14 @@ pub struct PopoverProps {
     /// 是否使用 RTL 方向
     #[props(default = false)]
     pub is_rtl: bool,
+
+    /// 自定义宽度
+    #[props(default)]
+    pub width: Option<String>,
+
+    /// 自定义 z-index
+    #[props(default)]
+    pub z_index: Option<u32>,
 
     /// 子元素
     pub children: Element,
@@ -160,6 +169,7 @@ pub fn Popover(props: PopoverProps) -> Element {
     let mut visible = use_signal(|| props.open);
     let mut mouse_enter_timer = use_signal(|| None::<gloo_timers::callback::Timeout>);
     let mut mouse_leave_timer = use_signal(|| None::<gloo_timers::callback::Timeout>);
+    let theme_mode = get_theme();
 
     // 显示气泡卡片
     let mut show_popover = move || {
@@ -222,6 +232,13 @@ pub fn Popover(props: PopoverProps) -> Element {
         }
     };
 
+    // 构建类名
+    let wrapper_class = format!("ant-popover-wrapper {}", props.class);
+
+    // 构建气泡卡片类名
+    let mut popover_classes = vec!["ant-popover"];
+
+    // 添加位置类名
     let placement_class = match props.placement {
         PopoverPlacement::Top => "ant-popover-placement-top",
         PopoverPlacement::TopLeft => "ant-popover-placement-topLeft",
@@ -236,35 +253,64 @@ pub fn Popover(props: PopoverProps) -> Element {
         PopoverPlacement::RightTop => "ant-popover-placement-rightTop",
         PopoverPlacement::RightBottom => "ant-popover-placement-rightBottom",
     };
+    popover_classes.push(placement_class);
 
-    let class_name = format!("ant-popover-wrapper {}", props.class);
+    // 添加显示状态类名
+    if visible() {
+        popover_classes.push("ant-popover-open");
+    } else {
+        popover_classes.push("ant-popover-hidden");
+    }
 
-    let overlay_class_name = format!(
-        "ant-popover {} {} {}",
-        placement_class,
-        if visible() {
-            "ant-popover-open"
-        } else {
-            "ant-popover-hidden"
-        },
-        props.overlay_class_name.as_ref().map_or("", |s| s.as_str())
-    );
+    // 添加深色主题类名
+    if props.dark_theme || theme_mode == ThemeMode::Dark {
+        popover_classes.push("ant-popover-dark");
+    }
+
+    // 添加RTL类名
+    if props.is_rtl {
+        popover_classes.push("ant-popover-rtl");
+    }
+
+    // 添加标题类名
+    if props.title.is_some() {
+        popover_classes.push("ant-popover-with-title");
+    }
+
+    // 添加自定义类名
+    if let Some(custom_class) = &props.overlay_class_name {
+        popover_classes.push(custom_class);
+    }
+
+    let popover_class = popover_classes.join(" ");
 
     // 生成 CSS 样式
-    let popover_style = generate_popover_style(
-        props.placement.into(),
-        props.trigger.into(),
-        props.arrow,
-        props.dark_theme,
-        props.title.is_some(),
-        props.is_rtl,
-    );
+    let mut style_generator = styles::PopoverStyleGenerator::new()
+        .with_placement(props.placement.into())
+        .with_trigger(props.trigger.into())
+        .with_arrow(props.arrow)
+        .with_dark_theme(props.dark_theme)
+        .with_title(props.title.is_some())
+        .with_rtl(props.is_rtl)
+        .with_theme_mode(theme_mode);
+
+    // 添加自定义宽度
+    if let Some(width) = &props.width {
+        style_generator = style_generator.with_custom_width(width);
+    }
+
+    // 添加自定义 z-index
+    if let Some(z_index) = props.z_index {
+        style_generator = style_generator.with_custom_z_index(z_index);
+    }
+
+    let popover_style = style_generator.generate();
 
     rsx! {
         style { {popover_style} }
 
         div {
-            class: class_name.clone(),
+            class: wrapper_class,
             style: props.style.clone(),
 
             // 触发元素
@@ -307,7 +353,7 @@ pub fn Popover(props: PopoverProps) -> Element {
             // 气泡卡片
             if visible() {
                 div {
-                    class: overlay_class_name.clone(),
+                    class: popover_class,
                     style: props.overlay_style.as_deref().unwrap_or_default().to_string(),
                     onmouseenter: move |_| {
                         if props.trigger == PopoverTrigger::Hover {

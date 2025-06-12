@@ -1,6 +1,7 @@
 /// Grid 栅格组件样式
 ///
 /// 包含 Row 和 Col 组件的样式生成
+use crate::theme::AliasToken;
 use css_in_rust::css;
 use serde::{Deserialize, Serialize};
 
@@ -97,6 +98,8 @@ pub struct RowStyleGenerator {
     pub align: Align,
     /// 是否自动换行
     pub wrap: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl Default for RowStyleGenerator {
@@ -106,6 +109,7 @@ impl Default for RowStyleGenerator {
             justify: Justify::default(),
             align: Align::default(),
             wrap: true,
+            token: AliasToken::default(),
         }
     }
 }
@@ -140,7 +144,13 @@ impl RowStyleGenerator {
         self
     }
 
-    /// 生成行样式
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
+
+    /// 生成行样式类名
     pub fn generate(&self) -> String {
         let mut classes = vec!["ant-row"];
 
@@ -152,25 +162,84 @@ impl RowStyleGenerator {
             classes.push("ant-row-no-wrap");
         }
 
-        let class_name = classes.join(" ");
+        classes.join(" ")
+    }
 
+    /// 生成行内联样式
+    pub fn generate_inline_style(&self) -> String {
         let margin_value = if self.gutter > 0 {
             format!("-{}px", self.gutter / 2)
         } else {
             "0".to_string()
         };
 
-        // 注入样式
-        let style = css!(
+        css!(
             r#"
             margin-left: ${margin_left};
             margin-right: ${margin_right};
-        "#,
+            "#,
             margin_left = &margin_value,
             margin_right = &margin_value
-        );
+        )
+        .to_string()
+    }
 
-        format!("{} {}", class_name, style)
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
+        css!(
+            r#"
+            .ant-row {
+                display: flex;
+                flex-flow: row wrap;
+                box-sizing: border-box;
+            }
+
+            .ant-row-no-wrap {
+                flex-wrap: nowrap;
+            }
+
+            .ant-row-start {
+                justify-content: flex-start;
+            }
+
+            .ant-row-center {
+                justify-content: center;
+            }
+
+            .ant-row-end {
+                justify-content: flex-end;
+            }
+
+            .ant-row-space-between {
+                justify-content: space-between;
+            }
+
+            .ant-row-space-around {
+                justify-content: space-around;
+            }
+
+            .ant-row-space-evenly {
+                justify-content: space-evenly;
+            }
+
+            .ant-row-top {
+                align-items: flex-start;
+            }
+
+            .ant-row-middle {
+                align-items: center;
+            }
+
+            .ant-row-bottom {
+                align-items: flex-end;
+            }
+
+            .ant-row-stretch {
+                align-items: stretch;
+            }
+            "#
+        )
+        .to_string()
     }
 }
 
@@ -200,6 +269,8 @@ pub struct ColStyleGenerator {
     pub xl: Option<ResponsiveConfig>,
     /// 屏幕 ≥ 1600px 响应式栅格
     pub xxl: Option<ResponsiveConfig>,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl Default for ColStyleGenerator {
@@ -217,6 +288,7 @@ impl Default for ColStyleGenerator {
             lg: None,
             xl: None,
             xxl: None,
+            token: AliasToken::default(),
         }
     }
 }
@@ -263,61 +335,61 @@ impl ColStyleGenerator {
         self
     }
 
-    /// 设置xs响应式配置
+    /// 设置屏幕 < 576px 响应式栅格
     pub fn with_xs(mut self, xs: Option<ResponsiveConfig>) -> Self {
         self.xs = xs;
         self
     }
 
-    /// 设置sm响应式配置
+    /// 设置屏幕 ≥ 576px 响应式栅格
     pub fn with_sm(mut self, sm: Option<ResponsiveConfig>) -> Self {
         self.sm = sm;
         self
     }
 
-    /// 设置md响应式配置
+    /// 设置屏幕 ≥ 768px 响应式栅格
     pub fn with_md(mut self, md: Option<ResponsiveConfig>) -> Self {
         self.md = md;
         self
     }
 
-    /// 设置lg响应式配置
+    /// 设置屏幕 ≥ 992px 响应式栅格
     pub fn with_lg(mut self, lg: Option<ResponsiveConfig>) -> Self {
         self.lg = lg;
         self
     }
 
-    /// 设置xl响应式配置
+    /// 设置屏幕 ≥ 1200px 响应式栅格
     pub fn with_xl(mut self, xl: Option<ResponsiveConfig>) -> Self {
         self.xl = xl;
         self
     }
 
-    /// 设置xxl响应式配置
+    /// 设置屏幕 ≥ 1600px 响应式栅格
     pub fn with_xxl(mut self, xxl: Option<ResponsiveConfig>) -> Self {
         self.xxl = xxl;
         self
     }
 
-    /// 生成列样式
-    pub fn generate(&self) -> String {
-        let mut classes = Vec::new();
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
 
-        // 添加基本类
+    /// 生成列样式类名
+    pub fn generate(&self) -> String {
+        let mut classes = vec!["ant-col".to_string()];
+
+        // 添加基础类名
         if let Some(span) = self.span {
-            if span > 0 {
-                classes.push(format!("ant-col-{}", span));
-            }
-        } else {
-            classes.push("ant-col".to_string());
+            classes.push(format!("ant-col-{}", span));
         }
 
-        // 添加偏移类
         if self.offset > 0 {
             classes.push(format!("ant-col-offset-{}", self.offset));
         }
 
-        // 添加推拉类
         if self.push > 0 {
             classes.push(format!("ant-col-push-{}", self.push));
         }
@@ -326,12 +398,11 @@ impl ColStyleGenerator {
             classes.push(format!("ant-col-pull-{}", self.pull));
         }
 
-        // 添加顺序类
         if let Some(order) = self.order {
             classes.push(format!("ant-col-order-{}", order));
         }
 
-        // 添加响应式类
+        // 添加响应式类名
         self.add_responsive_classes(&mut classes, "xs", &self.xs);
         self.add_responsive_classes(&mut classes, "sm", &self.sm);
         self.add_responsive_classes(&mut classes, "md", &self.md);
@@ -339,29 +410,132 @@ impl ColStyleGenerator {
         self.add_responsive_classes(&mut classes, "xl", &self.xl);
         self.add_responsive_classes(&mut classes, "xxl", &self.xxl);
 
-        let class_name = classes.join(" ");
-
-        // 计算内边距
-        let padding_value = if self.gutter > 0 {
-            format!("{}px", self.gutter / 2)
-        } else {
-            "0".to_string()
-        };
-
-        // 注入样式
-        let style = css!(
-            r#"
-            padding-left: ${padding_left};
-            padding-right: ${padding_right};
-        "#,
-            padding_left = &padding_value,
-            padding_right = &padding_value
-        );
-
-        format!("{} {}", class_name, style)
+        classes.join(" ")
     }
 
-    /// 添加响应式类
+    /// 生成列内联样式
+    pub fn generate_inline_style(&self) -> String {
+        if self.gutter > 0 {
+            let padding_value = format!("{}px", self.gutter / 2);
+            css!(
+                r#"
+                padding-left: ${padding_left};
+                padding-right: ${padding_right};
+                "#,
+                padding_left = &padding_value,
+                padding_right = &padding_value
+            )
+            .to_string()
+        } else {
+            "".to_string()
+        }
+    }
+
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
+        css!(
+            r#"
+            .ant-col {
+                position: relative;
+                max-width: 100%;
+                min-height: 1px;
+                box-sizing: border-box;
+            }
+
+            ${col_spans}
+            ${col_offsets}
+            ${col_pushes}
+            ${col_pulls}
+            ${col_orders}
+
+            @media (max-width: 575px) {
+                ${xs_spans}
+                ${xs_offsets}
+                ${xs_pushes}
+                ${xs_pulls}
+                ${xs_orders}
+            }
+
+            @media (min-width: 576px) {
+                ${sm_spans}
+                ${sm_offsets}
+                ${sm_pushes}
+                ${sm_pulls}
+                ${sm_orders}
+            }
+
+            @media (min-width: 768px) {
+                ${md_spans}
+                ${md_offsets}
+                ${md_pushes}
+                ${md_pulls}
+                ${md_orders}
+            }
+
+            @media (min-width: 992px) {
+                ${lg_spans}
+                ${lg_offsets}
+                ${lg_pushes}
+                ${lg_pulls}
+                ${lg_orders}
+            }
+
+            @media (min-width: 1200px) {
+                ${xl_spans}
+                ${xl_offsets}
+                ${xl_pushes}
+                ${xl_pulls}
+                ${xl_orders}
+            }
+
+            @media (min-width: 1600px) {
+                ${xxl_spans}
+                ${xxl_offsets}
+                ${xxl_pushes}
+                ${xxl_pulls}
+                ${xxl_orders}
+            }
+            "#,
+            col_spans = self.generate_col_spans(),
+            col_offsets = self.generate_col_offsets(),
+            col_pushes = self.generate_col_pushes(),
+            col_pulls = self.generate_col_pulls(),
+            col_orders = self.generate_col_orders(),
+            xs_spans = self.generate_responsive_spans("xs"),
+            xs_offsets = self.generate_responsive_offsets("xs"),
+            xs_pushes = self.generate_responsive_pushes("xs"),
+            xs_pulls = self.generate_responsive_pulls("xs"),
+            xs_orders = self.generate_responsive_orders("xs"),
+            sm_spans = self.generate_responsive_spans("sm"),
+            sm_offsets = self.generate_responsive_offsets("sm"),
+            sm_pushes = self.generate_responsive_pushes("sm"),
+            sm_pulls = self.generate_responsive_pulls("sm"),
+            sm_orders = self.generate_responsive_orders("sm"),
+            md_spans = self.generate_responsive_spans("md"),
+            md_offsets = self.generate_responsive_offsets("md"),
+            md_pushes = self.generate_responsive_pushes("md"),
+            md_pulls = self.generate_responsive_pulls("md"),
+            md_orders = self.generate_responsive_orders("md"),
+            lg_spans = self.generate_responsive_spans("lg"),
+            lg_offsets = self.generate_responsive_offsets("lg"),
+            lg_pushes = self.generate_responsive_pushes("lg"),
+            lg_pulls = self.generate_responsive_pulls("lg"),
+            lg_orders = self.generate_responsive_orders("lg"),
+            xl_spans = self.generate_responsive_spans("xl"),
+            xl_offsets = self.generate_responsive_offsets("xl"),
+            xl_pushes = self.generate_responsive_pushes("xl"),
+            xl_pulls = self.generate_responsive_pulls("xl"),
+            xl_orders = self.generate_responsive_orders("xl"),
+            xxl_spans = self.generate_responsive_spans("xxl"),
+            xxl_offsets = self.generate_responsive_offsets("xxl"),
+            xxl_pushes = self.generate_responsive_pushes("xxl"),
+            xxl_pulls = self.generate_responsive_pulls("xxl"),
+            xxl_orders = self.generate_responsive_orders("xxl")
+        )
+        .to_string()
+    }
+
+    /// 添加响应式类名
     fn add_responsive_classes(
         &self,
         classes: &mut Vec<String>,
@@ -396,92 +570,208 @@ impl ColStyleGenerator {
             }
         }
     }
+
+    /// 生成栅格占位样式
+    fn generate_col_spans(&self) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-{} {{ flex: 0 0 {}%; max-width: {}%; }}\n",
+                i,
+                i as f32 * 100.0 / 24.0,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成栅格左侧间隔样式
+    fn generate_col_offsets(&self) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-offset-{} {{ margin-left: {}%; }}\n",
+                i,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成栅格右移样式
+    fn generate_col_pushes(&self) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-push-{} {{ left: {}%; }}\n",
+                i,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成栅格左移样式
+    fn generate_col_pulls(&self) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-pull-{} {{ right: {}%; }}\n",
+                i,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成栅格顺序样式
+    fn generate_col_orders(&self) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(".ant-col-order-{} {{ order: {}; }}\n", i, i));
+        }
+        styles
+    }
+
+    /// 生成响应式栅格占位样式
+    fn generate_responsive_spans(&self, breakpoint: &str) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-{}-{} {{ flex: 0 0 {}%; max-width: {}%; }}\n",
+                breakpoint,
+                i,
+                i as f32 * 100.0 / 24.0,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成响应式栅格左侧间隔样式
+    fn generate_responsive_offsets(&self, breakpoint: &str) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-{}-offset-{} {{ margin-left: {}%; }}\n",
+                breakpoint,
+                i,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成响应式栅格右移样式
+    fn generate_responsive_pushes(&self, breakpoint: &str) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-{}-push-{} {{ left: {}%; }}\n",
+                breakpoint,
+                i,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成响应式栅格左移样式
+    fn generate_responsive_pulls(&self, breakpoint: &str) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-{}-pull-{} {{ right: {}%; }}\n",
+                breakpoint,
+                i,
+                i as f32 * 100.0 / 24.0
+            ));
+        }
+        styles
+    }
+
+    /// 生成响应式栅格顺序样式
+    fn generate_responsive_orders(&self, breakpoint: &str) -> String {
+        let mut styles = String::new();
+        for i in 1..=24 {
+            styles.push_str(&format!(
+                ".ant-col-{}-order-{} {{ order: {}; }}\n",
+                breakpoint, i, i
+            ));
+        }
+        styles
+    }
 }
 
-/// 生成基础样式
-pub fn grid_base_css() -> String {
-    css!(
-        r#"
-        .ant-row {
-            display: flex;
-            flex-flow: row wrap;
-            box-sizing: border-box;
-        }
-
-        .ant-row-no-wrap {
-            flex-wrap: nowrap;
-        }
-
-        .ant-row-start {
-            justify-content: flex-start;
-        }
-
-        .ant-row-center {
-            justify-content: center;
-        }
-
-        .ant-row-end {
-            justify-content: flex-end;
-        }
-
-        .ant-row-space-between {
-            justify-content: space-between;
-        }
-
-        .ant-row-space-around {
-            justify-content: space-around;
-        }
-
-        .ant-row-space-evenly {
-            justify-content: space-evenly;
-        }
-
-        .ant-row-top {
-            align-items: flex-start;
-        }
-
-        .ant-row-middle {
-            align-items: center;
-        }
-
-        .ant-row-bottom {
-            align-items: flex-end;
-        }
-
-        .ant-row-stretch {
-            align-items: stretch;
-        }
-
-        .ant-col {
-            position: relative;
-            max-width: 100%;
-            min-height: 1px;
-            flex: 0 0 auto;
-        }
-
-        /* 构建网格系统的列宽 */
-        .ant-col-1 {
-            display: block;
-            flex: 0 0 4.16666667%;
-            max-width: 4.16666667%;
-        }
-        /* 其余列宽样式被简化 */
-    "#
-    )
+/// 生成 Row 样式
+pub fn generate_row_style(gutter: u32, justify: Justify, align: Align, wrap: bool) -> String {
+    RowStyleGenerator::new()
+        .with_gutter(gutter)
+        .with_justify(justify)
+        .with_align(align)
+        .with_wrap(wrap)
+        .generate()
 }
 
-/// 在组件中使用此方法来确保样式已注入到DOM
-pub fn use_grid_style() {
-    use dioxus::prelude::*;
+/// 生成 Row 内联样式
+pub fn generate_row_inline_style(gutter: u32) -> String {
+    RowStyleGenerator::new()
+        .with_gutter(gutter)
+        .generate_inline_style()
+}
 
-    // 在组件首次渲染时注入样式
-    use_effect(move || {
-        // 样式只会被注入一次
-        static STYLE_INJECTED: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+/// 生成 Row CSS 样式
+pub fn generate_row_css() -> String {
+    RowStyleGenerator::new().generate_css()
+}
 
-        STYLE_INJECTED.get_or_init(|| {
-            // 使用css-in-rust自动注入样式
-            let _ = grid_base_css();
-        });
-    });
+/// 默认 Row 样式
+pub fn default_row_style() -> String {
+    RowStyleGenerator::new().generate()
+}
+
+/// 生成 Col 样式
+pub fn generate_col_style(
+    span: Option<u32>,
+    offset: u32,
+    push: u32,
+    pull: u32,
+    order: Option<i32>,
+    xs: Option<ResponsiveConfig>,
+    sm: Option<ResponsiveConfig>,
+    md: Option<ResponsiveConfig>,
+    lg: Option<ResponsiveConfig>,
+    xl: Option<ResponsiveConfig>,
+    xxl: Option<ResponsiveConfig>,
+) -> String {
+    ColStyleGenerator::new()
+        .with_span(span)
+        .with_offset(offset)
+        .with_push(push)
+        .with_pull(pull)
+        .with_order(order)
+        .with_xs(xs)
+        .with_sm(sm)
+        .with_md(md)
+        .with_lg(lg)
+        .with_xl(xl)
+        .with_xxl(xxl)
+        .generate()
+}
+
+/// 生成 Col 内联样式
+pub fn generate_col_inline_style(gutter: u32) -> String {
+    ColStyleGenerator::new()
+        .with_gutter(gutter)
+        .generate_inline_style()
+}
+
+/// 生成 Col CSS 样式
+pub fn generate_col_css() -> String {
+    ColStyleGenerator::new().generate_css()
+}
+
+/// 默认 Col 样式
+pub fn default_col_style() -> String {
+    ColStyleGenerator::new().generate()
 }

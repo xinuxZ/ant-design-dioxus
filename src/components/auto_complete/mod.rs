@@ -209,7 +209,7 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
 
     // 处理输入变化
     let handle_input_change = move |evt: Event<FormData>| {
-        let new_value = evt.value.clone();
+        let new_value = evt.value();
         input_value.set(new_value.clone());
 
         // 触发搜索回调
@@ -287,12 +287,12 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
 
     // 处理键盘事件
     let handle_key_down = move |evt: Event<KeyboardData>| {
-        match evt.key.as_str() {
-            "ArrowDown" => {
+        match evt.key() {
+            Key::ArrowDown => {
                 evt.stop_propagation();
                 evt.prevent_default();
 
-                if !is_open.get() {
+                if !is_open {
                     is_open.set(true);
                     return;
                 }
@@ -321,7 +321,7 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
 
                 active_index.set(new_index);
             }
-            "ArrowUp" => {
+            Key::ArrowUp => {
                 evt.stop_propagation();
                 evt.prevent_default();
 
@@ -354,7 +354,7 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
 
                 active_index.set(new_index);
             }
-            "Enter" => {
+            Key::Enter => {
                 if is_open.get() && active_index.get() >= 0 {
                     evt.stop_propagation();
                     evt.prevent_default();
@@ -370,7 +370,7 @@ pub fn AutoComplete(props: AutoCompleteProps) -> Element {
                     on_press_enter.call(evt);
                 }
             }
-            "Escape" => {
+            Key::Escape => {
                 evt.stop_propagation();
                 evt.prevent_default();
                 is_open.set(false);

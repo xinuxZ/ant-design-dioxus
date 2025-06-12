@@ -241,7 +241,7 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
 
             let item_data = MenuItemData {
                 key: props.menu_key.clone(),
-                title: props.children.to_string(),
+                title: props.children.clone().into_any().to_string(),
                 icon: props.icon.clone(),
                 disabled: props.disabled,
                 href: props.href.clone(),
@@ -250,52 +250,67 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
                 group_title: None,
             };
 
-            menu_ctx.on_click.call(item_data.clone());
-
+            // 更新选中状态
             if menu_ctx.selectable {
                 let mut new_selected_keys = menu_ctx.selected_keys.clone();
 
-                if !menu_ctx.multiple {
-                    new_selected_keys.clear();
-                }
-
-                if new_selected_keys.contains(&props.menu_key) {
-                    new_selected_keys.retain(|k| k != &props.menu_key);
-                    menu_ctx
-                        .on_deselect
-                        .call((new_selected_keys.clone(), item_data.clone()));
+                if menu_ctx.multiple {
+                    if new_selected_keys.contains(&props.menu_key) {
+                        new_selected_keys.retain(|key| key != &props.menu_key);
+                        menu_ctx
+                            .on_deselect
+                            .call((new_selected_keys.clone(), item_data.clone()));
+                    } else {
+                        new_selected_keys.push(props.menu_key.clone());
+                        menu_ctx
+                            .on_select
+                            .call((new_selected_keys.clone(), item_data.clone()));
+                    }
                 } else {
-                    new_selected_keys.push(props.menu_key.clone());
-                    menu_ctx
-                        .on_select
-                        .call((new_selected_keys.clone(), item_data.clone()));
+                    if !new_selected_keys.contains(&props.menu_key) {
+                        new_selected_keys = vec![props.menu_key.clone()];
+                        menu_ctx
+                            .on_select
+                            .call((new_selected_keys.clone(), item_data.clone()));
+                    }
                 }
 
-                menu_ctx.set_selected_keys(new_selected_keys);
+                menu_ctx.selected_keys = new_selected_keys;
             }
+
+            menu_ctx.on_click.call(item_data);
         }
     };
 
-    let classes = format!(
-        "ant-menu-item {} {} {}",
-        if is_selected {
-            "ant-menu-item-selected"
-        } else {
-            ""
-        },
-        if props.disabled {
-            "ant-menu-item-disabled"
-        } else {
-            ""
-        },
-        props.class
-    );
+    // 构建菜单项类名
+    let mut classes = vec!["ant-menu-item"];
 
-    match &props.href {
-        Some(href) => rsx! {
+    if is_selected {
+        classes.push("ant-menu-item-selected");
+    }
+
+    if props.disabled {
+        classes.push("ant-menu-item-disabled");
+    }
+
+    if !props.class.is_empty() {
+        classes.push(&props.class);
+    }
+
+    let class_name = classes.join(" ");
+    let style_str = if props.style.is_empty() {
+        String::new()
+    } else {
+        props.style.clone()
+    };
+
+    // 渲染菜单项
+    if let Some(href) = &props.href {
+        rsx! {
             li {
-                class: "{classes}",
-                style: "{props.style}",
+                class: "{class_name}",
+                style: "{style_str}",
+                role: "menuitem",
                 onclick: handle_click,
                 a {
                     href: "{href}",
@@ -306,15 +321,18 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
                         }
                     }
                     span {
+                        class: "ant-menu-title-content",
                         {props.children}
                     }
                 }
             }
-        },
-        None => rsx! {
+        }
+    } else {
+        rsx! {
             li {
-                class: "{classes}",
-                style: "{props.style}",
+                class: "{class_name}",
+                style: "{style_str}",
+                role: "menuitem",
                 onclick: handle_click,
                 if let Some(icon) = &props.icon {
                     span {
@@ -323,10 +341,11 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
                     }
                 }
                 span {
+                    class: "ant-menu-title-content",
                     {props.children}
                 }
             }
-        },
+        }
     }
 }
 
@@ -334,51 +353,77 @@ pub fn MenuItem(props: MenuItemProps) -> Element {
 #[component]
 pub fn SubMenu(props: SubMenuProps) -> Element {
     let menu_ctx = use_context::<MenuContext>();
-    let is_open = use_state(|| menu_ctx.open_keys.contains(&props.menu_key));
-    let is_inline = menu_ctx.mode == MenuMode::Inline;
+    let is_open = create_signal(menu_ctx.open_keys.contains(&props.menu_key));
 
-    // 处理子菜单展开/关闭
-    let toggle_submenu = move |_| {
-        if !props.disabled {
+    // 处理点击事件
+    let handle_title_click = move |_| {
+        if !props.disabled && menu_ctx.mode == MenuMode::Inline {
             let mut new_open_keys = menu_ctx.open_keys.clone();
 
-            if is_open.get() {
-                new_open_keys.retain(|k| k != &props.menu_key);
-            } else {
-                if menu_ctx.accordion {
-                    new_open_keys.clear();
+            if menu_ctx.accordion {
+                // 手风琴模式下，同一级别只能展开一个
+                if is_open() {
+                    new_open_keys.retain(|key| key != &props.menu_key);
+                } else {
+                    // 在手风琴模式下，找到同级所有已展开的菜单项并关闭它们
+                    // 这里简单处理，直接替换为当前点击的菜单项
+                    new_open_keys = vec![props.menu_key.clone()];
                 }
-                new_open_keys.push(props.menu_key.clone());
+            } else {
+                // 非手风琴模式下，可以同时展开多个子菜单
+                if is_open() {
+                    new_open_keys.retain(|key| key != &props.menu_key);
+                } else {
+                    new_open_keys.push(props.menu_key.clone());
+                }
             }
 
-            is_open.set(!is_open.get());
-            menu_ctx.set_open_keys(new_open_keys.clone());
-            menu_ctx.on_open_change.call(new_open_keys);
+            // 更新展开状态
+            menu_ctx.open_keys = new_open_keys.clone();
+            is_open.set(!is_open());
+
+            // 触发展开状态变更回调
+            menu_ctx.on_open_change.call(new_open_keys.clone());
         }
     };
 
-    let submenu_class = format!(
-        "ant-menu-submenu {} {} {}",
-        if *is_open.get() {
-            "ant-menu-submenu-open"
-        } else {
-            ""
-        },
-        if props.disabled {
-            "ant-menu-submenu-disabled"
-        } else {
-            ""
-        },
-        props.class
-    );
+    // 构建子菜单类名
+    let mut classes = vec!["ant-menu-submenu"];
 
+    match menu_ctx.mode {
+        MenuMode::Vertical => classes.push("ant-menu-submenu-vertical"),
+        MenuMode::Horizontal => classes.push("ant-menu-submenu-horizontal"),
+        MenuMode::Inline => classes.push("ant-menu-submenu-inline"),
+    }
+
+    if is_open() {
+        classes.push("ant-menu-submenu-open");
+    }
+
+    if props.disabled {
+        classes.push("ant-menu-submenu-disabled");
+    }
+
+    if !props.class.is_empty() {
+        classes.push(&props.class);
+    }
+
+    let class_name = classes.join(" ");
+    let style_str = if props.style.is_empty() {
+        String::new()
+    } else {
+        props.style.clone()
+    };
+
+    // 渲染子菜单
     rsx! {
         li {
-            class: "{submenu_class}",
-            style: "{props.style}",
+            class: "{class_name}",
+            style: "{style_str}",
+            role: "menuitem",
             div {
                 class: "ant-menu-submenu-title",
-                onclick: toggle_submenu,
+                onclick: handle_title_click,
                 if let Some(icon) = &props.icon {
                     span {
                         class: "ant-menu-item-icon",
@@ -386,6 +431,7 @@ pub fn SubMenu(props: SubMenuProps) -> Element {
                     }
                 }
                 span {
+                    class: "ant-menu-title-content",
                     "{props.title}"
                 }
                 span {
@@ -393,12 +439,10 @@ pub fn SubMenu(props: SubMenuProps) -> Element {
                 }
             }
 
-            if *is_open.get() || !is_inline {
+            if is_open() || menu_ctx.mode != MenuMode::Inline {
                 ul {
-                    class: format!(
-                        "ant-menu ant-menu-sub {}",
-                        if is_inline { "ant-menu-inline" } else { "ant-menu-vertical" }
-                    ),
+                    class: "ant-menu ant-menu-sub",
+                    role: "menu",
                     {props.children}
                 }
             }
@@ -440,54 +484,60 @@ struct MenuContext {
     on_select: EventHandler<(Vec<String>, MenuItemData)>,
     on_deselect: EventHandler<(Vec<String>, MenuItemData)>,
     on_open_change: EventHandler<Vec<String>>,
-    set_selected_keys: UseStateSetter<Vec<String>>,
-    set_open_keys: UseStateSetter<Vec<String>>,
 }
 
 /// Menu 菜单组件
 #[component]
 pub fn Menu(props: MenuProps) -> Element {
-    // 状态管理
-    let selected_keys = use_state(|| {
+    // 初始化选中的菜单项
+    let selected_keys = create_signal({
         if !props.selected_keys.is_empty() {
             props.selected_keys.clone()
-        } else {
+        } else if !props.default_selected_keys.is_empty() {
             props.default_selected_keys.clone()
+        } else {
+            vec![]
         }
     });
 
-    let open_keys = use_state(|| {
+    // 初始化展开的子菜单
+    let open_keys = create_signal({
         if !props.open_keys.is_empty() {
             props.open_keys.clone()
-        } else {
+        } else if !props.default_open_keys.is_empty() {
             props.default_open_keys.clone()
+        } else {
+            vec![]
         }
     });
 
-    // 事件处理
-    let on_click = EventHandler::new(move |item: MenuItemData| {
+    // 处理菜单项点击事件
+    let handle_item_click = move |item: MenuItemData| {
         if let Some(handler) = &props.on_click {
             handler.call(item);
         }
-    });
+    };
 
-    let on_select = EventHandler::new(move |data: (Vec<String>, MenuItemData)| {
+    // 处理菜单项选中事件
+    let handle_select = move |(keys, item): (Vec<String>, MenuItemData)| {
         if let Some(handler) = &props.on_select {
-            handler.call(data);
+            handler.call((keys, item));
         }
-    });
+    };
 
-    let on_deselect = EventHandler::new(move |data: (Vec<String>, MenuItemData)| {
+    // 处理菜单项取消选中事件
+    let handle_deselect = move |(keys, item): (Vec<String>, MenuItemData)| {
         if let Some(handler) = &props.on_deselect {
-            handler.call(data);
+            handler.call((keys, item));
         }
-    });
+    };
 
-    let on_open_change = EventHandler::new(move |keys: Vec<String>| {
+    // 处理子菜单展开状态变更事件
+    let handle_open_change = move |keys: Vec<String>| {
         if let Some(handler) = &props.on_open_change {
             handler.call(keys);
         }
-    });
+    };
 
     // 创建菜单上下文
     let menu_context = MenuContext {
@@ -495,50 +545,84 @@ pub fn Menu(props: MenuProps) -> Element {
         theme: props.theme.clone(),
         multiple: props.multiple,
         selectable: props.selectable,
-        selected_keys: selected_keys.get().clone(),
-        open_keys: open_keys.get().clone(),
+        selected_keys: selected_keys.read().clone(),
+        open_keys: open_keys.read().clone(),
         accordion: props.accordion,
         inline_collapsed: props.inline_collapsed,
-        on_click,
-        on_select,
-        on_deselect,
-        on_open_change,
-        set_selected_keys: selected_keys.setter(),
-        set_open_keys: open_keys.setter(),
+        on_click: EventHandler::new(move |item| handle_item_click(item)),
+        on_select: EventHandler::new(move |args| handle_select(args)),
+        on_deselect: EventHandler::new(move |args| handle_deselect(args)),
+        on_open_change: EventHandler::new(move |keys| handle_open_change(keys)),
     };
 
-    // 提供菜单上下文
-    use_context_provider(|| menu_context);
+    // 构建菜单类名
+    let mut classes = vec!["ant-menu"];
 
-    // 生成菜单样式
-    let menu_style = generate_menu_style(
-        props.mode.clone().into(),
-        props.theme.clone().into(),
-        props.inline_collapsed,
-    );
+    match props.mode {
+        MenuMode::Vertical => classes.push("ant-menu-vertical"),
+        MenuMode::Horizontal => classes.push("ant-menu-horizontal"),
+        MenuMode::Inline => classes.push("ant-menu-inline"),
+    }
 
-    // 菜单类名
-    let menu_class = format!(
-        "ant-menu {} {} {}",
+    match props.theme {
+        MenuTheme::Light => classes.push("ant-menu-light"),
+        MenuTheme::Dark => classes.push("ant-menu-dark"),
+    }
+
+    if props.inline_collapsed && props.mode == MenuMode::Inline {
+        classes.push("ant-menu-inline-collapsed");
+    }
+
+    if !props.class.is_empty() {
+        classes.push(&props.class);
+    }
+
+    let class_name = classes.join(" ");
+
+    // 注入样式
+    let style_id = format!(
+        "ant-menu-{}-{}",
         match props.mode {
-            MenuMode::Horizontal => "ant-menu-horizontal",
-            MenuMode::Vertical => "ant-menu-vertical",
-            MenuMode::Inline => "ant-menu-inline",
+            MenuMode::Vertical => "vertical",
+            MenuMode::Horizontal => "horizontal",
+            MenuMode::Inline => "inline",
         },
         match props.theme {
-            MenuTheme::Light => "ant-menu-light",
-            MenuTheme::Dark => "ant-menu-dark",
-        },
-        if props.inline_collapsed && props.mode == MenuMode::Inline {
-            "ant-menu-inline-collapsed"
-        } else {
-            ""
+            MenuTheme::Light => "light",
+            MenuTheme::Dark => "dark",
         }
     );
 
-    // 渲染菜单项
-    let render_menu_items = |items: &[MenuItemData]| {
-        items.iter().map(|item| {
+    let _style = generate_menu_style(props.mode.clone().into(), props.theme.clone().into());
+
+    // 渲染菜单
+    let style_str = if props.style.is_empty() {
+        String::new()
+    } else {
+        props.style.clone()
+    };
+
+    provide_context(menu_context);
+
+    rsx! {
+        ul {
+            id: "{style_id}",
+            class: "{class_name}",
+            style: "{style_str}",
+            role: "menu",
+            if !props.items.is_empty() {
+                render_menu_items(&props.items)
+            } else {
+                {props.children}
+            }
+        }
+    }
+}
+
+/// 渲染菜单项
+fn render_menu_items(items: &[MenuItemData]) -> Element {
+    rsx! {
+        {items.iter().map(|item| {
             if item.is_group {
                 rsx! {
                     MenuGroup {
@@ -546,7 +630,7 @@ pub fn Menu(props: MenuProps) -> Element {
                         menu_key: "{item.key}",
                         title: "{item.group_title.clone().unwrap_or_default()}",
                         if let Some(children) = &item.children {
-                            {render_menu_items(children)}
+                            render_menu_items(children)
                         }
                     }
                 }
@@ -558,7 +642,7 @@ pub fn Menu(props: MenuProps) -> Element {
                         title: "{item.title}",
                         icon: item.icon.clone(),
                         disabled: item.disabled,
-                        {render_menu_items(children)}
+                        render_menu_items(children)
                     }
                 }
             } else {
@@ -573,20 +657,7 @@ pub fn Menu(props: MenuProps) -> Element {
                     }
                 }
             }
-        })
-    };
-
-    rsx! {
-        style { {menu_style} }
-        ul {
-            class: "{menu_class} {props.class}",
-            style: "{props.style}",
-            if !props.items.is_empty() {
-                {render_menu_items(&props.items)}
-            } else {
-                {props.children}
-            }
-        }
+        })}
     }
 }
 

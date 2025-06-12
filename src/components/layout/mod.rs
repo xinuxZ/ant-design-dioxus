@@ -29,12 +29,11 @@
 
 mod styles;
 
-use css_in_rust::css;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use styles::{
     ContentStyleGenerator, FooterStyleGenerator, HeaderStyleGenerator, LayoutStyleGenerator,
-    SiderStyleGenerator,
+    SiderStyleGenerator, SiderTheme as StyleSiderTheme,
 };
 
 /// Sider主题
@@ -49,6 +48,15 @@ pub enum SiderTheme {
 impl Default for SiderTheme {
     fn default() -> Self {
         Self::Dark
+    }
+}
+
+impl From<SiderTheme> for StyleSiderTheme {
+    fn from(theme: SiderTheme) -> Self {
+        match theme {
+            SiderTheme::Light => StyleSiderTheme::Light,
+            SiderTheme::Dark => StyleSiderTheme::Dark,
+        }
     }
 }
 
@@ -208,17 +216,6 @@ pub struct FooterProps {
     pub children: Element,
 }
 
-/// 注册全局样式
-fn register_styles() {
-    use_effect(|| {
-        let _ = css!(LayoutStyleGenerator::base_style());
-        let _ = css!(HeaderStyleGenerator::base_style());
-        let _ = css!(SiderStyleGenerator::base_style());
-        let _ = css!(ContentStyleGenerator::base_style());
-        let _ = css!(FooterStyleGenerator::base_style());
-    });
-}
-
 /// Layout组件
 ///
 /// # 参数
@@ -249,24 +246,23 @@ fn register_styles() {
 /// ```
 #[component]
 pub fn Layout(props: LayoutProps) -> Element {
-    register_styles();
+    // 生成样式
+    let style_generator = LayoutStyleGenerator::new().with_has_sider(props.has_sider);
 
-    let layout_class = LayoutStyleGenerator::new()
-        .with_has_sider(props.has_sider)
-        .generate();
-
-    let class = format!(
-        "{} {}",
-        layout_class,
-        props.class.clone().unwrap_or_default()
-    );
-
-    let style = props.style.clone().unwrap_or_default();
+    let layout_class = style_generator.generate();
+    let layout_style = LayoutStyleGenerator::base_style();
 
     rsx! {
-        section {
-            class: class,
-            style: style,
+        style { {layout_style} }
+        div {
+            class: {
+                if let Some(class) = &props.class {
+                    format!("{} {}", layout_class, class)
+                } else {
+                    layout_class
+                }
+            },
+            style: props.style.clone(),
             {props.children}
         }
     }
@@ -288,7 +284,6 @@ pub fn Layout(props: LayoutProps) -> Element {
 ///     rsx! {
 ///         Layout {
 ///             Header {
-///                 light: true,
 ///                 "Header"
 ///             }
 ///         }
@@ -297,25 +292,25 @@ pub fn Layout(props: LayoutProps) -> Element {
 /// ```
 #[component]
 pub fn Header(props: HeaderProps) -> Element {
-    register_styles();
-
-    let header_class = HeaderStyleGenerator::new()
+    // 生成样式
+    let style_generator = HeaderStyleGenerator::new()
         .with_light(props.light)
-        .with_fixed(props.fixed)
-        .generate();
+        .with_fixed(props.fixed);
 
-    let class = format!(
-        "{} {}",
-        header_class,
-        props.class.clone().unwrap_or_default()
-    );
-
-    let style = props.style.clone().unwrap_or_default();
+    let header_class = style_generator.generate();
+    let header_style = HeaderStyleGenerator::base_style();
 
     rsx! {
-        header {
-            class: class,
-            style: style,
+        style { {header_style} }
+        div {
+            class: {
+                if let Some(class) = &props.class {
+                    format!("{} {}", header_class, class)
+                } else {
+                    header_class
+                }
+            },
+            style: props.style.clone(),
             {props.children}
         }
     }
@@ -331,18 +326,14 @@ pub fn Header(props: HeaderProps) -> Element {
 ///
 /// ```rust
 /// use dioxus::prelude::*;
-/// use ant_design_dioxus::{Layout, Sider, Content};
+/// use ant_design_dioxus::{Layout, Sider};
 ///
 /// fn app() -> Element {
 ///     rsx! {
 ///         Layout {
 ///             has_sider: true,
 ///             Sider {
-///                 collapsible: true,
 ///                 "Sider"
-///             }
-///             Content {
-///                 "Content"
 ///             }
 ///         }
 ///     }
@@ -350,60 +341,102 @@ pub fn Header(props: HeaderProps) -> Element {
 /// ```
 #[component]
 pub fn Sider(props: SiderProps) -> Element {
-    register_styles();
+    let mut collapsed = use_signal(|| props.collapsed);
+    let mut width = use_signal(|| {
+        if props.collapsed {
+            props.collapsed_width
+        } else {
+            props.width
+        }
+    });
 
-    // 将SiderTheme转换为styles::SiderTheme
-    let theme = match props.theme {
-        SiderTheme::Light => styles::SiderTheme::Light,
-        SiderTheme::Dark => styles::SiderTheme::Dark,
+    // 同步外部状态
+    use_effect(move || {
+        collapsed.set(props.collapsed);
+        width.set(if props.collapsed {
+            props.collapsed_width
+        } else {
+            props.width
+        });
+    });
+
+    // 处理收起展开
+    let handle_collapse = move |_| {
+        let new_collapsed = !collapsed();
+        collapsed.set(new_collapsed);
+        width.set(if new_collapsed {
+            props.collapsed_width
+        } else {
+            props.width
+        });
+
+        if let Some(on_collapse) = &props.on_collapse {
+            on_collapse.call(new_collapsed);
+        }
     };
 
-    let sider_class = SiderStyleGenerator::new()
-        .with_theme(theme)
+    // 生成样式
+    let style_generator = SiderStyleGenerator::new()
+        .with_theme(props.theme.clone().into())
         .with_collapsible(props.collapsible)
-        .with_collapsed(props.collapsed)
+        .with_collapsed(collapsed())
         .with_has_trigger(props.collapsible)
-        .with_left(props.left)
-        .generate();
+        .with_left(props.left);
 
-    let class = format!(
-        "{} {}",
-        sider_class,
-        props.class.clone().unwrap_or_default()
-    );
+    let sider_class = style_generator.generate();
+    let sider_style = SiderStyleGenerator::base_style();
 
-    let width = if props.collapsed {
-        props.collapsed_width
+    // 添加断点响应式类名
+    let mut responsive_class = String::new();
+    if let Some(breakpoint) = &props.breakpoint {
+        responsive_class = match breakpoint {
+            SiderBreakpoint::Xs => "ant-layout-sider-xs",
+            SiderBreakpoint::Sm => "ant-layout-sider-sm",
+            SiderBreakpoint::Md => "ant-layout-sider-md",
+            SiderBreakpoint::Lg => "ant-layout-sider-lg",
+            SiderBreakpoint::Xl => "ant-layout-sider-xl",
+            SiderBreakpoint::Xxl => "ant-layout-sider-xxl",
+        }
+        .to_string();
+    }
+
+    let combined_class = if responsive_class.is_empty() {
+        if let Some(class) = &props.class {
+            format!("{} {}", sider_class, class)
+        } else {
+            sider_class
+        }
     } else {
-        props.width
+        if let Some(class) = &props.class {
+            format!("{} {} {}", sider_class, responsive_class, class)
+        } else {
+            format!("{} {}", sider_class, responsive_class)
+        }
     };
-
-    let style = format!(
-        "width: {}px; min-width: {}px; max-width: {}px; {}",
-        width,
-        width,
-        width,
-        props.style.clone().unwrap_or_default()
-    );
 
     rsx! {
-        aside {
-            class: class,
-            style: style,
-            {props.children}
+        style { {sider_style} }
+        div {
+            class: combined_class,
+            style: format!("width: {}px; max-width: {}px; min-width: {}px; flex: 0 0 {}px; {}",
+                width(), width(), width(), width(), props.style.clone().unwrap_or_default()),
 
-            // 折叠触发器
+            div {
+                class: "ant-layout-sider-children",
+                {props.children}
+            }
+
             if props.collapsible {
                 div {
                     class: "ant-layout-sider-trigger",
-                    style: format!("width: {}px", width),
-                    onclick: move |_| {
-                        if let Some(handler) = &props.on_collapse {
-                            handler.call(!props.collapsed);
-                        }
-                    },
-                    // TODO: 添加折叠图标
-                    if props.collapsed { "→" } else { "←" }
+                    style: format!("width: {}px", width()),
+                    onclick: handle_collapse,
+
+                    if collapsed() {
+                        "→"
+                    } else {
+                        "←"
+                    }
                 }
             }
         }
@@ -426,8 +459,6 @@ pub fn Sider(props: SiderProps) -> Element {
 ///     rsx! {
 ///         Layout {
 ///             Content {
-///                 padding: Some("large".to_string()),
-///                 background: Some("white".to_string()),
 ///                 "Content"
 ///             }
 ///         }
@@ -436,27 +467,27 @@ pub fn Sider(props: SiderProps) -> Element {
 /// ```
 #[component]
 pub fn Content(props: ContentProps) -> Element {
-    register_styles();
-
-    let content_class = ContentStyleGenerator::new()
+    // 生成样式
+    let style_generator = ContentStyleGenerator::new()
         .with_padding(props.padding.clone())
         .with_background(props.background.clone())
         .with_bordered(props.bordered)
-        .with_shadow(props.shadow)
-        .generate();
+        .with_shadow(props.shadow);
 
-    let class = format!(
-        "{} {}",
-        content_class,
-        props.class.clone().unwrap_or_default()
-    );
-
-    let style = props.style.clone().unwrap_or_default();
+    let content_class = style_generator.generate();
+    let content_style = ContentStyleGenerator::base_style();
 
     rsx! {
-        main {
-            class: class,
-            style: style,
+        style { {content_style} }
+        div {
+            class: {
+                if let Some(class) = &props.class {
+                    format!("{} {}", content_class, class)
+                } else {
+                    content_class
+                }
+            },
+            style: props.style.clone(),
             {props.children}
         }
     }
@@ -478,7 +509,6 @@ pub fn Content(props: ContentProps) -> Element {
 ///     rsx! {
 ///         Layout {
 ///             Footer {
-///                 theme: Some("light".to_string()),
 ///                 "Footer"
 ///             }
 ///         }
@@ -487,24 +517,23 @@ pub fn Content(props: ContentProps) -> Element {
 /// ```
 #[component]
 pub fn Footer(props: FooterProps) -> Element {
-    register_styles();
+    // 生成样式
+    let style_generator = FooterStyleGenerator::new().with_theme(props.theme.clone());
 
-    let footer_class = FooterStyleGenerator::new()
-        .with_theme(props.theme.clone())
-        .generate();
-
-    let class = format!(
-        "{} {}",
-        footer_class,
-        props.class.clone().unwrap_or_default()
-    );
-
-    let style = props.style.clone().unwrap_or_default();
+    let footer_class = style_generator.generate();
+    let footer_style = FooterStyleGenerator::base_style();
 
     rsx! {
-        footer {
-            class: class,
-            style: style,
+        style { {footer_style} }
+        div {
+            class: {
+                if let Some(class) = &props.class {
+                    format!("{} {}", footer_class, class)
+                } else {
+                    footer_class
+                }
+            },
+            style: props.style.clone(),
             {props.children}
         }
     }

@@ -80,6 +80,10 @@ pub struct FlexProps {
     #[props(default = false)]
     pub vertical: bool,
 
+    /// 主轴方向
+    #[props(default)]
+    pub direction: FlexDirection,
+
     /// 主轴对齐方式
     #[props(default)]
     pub justify: FlexJustify,
@@ -108,9 +112,10 @@ pub struct FlexProps {
     #[props(default)]
     pub style: Option<String>,
 
-    pub direction: FlexDirection, // 新增属性：FlexDirection 枚举，用于指定主轴方向，默认值为 FlexDirection::Row，可选值为 FlexDirection::Row 和 FlexDirection::Column，分别表示水平和垂直方向
+    /// 是否启用RTL支持
+    #[props(default = false)]
+    pub rtl: bool,
 
-    // ... 其他属性，如 flex、class、style 等，根据需要添加
     /// 子元素
     children: Element,
 }
@@ -125,13 +130,21 @@ pub fn register_flex_styles() -> String {
 /// 基于 CSS Flexbox 的弹性布局组件。
 #[component]
 pub fn Flex(props: FlexProps) -> Element {
+    // 确定方向：优先使用direction，如果vertical为true则覆盖direction
+    let direction = if props.vertical {
+        FlexDirection::Column
+    } else {
+        props.direction.clone()
+    };
+
     // 使用样式生成器生成类名
     let style_generator = FlexStyleGenerator::new()
-        .with_vertical(props.vertical)
+        .with_direction(direction)
         .with_justify(props.justify.clone())
         .with_align(props.align.clone())
         .with_wrap(props.wrap.clone())
-        .with_gap(props.gap.clone());
+        .with_gap(props.gap.clone())
+        .with_rtl(props.rtl);
 
     let class_name = style_generator.generate();
 
@@ -179,4 +192,4 @@ pub fn Flex(props: FlexProps) -> Element {
 }
 
 // 重新导出公共类型
-// 注意：不使用通配符导出以避免命名冲突
+pub use styles::{FlexAlign, FlexDirection, FlexGap, FlexJustify, FlexWrap};

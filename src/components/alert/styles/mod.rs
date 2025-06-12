@@ -1,3 +1,4 @@
+use crate::theme::AliasToken;
 /// Alert 组件样式生成器
 ///
 /// 用于生成 Alert 组件的样式
@@ -44,32 +45,32 @@ impl AlertType {
     }
 
     /// 获取类型对应的颜色
-    pub fn get_color(&self) -> &'static str {
+    pub fn get_color(&self) -> String {
         match self {
-            AlertType::Success => "#52c41a",
-            AlertType::Info => "#1677ff",
-            AlertType::Warning => "#faad14",
-            AlertType::Error => "#ff4d4f",
+            AlertType::Success => "#52c41a".to_string(),
+            AlertType::Info => "#1677ff".to_string(),
+            AlertType::Warning => "#faad14".to_string(),
+            AlertType::Error => "#ff4d4f".to_string(),
         }
     }
 
     /// 获取类型对应的背景色
-    pub fn get_background_color(&self) -> &'static str {
+    pub fn get_background_color(&self) -> String {
         match self {
-            AlertType::Success => "#f6ffed",
-            AlertType::Info => "#e6f4ff",
-            AlertType::Warning => "#fffbe6",
-            AlertType::Error => "#fff2f0",
+            AlertType::Success => "#f6ffed".to_string(),
+            AlertType::Info => "#e6f4ff".to_string(),
+            AlertType::Warning => "#fffbe6".to_string(),
+            AlertType::Error => "#fff2f0".to_string(),
         }
     }
 
     /// 获取类型对应的边框色
-    pub fn get_border_color(&self) -> &'static str {
+    pub fn get_border_color(&self) -> String {
         match self {
-            AlertType::Success => "#b7eb8f",
-            AlertType::Info => "#91caff",
-            AlertType::Warning => "#ffe58f",
-            AlertType::Error => "#ffccc7",
+            AlertType::Success => "#b7eb8f".to_string(),
+            AlertType::Info => "#91caff".to_string(),
+            AlertType::Warning => "#ffe58f".to_string(),
+            AlertType::Error => "#ffccc7".to_string(),
         }
     }
 }
@@ -90,6 +91,8 @@ pub struct AlertStyleGenerator {
     pub no_border: bool,
     /// 是否使用描边样式
     pub outlined: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl Default for AlertStyleGenerator {
@@ -102,6 +105,7 @@ impl Default for AlertStyleGenerator {
             banner: false,
             no_border: false,
             outlined: false,
+            token: AliasToken::default(),
         }
     }
 }
@@ -151,6 +155,12 @@ impl AlertStyleGenerator {
     /// 设置是否使用描边样式
     pub fn with_outlined(mut self, outlined: bool) -> Self {
         self.outlined = outlined;
+        self
+    }
+
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
         self
     }
 
@@ -222,6 +232,7 @@ impl AlertStyleGenerator {
             "#,
                 color = self.alert_type.get_color()
             )
+            .to_string()
         } else {
             "".to_string()
         };
@@ -235,13 +246,14 @@ impl AlertStyleGenerator {
                 border-radius: 0;
             "#
             )
+            .to_string()
         } else {
             "".to_string()
         };
 
         // 如果无边框模式，添加额外的样式
         let no_border_style = if self.no_border {
-            css!(r#"border: none;"#)
+            css!(r#"border: none;"#).to_string()
         } else {
             "".to_string()
         };
@@ -256,6 +268,109 @@ impl AlertStyleGenerator {
             no_border_style
         )
     }
+
+    /// 生成CSS样式
+    pub fn generate_css(&self) -> String {
+        css!(
+            r#"
+            /* Alert 组件样式 */
+            .ant-alert {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                color: rgba(0, 0, 0, 0.88);
+                font-size: ${font_size}px;
+                line-height: 1.5714285714285714;
+                list-style: none;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+                position: relative;
+                display: flex;
+                align-items: flex-start;
+                padding: 8px 15px;
+                word-wrap: break-word;
+                border-radius: ${border_radius}px;
+                margin-bottom: 16px;
+                transition: all 0.3s;
+            }
+
+            .ant-alert-success {
+                background-color: ${success_bg};
+                border: 1px solid ${success_border};
+            }
+
+            .ant-alert-info {
+                background-color: ${info_bg};
+                border: 1px solid ${info_border};
+            }
+
+            .ant-alert-warning {
+                background-color: ${warning_bg};
+                border: 1px solid ${warning_border};
+            }
+
+            .ant-alert-error {
+                background-color: ${error_bg};
+                border: 1px solid ${error_border};
+            }
+
+            .ant-alert-success .ant-alert-icon {
+                color: ${success_color};
+            }
+
+            .ant-alert-info .ant-alert-icon {
+                color: ${info_color};
+            }
+
+            .ant-alert-warning .ant-alert-icon {
+                color: ${warning_color};
+            }
+
+            .ant-alert-error .ant-alert-icon {
+                color: ${error_color};
+            }
+            "#,
+            font_size = self.token.font_size,
+            border_radius = self.token.border_radius,
+            success_bg = self.alert_type.get_background_color(),
+            success_border = self.alert_type.get_border_color(),
+            success_color = self.alert_type.get_color(),
+            info_bg = "#e6f4ff",
+            info_border = "#91caff",
+            info_color = "#1677ff",
+            warning_bg = "#fffbe6",
+            warning_border = "#ffe58f",
+            warning_color = "#faad14",
+            error_bg = "#fff2f0",
+            error_border = "#ffccc7",
+            error_color = "#ff4d4f"
+        )
+    }
+}
+
+/// 生成 Alert 样式
+pub fn generate_alert_style(
+    alert_type: AlertType,
+    show_icon: bool,
+    has_description: bool,
+    closable: bool,
+    banner: bool,
+    no_border: bool,
+    outlined: bool,
+) -> String {
+    AlertStyleGenerator::new()
+        .with_type(alert_type)
+        .with_icon(show_icon)
+        .with_description(has_description)
+        .with_closable(closable)
+        .with_banner(banner)
+        .with_no_border(no_border)
+        .with_outlined(outlined)
+        .generate()
+}
+
+/// 默认 Alert 样式
+pub fn default_alert_style() -> String {
+    AlertStyleGenerator::new().generate()
 }
 
 /// 生成 Alert 组件的基础 CSS
@@ -433,7 +548,7 @@ pub fn alert_base_css() -> String {
             color: #ff4d4f;
         }
     "#
-    )
+    ).to_string()
 }
 
 /// 在组件中使用此方法来确保样式已注入到DOM

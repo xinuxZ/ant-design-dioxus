@@ -32,22 +32,21 @@ impl CardSize {
     /// 获取卡片尺寸对应的CSS样式
     pub fn to_css(&self) -> String {
         let style = match self {
-            CardSize::Default => css! {
-                ""
-            },
-            CardSize::Small => css! {
-                ".ant-card-small .ant-card-head {
+            CardSize::Default => css!("").to_string(),
+            CardSize::Small => css!(
+                r#".ant-card-small .ant-card-head {
                     min-height: 38px;
                     padding: 0 12px;
                     font-size: 14px;
                 }
                 .ant-card-small .ant-card-body {
                     padding: 12px;
-                }"
-            },
+                }"#
+            )
+            .to_string(),
         };
 
-        style.to_string()
+        style
     }
 }
 

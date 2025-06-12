@@ -1,94 +1,103 @@
 //! Modal 对话框组件样式
 
+use crate::theme::AliasToken;
+use css_in_rust::css;
+
 /// Modal 样式生成器
-pub struct ModalStyleBuilder {
+pub struct ModalStyleGenerator {
     /// 是否垂直居中
-    centered: bool,
+    pub centered: bool,
     /// z-index 值
-    z_index: i32,
+    pub z_index: i32,
     /// 宽度
-    width: Option<String>,
+    pub width: Option<String>,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
-impl Default for ModalStyleBuilder {
+impl Default for ModalStyleGenerator {
     fn default() -> Self {
         Self {
             centered: true,
             z_index: 1000,
             width: None,
+            token: AliasToken::default(),
         }
     }
 }
 
-impl ModalStyleBuilder {
+impl ModalStyleGenerator {
     /// 创建新的样式生成器
     pub fn new() -> Self {
         Default::default()
     }
 
     /// 设置是否垂直居中
-    pub fn centered(mut self, centered: bool) -> Self {
+    pub fn with_centered(mut self, centered: bool) -> Self {
         self.centered = centered;
         self
     }
 
     /// 设置z-index值
-    pub fn z_index(mut self, z_index: i32) -> Self {
+    pub fn with_z_index(mut self, z_index: i32) -> Self {
         self.z_index = z_index;
         self
     }
 
     /// 设置宽度
-    pub fn width(mut self, width: Option<String>) -> Self {
+    pub fn with_width(mut self, width: Option<String>) -> Self {
         self.width = width;
         self
     }
 
-    /// 生成根元素样式
-    pub fn root_style(&self) -> String {
-        format!(
-            ".ant-modal-root {{
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: {};
-            }}",
-            self.z_index
-        )
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
     }
 
-    /// 生成遮罩层样式
-    pub fn mask_style(&self) -> String {
-        format!(
-            ".ant-modal-mask {{
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.45);
-                z-index: {};
-                animation: ant-modal-mask-fade-in 0.2s ease-out;
-            }}",
-            self.z_index
-        )
+    /// 生成样式类名
+    pub fn generate(&self) -> String {
+        let mut classes = vec!["ant-modal".to_string()];
+
+        if self.centered {
+            classes.push("ant-modal-centered".to_string());
+        }
+
+        classes.join(" ")
     }
 
-    /// 生成包装器样式
-    pub fn wrap_style(&self) -> String {
-        let centered_class = if self.centered {
-            ".ant-modal-wrap.ant-modal-centered {
-                align-items: center;
-                padding: 0;
-            }"
-        } else {
-            ""
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
+        // 根据传入的宽度设置弹窗宽度样式
+        let width_style = match &self.width {
+            Some(w) => w.to_string(),
+            None => "520px".to_string(),
         };
 
-        format!(
-            ".ant-modal-wrap {{
+        css!(
+            r#"
+            .ant-modal-root {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: ${z_index};
+            }
+
+            .ant-modal-mask {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: ${mask_bg_color};
+                z-index: ${z_index};
+                animation: ant-modal-mask-fade-in 0.2s ease-out;
+            }
+
+            .ant-modal-wrap {
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -96,439 +105,364 @@ impl ModalStyleBuilder {
                 bottom: 0;
                 overflow: auto;
                 outline: 0;
-                z-index: {};
+                z-index: ${z_index};
                 display: flex;
                 align-items: flex-start;
                 justify-content: center;
                 padding: 100px 0 40px;
-            }}
-            {}",
-            self.z_index, centered_class
-        )
-    }
-
-    /// 生成对话框样式
-    pub fn modal_style(&self) -> String {
-        let width_style = self
-            .width
-            .as_ref()
-            .map_or("width: auto;", |w| format!("width: {};", w).as_str());
-
-        format!(
-            ".ant-modal {{
-                position: relative;
-                {}
-                max-width: calc(100vw - 32px);
-                margin: 0 auto;
-                animation: ant-modal-zoom-in 0.2s ease-out;
-            }}",
-            width_style
-        )
-    }
-
-    /// 生成内容样式
-    pub fn content_style(&self) -> String {
-        format!(
-            ".ant-modal-content {{
-                position: relative;
-                background-color: #fff;
-                background-clip: padding-box;
-                border: 0;
-                border-radius: 6px;
-                box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
-                pointer-events: auto;
-            }}"
-        )
-    }
-
-    /// 生成关闭按钮样式
-    pub fn close_style(&self) -> String {
-        ".ant-modal-close {
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 10;
-            padding: 0;
-            color: rgba(0, 0, 0, 0.45);
-            font-weight: 700;
-            line-height: 1;
-            text-decoration: none;
-            background: transparent;
-            border: 0;
-            outline: 0;
-            cursor: pointer;
-            transition: color 0.2s;
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ant-modal-close:hover {
-            color: rgba(0, 0, 0, 0.75);
-        }
-
-        .ant-modal-close-x {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            font-size: 16px;
-            font-style: normal;
-            line-height: 22px;
-            text-align: center;
-            text-transform: none;
-            text-rendering: auto;
-        }"
-        .to_string()
-    }
-
-    /// 生成标题样式
-    pub fn header_style(&self) -> String {
-        ".ant-modal-header {
-            padding: 16px 24px;
-            color: rgba(0, 0, 0, 0.88);
-            background: #fff;
-            border-bottom: 1px solid rgba(5, 5, 5, 0.06);
-            border-radius: 6px 6px 0 0;
-        }
-
-        .ant-modal-title {
-            margin: 0;
-            color: rgba(0, 0, 0, 0.88);
-            font-weight: 600;
-            font-size: 16px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }"
-        .to_string()
-    }
-
-    /// 生成内容区样式
-    pub fn body_style(&self) -> String {
-        ".ant-modal-body {
-            padding: 20px 24px;
-            font-size: 14px;
-            line-height: 1.5715;
-            word-wrap: break-word;
-            color: rgba(0, 0, 0, 0.88);
-        }"
-        .to_string()
-    }
-
-    /// 生成页脚样式
-    pub fn footer_style(&self) -> String {
-        ".ant-modal-footer {
-            padding: 10px 16px;
-            text-align: right;
-            background: transparent;
-            border-top: 1px solid rgba(5, 5, 5, 0.06);
-            border-radius: 0 0 6px 6px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-        }"
-        .to_string()
-    }
-
-    /// 生成按钮样式
-    pub fn button_style(&self) -> String {
-        ".ant-btn {
-            position: relative;
-            display: inline-block;
-            font-weight: 400;
-            white-space: nowrap;
-            text-align: center;
-            background-image: none;
-            border: 1px solid transparent;
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-            user-select: none;
-            touch-action: manipulation;
-            height: 32px;
-            padding: 4px 15px;
-            font-size: 14px;
-            border-radius: 6px;
-            outline: 0;
-            text-decoration: none;
-        }
-
-        .ant-btn-default {
-            color: rgba(0, 0, 0, 0.88);
-            border-color: #d9d9d9;
-            background: #fff;
-        }
-
-        .ant-btn-default:hover {
-            color: #4096ff;
-            border-color: #4096ff;
-        }
-
-        .ant-btn-primary {
-            color: #fff;
-            border-color: #1677ff;
-            background: #1677ff;
-        }
-
-        .ant-btn-primary:hover {
-            color: #fff;
-            border-color: #4096ff;
-            background: #4096ff;
-        }
-
-        .ant-btn-loading {
-            position: relative;
-            pointer-events: none;
-        }
-
-        .ant-btn-loading-icon {
-            display: inline-block;
-            margin-right: 8px;
-            animation: ant-modal-loading-rotate 1s linear infinite;
-        }
-
-        .ant-btn:disabled {
-            color: rgba(0, 0, 0, 0.25);
-            background: rgba(0, 0, 0, 0.04);
-            border-color: #d9d9d9;
-            cursor: not-allowed;
-        }"
-        .to_string()
-    }
-
-    /// 生成确认对话框样式
-    pub fn confirm_style(&self) -> String {
-        ".ant-modal-confirm-body {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .ant-modal-confirm-icon {
-            flex-shrink: 0;
-            margin-top: 4px;
-            font-size: 22px;
-            line-height: 1;
-            color: #faad14;
-        }
-
-        .ant-modal-confirm-content {
-            flex: 1;
-            font-size: 14px;
-            line-height: 1.5715;
-            color: rgba(0, 0, 0, 0.88);
-        }"
-        .to_string()
-    }
-
-    /// 生成动画样式
-    pub fn animation_style(&self) -> String {
-        "@keyframes ant-modal-mask-fade-in {
-            0% {
-                opacity: 0;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes ant-modal-zoom-in {
-            0% {
-                opacity: 0;
-                transform: scale(0.2);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes ant-modal-loading-rotate {
-            100% {
-                transform: rotate(360deg);
-            }
-        }"
-        .to_string()
-    }
-
-    /// 生成响应式样式
-    pub fn responsive_style(&self) -> String {
-        "@media (max-width: 768px) {
-            .ant-modal {
-                max-width: calc(100vw - 16px);
-                margin: 8px auto;
-            }
-
-            .ant-modal-wrap {
-                padding: 8px 0;
             }
 
             .ant-modal-wrap.ant-modal-centered {
                 align-items: center;
                 padding: 0;
             }
-        }"
-        .to_string()
-    }
 
-    /// 生成RTL(从右到左)布局样式
-    pub fn rtl_style(&self) -> String {
-        ".ant-modal[dir=\"rtl\"] .ant-modal-close {
-            right: auto;
-            left: 0;
-        }
+            .ant-modal {
+                position: relative;
+                width: ${width};
+                max-width: calc(100vw - ${margin_lg}px);
+                margin: 0 auto;
+                animation: ant-modal-zoom-in 0.2s ease-out;
+            }
 
-        .ant-modal[dir=\"rtl\"] .ant-modal-footer {
-            text-align: left;
-        }
-
-        .ant-modal[dir=\"rtl\"] .ant-modal-confirm-body {
-            direction: rtl;
-        }"
-        .to_string()
-    }
-
-    /// 生成深色模式样式
-    pub fn dark_mode_style(&self) -> String {
-        "@media (prefers-color-scheme: dark) {
             .ant-modal-content {
-                background-color: #1f1f1f;
-                box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.48), 0 3px 6px -4px rgba(0, 0, 0, 0.52), 0 9px 28px 8px rgba(0, 0, 0, 0.35);
-            }
-
-            .ant-modal-header {
-                background: #1f1f1f;
-                border-bottom: 1px solid #303030;
-            }
-
-            .ant-modal-title {
-                color: rgba(255, 255, 255, 0.85);
-            }
-
-            .ant-modal-body {
-                color: rgba(255, 255, 255, 0.85);
-            }
-
-            .ant-modal-footer {
-                border-top: 1px solid #303030;
+                position: relative;
+                background-color: ${bg_color_container};
+                background-clip: padding-box;
+                border: 0;
+                border-radius: ${border_radius}px;
+                box-shadow: ${box_shadow};
+                pointer-events: auto;
             }
 
             .ant-modal-close {
-                color: rgba(255, 255, 255, 0.45);
+                position: absolute;
+                top: 0;
+                right: 0;
+                z-index: 10;
+                padding: 0;
+                color: ${color_text_secondary};
+                font-weight: 700;
+                line-height: 1;
+                text-decoration: none;
+                background: transparent;
+                border: 0;
+                outline: 0;
+                cursor: pointer;
+                transition: color 0.2s;
+                width: ${height_lg}px;
+                height: ${height_lg}px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .ant-modal-close:hover {
-                color: rgba(255, 255, 255, 0.75);
+                color: ${color_text};
             }
 
-            .ant-btn-default {
-                color: rgba(255, 255, 255, 0.85);
-                border-color: #424242;
+            .ant-modal-close-x {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: ${font_size_lg}px;
+                height: ${font_size_lg}px;
+                font-size: ${font_size}px;
+                font-style: normal;
+                line-height: ${font_size_lg}px;
+                text-align: center;
+                text-transform: none;
+                text-rendering: auto;
+            }
+
+            .ant-modal-header {
+                padding: ${padding_md}px ${padding_lg}px;
+                color: ${color_text};
+                background: ${bg_color_container};
+                border-bottom: 1px solid ${color_split};
+                border-radius: ${border_radius}px ${border_radius}px 0 0;
+            }
+
+            .ant-modal-title {
+                margin: 0;
+                color: ${color_text};
+                font-weight: 600;
+                font-size: ${font_size_lg}px;
+                line-height: ${line_height};
+                word-wrap: break-word;
+            }
+
+            .ant-modal-body {
+                padding: ${padding_lg}px;
+                font-size: ${font_size}px;
+                line-height: ${line_height};
+                word-wrap: break-word;
+            }
+
+            .ant-modal-footer {
+                padding: ${padding_sm}px ${padding_lg}px;
+                text-align: right;
                 background: transparent;
+                border-top: 1px solid ${color_split};
+                border-radius: 0 0 ${border_radius}px ${border_radius}px;
             }
 
-            .ant-btn-default:hover {
-                color: #177ddc;
-                border-color: #177ddc;
-            }
-        }".to_string()
-    }
-
-    /// 生成高对比度模式样式
-    pub fn high_contrast_style(&self) -> String {
-        "@media (prefers-contrast: high) {
-            .ant-modal-content {
-                border: 1px solid #000;
+            .ant-modal-footer .ant-btn + .ant-btn:not(.ant-dropdown-trigger) {
+                margin-bottom: 0;
+                margin-left: ${margin_sm}px;
             }
 
-            .ant-btn {
-                border: 1px solid #000;
-            }
-        }"
-        .to_string()
-    }
-
-    /// 生成减弱动画模式样式
-    pub fn reduced_motion_style(&self) -> String {
-        "@media (prefers-reduced-motion: reduce) {
-            .ant-modal {
-                animation: none;
+            .ant-modal-open {
+                overflow: hidden;
             }
 
-            .ant-modal-mask {
-                animation: none;
-            }
-
-            .ant-btn-loading-icon {
-                animation: none;
-            }
-        }"
-        .to_string()
-    }
-
-    /// 生成打印模式样式
-    pub fn print_mode_style(&self) -> String {
-        "@media print {
-            .ant-modal-dropdown {
+            .ant-modal-confirm .ant-modal-header {
                 display: none;
             }
 
-            .ant-modal {
-                box-shadow: none;
-                border: 1px solid #eee;
+            .ant-modal-confirm .ant-modal-body {
+                padding: ${padding_lg}px ${padding_lg}px ${padding_md}px;
             }
 
-            .ant-modal-clear,
-            .ant-modal-close {
-                display: none;
+            .ant-modal-confirm-body-wrapper {
+                display: flex;
             }
-        }"
-        .to_string()
-    }
 
-    /// 生成完整样式
-    pub fn build(&self) -> String {
-        format!(
-            "{}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}
-            {}",
-            self.root_style(),
-            self.mask_style(),
-            self.wrap_style(),
-            self.modal_style(),
-            self.content_style(),
-            self.close_style(),
-            self.header_style(),
-            self.body_style(),
-            self.footer_style(),
-            self.button_style(),
-            self.confirm_style(),
-            self.animation_style(),
-            self.responsive_style(),
-            self.rtl_style(),
-            self.dark_mode_style(),
-            self.high_contrast_style(),
-            self.reduced_motion_style(),
-            self.print_mode_style(),
+            .ant-modal-confirm-body {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+            }
+
+            .ant-modal-confirm-body > .anticon {
+                display: inline-block;
+                flex-shrink: 0;
+                margin-right: ${margin_sm}px;
+                font-size: ${font_size_lg}px;
+            }
+
+            .ant-modal-confirm-title {
+                color: ${color_text};
+                font-weight: 500;
+                font-size: ${font_size_lg}px;
+                line-height: 1.4;
+            }
+
+            .ant-modal-confirm-content {
+                margin-top: ${margin_sm}px;
+                color: ${color_text};
+                font-size: ${font_size}px;
+            }
+
+            .ant-modal-confirm-btns {
+                margin-top: ${margin_lg}px;
+                text-align: right;
+            }
+
+            .ant-modal-confirm-btns .ant-btn + .ant-btn {
+                margin-bottom: 0;
+                margin-left: ${margin_sm}px;
+            }
+
+            .ant-modal-confirm-error .ant-modal-confirm-body > .anticon {
+                color: ${color_error};
+            }
+
+            .ant-modal-confirm-warning .ant-modal-confirm-body > .anticon,
+            .ant-modal-confirm-confirm .ant-modal-confirm-body > .anticon {
+                color: ${color_warning};
+            }
+
+            .ant-modal-confirm-info .ant-modal-confirm-body > .anticon {
+                color: ${color_info};
+            }
+
+            .ant-modal-confirm-success .ant-modal-confirm-body > .anticon {
+                color: ${color_success};
+            }
+
+            @keyframes ant-modal-mask-fade-in {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes ant-modal-zoom-in {
+                from {
+                    transform: scale(0.8);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes ant-modal-zoom-out {
+                from {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                to {
+                    transform: scale(0.8);
+                    opacity: 0;
+                }
+            }
+
+            @media (max-width: 575px) {
+                .ant-modal {
+                    max-width: calc(100vw - ${margin_sm * 2}px);
+                    margin: 0 auto;
+                }
+
+                .ant-modal-centered .ant-modal {
+                    flex: 1;
+                }
+            }
+
+            .ant-modal-rtl .ant-modal-close {
+                right: auto;
+                left: 0;
+            }
+
+            .ant-modal-rtl .ant-modal-footer {
+                text-align: left;
+            }
+
+            .ant-modal-rtl .ant-modal-footer .ant-btn + .ant-btn {
+                margin-right: ${margin_sm}px;
+                margin-left: 0;
+            }
+
+            .ant-modal-rtl .ant-modal-confirm-body {
+                direction: rtl;
+            }
+
+            .ant-modal-rtl .ant-modal-confirm-body > .anticon {
+                margin-right: 0;
+                margin-left: ${margin_sm}px;
+            }
+
+            .ant-modal-rtl .ant-modal-confirm-btns {
+                text-align: left;
+            }
+
+            .ant-modal-rtl .ant-modal-confirm-btns .ant-btn + .ant-btn {
+                margin-right: ${margin_sm}px;
+                margin-left: 0;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .ant-modal-content {
+                    background-color: ${bg_color_container_dark};
+                }
+
+                .ant-modal-header {
+                    background-color: ${bg_color_container_dark};
+                    border-bottom-color: ${color_split_dark};
+                }
+
+                .ant-modal-footer {
+                    border-top-color: ${color_split_dark};
+                }
+
+                .ant-modal-title,
+                .ant-modal-close,
+                .ant-modal-confirm-title {
+                    color: ${color_text_dark};
+                }
+
+                .ant-modal-close:hover {
+                    color: ${color_text_secondary_dark};
+                }
+
+                .ant-modal-body,
+                .ant-modal-confirm-content {
+                    color: ${color_text_secondary_dark};
+                }
+            }
+
+            @media (prefers-contrast: high) {
+                .ant-modal {
+                    outline: 2px solid #000;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .ant-modal-mask,
+                .ant-modal {
+                    animation: none !important;
+                }
+
+                .ant-modal-close,
+                .ant-modal-footer .ant-btn {
+                    transition: none !important;
+                }
+            }
+
+            @media print {
+                .ant-modal-mask,
+                .ant-modal-wrap {
+                    display: none !important;
+                }
+            }
+            "#,
+            z_index = self.z_index,
+            mask_bg_color = "rgba(0, 0, 0, 0.45)",
+            width = width_style,
+            margin_lg = self.token.margin_lg,
+            bg_color_container = self.token.color_bg_container,
+            border_radius = self.token.border_radius,
+            box_shadow = self.token.box_shadow,
+            color_text_secondary = self.token.color_text_secondary,
+            color_text = self.token.color_text,
+            height_lg = self.token.height_lg,
+            font_size_lg = self.token.font_size_lg,
+            font_size = self.token.font_size,
+            padding_md = self.token.padding_md,
+            padding_lg = self.token.padding_lg,
+            color_split = self.token.color_split,
+            line_height = self.token.line_height,
+            padding_sm = self.token.padding_sm,
+            margin_sm = self.token.margin_sm,
+            color_error = self.token.color_error,
+            color_warning = self.token.color_warning,
+            color_info = self.token.color_info,
+            color_success = self.token.color_success,
+            bg_color_container_dark = "#1f1f1f",
+            color_split_dark = "#424242",
+            color_text_dark = "rgba(255, 255, 255, 0.85)",
+            color_text_secondary_dark = "rgba(255, 255, 255, 0.65)"
         )
+        .to_string()
     }
 }
+
+/// 生成 Modal 样式
+pub fn generate_modal_style(centered: bool, z_index: i32, width: Option<String>) -> String {
+    ModalStyleGenerator::new()
+        .with_centered(centered)
+        .with_z_index(z_index)
+        .with_width(width)
+        .generate()
+}
+
+/// 生成 Modal CSS 样式
+pub fn generate_modal_css(centered: bool, z_index: i32, width: Option<String>) -> String {
+    ModalStyleGenerator::new()
+        .with_centered(centered)
+        .with_z_index(z_index)
+        .with_width(width)
+        .generate_css()
+}
+
+/// 默认 Modal 样式
+pub fn default_modal_style() -> String {
+    ModalStyleGenerator::new().generate()
+}
+
+/// Modal 样式构建器别名
+pub type ModalStyleBuilder = ModalStyleGenerator;

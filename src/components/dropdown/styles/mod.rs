@@ -3,6 +3,7 @@
 //! 本模块包含 Dropdown 组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
+use crate::theme::AliasToken;
 use css_in_rust::css;
 use serde::{Deserialize, Serialize};
 
@@ -92,6 +93,8 @@ pub struct DropdownStyleGenerator {
     pub arrow: bool,
     /// 是否禁用
     pub disabled: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl DropdownStyleGenerator {
@@ -103,6 +106,7 @@ impl DropdownStyleGenerator {
             size: DropdownSize::default(),
             arrow: false,
             disabled: false,
+            token: AliasToken::default(),
         }
     }
 
@@ -136,483 +140,286 @@ impl DropdownStyleGenerator {
         self
     }
 
-    /// 生成完整的下拉菜单样式
-    pub fn generate(&self) -> String {
-        let mut classes = vec![
-            self.base_style(),
-            self.placement_style(),
-            self.arrow_style(),
-        ];
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
 
+    /// 生成完整的下拉菜单样式类名
+    pub fn generate(&self) -> String {
+        let mut classes = vec!["ant-dropdown".to_string()];
+
+        // 添加位置类名
+        match self.placement {
+            DropdownPlacement::BottomLeft => {
+                classes.push("ant-dropdown-placement-bottomLeft".to_string())
+            }
+            DropdownPlacement::Bottom => classes.push("ant-dropdown-placement-bottom".to_string()),
+            DropdownPlacement::BottomRight => {
+                classes.push("ant-dropdown-placement-bottomRight".to_string())
+            }
+            DropdownPlacement::TopLeft => {
+                classes.push("ant-dropdown-placement-topLeft".to_string())
+            }
+            DropdownPlacement::Top => classes.push("ant-dropdown-placement-top".to_string()),
+            DropdownPlacement::TopRight => {
+                classes.push("ant-dropdown-placement-topRight".to_string())
+            }
+        }
+
+        // 添加箭头类名
+        if self.arrow {
+            classes.push("ant-dropdown-arrow".to_string());
+        }
+
+        // 添加主题类名
         match self.theme {
             DropdownTheme::Light => {}
-            DropdownTheme::Dark => classes.push(self.dark_theme_style()),
+            DropdownTheme::Dark => classes.push("ant-dropdown-menu-dark".to_string()),
         }
 
+        // 添加尺寸类名
         match self.size {
-            DropdownSize::Large => classes.push(self.large_size_style()),
+            DropdownSize::Large => classes.push("ant-dropdown-menu-large".to_string()),
             DropdownSize::Middle => {}
-            DropdownSize::Small => classes.push(self.small_size_style()),
-            DropdownSize::Compact => classes.push(self.compact_size_style()),
+            DropdownSize::Small => classes.push("ant-dropdown-menu-small".to_string()),
+            DropdownSize::Compact => classes.push("ant-dropdown-menu-compact".to_string()),
         }
 
+        // 添加禁用类名
         if self.disabled {
-            classes.push(self.disabled_style());
+            classes.push("ant-dropdown-disabled".to_string());
         }
 
         classes.join(" ")
     }
 
-    /// 基础样式
-    fn base_style(&self) -> String {
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
         css!(
             r#"
-            position: relative;
-            display: inline-block;
-            font-size: 14px;
-            font-variant: tabular-nums;
-            line-height: 1.5715;
-            color: rgba(0, 0, 0, 0.85);
-            font-feature-settings: 'tnum';
+            .ant-dropdown {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+                z-index: ${z_index};
+                display: block;
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                color: ${color_text};
+                font-size: ${font_size}px;
+                font-variant: tabular-nums;
+                line-height: ${line_height};
+                list-style: none;
+                font-feature-settings: 'tnum';
+                border-radius: ${border_radius}px;
+                box-shadow: ${box_shadow};
+                transform-origin: 50% 0;
+            }
 
-            .ant-dropdown-trigger {
+            .ant-dropdown-hidden {
+                display: none;
+            }
+
+            .ant-dropdown-menu {
+                position: relative;
+                margin: 0;
+                padding: ${padding_xs}px 0;
+                text-align: left;
+                background-color: ${bg_color_container};
+                background-clip: padding-box;
+                border-radius: ${border_radius}px;
+                outline: none;
+                box-shadow: ${box_shadow};
+                list-style-type: none;
+            }
+
+            .ant-dropdown-menu-item {
+                position: relative;
+                display: flex;
+                align-items: center;
+                padding: ${padding_xs}px ${padding_sm}px;
+                color: ${color_text};
+                font-weight: normal;
+                font-size: ${font_size}px;
+                line-height: ${line_height};
                 cursor: pointer;
-                user-select: none;
-            }
-            "#
-        )
-    }
-
-    /// 位置样式
-    fn placement_style(&self) -> String {
-        match self.placement {
-            DropdownPlacement::BottomLeft => css!(
-                r#"
-                .ant-dropdown-wrap {
-                    top: 100%;
-                    left: 0;
-                }
-                "#
-            ),
-            DropdownPlacement::Bottom => css!(
-                r#"
-                .ant-dropdown-wrap {
-                    top: 100%;
-                    left: 50%;
-                    transform: translateX(-50%);
-                }
-                "#
-            ),
-            DropdownPlacement::BottomRight => css!(
-                r#"
-                .ant-dropdown-wrap {
-                    top: 100%;
-                    right: 0;
-                }
-                "#
-            ),
-            DropdownPlacement::TopLeft => css!(
-                r#"
-                .ant-dropdown-wrap {
-                    bottom: 100%;
-                    left: 0;
-                    top: auto;
-                }
-
-                .ant-dropdown-arrow {
-                    top: auto;
-                    bottom: -4px;
-                    transform: rotate(-135deg);
-                }
-                "#
-            ),
-            DropdownPlacement::Top => css!(
-                r#"
-                .ant-dropdown-wrap {
-                    bottom: 100%;
-                    left: 50%;
-                    top: auto;
-                    transform: translateX(-50%);
-                }
-
-                .ant-dropdown-arrow {
-                    top: auto;
-                    bottom: -4px;
-                    transform: rotate(-135deg);
-                }
-                "#
-            ),
-            DropdownPlacement::TopRight => css!(
-                r#"
-                .ant-dropdown-wrap {
-                    bottom: 100%;
-                    right: 0;
-                    top: auto;
-                }
-
-                .ant-dropdown-arrow {
-                    top: auto;
-                    bottom: -4px;
-                    transform: rotate(-135deg);
-                }
-                "#
-            ),
-        }
-    }
-
-    /// 箭头样式
-    fn arrow_style(&self) -> String {
-        if self.arrow {
-            css!(
-                r#"
-                .ant-dropdown-arrow {
-                    position: absolute;
-                    top: -4px;
-                    left: 16px;
-                    width: 8px;
-                    height: 8px;
-                    background: #fff;
-                    border: 1px solid rgba(0, 0, 0, 0.06);
-                    border-bottom: none;
-                    border-right: none;
-                    transform: rotate(45deg);
-                }
-                "#
-            )
-        } else {
-            String::new()
-        }
-    }
-
-    /// 禁用样式
-    fn disabled_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-dropdown-disabled {
-                .ant-dropdown-trigger {
-                    cursor: not-allowed;
-                    opacity: 0.25;
-                }
-            }
-            "#
-        )
-    }
-
-    /// 暗色主题样式
-    fn dark_theme_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-dropdown-dark {
-                .ant-dropdown-menu {
-                    background: #001529;
-                }
-
-                .ant-dropdown-menu-item {
-                    color: rgba(255, 255, 255, 0.65);
-                }
-
-                .ant-dropdown-menu-item:hover {
-                    color: #fff;
-                    background-color: #1890ff;
-                }
-
-                .ant-dropdown-menu-item-disabled {
-                    color: rgba(255, 255, 255, 0.25) !important;
-                }
-
-                .ant-dropdown-menu-item-divider {
-                    background-color: rgba(255, 255, 255, 0.1);
-                }
-
-                .ant-dropdown-menu-submenu-arrow {
-                    color: rgba(255, 255, 255, 0.45);
-                }
-            }
-            "#
-        )
-    }
-
-    /// 大尺寸样式
-    fn large_size_style(&self) -> String {
-        css!(
-            r#"
-            .ant-dropdown-menu-item {
-                min-height: 40px;
-                padding: 8px 16px;
-                font-size: 16px;
-                line-height: 24px;
-            }
-            "#
-        )
-    }
-
-    /// 小尺寸样式
-    fn small_size_style(&self) -> String {
-        css!(
-            r#"
-            .ant-dropdown-menu-item {
-                min-height: 24px;
-                padding: 2px 8px;
-                font-size: 12px;
-                line-height: 20px;
-            }
-            "#
-        )
-    }
-
-    /// 紧凑尺寸样式
-    fn compact_size_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-dropdown-compact {
-                .ant-dropdown-menu-item {
-                    min-height: 24px;
-                    padding: 2px 8px;
-                    font-size: 12px;
-                    line-height: 20px;
-                }
-
-                .ant-dropdown-menu {
-                    padding: 2px 0;
-                }
-
-                .ant-dropdown-menu-item-icon {
-                    margin-right: 4px;
-                }
-            }
-            "#
-        )
-    }
-}
-
-/// 下拉菜单容器样式
-pub fn dropdown_wrap_style() -> String {
-    css!(
-        r#"
-        .ant-dropdown-wrap {
-            position: absolute;
-            z-index: 1050;
-            min-width: 120px;
-            margin: 0;
-            padding: 4px 0;
-            background-color: #fff;
-            background-clip: padding-box;
-            border-radius: 6px;
-            outline: none;
-            box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
-                0 3px 6px -4px rgba(0, 0, 0, 0.12),
-                0 9px 28px 8px rgba(0, 0, 0, 0.05);
-            animation: antDropdownSlideUpIn 0.3s cubic-bezier(0.08, 0.82, 0.17, 1);
-            transform-origin: 0 0;
-        }
-
-        @keyframes antDropdownSlideUpIn {
-            0% {
-                opacity: 0;
-                transform: scaleY(0.8);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scaleY(1);
-            }
-        }
-
-        @keyframes antDropdownSlideUpOut {
-            0% {
-                opacity: 1;
-                transform: scaleY(1);
-            }
-
-            100% {
-                opacity: 0;
-                transform: scaleY(0.8);
-            }
-        }
-
-        .ant-dropdown-hidden {
-            display: none;
-        }
-        "#
-    )
-}
-
-/// 下拉菜单样式
-pub fn dropdown_menu_style() -> String {
-    css!(
-        r#"
-        .ant-dropdown-menu {
-            position: relative;
-            margin: 0;
-            padding: 4px 0;
-            text-align: left;
-            list-style-type: none;
-            background-color: #fff;
-            background-clip: padding-box;
-            border-radius: 6px;
-            outline: none;
-            box-shadow: none;
-        }
-
-        .ant-dropdown-menu-root {
-            max-height: 400px;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        .ant-dropdown-menu-vertical {
-            padding: 4px 0;
-        }
-
-        .ant-dropdown-menu-item {
-            position: relative;
-            display: flex;
-            align-items: center;
-            min-height: 32px;
-            padding: 5px 12px;
-            color: rgba(0, 0, 0, 0.85);
-            font-weight: normal;
-            font-size: 14px;
-            line-height: 22px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 0;
-            user-select: none;
-        }
-
-        .ant-dropdown-menu-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        .ant-dropdown-menu-item:active {
-            background-color: #e6f7ff;
-        }
-
-        .ant-dropdown-menu-item-disabled {
-            color: rgba(0, 0, 0, 0.25);
-            cursor: not-allowed;
-        }
-
-        .ant-dropdown-menu-item-disabled:hover {
-            color: rgba(0, 0, 0, 0.25);
-            background-color: transparent;
-            cursor: not-allowed;
-        }
-
-        .ant-dropdown-menu-item-icon {
-            min-width: 12px;
-            margin-right: 8px;
-            font-size: 12px;
-        }
-
-        .ant-dropdown-menu-title-content {
-            flex: 1;
-        }
-
-        .ant-dropdown-menu-submenu-arrow {
-            margin-left: auto;
-            font-size: 10px;
-            color: rgba(0, 0, 0, 0.45);
-            transition: transform 0.3s;
-        }
-
-        .ant-dropdown-menu-item-divider {
-            height: 1px;
-            margin: 4px 0;
-            overflow: hidden;
-            line-height: 0;
-            background-color: rgba(5, 5, 5, 0.06);
-        }
-
-        .ant-dropdown-menu-sub {
-            position: absolute;
-            top: 0;
-            left: 100%;
-            min-width: 120px;
-            margin-left: 4px;
-            background: #fff;
-            border-radius: 6px;
-            box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
-                0 3px 6px -4px rgba(0, 0, 0, 0.12),
-                0 9px 28px 8px rgba(0, 0, 0, 0.05);
-            transform-origin: 0 0;
-        }
-        "#
-    )
-}
-
-/// 响应式样式
-pub fn dropdown_responsive_style() -> String {
-    css!(
-        r#"
-        @media (max-width: 575px) {
-            .ant-dropdown-wrap {
-                width: 100%;
-            }
-
-            .ant-dropdown-menu {
-                border-radius: 0;
-                box-shadow: none;
-                width: 100%;
-            }
-        }
-
-        @media (prefers-contrast: high) {
-            .ant-dropdown-menu {
-                border: 1px solid #000;
-            }
-
-            .ant-dropdown-menu-item {
-                border-bottom: 1px dotted #000;
+                transition: all 0.3s;
             }
 
             .ant-dropdown-menu-item:hover {
-                background-color: #000 !important;
-                color: #fff !important;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .ant-dropdown-wrap {
-                animation: none !important;
+                background-color: ${color_bg_text_hover};
             }
 
-            .ant-dropdown-menu-item {
-                transition: none !important;
+            .ant-dropdown-menu-item-disabled {
+                color: ${color_text_disabled};
+                cursor: not-allowed;
+            }
+
+            .ant-dropdown-menu-item-disabled:hover {
+                color: ${color_text_disabled};
+                background-color: transparent;
+                cursor: not-allowed;
+            }
+
+            .ant-dropdown-menu-item-divider {
+                height: 1px;
+                margin: ${margin_xs}px 0;
+                overflow: hidden;
+                line-height: 0;
+                background-color: ${color_split};
+            }
+
+            .ant-dropdown-menu-item-selected {
+                color: ${color_primary};
+                background-color: ${color_bg_text_active};
+            }
+
+            .ant-dropdown-menu-submenu {
+                position: relative;
+            }
+
+            .ant-dropdown-menu-submenu-title {
+                display: flex;
+                align-items: center;
+                padding: ${padding_xs}px ${padding_sm}px;
+                color: ${color_text};
+                font-weight: normal;
+                font-size: ${font_size}px;
+                line-height: ${line_height};
+                cursor: pointer;
+                transition: all 0.3s;
             }
 
             .ant-dropdown-menu-submenu-arrow {
-                transition: none !important;
+                position: absolute;
+                right: ${padding_sm}px;
+                color: ${color_text_secondary};
             }
-        }
 
-        @media print {
-            .ant-dropdown-wrap {
-                display: none !important;
+            .ant-dropdown-menu-dark {
+                background-color: ${color_bg_container_dark};
             }
-        }
-        "#
-    )
+
+            .ant-dropdown-menu-dark .ant-dropdown-menu-item {
+                color: ${color_text_secondary_dark};
+            }
+
+            .ant-dropdown-menu-dark .ant-dropdown-menu-item:hover {
+                color: ${color_text_dark};
+                background-color: ${color_bg_text_hover_dark};
+            }
+
+            .ant-dropdown-menu-dark .ant-dropdown-menu-item-selected {
+                color: ${color_text_dark};
+                background-color: ${color_primary};
+            }
+
+            .ant-dropdown-menu-dark .ant-dropdown-menu-submenu-title {
+                color: ${color_text_secondary_dark};
+            }
+
+            .ant-dropdown-menu-dark .ant-dropdown-menu-divider {
+                background-color: ${color_split_dark};
+            }
+
+            .ant-dropdown-menu-large .ant-dropdown-menu-item,
+            .ant-dropdown-menu-large .ant-dropdown-menu-submenu-title {
+                padding: ${padding_sm}px ${padding_md}px;
+                font-size: ${font_size_lg}px;
+            }
+
+            .ant-dropdown-menu-small .ant-dropdown-menu-item,
+            .ant-dropdown-menu-small .ant-dropdown-menu-submenu-title {
+                padding: ${padding_xs_sm}px ${padding_xs}px;
+                font-size: ${font_size_sm}px;
+            }
+
+            .ant-dropdown-menu-compact .ant-dropdown-menu-item,
+            .ant-dropdown-menu-compact .ant-dropdown-menu-submenu-title {
+                padding: ${padding_xs_sm}px ${padding_xs}px;
+                font-size: ${font_size_sm}px;
+                line-height: 1.4;
+            }
+
+            .ant-dropdown-arrow {
+                position: absolute;
+                display: block;
+                width: 8px;
+                height: 8px;
+                background-color: ${bg_color_container};
+                transform: rotate(45deg);
+                z-index: -1;
+            }
+
+            .ant-dropdown-placement-top .ant-dropdown-arrow,
+            .ant-dropdown-placement-topLeft .ant-dropdown-arrow,
+            .ant-dropdown-placement-topRight .ant-dropdown-arrow {
+                bottom: -4px;
+                box-shadow: 3px 3px 7px -3px rgba(0, 0, 0, 0.1);
+            }
+
+            .ant-dropdown-placement-bottom .ant-dropdown-arrow,
+            .ant-dropdown-placement-bottomLeft .ant-dropdown-arrow,
+            .ant-dropdown-placement-bottomRight .ant-dropdown-arrow {
+                top: -4px;
+                box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.06);
+            }
+
+            .ant-dropdown-placement-top .ant-dropdown-arrow,
+            .ant-dropdown-placement-bottom .ant-dropdown-arrow {
+                left: 50%;
+                transform: translateX(-50%) rotate(45deg);
+            }
+
+            .ant-dropdown-placement-topLeft .ant-dropdown-arrow,
+            .ant-dropdown-placement-bottomLeft .ant-dropdown-arrow {
+                left: 16px;
+            }
+
+            .ant-dropdown-placement-topRight .ant-dropdown-arrow,
+            .ant-dropdown-placement-bottomRight .ant-dropdown-arrow {
+                right: 16px;
+            }
+
+            .ant-dropdown-disabled .ant-dropdown-trigger {
+                cursor: not-allowed;
+                color: ${color_text_disabled};
+            }
+            "#,
+            z_index = self.token.z_index_popup,
+            color_text = self.token.color_text,
+            font_size = self.token.font_size,
+            line_height = self.token.line_height,
+            border_radius = self.token.border_radius,
+            box_shadow = self.token.box_shadow_secondary,
+            padding_xs = self.token.padding_xs,
+            padding_sm = self.token.padding_sm,
+            padding_md = self.token.padding_md,
+            padding_xs_sm = 2,
+            margin_xs = self.token.margin_xs,
+            bg_color_container = self.token.color_bg_container,
+            color_bg_text_hover = self.token.color_bg_text_hover,
+            color_text_disabled = self.token.color_text_disabled,
+            color_split = self.token.color_split,
+            color_primary = self.token.color_primary,
+            color_bg_text_active = self.token.color_bg_text_active,
+            color_text_secondary = self.token.color_text_secondary,
+            color_bg_container_dark = "#1f1f1f",
+            color_text_secondary_dark = "rgba(255, 255, 255, 0.65)",
+            color_text_dark = "rgba(255, 255, 255, 0.85)",
+            color_bg_text_hover_dark = "rgba(255, 255, 255, 0.08)",
+            color_split_dark = "#424242",
+            font_size_lg = self.token.font_size_lg,
+            font_size_sm = self.token.font_size_sm
+        )
+        .to_string()
+    }
 }
 
-/// A11y 样式
-pub fn dropdown_a11y_style() -> String {
-    css!(
-        r#"
-        .ant-dropdown-menu-item:focus {
-            outline: 2px solid #1890ff;
-            outline-offset: -2px;
-        }
-
-        .ant-dropdown-trigger:focus {
-            outline: 2px solid #1890ff;
-            outline-offset: 1px;
-        }
-        "#
-    )
-}
-
-/// 生成完整的下拉菜单样式
+/// 生成 Dropdown 样式
 pub fn generate_dropdown_style(
     placement: DropdownPlacement,
     theme: DropdownTheme,
@@ -620,18 +427,33 @@ pub fn generate_dropdown_style(
     arrow: bool,
     disabled: bool,
 ) -> String {
-    format!(
-        "{} {} {} {} {}",
-        DropdownStyleGenerator::new()
-            .with_placement(placement)
-            .with_theme(theme)
-            .with_size(size)
-            .with_arrow(arrow)
-            .with_disabled(disabled)
-            .generate(),
-        dropdown_wrap_style(),
-        dropdown_menu_style(),
-        dropdown_responsive_style(),
-        dropdown_a11y_style(),
-    )
+    DropdownStyleGenerator::new()
+        .with_placement(placement)
+        .with_theme(theme)
+        .with_size(size)
+        .with_arrow(arrow)
+        .with_disabled(disabled)
+        .generate()
+}
+
+/// 生成 Dropdown CSS 样式
+pub fn generate_dropdown_css(
+    placement: DropdownPlacement,
+    theme: DropdownTheme,
+    size: DropdownSize,
+    arrow: bool,
+    disabled: bool,
+) -> String {
+    DropdownStyleGenerator::new()
+        .with_placement(placement)
+        .with_theme(theme)
+        .with_size(size)
+        .with_arrow(arrow)
+        .with_disabled(disabled)
+        .generate_css()
+}
+
+/// 默认 Dropdown 样式
+pub fn default_dropdown_style() -> String {
+    DropdownStyleGenerator::new().generate()
 }

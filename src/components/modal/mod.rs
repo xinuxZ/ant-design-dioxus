@@ -165,6 +165,10 @@ pub struct ModalProps {
     /// 对话框内容
     #[props(default)]
     pub children: Option<Element>,
+
+    /// 是否在关闭时销毁组件
+    #[props(default = false)]
+    pub destroyOnClose: bool,
 }
 
 /// Modal 对话框组件
@@ -193,14 +197,13 @@ pub fn Modal(props: ModalProps) -> Element {
 
     let modal_styles = style_builder.build();
 
-    // 处理键盘事件
-    use_effect(move || {
+    // 处理键盘事件（Esc 键关闭）
+    let keyboard_event = {
         if props.open && props.keyboard {
             let closure = wasm_bindgen::closure::Closure::wrap(Box::new(
                 move |event: web_sys::KeyboardEvent| {
                     if event.key() == "Escape" {
                         if let Some(on_cancel) = &props.on_cancel {
-                            // 直接调用回调函数
                             on_cancel.call(());
                         }
                     }
@@ -213,23 +216,39 @@ pub fn Modal(props: ModalProps) -> Element {
                     .add_event_listener_with_callback("keydown", closure.as_ref().unchecked_ref());
             }
 
-            // 清理函数
-            move || {
-                if let Some(window) = window() {
-                    let _ = window.remove_event_listener_with_callback(
-                        "keydown",
-                        closure.as_ref().unchecked_ref(),
-                    );
-                }
-            }
+            // 返回清理函数
+            Some(closure)
         } else {
-            || {}
+            None
+        }
+    };
+
+    // 在组件卸载时移除事件监听器
+    use_drop(move || {
+        if let Some(window) = window() {
+            if let Some(closure) = keyboard_event {
+                let _ = window.remove_event_listener_with_callback(
+                    "keydown",
+                    closure.as_ref().unchecked_ref(),
+                );
+            }
         }
     });
 
-    // 如果不可见，则不渲染
-    if !props.open {
-        return None;
+    // 如果模态框关闭，则不渲染内容
+    if !props.open && !props.destroyOnClose {
+        return rsx! {
+            div {
+                style: "display: none;",
+            }
+        };
+    } else if !props.open {
+        // 如果需要销毁，则返回空内容
+        return rsx! {
+            div {
+                style: "display: none;",
+            }
+        };
     }
 
     // 渲染Modal

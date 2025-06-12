@@ -388,7 +388,7 @@ fn render_menu_items_recursive(
                     onclick: if !item.disabled {
                         let key = item.key.clone();
                         let handle_menu_click = handle_menu_click.clone();
-                        move |e: MouseEvent| {
+                        move |e: web_sys::MouseEvent| {
                             e.stop_propagation();
                             handle_menu_click.call(key.clone());
                         }

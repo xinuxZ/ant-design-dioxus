@@ -3,6 +3,7 @@
 //! 本模块包含 Menu 组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
+use crate::theme::AliasToken;
 use css_in_rust::css;
 use serde::{Deserialize, Serialize};
 
@@ -46,6 +47,8 @@ pub struct MenuStyleGenerator {
     pub theme: MenuTheme,
     /// 是否折叠
     pub collapsed: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl MenuStyleGenerator {
@@ -55,6 +58,7 @@ impl MenuStyleGenerator {
             mode: MenuMode::default(),
             theme: MenuTheme::default(),
             collapsed: false,
+            token: AliasToken::default(),
         }
     }
 
@@ -76,118 +80,127 @@ impl MenuStyleGenerator {
         self
     }
 
-    /// 生成完整的菜单样式
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
+
+    /// 生成完整的菜单样式类名
     pub fn generate(&self) -> String {
-        let mut classes = vec![self.base_style()];
+        let mut classes = vec!["ant-menu".to_string()];
 
         // 根据模式添加相应样式
         match self.mode {
-            MenuMode::Horizontal => classes.push(self.horizontal_style()),
-            MenuMode::Vertical => classes.push(self.vertical_style()),
-            MenuMode::Inline => classes.push(self.inline_style()),
+            MenuMode::Horizontal => classes.push("ant-menu-horizontal".to_string()),
+            MenuMode::Vertical => classes.push("ant-menu-vertical".to_string()),
+            MenuMode::Inline => classes.push("ant-menu-inline".to_string()),
         }
 
         // 根据主题添加相应样式
         match self.theme {
-            MenuTheme::Light => {}
-            MenuTheme::Dark => classes.push(self.dark_theme_style()),
+            MenuTheme::Light => classes.push("ant-menu-light".to_string()),
+            MenuTheme::Dark => classes.push("ant-menu-dark".to_string()),
         }
 
         // 折叠状态
         if self.collapsed {
-            classes.push(self.collapsed_style());
+            classes.push("ant-menu-collapsed".to_string());
         }
 
         classes.join(" ")
     }
 
-    /// 基础样式
-    fn base_style(&self) -> String {
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
         css!(
             r#"
-            margin: 0;
-            padding: 0;
-            color: rgba(0, 0, 0, 0.88);
-            font-size: 14px;
-            line-height: 1.5715;
-            list-style: none;
-            font-feature-settings: 'tnum';
-            background: #fff;
-            border: 0;
-            border-radius: 0;
-            outline: none;
-            box-shadow: none;
-            transition: background 0.3s, width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s;
-            box-sizing: border-box;
+            .ant-menu {
+                margin: 0;
+                padding: 0;
+                color: ${color_text};
+                font-size: ${font_size}px;
+                line-height: ${line_height};
+                list-style: none;
+                font-feature-settings: 'tnum';
+                background: ${bg_color_container};
+                border: 0;
+                border-radius: 0;
+                outline: none;
+                box-shadow: none;
+                transition: background 0.3s, width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s;
+                box-sizing: border-box;
+            }
 
-            &::before {
+            .ant-menu::before {
                 display: table;
                 content: '';
             }
 
-            &::after {
+            .ant-menu::after {
                 display: table;
                 clear: both;
                 content: '';
             }
 
-            ul, ol {
+            .ant-menu ul,
+            .ant-menu ol {
                 margin: 0;
                 padding: 0;
                 list-style: none;
             }
 
-            &-hidden {
+            .ant-menu-hidden {
                 display: none;
             }
 
-            &-item-group-title {
-                padding: 8px 16px;
-                color: rgba(0, 0, 0, 0.45);
-                font-size: 14px;
-                line-height: 1.5715;
+            .ant-menu-item-group-title {
+                padding: ${padding_xs}px ${padding_sm}px;
+                color: ${color_text_secondary};
+                font-size: ${font_size}px;
+                line-height: ${line_height};
                 transition: all 0.3s;
             }
 
-            &-submenu,
-            &-item {
+            .ant-menu-submenu,
+            .ant-menu-item {
                 position: relative;
                 display: block;
                 margin: 0;
-                padding: 0 20px;
-                color: rgba(0, 0, 0, 0.88);
+                padding: 0 ${padding_lg}px;
+                color: ${color_text};
                 font-weight: 400;
-                font-size: 14px;
-                line-height: 40px;
+                font-size: ${font_size}px;
+                line-height: ${height_base}px;
                 cursor: pointer;
                 transition: border-color 0.3s, background 0.3s, padding 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-                border-radius: 6px;
+                border-radius: ${border_radius}px;
                 margin-inline: 4px;
                 margin-block: 4px;
                 width: calc(100% - 8px);
             }
 
-            &-item:active,
-            &-submenu-title:active {
-                background: rgba(0, 0, 0, 0.15);
+            .ant-menu-item:active,
+            .ant-menu-submenu-title:active {
+                background: ${color_bg_text_active};
             }
 
-            &-submenu .ant-menu-sub {
+            .ant-menu-submenu .ant-menu-sub {
                 cursor: initial;
                 transition: background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), padding 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
             }
 
-            &-item > a {
+            .ant-menu-item > a {
                 display: block;
-                color: rgba(0, 0, 0, 0.88);
+                color: ${color_text};
                 text-decoration: none;
             }
 
-            &-item > a:hover {
-                color: rgba(0, 0, 0, 0.88);
+            .ant-menu-item > a:hover {
+                color: ${color_text};
             }
 
-            &-item > a::before {
+            .ant-menu-item > a::before {
                 position: absolute;
                 top: 0;
                 right: 0;
@@ -197,555 +210,374 @@ impl MenuStyleGenerator {
                 content: '';
             }
 
-            &-item-divider {
+            .ant-menu-item-divider {
+                height: 1px;
                 overflow: hidden;
                 line-height: 0;
-                border-color: rgba(5, 5, 5, 0.06);
-                border-style: solid;
-                border-width: 1px 0 0 0;
+                background-color: ${color_split};
+                margin: ${margin_xs}px 0;
             }
 
-            &-item:hover,
-            &-item-active,
-            &:not(.ant-menu-inline) .ant-menu-submenu-open,
-            &-submenu-active,
-            &-submenu-title:hover {
-                color: #1677ff;
-                background-color: rgba(0, 0, 0, 0.06);
+            .ant-menu-item:hover,
+            .ant-menu-submenu:hover,
+            .ant-menu-submenu-title:hover {
+                color: ${color_primary};
+                background-color: ${color_bg_text_hover};
             }
 
-            &-item-selected {
-                color: #1677ff;
-                background-color: #e6f4ff;
+            .ant-menu-item-selected {
+                color: ${color_primary};
+                background-color: ${color_bg_text_active};
             }
 
-            &-item-selected > a,
-            &-item-selected > a:hover {
-                color: #1677ff;
+            .ant-menu-item-selected > a,
+            .ant-menu-item-selected > a:hover {
+                color: ${color_primary};
             }
 
-            &:not(.ant-menu-horizontal) .ant-menu-item-selected {
-                background-color: #e6f4ff;
+            .ant-menu-submenu-selected {
+                color: ${color_primary};
             }
 
-            &-inline .ant-menu-item-selected {
-                background-color: #e6f4ff;
-            }
-
-            &-item-disabled,
-            &-submenu-disabled {
-                color: rgba(0, 0, 0, 0.25) !important;
-                background: none;
-                border-color: transparent !important;
-                cursor: not-allowed;
-            }
-
-            &-item-disabled > a,
-            &-submenu-disabled > a {
-                color: rgba(0, 0, 0, 0.25) !important;
-                pointer-events: none;
-            }
-
-            &-item-disabled > .ant-menu-submenu-title,
-            &-submenu-disabled > .ant-menu-submenu-title {
-                color: rgba(0, 0, 0, 0.25) !important;
-                cursor: not-allowed;
-            }
-
-            &-item-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::before,
-            &-item-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::after,
-            &-submenu-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::before,
-            &-submenu-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::after {
-                background: rgba(0, 0, 0, 0.25) !important;
-            }
-
-            &-item-icon,
-            &-submenu-title .ant-menu-item-icon {
-                min-width: 14px;
-                margin-right: 10px;
-                font-size: 14px;
-                transition: font-size 0.15s cubic-bezier(0.215, 0.61, 0.355, 1), margin 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-            }
-
-            &-item-icon + span,
-            &-submenu-title .ant-menu-item-icon + span {
-                opacity: 1;
-                transition: opacity 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), width 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-            }
-
-            &-item .ant-menu-item-icon,
-            &-submenu .ant-menu-item-icon {
-                line-height: 40px;
-            }
-
-            &-submenu-title {
+            .ant-menu-submenu-title {
                 position: relative;
-                display: block;
-                margin: 0;
-                padding: 0 20px;
-                color: rgba(0, 0, 0, 0.88);
-                font-weight: 400;
-                font-size: 14px;
-                line-height: 40px;
+                display: flex;
+                align-items: center;
+                padding: 0 ${padding_lg}px;
+                height: ${height_base}px;
+                line-height: ${height_base}px;
                 cursor: pointer;
-                transition: border-color 0.3s, background 0.3s, padding 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-                border-radius: 6px;
+                transition: all 0.3s;
+                border-radius: ${border_radius}px;
                 margin-inline: 4px;
                 margin-block: 4px;
                 width: calc(100% - 8px);
             }
 
-            &-submenu-title:hover {
-                color: #1677ff;
-                background-color: rgba(0, 0, 0, 0.06);
-            }
-
-            &-submenu-arrow {
+            .ant-menu-submenu-arrow {
                 position: absolute;
-                top: 50%;
-                right: 16px;
-                width: 10px;
+                right: ${padding_md}px;
+                color: ${color_text};
+                transform: rotate(0deg);
                 transition: transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
             }
 
-            &-submenu-arrow::before,
-            &-submenu-arrow::after {
-                position: absolute;
-                width: 6px;
-                height: 1.5px;
-                background-color: currentColor;
-                border-radius: 2px;
-                transition: background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), transform 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), top 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-                content: '';
+            .ant-menu-submenu-open > .ant-menu-submenu-title > .ant-menu-submenu-arrow {
+                transform: rotate(180deg);
             }
 
-            &-submenu-arrow::before {
-                transform: rotate(45deg) translateY(-2px);
+            .ant-menu-submenu-disabled {
+                color: ${color_text_disabled} !important;
+                background: none;
+                cursor: not-allowed;
             }
 
-            &-submenu-arrow::after {
-                transform: rotate(-45deg) translateY(2px);
+            .ant-menu-submenu-disabled > .ant-menu-submenu-title {
+                color: ${color_text_disabled} !important;
+                cursor: not-allowed;
             }
 
-            &-submenu-open > .ant-menu-submenu-title > .ant-menu-submenu-arrow {
-                transform: translateY(-2px);
+            .ant-menu-submenu-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow {
+                color: ${color_text_disabled} !important;
             }
 
-            &-submenu-open > .ant-menu-submenu-title > .ant-menu-submenu-arrow::before {
-                transform: rotate(45deg) translateX(2px);
+            .ant-menu-submenu-disabled:hover {
+                color: ${color_text_disabled} !important;
+                background: none;
             }
 
-            &-submenu-open > .ant-menu-submenu-title > .ant-menu-submenu-arrow::after {
-                transform: rotate(-45deg) translateX(-2px);
+            .ant-menu-item-disabled,
+            .ant-menu-submenu-disabled {
+                color: ${color_text_disabled} !important;
+                background: none;
+                cursor: not-allowed;
             }
 
-            &-sub.ant-menu-inline {
-                padding: 0;
-                background: #fafafa;
-                border: 0;
-                border-radius: 0;
-                box-shadow: none;
+            .ant-menu-item-disabled > a,
+            .ant-menu-submenu-disabled > a {
+                color: ${color_text_disabled} !important;
+                pointer-events: none;
             }
 
-            &-sub.ant-menu-inline > .ant-menu-item,
-            &-sub.ant-menu-inline > .ant-menu-submenu > .ant-menu-submenu-title {
-                height: 40px;
-                line-height: 40px;
-                list-style-position: inside;
-                list-style-type: disc;
+            .ant-menu-item-disabled:hover,
+            .ant-menu-submenu-disabled:hover {
+                color: ${color_text_disabled} !important;
+                background: none;
             }
 
-            &-sub.ant-menu-inline .ant-menu-item-group-title {
-                padding-left: 32px;
-            }
-            "#
-        )
-    }
-
-    /// 水平菜单样式
-    fn horizontal_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-menu-horizontal {
-                line-height: 46px;
-                border-bottom: 1px solid #f0f0f0;
-            }
-
-            &.ant-menu-horizontal > .ant-menu-item,
-            &.ant-menu-horizontal > .ant-menu-submenu {
-                position: relative;
-                top: 1px;
-                display: inline-block;
-                vertical-align: bottom;
-                border-bottom: 2px solid transparent;
-            }
-
-            &.ant-menu-horizontal > .ant-menu-item:hover,
-            &.ant-menu-horizontal > .ant-menu-submenu:hover,
-            &.ant-menu-horizontal > .ant-menu-item-active,
-            &.ant-menu-horizontal > .ant-menu-submenu-active,
-            &.ant-menu-horizontal > .ant-menu-item-open,
-            &.ant-menu-horizontal > .ant-menu-submenu-open,
-            &.ant-menu-horizontal > .ant-menu-item-selected,
-            &.ant-menu-horizontal > .ant-menu-submenu-selected {
-                color: #1677ff;
-                border-bottom: 2px solid #1677ff;
-            }
-
-            &.ant-menu-horizontal > .ant-menu-item > a {
-                display: block;
-                color: rgba(0, 0, 0, 0.88);
-            }
-
-            &.ant-menu-horizontal > .ant-menu-item > a:hover {
-                color: #1677ff;
-            }
-
-            &.ant-menu-horizontal > .ant-menu-item > a::before {
-                bottom: -2px;
-            }
-
-            &.ant-menu-horizontal > .ant-menu-submenu > .ant-menu-submenu-title {
-                padding: 0;
-                border-radius: 0;
-                margin-inline: 0;
-                margin-block: 0;
-                width: auto;
-            }
-
-            &.ant-menu-horizontal.ant-menu-sub {
-                min-width: 114px;
-                border-radius: 4px;
-            }
-            "#
-        )
-    }
-
-    /// 垂直菜单样式
-    fn vertical_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-menu-vertical,
-            &.ant-menu-vertical-left,
-            &.ant-menu-vertical-right {
-                border-right: 1px solid #f0f0f0;
-            }
-
-            &.ant-menu-vertical-right {
-                border-right: none;
-                border-left: 1px solid #f0f0f0;
-            }
-
-            &.ant-menu-vertical.ant-menu-sub,
-            &.ant-menu-vertical-left.ant-menu-sub,
-            &.ant-menu-vertical-right.ant-menu-sub {
-                min-width: 160px;
-                max-height: calc(100vh - 100px);
-                padding: 0;
-                overflow: hidden;
-                border-right: 0;
-                transform-origin: 0 0;
-            }
-
-            &.ant-menu-vertical.ant-menu-sub .ant-menu-item,
-            &.ant-menu-vertical-left.ant-menu-sub .ant-menu-item,
-            &.ant-menu-vertical-right.ant-menu-sub .ant-menu-item {
-                left: 0;
-                margin-left: 0;
-                border-right: 0;
-            }
-
-            &.ant-menu-vertical.ant-menu-sub .ant-menu-item:after,
-            &.ant-menu-vertical-left.ant-menu-sub .ant-menu-item:after,
-            &.ant-menu-vertical-right.ant-menu-sub .ant-menu-item:after {
-                border-right: 0;
-            }
-            "#
-        )
-    }
-
-    /// 内嵌菜单样式
-    fn inline_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-menu-inline {
-                width: 100%;
-            }
-
-            &.ant-menu-inline .ant-menu-item,
-            &.ant-menu-inline .ant-menu-submenu-title {
-                width: 100%;
-            }
-            "#
-        )
-    }
-
-    /// 折叠菜单样式
-    fn collapsed_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-menu-inline-collapsed {
-                width: 80px;
-            }
-
-            &.ant-menu-inline-collapsed > .ant-menu-item,
-            &.ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
-                left: 0;
-                padding: 0 32px !important;
-                text-overflow: clip;
-            }
-
-            &.ant-menu-inline-collapsed > .ant-menu-item .ant-menu-item-icon,
-            &.ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title .ant-menu-item-icon {
-                margin: 0;
-                font-size: 16px;
-                line-height: 40px;
-            }
-
-            &.ant-menu-inline-collapsed > .ant-menu-item .ant-menu-item-icon + span,
-            &.ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title .ant-menu-item-icon + span {
-                display: inline-block;
-                max-width: 0;
-                opacity: 0;
-            }
-
-            &.ant-menu-inline-collapsed > .ant-menu-item .ant-menu-submenu-arrow,
-            &.ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title .ant-menu-submenu-arrow {
-                display: none;
-            }
-            "#
-        )
-    }
-
-    /// 暗色主题样式
-    fn dark_theme_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-menu-dark,
-            &.ant-menu-dark .ant-menu-sub {
-                color: rgba(255, 255, 255, 0.65);
-                background: #001529;
-            }
-
-            &.ant-menu-dark .ant-menu-submenu-title,
-            &.ant-menu-dark .ant-menu-item {
-                color: rgba(255, 255, 255, 0.65);
-                transition: color 0.3s;
-            }
-
-            &.ant-menu-dark.ant-menu-submenu-popup {
-                background: transparent;
-            }
-
-            &.ant-menu-dark .ant-menu-item > a {
-                color: rgba(255, 255, 255, 0.65);
-            }
-
-            &.ant-menu-dark .ant-menu-item > a:hover {
-                color: #fff;
-            }
-
-            &.ant-menu-dark .ant-menu-item:hover,
-            &.ant-menu-dark .ant-menu-submenu-active,
-            &.ant-menu-dark .ant-menu-submenu-open,
-            &.ant-menu-dark .ant-menu-submenu-selected,
-            &.ant-menu-dark .ant-menu-submenu-title:hover {
-                color: #fff;
-                background-color: transparent;
-            }
-
-            &.ant-menu-dark .ant-menu-item:hover > a,
-            &.ant-menu-dark .ant-menu-submenu-active > a,
-            &.ant-menu-dark .ant-menu-submenu-open > a,
-            &.ant-menu-dark .ant-menu-submenu-selected > a,
-            &.ant-menu-dark .ant-menu-submenu-title:hover > a {
-                color: #fff;
-            }
-
-            &.ant-menu-dark .ant-menu-item-selected {
-                color: #fff;
-                background-color: #1677ff;
-            }
-
-            &.ant-menu-dark .ant-menu-item-selected > a,
-            &.ant-menu-dark .ant-menu-item-selected > a:hover {
-                color: #fff;
-            }
-
-            &.ant-menu-dark .ant-menu-item-disabled,
-            &.ant-menu-dark .ant-menu-submenu-disabled {
-                color: rgba(255, 255, 255, 0.35) !important;
-            }
-
-            &.ant-menu-dark .ant-menu-item-disabled > a,
-            &.ant-menu-dark .ant-menu-submenu-disabled > a {
-                color: rgba(255, 255, 255, 0.35) !important;
-            }
-
-            &.ant-menu-dark .ant-menu-item-disabled > .ant-menu-submenu-title,
-            &.ant-menu-dark .ant-menu-submenu-disabled > .ant-menu-submenu-title {
-                color: rgba(255, 255, 255, 0.35) !important;
-            }
-
-            &.ant-menu-dark .ant-menu-item-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::before,
-            &.ant-menu-dark .ant-menu-item-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::after,
-            &.ant-menu-dark .ant-menu-submenu-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::before,
-            &.ant-menu-dark .ant-menu-submenu-disabled > .ant-menu-submenu-title > .ant-menu-submenu-arrow::after {
-                background: rgba(255, 255, 255, 0.35) !important;
-            }
-
-            &.ant-menu-dark.ant-menu-horizontal {
-                border-bottom: 0;
-            }
-
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-item,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu {
-                top: 0;
-                margin-top: 0;
-                border-color: #001529;
-                border-bottom: 0;
-            }
-
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-item:hover,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu:hover,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-item-active,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu-active,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-item-open,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu-open,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-item-selected,
-            &.ant-menu-dark.ant-menu-horizontal > .ant-menu-submenu-selected {
-                color: #fff;
-                border-color: #001529;
-            }
-
-            &.ant-menu-dark .ant-menu-item-group-title {
-                color: rgba(255, 255, 255, 0.65);
-            }
-
-            &.ant-menu-dark.ant-menu-inline .ant-menu-sub {
-                background: #000c17;
-            }
-            "#
-        )
-    }
-}
-
-/// 响应式菜单样式
-pub fn menu_responsive_style() -> String {
-    css!(
-        r#"
-        @media (max-width: 576px) {
+            /* 水平菜单样式 */
             .ant-menu-horizontal {
-                overflow-x: auto;
-                white-space: nowrap;
+                display: flex;
+                flex-wrap: nowrap;
+                border-bottom: 1px solid ${color_split};
+                line-height: ${height_base}px;
             }
 
             .ant-menu-horizontal > .ant-menu-item,
             .ant-menu-horizontal > .ant-menu-submenu {
+                position: relative;
+                top: 1px;
                 display: inline-flex;
+                align-items: center;
+                margin-top: 0;
+                margin-bottom: 0;
+                padding: 0 ${padding_md}px;
+                border-bottom: 2px solid transparent;
             }
 
-            .ant-menu-item,
-            .ant-menu-submenu-title {
-                padding-left: 16px;
-                padding-right: 16px;
+            .ant-menu-horizontal > .ant-menu-item:hover,
+            .ant-menu-horizontal > .ant-menu-submenu:hover,
+            .ant-menu-horizontal > .ant-menu-item-active,
+            .ant-menu-horizontal > .ant-menu-submenu-active,
+            .ant-menu-horizontal > .ant-menu-item-open,
+            .ant-menu-horizontal > .ant-menu-submenu-open,
+            .ant-menu-horizontal > .ant-menu-item-selected,
+            .ant-menu-horizontal > .ant-menu-submenu-selected {
+                color: ${color_primary};
+                border-bottom: 2px solid ${color_primary};
             }
-        }
 
-        .ant-menu-sub.ant-menu-inline {
-            animation: antSlideUpIn 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-        }
-        "#
-    )
+            /* 垂直菜单样式 */
+            .ant-menu-vertical {
+                border-right: 1px solid ${color_split};
+            }
+
+            .ant-menu-vertical .ant-menu-item {
+                margin-bottom: ${margin_xs}px;
+            }
+
+            .ant-menu-vertical .ant-menu-submenu-title {
+                padding-right: ${padding_xl}px;
+            }
+
+            /* 内联菜单样式 */
+            .ant-menu-inline {
+                width: 100%;
+                border-right: 1px solid ${color_split};
+            }
+
+            .ant-menu-inline .ant-menu-item,
+            .ant-menu-inline .ant-menu-submenu-title {
+                width: 100%;
+            }
+
+            .ant-menu-inline .ant-menu-submenu-title {
+                padding-right: ${padding_xl}px;
+            }
+
+            .ant-menu-inline .ant-menu-item {
+                margin-bottom: ${margin_xs}px;
+            }
+
+            .ant-menu-inline .ant-menu-item:not(:last-child) {
+                margin-bottom: ${margin_xs}px;
+            }
+
+            .ant-menu-inline .ant-menu-submenu-arrow {
+                right: ${padding_md}px;
+            }
+
+            .ant-menu-inline-collapsed {
+                width: ${height_lg * 2}px;
+            }
+
+            .ant-menu-inline-collapsed > .ant-menu-item,
+            .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+                padding: 0 calc(50% - ${font_size}px / 2);
+                text-overflow: clip;
+            }
+
+            .ant-menu-inline-collapsed .ant-menu-submenu-arrow {
+                display: none;
+            }
+
+            .ant-menu-inline-collapsed .ant-menu-item-group-title {
+                padding-right: 0;
+                padding-left: 0;
+                text-align: center;
+            }
+
+            /* 折叠菜单样式 */
+            .ant-menu-collapsed {
+                width: ${height_lg * 2}px;
+            }
+
+            .ant-menu-collapsed > .ant-menu-item,
+            .ant-menu-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+                padding: 0 calc(50% - ${font_size}px / 2);
+                text-overflow: clip;
+            }
+
+            .ant-menu-collapsed .ant-menu-submenu-arrow {
+                display: none;
+            }
+
+            .ant-menu-collapsed .ant-menu-item-group-title {
+                padding-right: 0;
+                padding-left: 0;
+                text-align: center;
+            }
+
+            /* 暗色主题样式 */
+            .ant-menu-dark {
+                color: ${color_text_secondary_dark};
+                background: ${color_bg_container_dark};
+            }
+
+            .ant-menu-dark .ant-menu-item,
+            .ant-menu-dark .ant-menu-submenu-title {
+                color: ${color_text_secondary_dark};
+            }
+
+            .ant-menu-dark .ant-menu-item:hover,
+            .ant-menu-dark .ant-menu-submenu-title:hover {
+                color: ${color_text_dark};
+                background-color: ${color_bg_text_hover_dark};
+            }
+
+            .ant-menu-dark .ant-menu-item-selected {
+                color: ${color_text_dark};
+                background-color: ${color_primary};
+            }
+
+            .ant-menu-dark .ant-menu-item-selected > a,
+            .ant-menu-dark .ant-menu-item-selected > a:hover {
+                color: ${color_text_dark};
+            }
+
+            .ant-menu-dark .ant-menu-submenu-selected {
+                color: ${color_text_dark};
+            }
+
+            .ant-menu-dark .ant-menu-submenu-arrow {
+                color: ${color_text_secondary_dark};
+            }
+
+            .ant-menu-dark .ant-menu-item-divider {
+                background-color: ${color_split_dark};
+            }
+
+            .ant-menu-dark .ant-menu-submenu-disabled,
+            .ant-menu-dark .ant-menu-item-disabled {
+                color: ${color_text_disabled_dark} !important;
+            }
+
+            /* 响应式样式 */
+            @media (max-width: 575px) {
+                .ant-menu-horizontal {
+                    flex-wrap: wrap;
+                }
+            }
+
+            /* 动画样式 */
+            .ant-menu-submenu-popup {
+                position: absolute;
+                z-index: ${z_index_popup};
+                background: transparent;
+                box-shadow: none;
+                transform-origin: 0 0;
+            }
+
+            .ant-menu-submenu-popup .ant-menu {
+                background-color: ${bg_color_container};
+                border-radius: ${border_radius}px;
+                box-shadow: ${box_shadow};
+            }
+
+            .ant-menu-submenu-popup.ant-menu-dark .ant-menu {
+                background-color: ${color_bg_container_dark};
+            }
+
+            .ant-menu-submenu-popup .ant-menu-item:hover {
+                background-color: ${color_bg_text_hover};
+            }
+
+            .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item:hover {
+                background-color: ${color_bg_text_hover_dark};
+            }
+
+            .ant-menu-submenu-popup .ant-menu-item-selected {
+                background-color: ${color_bg_text_active};
+            }
+
+            .ant-menu-submenu-popup.ant-menu-dark .ant-menu-item-selected {
+                background-color: ${color_primary};
+            }
+
+            .ant-menu-submenu-placement-rightTop {
+                transform-origin: left top;
+            }
+
+            .ant-menu-submenu-placement-leftTop {
+                transform-origin: right top;
+            }
+
+            .ant-menu-submenu-placement-bottomLeft {
+                transform-origin: top left;
+            }
+
+            .ant-menu-submenu-placement-bottomRight {
+                transform-origin: top right;
+            }
+
+            .ant-menu-submenu-placement-topLeft {
+                transform-origin: bottom left;
+            }
+
+            .ant-menu-submenu-placement-topRight {
+                transform-origin: bottom right;
+            }
+            "#,
+            color_text = self.token.color_text,
+            font_size = self.token.font_size,
+            line_height = self.token.line_height,
+            bg_color_container = self.token.color_bg_container,
+            color_text_secondary = self.token.color_text_secondary,
+            padding_xs = self.token.padding_xs,
+            padding_sm = self.token.padding_sm,
+            padding_md = self.token.padding_md,
+            padding_lg = self.token.padding_lg,
+            padding_xl = self.token.padding_xl,
+            height_base = self.token.height_base,
+            height_lg = self.token.height_lg,
+            border_radius = self.token.border_radius,
+            color_bg_text_active = self.token.color_bg_text_active,
+            color_text_disabled = self.token.color_text_disabled,
+            color_split = self.token.color_split,
+            margin_xs = self.token.margin_xs,
+            color_primary = self.token.color_primary,
+            color_bg_text_hover = self.token.color_bg_text_hover,
+            color_text_secondary_dark = "rgba(255, 255, 255, 0.65)",
+            color_bg_container_dark = "#001529",
+            color_text_dark = "#fff",
+            color_bg_text_hover_dark = "rgba(255, 255, 255, 0.08)",
+            color_split_dark = "rgba(255, 255, 255, 0.12)",
+            color_text_disabled_dark = "rgba(255, 255, 255, 0.25)",
+            z_index_popup = self.token.z_index_popup,
+            box_shadow = self.token.box_shadow
+        ).to_string()
+    }
 }
 
-/// 动画样式
-pub fn menu_animation_style() -> String {
-    css!(
-        r#"
-        @keyframes antSlideUpIn {
-            0% {
-                transform: scaleY(0.8);
-                transform-origin: 0% 0%;
-                opacity: 0;
-            }
-            100% {
-                transform: scaleY(1);
-                transform-origin: 0% 0%;
-                opacity: 1;
-            }
-        }
-
-        @keyframes antSlideUpOut {
-            0% {
-                transform: scaleY(1);
-                transform-origin: 0% 0%;
-                opacity: 1;
-            }
-            100% {
-                transform: scaleY(0.8);
-                transform-origin: 0% 0%;
-                opacity: 0;
-            }
-        }
-        "#
-    )
-}
-
-/// 可访问性样式
-pub fn menu_a11y_style() -> String {
-    css!(
-        r#"
-        .ant-menu-item:focus,
-        .ant-menu-submenu-title:focus {
-            outline: 2px solid #1677ff;
-            outline-offset: -2px;
-        }
-
-        .ant-menu-item:focus:not(:focus-visible),
-        .ant-menu-submenu-title:focus:not(:focus-visible) {
-            outline: none;
-        }
-        "#
-    )
-}
-
-/// 高对比度样式
-pub fn menu_high_contrast_style() -> String {
-    css!(
-        r#"
-        @media (prefers-contrast: high) {
-            .ant-menu {
-                border: 1px solid #000;
-            }
-
-            .ant-menu-item:hover,
-            .ant-menu-submenu-title:hover {
-                background: #000;
-                color: #fff;
-            }
-
-            .ant-menu-item-selected {
-                background: #000;
-                color: #fff;
-            }
-        }
-        "#
-    )
-}
-
-/// 生成完整的菜单样式
+/// 生成菜单样式
 pub fn generate_menu_style(mode: MenuMode, theme: MenuTheme, collapsed: bool) -> String {
-    format!(
-        "{} {} {} {} {}",
-        MenuStyleGenerator::new()
-            .with_mode(mode)
-            .with_theme(theme)
-            .with_collapsed(collapsed)
-            .generate(),
-        menu_responsive_style(),
-        menu_animation_style(),
-        menu_a11y_style(),
-        menu_high_contrast_style(),
-    )
+    MenuStyleGenerator::new()
+        .with_mode(mode)
+        .with_theme(theme)
+        .with_collapsed(collapsed)
+        .generate()
+}
+
+/// 生成菜单 CSS 样式
+pub fn generate_menu_css(mode: MenuMode, theme: MenuTheme, collapsed: bool) -> String {
+    MenuStyleGenerator::new()
+        .with_mode(mode)
+        .with_theme(theme)
+        .with_collapsed(collapsed)
+        .generate_css()
+}
+
+/// 默认菜单样式
+pub fn default_menu_style() -> String {
+    MenuStyleGenerator::new().generate()
 }

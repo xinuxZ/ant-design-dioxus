@@ -212,14 +212,14 @@ pub fn Anchor(props: AnchorProps) -> Element {
             update_active_link(());
 
             let target_clone = target.clone();
-            return move || {
+            move || {
                 target_clone
                     .remove_event_listener_with_callback("scroll", closure.as_ref().unchecked_ref())
                     .unwrap();
             };
         }
 
-        || {}
+        || {};
     });
 
     // 更新墨水球位置

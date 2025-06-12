@@ -3,42 +3,72 @@
 //! 本模块包含Card组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
-use crate::shared::styles::mixins::*;
+use crate::theme::AliasToken;
 use css_in_rust::css;
 
 /// 卡片尺寸枚举
 #[derive(Debug, Clone, PartialEq)]
 pub enum CardSize {
+    /// 默认尺寸
     Default,
+    /// 小尺寸
     Small,
+}
+
+impl Default for CardSize {
+    fn default() -> Self {
+        Self::Default
+    }
 }
 
 /// 卡片类型枚举
 #[derive(Debug, Clone, PartialEq)]
 pub enum CardType {
+    /// 默认类型
     Default,
+    /// 内部卡片
     Inner,
+}
+
+impl Default for CardType {
+    fn default() -> Self {
+        Self::Default
+    }
 }
 
 /// 卡片样式生成器
 pub struct CardStyleGenerator {
+    /// 卡片尺寸
     pub size: CardSize,
+    /// 卡片类型
     pub card_type: CardType,
+    /// 是否有边框
     pub bordered: bool,
+    /// 是否可悬浮
     pub hoverable: bool,
+    /// 是否加载中
     pub loading: bool,
+    /// 主题令牌
+    pub token: AliasToken,
+}
+
+impl Default for CardStyleGenerator {
+    fn default() -> Self {
+        Self {
+            size: CardSize::default(),
+            card_type: CardType::default(),
+            bordered: true,
+            hoverable: false,
+            loading: false,
+            token: AliasToken::default(),
+        }
+    }
 }
 
 impl CardStyleGenerator {
     /// 创建新的卡片样式生成器
     pub fn new() -> Self {
-        Self {
-            size: CardSize::Default,
-            card_type: CardType::Default,
-            bordered: true,
-            hoverable: false,
-            loading: false,
-        }
+        Self::default()
     }
 
     /// 设置卡片尺寸
@@ -71,337 +101,379 @@ impl CardStyleGenerator {
         self
     }
 
-    /// 生成完整的卡片样式类名
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
+
+    /// 生成样式类名
     pub fn generate(&self) -> String {
-        let mut classes = vec![self.base_style(), self.size_style(), self.type_style()];
+        let mut classes = vec!["ant-card"];
 
+        // 添加尺寸相关的类名
+        if self.size == CardSize::Small {
+            classes.push("ant-card-small");
+        }
+
+        // 添加类型相关的类名
+        if self.card_type == CardType::Inner {
+            classes.push("ant-card-inner");
+        }
+
+        // 添加无边框类名
         if !self.bordered {
-            classes.push(self.borderless_style());
+            classes.push("ant-card-bordered-false");
         }
 
+        // 添加悬浮类名
         if self.hoverable {
-            classes.push(self.hoverable_style());
+            classes.push("ant-card-hoverable");
         }
 
+        // 添加加载中类名
         if self.loading {
-            classes.push(self.loading_style());
+            classes.push("ant-card-loading");
         }
 
         classes.join(" ")
     }
 
-    /// 基础卡片样式
-    fn base_style(&self) -> String {
-        format!(
-            "{} {}",
-            card_style(),
-            css!(
-                r#"
-            position: relative;
-            "#
-            )
-        )
-    }
-
-    /// 卡片尺寸样式
-    fn size_style(&self) -> String {
-        let style = match self.size {
-            CardSize::Small => css!(
-                r#"
-                & .ant-card-head {
-                    min-height: 36px;
-                    padding: 0 12px;
-                    font-size: var(--ant-font-size-base);
-                }
-
-                & .ant-card-body {
-                    padding: 12px;
-                }
-                "#
-            ),
-            CardSize::Default => css!(
-                r#"
-                & .ant-card-head {
-                    min-height: 48px;
-                    padding: 0 24px;
-                    font-size: 16px;
-                }
-
-                & .ant-card-body {
-                    padding: 24px;
-                }
-                "#
-            ),
-        };
-
-        style.to_string()
-    }
-
-    /// 卡片类型样式
-    fn type_style(&self) -> String {
-        match self.card_type {
-            CardType::Inner => css!(
-                r#"
-                background: var(--ant-bg-color-container);
-
-                & .ant-card-head {
-                    padding: 0 12px;
-                    background: transparent;
-                }
-
-                & .ant-card-body {
-                    padding: 16px;
-                }
-
-                & .ant-card-extra {
-                    padding: 0 12px;
-                }
-                "#
-            )
-            .to_string(),
-            CardType::Default => String::new(),
-        }
-    }
-
-    /// 无边框样式
-    fn borderless_style(&self) -> String {
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
         css!(
             r#"
-            border: none;
-            box-shadow: none;
-            "#
-        )
-        .to_string()
-    }
-
-    /// 悬停效果样式
-    fn hoverable_style(&self) -> String {
-        hover_effect()
-    }
-
-    /// 加载状态样式
-    fn loading_style(&self) -> String {
-        loading_state()
-    }
-}
-
-/// 卡片头部样式
-pub fn card_head_style() -> String {
-    css!(
-        r#"
-        min-height: 48px;
-        margin-bottom: -1px;
-        padding: 0 24px;
-        color: var(--ant-text-color);
-        font-weight: 500;
-        font-size: 16px;
-        background: transparent;
-        border-bottom: 1px solid var(--ant-border-color-split);
-        border-radius: var(--ant-border-radius) var(--ant-border-radius) 0 0;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片头部包装器样式
-pub fn card_head_wrapper_style() -> String {
-    css!(
-        r#"
-        display: flex;
-        align-items: center;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片标题样式
-pub fn card_head_title_style() -> String {
-    format!(
-        "{} {}",
-        text_ellipsis(),
-        css!(
-            r#"
-        flex: 1;
-        padding: 16px 0;
-        "#
-        )
-    )
-}
-
-/// 卡片额外内容样式
-pub fn card_extra_style() -> String {
-    css!(
-        r#"
-        margin-left: auto;
-        padding: 16px 0;
-        color: var(--ant-text-color);
-        font-weight: normal;
-        font-size: var(--ant-font-size-base);
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片主体样式
-pub fn card_body_style() -> String {
-    css!(
-        r#"
-        padding: 24px;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片加载内容样式
-pub fn card_loading_content_style() -> String {
-    css!(
-        r#"
-        width: 100%;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片加载块样式
-pub fn card_loading_block_style() -> String {
-    css!(
-        r#"
-        height: 14px;
-        margin: 4px 0;
-        background: linear-gradient(90deg, rgba(207, 216, 220, 0.2), rgba(207, 216, 220, 0.4), rgba(207, 216, 220, 0.2));
-        background-size: 200% 100%;
-        border-radius: var(--ant-border-radius);
-        animation: ant-skeleton-loading 1.4s ease infinite;
-
-        @keyframes ant-skeleton-loading {
-            0% {
-                background-position: 200% 0;
+            .ant-card {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                color: ${color_text};
+                font-size: ${font_size}px;
+                font-variant: tabular-nums;
+                line-height: ${line_height};
+                list-style: none;
+                font-feature-settings: 'tnum';
+                position: relative;
+                background: ${color_bg_container};
+                border-radius: ${border_radius}px;
+                border: 1px solid ${color_border_secondary};
             }
-            100% {
-                background-position: -200% 0;
+
+            .ant-card-small {
+                font-size: ${font_size_sm}px;
             }
-        }
-        "#
-    ).to_string()
+
+            .ant-card-small .ant-card-head {
+                min-height: 36px;
+                padding: 0 ${padding_sm}px;
+                font-size: ${font_size}px;
+            }
+
+            .ant-card-small .ant-card-head-wrapper {
+                min-height: 36px;
+            }
+
+            .ant-card-small .ant-card-body {
+                padding: ${padding_sm}px;
+            }
+
+            .ant-card-inner {
+                background: ${color_bg_container};
+            }
+
+            .ant-card-inner .ant-card-head {
+                padding: 0 ${padding_sm}px;
+                background: transparent;
+            }
+
+            .ant-card-inner .ant-card-body {
+                padding: ${padding_md}px;
+            }
+
+            .ant-card-inner .ant-card-extra {
+                padding: 0 ${padding_sm}px;
+            }
+
+            .ant-card-bordered-false {
+                border: none;
+                box-shadow: none;
+            }
+
+            .ant-card-hoverable {
+                cursor: pointer;
+                transition: box-shadow 0.3s, border-color 0.3s;
+            }
+
+            .ant-card-hoverable:hover {
+                border-color: transparent;
+                box-shadow: ${box_shadow};
+            }
+
+            .ant-card-loading .ant-card-body {
+                user-select: none;
+            }
+
+            .ant-card-head {
+                min-height: 48px;
+                margin-bottom: -1px;
+                padding: 0 ${padding_lg}px;
+                color: ${color_text};
+                font-weight: 500;
+                font-size: ${font_size_lg}px;
+                background: transparent;
+                border-bottom: 1px solid ${color_split};
+                border-radius: ${border_radius}px ${border_radius}px 0 0;
+                display: flex;
+                align-items: center;
+            }
+
+            .ant-card-head-wrapper {
+                display: flex;
+                align-items: center;
+                flex: auto;
+                min-height: 48px;
+            }
+
+            .ant-card-head-title {
+                display: inline-block;
+                flex: 1;
+                padding: ${padding_md}px 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            .ant-card-extra {
+                float: right;
+                margin-left: auto;
+                padding: ${padding_md}px 0;
+                color: ${color_text};
+                font-weight: normal;
+                font-size: ${font_size}px;
+            }
+
+            .ant-card-body {
+                padding: ${padding_lg}px;
+                zoom: 1;
+            }
+
+            .ant-card-body::before,
+            .ant-card-body::after {
+                display: table;
+                content: '';
+            }
+
+            .ant-card-body::after {
+                clear: both;
+                content: '';
+            }
+
+            .ant-card-loading-content {
+                width: 100%;
+                height: 100%;
+            }
+
+            .ant-card-loading-block {
+                height: 14px;
+                margin: 4px 0;
+                background: linear-gradient(90deg, rgba(207, 216, 220, 0.2), rgba(207, 216, 220, 0.4), rgba(207, 216, 220, 0.2));
+                background-size: 600% 600%;
+                border-radius: ${border_radius}px;
+                animation: card-loading 1.4s ease infinite;
+            }
+
+            @keyframes card-loading {
+                0%,
+                100% {
+                    background-position: 0 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+            }
+
+            .ant-card-actions {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+                background: ${color_bg_container};
+                border-top: 1px solid ${color_split};
+                display: flex;
+                justify-content: space-around;
+            }
+
+            .ant-card-actions > li {
+                margin: ${margin_xs}px 0;
+                color: ${color_text_secondary};
+                text-align: center;
+                flex: 1;
+            }
+
+            .ant-card-actions > li > span {
+                position: relative;
+                display: block;
+                min-width: 32px;
+                font-size: ${font_size}px;
+                line-height: ${line_height};
+                cursor: pointer;
+            }
+
+            .ant-card-actions > li > span:hover {
+                color: ${color_primary};
+                transition: color 0.3s;
+            }
+
+            .ant-card-actions > li > span > .anticon {
+                font-size: 16px;
+                line-height: 22px;
+            }
+
+            .ant-card-actions > li > span a {
+                color: ${color_text_secondary};
+                transition: color 0.3s;
+            }
+
+            .ant-card-actions > li > span a:hover {
+                color: ${color_primary};
+            }
+
+            .ant-card-actions > li:not(:last-child) {
+                border-right: 1px solid ${color_split};
+            }
+
+            .ant-card-meta {
+                margin: -4px 0;
+                display: flex;
+                align-items: flex-start;
+            }
+
+            .ant-card-meta-detail {
+                overflow: hidden;
+                flex: 1;
+            }
+
+            .ant-card-meta-avatar {
+                padding-right: ${padding_md}px;
+            }
+
+            .ant-card-meta-title {
+                overflow: hidden;
+                color: ${color_text};
+                font-weight: 500;
+                font-size: ${font_size_lg}px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                margin-bottom: ${margin_xs}px;
+            }
+
+            .ant-card-meta-description {
+                color: ${color_text_secondary};
+            }
+
+            .ant-card-grid {
+                float: left;
+                width: 33.33%;
+                padding: ${padding_lg}px;
+                border: 0;
+                border-radius: 0;
+                box-shadow: 1px 0 0 0 ${color_split}, 0 1px 0 0 ${color_split}, 1px 1px 0 0 ${color_split}, 1px 0 0 0 ${color_split} inset, 0 1px 0 0 ${color_split} inset;
+                transition: all 0.3s;
+            }
+
+            .ant-card-grid:hover {
+                position: relative;
+                z-index: 1;
+                box-shadow: ${box_shadow};
+            }
+
+            .ant-card-rtl {
+                direction: rtl;
+            }
+
+            .ant-card-rtl .ant-card-extra {
+                margin-right: auto;
+                margin-left: 0;
+            }
+
+            .ant-card-rtl .ant-card-meta-avatar {
+                padding-right: 0;
+                padding-left: ${padding_md}px;
+            }
+
+            .ant-card-rtl .ant-card-actions > li:not(:last-child) {
+                border-right: none;
+                border-left: 1px solid ${color_split};
+            }
+
+            @media (max-width: 575px) {
+                .ant-card-head-title {
+                    font-size: ${font_size}px;
+                }
+
+                .ant-card-head {
+                    padding: 0 ${padding_sm}px;
+                }
+
+                .ant-card-body {
+                    padding: ${padding_md}px;
+                }
+            }
+            "#,
+            color_text = self.token.color_text,
+            font_size = self.token.font_size,
+            line_height = self.token.line_height,
+            color_bg_container = self.token.color_bg_container,
+            border_radius = self.token.border_radius,
+            color_border_secondary = self.token.color_border_secondary,
+            font_size_sm = self.token.font_size_sm,
+            padding_sm = self.token.padding_sm,
+            padding_md = self.token.padding_md,
+            box_shadow = self.token.box_shadow,
+            padding_lg = self.token.padding_lg,
+            color_split = self.token.color_split,
+            font_size_lg = self.token.font_size_lg,
+            margin_xs = self.token.margin_xs,
+            color_text_secondary = self.token.color_text_secondary,
+            color_primary = self.token.color_primary
+        ).to_string()
+    }
 }
 
-/// 卡片操作区样式
-pub fn card_actions_style() -> String {
-    css!(
-        r#"
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        background: var(--ant-bg-color-container);
-        border-top: 1px solid var(--ant-border-color-split);
-        display: flex;
-        border-radius: 0 0 var(--ant-border-radius) var(--ant-border-radius);
-
-        & > li {
-            flex: 1;
-            margin: 12px 0;
-            color: var(--ant-text-color-secondary);
-            text-align: center;
-            cursor: pointer;
-            transition: color var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
-        }
-
-        & > li:not(:last-child) {
-            border-right: 1px solid var(--ant-border-color-split);
-        }
-
-        & > li:hover {
-            color: var(--ant-primary-color);
-        }
-        "#
-    )
-    .to_string()
+/// 生成 Card 样式
+pub fn generate_card_style(
+    size: CardSize,
+    card_type: CardType,
+    bordered: bool,
+    hoverable: bool,
+    loading: bool,
+) -> String {
+    CardStyleGenerator::new()
+        .with_size(size)
+        .with_type(card_type)
+        .with_bordered(bordered)
+        .with_hoverable(hoverable)
+        .with_loading(loading)
+        .generate()
 }
 
-/// 卡片元信息样式
-pub fn card_meta_style() -> String {
-    css!(
-        r#"
-        margin: -4px 0;
-        display: flex;
-        "#
-    )
-    .to_string()
+/// 生成 Card CSS 样式
+pub fn generate_card_css(
+    size: CardSize,
+    card_type: CardType,
+    bordered: bool,
+    hoverable: bool,
+    loading: bool,
+) -> String {
+    CardStyleGenerator::new()
+        .with_size(size)
+        .with_type(card_type)
+        .with_bordered(bordered)
+        .with_hoverable(hoverable)
+        .with_loading(loading)
+        .generate_css()
 }
 
-/// 卡片元信息详情样式
-pub fn card_meta_detail_style() -> String {
-    css!(
-        r#"
-        overflow: hidden;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片元信息头像样式
-pub fn card_meta_avatar_style() -> String {
-    css!(
-        r#"
-        padding-right: 16px;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片元信息内容样式
-pub fn card_meta_content_style() -> String {
-    css!(
-        r#"
-        flex: 1;
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片元信息标题样式
-pub fn card_meta_title_style() -> String {
-    format!(
-        "{} {}",
-        text_ellipsis(),
-        css!(
-            r#"
-        margin-bottom: 4px;
-        color: var(--ant-text-color);
-        font-weight: 500;
-        font-size: 16px;
-        "#
-        )
-    )
-}
-
-/// 卡片元信息描述样式
-pub fn card_meta_description_style() -> String {
-    css!(
-        r#"
-        color: var(--ant-text-color-secondary);
-        "#
-    )
-    .to_string()
-}
-
-/// 卡片网格样式
-pub fn card_grid_style() -> String {
-    css!(
-        r#"
-        float: left;
-        width: 33.33%;
-        padding: 24px;
-        border: 0;
-        border-radius: 0;
-        box-shadow: 1px 0 0 0 var(--ant-border-color-split), 0 1px 0 0 var(--ant-border-color-split), 1px 1px 0 0 var(--ant-border-color-split), inset 1px 0 0 0 var(--ant-border-color-split), inset 0 1px 0 0 var(--ant-border-color-split);
-        transition: all var(--ant-motion-duration-mid) var(--ant-motion-ease-in-out);
-
-        &:hover {
-            position: relative;
-            z-index: 1;
-            box-shadow: var(--ant-box-shadow-base);
-        }
-        "#
-    ).to_string()
+/// 默认 Card 样式
+pub fn default_card_style() -> String {
+    CardStyleGenerator::new().generate()
 }

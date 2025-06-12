@@ -3,6 +3,7 @@
 //! 本模块包含 Form 组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
+use crate::theme::AliasToken;
 use css_in_rust::css;
 use serde::{Deserialize, Serialize};
 
@@ -78,6 +79,8 @@ pub struct FormStyleGenerator {
     pub label_align: LabelAlign,
     /// 是否禁用
     pub disabled: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl FormStyleGenerator {
@@ -88,6 +91,7 @@ impl FormStyleGenerator {
             size: FormSize::default(),
             label_align: LabelAlign::default(),
             disabled: false,
+            token: AliasToken::default(),
         }
     }
 
@@ -115,200 +119,349 @@ impl FormStyleGenerator {
         self
     }
 
-    /// 生成完整的表单样式
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
+
+    /// 生成完整的表单样式类名
     pub fn generate(&self) -> String {
-        let mut classes = vec![self.base_style()];
+        let mut classes = vec!["ant-form".to_string()];
 
         // 布局样式
         match self.layout {
-            FormLayout::Horizontal => classes.push(self.horizontal_layout_style()),
-            FormLayout::Vertical => classes.push(self.vertical_layout_style()),
-            FormLayout::Inline => classes.push(self.inline_layout_style()),
+            FormLayout::Horizontal => classes.push("ant-form-horizontal".to_string()),
+            FormLayout::Vertical => classes.push("ant-form-vertical".to_string()),
+            FormLayout::Inline => classes.push("ant-form-inline".to_string()),
         }
 
         // 尺寸样式
         match self.size {
-            FormSize::Small => classes.push(self.small_size_style()),
+            FormSize::Small => classes.push("ant-form-small".to_string()),
             FormSize::Middle => {}
-            FormSize::Large => classes.push(self.large_size_style()),
+            FormSize::Large => classes.push("ant-form-large".to_string()),
         }
 
         // 禁用样式
         if self.disabled {
-            classes.push(self.disabled_style());
+            classes.push("ant-form-disabled".to_string());
         }
 
         // 标签对齐样式
         match self.label_align {
-            LabelAlign::Left => classes.push(self.label_align_left_style()),
-            LabelAlign::Right => classes.push(self.label_align_right_style()),
+            LabelAlign::Left => classes.push("ant-form-label-left".to_string()),
+            LabelAlign::Right => classes.push("ant-form-label-right".to_string()),
         }
 
         classes.join(" ")
     }
 
-    /// 基础样式
-    fn base_style(&self) -> String {
+    /// 生成 CSS 样式
+    pub fn generate_css(&self) -> String {
         css!(
             r#"
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            color: rgba(0, 0, 0, 0.88);
-            font-size: 14px;
-            line-height: 1.5714285714285714;
-            list-style: none;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-            "#
-        )
-    }
+            .ant-form {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                color: ${color_text};
+                font-size: ${font_size}px;
+                line-height: ${line_height};
+                list-style: none;
+                font-family: ${font_family};
+            }
 
-    /// 水平布局样式
-    fn horizontal_layout_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-horizontal .ant-form-item-label {
+            .ant-form-horizontal .ant-form-item-label {
+                flex-grow: 0;
+                overflow: hidden;
+                white-space: nowrap;
                 text-align: right;
+                vertical-align: middle;
             }
 
-            &.ant-form-horizontal .ant-form-item-label label {
-                height: 32px;
-                line-height: 32px;
-            }
-            "#
-        )
-    }
-
-    /// 垂直布局样式
-    fn vertical_layout_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-vertical .ant-form-item-label {
-                padding: 0 0 8px;
+            .ant-form-horizontal .ant-form-item-label > label {
+                height: ${height}px;
+                margin: 0;
+                line-height: ${height}px;
             }
 
-            &.ant-form-vertical .ant-form-item-label label {
+            .ant-form-vertical .ant-form-item-label {
+                padding: 0 0 ${padding_xs}px;
+            }
+
+            .ant-form-vertical .ant-form-item-label > label {
                 height: auto;
-                line-height: 1.5714285714285714;
+                margin: 0;
             }
-            "#
-        )
-    }
 
-    /// 内联布局样式
-    fn inline_layout_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-inline {
+            .ant-form-inline {
                 display: flex;
                 flex-wrap: wrap;
             }
 
-            &.ant-form-inline .ant-form-item {
+            .ant-form-inline .ant-form-item {
                 flex: none;
-                margin-right: 16px;
+                margin-right: ${margin_lg}px;
                 margin-bottom: 0;
             }
 
-            &.ant-form-inline .ant-form-item-with-help {
-                margin-bottom: 24px;
+            .ant-form-inline .ant-form-item-with-help {
+                margin-bottom: ${margin_sm}px;
             }
 
-            &.ant-form-inline .ant-form-item>.ant-form-item-label,
-            &.ant-form-inline .ant-form-item>.ant-form-item-control {
+            .ant-form-inline .ant-form-item > .ant-form-item-label,
+            .ant-form-inline .ant-form-item > .ant-form-item-control {
                 display: inline-block;
                 vertical-align: top;
             }
 
-            &.ant-form-inline .ant-form-item>.ant-form-item-label {
-                padding-right: 8px;
-                white-space: nowrap;
+            .ant-form-small .ant-form-item-label > label {
+                height: ${height_sm}px;
+                line-height: ${height_sm}px;
             }
 
-            &.ant-form-inline .ant-form-item>.ant-form-item-control {
-                flex: 1 1 auto;
-                min-width: 0;
-            }
-            "#
-        )
-    }
-
-    /// 小尺寸样式
-    fn small_size_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-small .ant-form-item-label>label {
-                height: 24px;
+            .ant-form-small .ant-form-item {
+                margin-bottom: ${margin_xs}px;
             }
 
-            &.ant-form-small .ant-form-item-control-input {
-                min-height: 24px;
-            }
-            "#
-        )
-    }
-
-    /// 大尺寸样式
-    fn large_size_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-large .ant-form-item-label>label {
-                height: 40px;
+            .ant-form-large .ant-form-item-label > label {
+                height: ${height_lg}px;
+                line-height: ${height_lg}px;
             }
 
-            &.ant-form-large .ant-form-item-control-input {
-                min-height: 40px;
+            .ant-form-large .ant-form-item {
+                margin-bottom: ${margin_md}px;
             }
-            "#
-        )
-    }
 
-    /// 禁用样式
-    fn disabled_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-disabled .ant-form-item-label>label {
-                color: rgba(0, 0, 0, 0.25);
+            .ant-form-disabled .ant-form-item-label > label {
+                color: ${color_text_disabled};
+            }
+
+            .ant-form-disabled .ant-form-item-control-input {
                 cursor: not-allowed;
             }
 
-            &.ant-form-disabled .ant-input,
-            &.ant-form-disabled .ant-input:hover,
-            &.ant-form-disabled .ant-input:focus,
-            &.ant-form-disabled .ant-input-affix-wrapper,
-            &.ant-form-disabled .ant-input-affix-wrapper:hover,
-            &.ant-form-disabled .ant-input-affix-wrapper:focus {
-                color: rgba(0, 0, 0, 0.25);
-                background-color: rgba(0, 0, 0, 0.04);
-                border-color: #d9d9d9;
+            .ant-form-disabled .ant-form-item-control-input-content {
+                color: ${color_text_disabled};
+                background-color: ${color_bg_container_disabled};
+                border-color: ${color_border};
                 box-shadow: none;
                 cursor: not-allowed;
                 opacity: 1;
             }
-            "#
-        )
-    }
 
-    /// 标签左对齐样式
-    fn label_align_left_style(&self) -> String {
-        css!(
-            r#"
-            .ant-form-item-label {
+            .ant-form-label-left .ant-form-item-label {
                 text-align: left;
             }
-            "#
-        )
-    }
 
-    /// 标签右对齐样式
-    fn label_align_right_style(&self) -> String {
-        css!(
-            r#"
-            .ant-form-item-label {
+            .ant-form-label-right .ant-form-item-label {
                 text-align: right;
             }
-            "#
+
+            .ant-form-item {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                color: ${color_text};
+                font-size: ${font_size}px;
+                line-height: ${line_height};
+                list-style: none;
+                margin-bottom: ${margin_md}px;
+                vertical-align: top;
+            }
+
+            .ant-form-item-label {
+                display: inline-block;
+                flex-grow: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-align: right;
+                vertical-align: middle;
+            }
+
+            .ant-form-item-label > label {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                height: ${height}px;
+                color: ${color_text};
+                font-size: ${font_size}px;
+            }
+
+            .ant-form-item-label > label::after {
+                content: ':';
+                position: relative;
+                margin-block: 0;
+                margin-inline-start: 2px;
+                margin-inline-end: 8px;
+            }
+
+            .ant-form-item-label > label.ant-form-item-no-colon::after {
+                content: ' ';
+            }
+
+            .ant-form-item-control {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+            }
+
+            .ant-form-item-control-input {
+                position: relative;
+                display: flex;
+                align-items: center;
+                min-height: ${height}px;
+            }
+
+            .ant-form-item-control-input-content {
+                flex: auto;
+                max-width: 100%;
+            }
+
+            .ant-form-item-explain,
+            .ant-form-item-extra {
+                clear: both;
+                color: ${color_text_secondary};
+                font-size: ${font_size_sm}px;
+                line-height: ${line_height_sm};
+            }
+
+            .ant-form-item-explain {
+                min-height: ${font_size_sm * line_height_sm}px;
+            }
+
+            .ant-form-item-with-help .ant-form-item-explain {
+                height: auto;
+                opacity: 1;
+            }
+
+            .ant-form-item-has-feedback .ant-form-item-control {
+                padding-right: 24px;
+            }
+
+            .ant-form-item-feedback-icon {
+                position: absolute;
+                top: 50%;
+                right: 0;
+                display: flex;
+                align-items: center;
+                height: 20px;
+                margin-top: -10px;
+                font-size: ${font_size}px;
+                line-height: 1;
+            }
+
+            .ant-form-item-has-success.ant-form-item-has-feedback .ant-form-item-feedback-icon {
+                color: ${color_success};
+            }
+
+            .ant-form-item-has-warning.ant-form-item-has-feedback .ant-form-item-feedback-icon {
+                color: ${color_warning};
+            }
+
+            .ant-form-item-has-error.ant-form-item-has-feedback .ant-form-item-feedback-icon {
+                color: ${color_error};
+            }
+
+            .ant-form-item-has-validating.ant-form-item-has-feedback .ant-form-item-feedback-icon {
+                color: ${color_primary};
+            }
+
+            .ant-form-item-has-success .ant-input,
+            .ant-form-item-has-success .ant-input-affix-wrapper {
+                border-color: ${color_success};
+            }
+
+            .ant-form-item-has-success .ant-input:hover,
+            .ant-form-item-has-success .ant-input-affix-wrapper:hover {
+                border-color: ${color_success_hover};
+            }
+
+            .ant-form-item-has-success .ant-input:focus,
+            .ant-form-item-has-success .ant-input-affix-wrapper:focus,
+            .ant-form-item-has-success .ant-input-focused,
+            .ant-form-item-has-success .ant-input-affix-wrapper-focused {
+                border-color: ${color_success};
+                box-shadow: 0 0 0 2px ${color_success_outline};
+            }
+
+            .ant-form-item-has-warning .ant-input,
+            .ant-form-item-has-warning .ant-input-affix-wrapper {
+                border-color: ${color_warning};
+            }
+
+            .ant-form-item-has-warning .ant-input:hover,
+            .ant-form-item-has-warning .ant-input-affix-wrapper:hover {
+                border-color: ${color_warning_hover};
+            }
+
+            .ant-form-item-has-warning .ant-input:focus,
+            .ant-form-item-has-warning .ant-input-affix-wrapper:focus,
+            .ant-form-item-has-warning .ant-input-focused,
+            .ant-form-item-has-warning .ant-input-affix-wrapper-focused {
+                border-color: ${color_warning};
+                box-shadow: 0 0 0 2px ${color_warning_outline};
+            }
+
+            .ant-form-item-has-error .ant-input,
+            .ant-form-item-has-error .ant-input-affix-wrapper {
+                border-color: ${color_error};
+            }
+
+            .ant-form-item-has-error .ant-input:hover,
+            .ant-form-item-has-error .ant-input-affix-wrapper:hover {
+                border-color: ${color_error_hover};
+            }
+
+            .ant-form-item-has-error .ant-input:focus,
+            .ant-form-item-has-error .ant-input-affix-wrapper:focus,
+            .ant-form-item-has-error .ant-input-focused,
+            .ant-form-item-has-error .ant-input-affix-wrapper-focused {
+                border-color: ${color_error};
+                box-shadow: 0 0 0 2px ${color_error_outline};
+            }
+
+            .ant-form-item-required > .ant-form-item-label > label::before {
+                display: inline-block;
+                margin-right: 4px;
+                color: ${color_error};
+                font-size: ${font_size_sm}px;
+                font-family: SimSun, sans-serif;
+                line-height: 1;
+                content: '*';
+            }
+            "#,
+            color_text = self.token.color_text,
+            font_size = self.token.font_size,
+            line_height = self.token.line_height,
+            font_family = self.token.font_family,
+            height = self.token.height_base,
+            padding_xs = self.token.padding_xs,
+            margin_lg = self.token.margin_lg,
+            margin_sm = self.token.margin_sm,
+            height_sm = self.token.height_sm,
+            margin_xs = self.token.margin_xs,
+            height_lg = self.token.height_lg,
+            margin_md = self.token.margin_md,
+            color_text_disabled = self.token.color_text_disabled,
+            color_bg_container_disabled = self.token.color_bg_container_disabled,
+            color_border = self.token.color_border,
+            color_text_secondary = self.token.color_text_secondary,
+            font_size_sm = self.token.font_size_sm,
+            line_height_sm = self.token.line_height_sm,
+            color_success = self.token.color_success,
+            color_warning = self.token.color_warning,
+            color_error = self.token.color_error,
+            color_primary = self.token.color_primary,
+            color_success_hover = self.token.color_success_hover,
+            color_success_outline = self.token.color_success_outline,
+            color_warning_hover = self.token.color_warning_hover,
+            color_warning_outline = self.token.color_warning_outline,
+            color_error_hover = self.token.color_error_hover,
+            color_error_outline = self.token.color_error_outline
         )
+        .to_string()
     }
 }
 
@@ -320,6 +473,8 @@ pub struct FormItemStyleGenerator {
     pub required: bool,
     /// 是否显示冒号
     pub colon: bool,
+    /// 主题令牌
+    pub token: AliasToken,
 }
 
 impl FormItemStyleGenerator {
@@ -329,6 +484,7 @@ impl FormItemStyleGenerator {
             status: None,
             required: false,
             colon: true,
+            token: AliasToken::default(),
         }
     }
 
@@ -350,428 +506,76 @@ impl FormItemStyleGenerator {
         self
     }
 
-    /// 生成完整的表单项样式
+    /// 设置主题令牌
+    pub fn with_token(mut self, token: AliasToken) -> Self {
+        self.token = token;
+        self
+    }
+
+    /// 生成完整的表单项样式类名
     pub fn generate(&self) -> String {
-        let mut classes = vec![self.base_style()];
+        let mut classes = vec!["ant-form-item".to_string()];
 
         // 状态样式
         if let Some(status) = &self.status {
             match status {
-                ValidateStatus::Success => classes.push(self.success_style()),
-                ValidateStatus::Warning => classes.push(self.warning_style()),
-                ValidateStatus::Error => classes.push(self.error_style()),
-                ValidateStatus::Validating => classes.push(self.validating_style()),
+                ValidateStatus::Success => classes.push("ant-form-item-has-success".to_string()),
+                ValidateStatus::Warning => classes.push("ant-form-item-has-warning".to_string()),
+                ValidateStatus::Error => classes.push("ant-form-item-has-error".to_string()),
+                ValidateStatus::Validating => {
+                    classes.push("ant-form-item-has-validating".to_string())
+                }
             }
+            classes.push("ant-form-item-has-feedback".to_string());
         }
 
         // 必填样式
         if self.required {
-            classes.push(self.required_style());
+            classes.push("ant-form-item-required".to_string());
         }
 
         // 冒号样式
         if !self.colon {
-            classes.push(self.no_colon_style());
+            classes.push("ant-form-item-no-colon".to_string());
         }
 
         classes.join(" ")
     }
-
-    /// 基础样式
-    fn base_style(&self) -> String {
-        css!(
-            r#"
-            margin-bottom: 24px;
-            vertical-align: top;
-
-            .ant-form-item-row {
-                display: flex;
-                flex-flow: row wrap;
-                min-width: 0;
-            }
-
-            .ant-form-item-label {
-                flex-grow: 0;
-                overflow: hidden;
-                white-space: nowrap;
-                vertical-align: top;
-            }
-
-            .ant-form-item-label>label {
-                position: relative;
-                display: inline-flex;
-                align-items: center;
-                max-width: 100%;
-                height: 32px;
-                color: rgba(0, 0, 0, 0.88);
-                font-size: 14px;
-                cursor: default;
-            }
-
-            .ant-form-item-label>label::after {
-                content: ':';
-                position: relative;
-                top: -0.5px;
-                margin: 0 8px 0 2px;
-            }
-
-            .ant-form-item-control {
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-                min-width: 0;
-            }
-
-            .ant-form-item-control-input {
-                position: relative;
-                display: flex;
-                align-items: center;
-                min-height: 32px;
-            }
-
-            .ant-form-item-control-input-content {
-                flex: auto;
-                max-width: 100%;
-            }
-
-            .ant-form-item-explain {
-                clear: both;
-                min-height: 24px;
-                margin-top: 4px;
-                color: rgba(0, 0, 0, 0.45);
-                font-size: 14px;
-                line-height: 1.5714285714285714;
-                transition: color 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
-            }
-
-            .ant-form-item-extra {
-                clear: both;
-                min-height: 24px;
-                margin-top: 4px;
-                color: rgba(0, 0, 0, 0.45);
-                font-size: 14px;
-                line-height: 1.5714285714285714;
-                transition: color 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
-            }
-            "#
-        )
-    }
-
-    /// 成功状态样式
-    fn success_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-item-has-success .ant-input,
-            &.ant-form-item-has-success .ant-input:hover {
-                border-color: #52c41a;
-            }
-
-            &.ant-form-item-has-success .ant-input:focus,
-            &.ant-form-item-has-success .ant-input-focused {
-                border-color: #73d13d;
-                box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
-                border-right-width: 1px;
-                outline: 0;
-            }
-
-            .ant-form-item-explain-success {
-                color: #52c41a;
-            }
-            "#
-        )
-    }
-
-    /// 警告状态样式
-    fn warning_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-item-has-warning .ant-input,
-            &.ant-form-item-has-warning .ant-input:hover {
-                border-color: #faad14;
-            }
-
-            &.ant-form-item-has-warning .ant-input:focus,
-            &.ant-form-item-has-warning .ant-input-focused {
-                border-color: #ffc53d;
-                box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.2);
-                border-right-width: 1px;
-                outline: 0;
-            }
-
-            .ant-form-item-explain-warning {
-                color: #faad14;
-            }
-            "#
-        )
-    }
-
-    /// 错误状态样式
-    fn error_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-item-has-error .ant-form-item-control-input {
-                border-color: #ff4d4f;
-            }
-
-            &.ant-form-item-has-error .ant-input,
-            &.ant-form-item-has-error .ant-input:hover {
-                border-color: #ff4d4f;
-            }
-
-            &.ant-form-item-has-error .ant-input:focus,
-            &.ant-form-item-has-error .ant-input-focused {
-                border-color: #ff7875;
-                box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
-                border-right-width: 1px;
-                outline: 0;
-            }
-
-            .ant-form-item-explain-error {
-                color: #ff4d4f;
-            }
-            "#
-        )
-    }
-
-    /// 校验中状态样式
-    fn validating_style(&self) -> String {
-        css!(
-            r#"
-            &.ant-form-item-is-validating .ant-form-item-control-input::after {
-                position: absolute;
-                top: 50%;
-                right: 8px;
-                z-index: 1;
-                width: 14px;
-                height: 14px;
-                margin-top: -7px;
-                color: #1890ff;
-                line-height: 1;
-                text-align: center;
-                content: '';
-                animation: loadingCircle 1s infinite linear;
-            }
-
-            @keyframes loadingCircle {
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-            "#
-        )
-    }
-
-    /// 必填样式
-    fn required_style(&self) -> String {
-        css!(
-            r#"
-            .ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
-                display: inline-block;
-                margin-right: 4px;
-                color: #ff4d4f;
-                font-size: 14px;
-                font-family: SimSun, sans-serif;
-                line-height: 1;
-                content: '*';
-            }
-            "#
-        )
-    }
-
-    /// 无冒号样式
-    fn no_colon_style(&self) -> String {
-        css!(
-            r#"
-            .ant-form-item-label>label.ant-form-item-no-colon::after {
-                content: '';
-            }
-            "#
-        )
-    }
 }
 
-/// 响应式样式
-pub fn form_responsive_style() -> String {
-    css!(
-        r#"
-        @media (max-width: 575px) {
-            .ant-form-horizontal .ant-form-item-label {
-                padding: 0 0 8px;
-                text-align: left;
-            }
-
-            .ant-form-horizontal .ant-form-item-row {
-                flex-direction: column;
-            }
-
-            .ant-form-horizontal .ant-form-item-label,
-            .ant-form-horizontal .ant-form-item-control {
-                flex: 0 0 auto;
-                max-width: 100%;
-                width: 100%;
-            }
-
-            .ant-form-inline {
-                flex-direction: column;
-            }
-
-            .ant-form-inline .ant-form-item {
-                margin-right: 0;
-                margin-bottom: 24px;
-                width: 100%;
-            }
-        }
-        "#
-    )
-}
-
-/// 暗色主题样式
-pub fn form_dark_theme_style() -> String {
-    css!(
-        r#"
-        @media (prefers-color-scheme: dark) {
-            .ant-form {
-                color: rgba(255, 255, 255, 0.85);
-            }
-
-            .ant-form-item-label>label {
-                color: rgba(255, 255, 255, 0.85);
-            }
-
-            .ant-form-item-explain {
-                color: rgba(255, 255, 255, 0.45);
-            }
-
-            .ant-form-item-extra {
-                color: rgba(255, 255, 255, 0.45);
-            }
-
-            .ant-form-disabled .ant-form-item-label>label {
-                color: rgba(255, 255, 255, 0.25);
-            }
-
-            .ant-form-disabled .ant-input,
-            .ant-form-disabled .ant-input:hover,
-            .ant-form-disabled .ant-input:focus,
-            .ant-form-disabled .ant-input-affix-wrapper,
-            .ant-form-disabled .ant-input-affix-wrapper:hover,
-            .ant-form-disabled .ant-input-affix-wrapper:focus {
-                color: rgba(255, 255, 255, 0.25);
-                background-color: rgba(255, 255, 255, 0.08);
-                border-color: #434343;
-            }
-        }
-        "#
-    )
-}
-
-/// 高对比度样式
-pub fn form_high_contrast_style() -> String {
-    css!(
-        r#"
-        @media (prefers-contrast: high) {
-            .ant-form-item-has-error .ant-input,
-            .ant-form-item-has-error .ant-input:hover,
-            .ant-form-item-has-error .ant-input:focus {
-                border-color: #000;
-                border-width: 2px;
-            }
-
-            .ant-form-item-has-success .ant-input,
-            .ant-form-item-has-success .ant-input:hover,
-            .ant-form-item-has-success .ant-input:focus {
-                border-color: #000;
-                border-width: 2px;
-            }
-
-            .ant-form-item-has-warning .ant-input,
-            .ant-form-item-has-warning .ant-input:hover,
-            .ant-form-item-has-warning .ant-input:focus {
-                border-color: #000;
-                border-width: 2px;
-            }
-        }
-        "#
-    )
-}
-
-/// 减少动画样式
-pub fn form_reduced_motion_style() -> String {
-    css!(
-        r#"
-        @media (prefers-reduced-motion: reduce) {
-            .ant-form-item-explain {
-                transition: none;
-            }
-
-            .ant-form-item-extra {
-                transition: none;
-            }
-
-            .ant-form-item-is-validating .ant-form-item-control-input::after {
-                animation: none;
-            }
-        }
-        "#
-    )
-}
-
-/// 可访问性样式
-pub fn form_a11y_style() -> String {
-    css!(
-        r#"
-        .ant-form-item-label>label:focus-visible {
-            outline: 2px solid #1890ff;
-            outline-offset: 1px;
-        }
-        "#
-    )
-}
-
-/// 打印样式
-pub fn form_print_style() -> String {
-    css!(
-        r#"
-        @media print {
-            .ant-form {
-                color: #000;
-            }
-
-            .ant-form-item-explain,
-            .ant-form-item-extra {
-                display: none;
-            }
-
-            .ant-form-item-is-validating .ant-form-item-control-input::after {
-                display: none;
-            }
-        }
-        "#
-    )
-}
-
-/// 生成完整的表单样式
+/// 生成表单样式
 pub fn generate_form_style(
     layout: FormLayout,
     size: FormSize,
     label_align: LabelAlign,
     disabled: bool,
 ) -> String {
-    format!(
-        "{} {} {} {} {} {} {}",
-        FormStyleGenerator::new()
-            .with_layout(layout)
-            .with_size(size)
-            .with_label_align(label_align)
-            .with_disabled(disabled)
-            .generate(),
-        form_responsive_style(),
-        form_dark_theme_style(),
-        form_high_contrast_style(),
-        form_reduced_motion_style(),
-        form_a11y_style(),
-        form_print_style(),
-    )
+    FormStyleGenerator::new()
+        .with_layout(layout)
+        .with_size(size)
+        .with_label_align(label_align)
+        .with_disabled(disabled)
+        .generate()
+}
+
+/// 生成表单 CSS 样式
+pub fn generate_form_css(
+    layout: FormLayout,
+    size: FormSize,
+    label_align: LabelAlign,
+    disabled: bool,
+) -> String {
+    FormStyleGenerator::new()
+        .with_layout(layout)
+        .with_size(size)
+        .with_label_align(label_align)
+        .with_disabled(disabled)
+        .generate_css()
+}
+
+/// 默认表单样式
+pub fn default_form_style() -> String {
+    FormStyleGenerator::new().generate()
 }
 
 /// 生成表单项样式
@@ -785,4 +589,9 @@ pub fn generate_form_item_style(
         .with_required(required)
         .with_colon(colon)
         .generate()
+}
+
+/// 默认表单项样式
+pub fn default_form_item_style() -> String {
+    FormItemStyleGenerator::new().generate()
 }

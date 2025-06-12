@@ -42,6 +42,7 @@ pub struct IconStyleGenerator {
     pub color: Option<String>,
     pub spin: bool,
     pub disabled: bool,
+    pub is_rtl: bool,
 }
 
 impl IconStyleGenerator {
@@ -54,6 +55,7 @@ impl IconStyleGenerator {
             color: None,
             spin: false,
             disabled: false,
+            is_rtl: false,
         }
     }
 
@@ -90,6 +92,12 @@ impl IconStyleGenerator {
     /// 设置禁用状态
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    /// 设置 RTL 方向
+    pub fn with_rtl(mut self, is_rtl: bool) -> Self {
+        self.is_rtl = is_rtl;
         self
     }
 
@@ -241,7 +249,9 @@ pub fn high_contrast_style() -> String {
     css!(
         r#"
         @media (prefers-contrast: high) {
-            filter: contrast(1.2);
+            .anticon {
+                filter: contrast(1.2);
+            }
         }
         "#
     )
@@ -252,8 +262,247 @@ pub fn reduced_motion_style() -> String {
     css!(
         r#"
         @media (prefers-reduced-motion: reduce) {
-            transition: none;
+            .anticon-spin {
+                animation: none;
+            }
+
+            .anticon {
+                transition: none;
+            }
         }
         "#
+    )
+}
+
+/// 生成图标的 CSS 样式
+pub fn generate_icon_style(
+    theme: IconTheme,
+    rotate: IconRotate,
+    size: IconSize,
+    color: Option<String>,
+    spin: bool,
+    is_rtl: bool,
+    disabled: bool,
+) -> String {
+    let mut styles = String::new();
+
+    // 基础样式
+    styles.push_str(
+        r#"
+        .anticon {
+            display: inline-block;
+            color: inherit;
+            font-style: normal;
+            line-height: 0;
+            text-align: center;
+            text-transform: none;
+            vertical-align: -0.125em;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .anticon > * {
+            line-height: 1;
+        }
+
+        .anticon svg {
+            display: inline-block;
+        }
+
+        .anticon::before {
+            display: none;
+        }
+
+        .anticon .anticon-icon {
+            display: block;
+        }
+
+        .anticon:hover {
+            color: #40a9ff;
+        }
+        "#,
+    );
+
+    // 主题样式
+    match theme {
+        IconTheme::Outlined => {} // 线框风格不需要额外样式
+        IconTheme::Filled => {
+            styles.push_str(
+                r#"
+                .anticon {
+                    color: #1890ff;
+                }
+                "#,
+            );
+        }
+        IconTheme::TwoTone => {
+            styles.push_str(
+                r#"
+                .anticon {
+                    color: #1890ff;
+                }
+                "#,
+            );
+        }
+    }
+
+    // 尺寸样式
+    match size {
+        IconSize::Small => {
+            styles.push_str(
+                r#"
+                .anticon {
+                    font-size: 12px;
+                }
+                "#,
+            );
+        }
+        IconSize::Medium => {
+            styles.push_str(
+                r#"
+                .anticon {
+                    font-size: 16px;
+                }
+                "#,
+            );
+        }
+        IconSize::Large => {
+            styles.push_str(
+                r#"
+                .anticon {
+                    font-size: 18px;
+                }
+                "#,
+            );
+        }
+        IconSize::ExtraLarge => {
+            styles.push_str(
+                r#"
+                .anticon {
+                    font-size: 24px;
+                }
+                "#,
+            );
+        }
+        IconSize::Custom(size_value) => {
+            styles.push_str(&format!(
+                r#"
+                .anticon {{
+                    font-size: {};
+                }}
+                "#,
+                size_value
+            ));
+        }
+    }
+
+    // 旋转样式
+    if spin {
+        styles.push_str(
+            r#"
+            .anticon {
+                animation: loadingCircle 1s infinite linear;
+            }
+
+            @keyframes loadingCircle {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            "#,
+        );
+    } else {
+        match rotate {
+            IconRotate::None => {} // 不旋转不需要额外样式
+            IconRotate::Rotate90 => {
+                if is_rtl {
+                    styles.push_str(
+                        r#"
+                        .anticon {
+                            transform: rotate(-90deg);
+                        }
+                        "#,
+                    );
+                } else {
+                    styles.push_str(
+                        r#"
+                        .anticon {
+                            transform: rotate(90deg);
+                        }
+                        "#,
+                    );
+                }
+            }
+            IconRotate::Rotate180 => {
+                styles.push_str(
+                    r#"
+                    .anticon {
+                        transform: rotate(180deg);
+                    }
+                    "#,
+                );
+            }
+            IconRotate::Rotate270 => {
+                if is_rtl {
+                    styles.push_str(
+                        r#"
+                        .anticon {
+                            transform: rotate(-270deg);
+                        }
+                        "#,
+                    );
+                } else {
+                    styles.push_str(
+                        r#"
+                        .anticon {
+                            transform: rotate(270deg);
+                        }
+                        "#,
+                    );
+                }
+            }
+        }
+    }
+
+    // 禁用样式
+    if disabled {
+        styles.push_str(
+            r#"
+            .anticon {
+                color: rgba(0, 0, 0, 0.25);
+                cursor: not-allowed;
+            }
+            "#,
+        );
+    }
+
+    // 自定义颜色
+    if let Some(color_value) = color {
+        styles.push_str(&format!(
+            r#"
+            .anticon {{
+                color: {};
+            }}
+            "#,
+            color_value
+        ));
+    }
+
+    styles
+}
+
+/// 默认的图标样式
+pub fn default_icon_style() -> String {
+    generate_icon_style(
+        IconTheme::Outlined,
+        IconRotate::None,
+        IconSize::Medium,
+        None,
+        false,
+        false,
+        false,
     )
 }

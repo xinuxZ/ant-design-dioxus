@@ -210,47 +210,20 @@ pub struct SelectProps {
 /// Select 选择器组件
 #[component]
 pub fn Select(props: SelectProps) -> Element {
-    let mut search_value = use_signal(|| props.search_value.clone().unwrap_or_default());
-    let mut dropdown_visible = use_signal(|| false);
-    let mut focused = use_signal(|| false);
+    // 状态管理
+    let search_value = create_signal(props.search_value.clone().unwrap_or_default());
+    let dropdown_visible = create_signal(false);
+    let focused = create_signal(false);
 
     // 提取所有选项
-    let mut option_datas: Vec<OptionData> = vec![];
-    if let Some(children) = props.children.as_ref() {
-        extract_options(children, &mut option_datas);
+    let mut options = Vec::new();
+    if let Ok(children) = props.children.as_ref() {
+        extract_options(children, &mut options);
     }
 
-    // 当前选中项的标签
-    let selected_label = if props.multiple {
-        String::new() // 多选时不显示单个标签
-    } else if props.value.is_empty() {
-        String::new() // 未选中任何项
-    } else {
-        // 根据值查找选项标签
-        option_datas
-            .iter()
-            .find(|option| option.value == props.value)
-            .map(|option| option.label.clone())
-            .unwrap_or_default()
-    };
-
-    // 多选下选中的选项
-    let selected_options = if props.multiple {
-        option_datas
-            .iter()
-            .filter(|option| props.values.contains(&option.value))
-            .cloned()
-            .collect::<Vec<_>>()
-    } else {
-        vec![]
-    };
-
-    // 处理选项点击
+    // 处理选项点击事件
     let handle_option_click = move |value: String| {
-        if props.disabled {
-            return;
-        }
-
+        // 多选模式
         if props.multiple {
             let mut new_values = props.values.clone();
             if new_values.contains(&value) {
@@ -259,255 +232,242 @@ pub fn Select(props: SelectProps) -> Element {
                 new_values.push(value.clone());
             }
 
-            if let Some(on_change_multiple) = &props.on_change_multiple {
-                on_change_multiple.call(new_values);
+            if let Some(handler) = &props.on_change_multiple {
+                handler.call(new_values);
             }
 
             if props.auto_clear_search_value {
                 search_value.set(String::new());
             }
-        } else {
-            if let Some(on_change) = &props.on_change {
-                on_change.call(value);
+        }
+        // 单选模式
+        else {
+            if let Some(handler) = &props.on_change {
+                handler.call(value);
             }
+
             dropdown_visible.set(false);
-            search_value.set(String::new());
+
+            if props.auto_clear_search_value && props.show_search {
+                search_value.set(String::new());
+            }
+        }
+
+        if let Some(handler) = &props.on_dropdown_visible_change {
+            handler.call(dropdown_visible());
         }
     };
 
-    // 处理搜索输入
-    let handle_search = move |e: Event<FormData>| {
-        let value = e.value.clone();
+    // 处理搜索框值变化
+    let handle_search_input = move |e: Event<FormData>| {
+        let value = e.value().clone();
         search_value.set(value.clone());
 
-        if let Some(on_search) = &props.on_search {
-            on_search.call(value);
+        if let Some(handler) = &props.on_search {
+            handler.call(value);
         }
     };
 
-    // 处理清除
-    let handle_clear = move |_| {
-        if props.disabled {
-            return;
+    // 处理焦点事件
+    let handle_focus = move |e: Event<FocusEvent>| {
+        focused.set(true);
+        if !props.disabled {
+            if let Some(handler) = &props.on_focus {
+                handler.call(e);
+            }
         }
+    };
 
+    // 处理失焦事件
+    let handle_blur = move |e: Event<FocusEvent>| {
+        focused.set(false);
+        if !props.disabled {
+            if let Some(handler) = &props.on_blur {
+                handler.call(e);
+            }
+        }
+    };
+
+    // 切换下拉框显示状态
+    let toggle_dropdown = move |_| {
+        if !props.disabled {
+            let new_visible = !dropdown_visible();
+            dropdown_visible.set(new_visible);
+
+            if let Some(handler) = &props.on_dropdown_visible_change {
+                handler.call(new_visible);
+            }
+        }
+    };
+
+    // 清空选择
+    let handle_clear = move |_| {
         if props.multiple {
-            if let Some(on_change_multiple) = &props.on_change_multiple {
-                on_change_multiple.call(vec![]);
+            if let Some(handler) = &props.on_change_multiple {
+                handler.call(vec![]);
             }
         } else {
-            if let Some(on_change) = &props.on_change {
-                on_change.call(String::new());
+            if let Some(handler) = &props.on_change {
+                handler.call(String::new());
             }
         }
 
-        if let Some(on_clear) = &props.on_clear {
-            on_clear.call(());
+        if let Some(handler) = &props.on_clear {
+            handler.call(());
         }
 
         search_value.set(String::new());
     };
 
-    // 处理下拉框显示/隐藏
-    let toggle_dropdown = move |_| {
-        if props.disabled {
-            return;
-        }
-
-        let new_visible = !dropdown_visible.get();
-        dropdown_visible.set(new_visible);
-
-        if let Some(on_dropdown_visible_change) = &props.on_dropdown_visible_change {
-            on_dropdown_visible_change.call(new_visible);
-        }
-    };
-
-    // 处理焦点
-    let handle_focus = move |e: FocusEvent| {
-        if props.disabled {
-            return;
-        }
-
-        focused.set(true);
-
-        if let Some(on_focus) = &props.on_focus {
-            on_focus.call(e);
-        }
-    };
-
-    // 处理失焦
-    let handle_blur = move |e: FocusEvent| {
-        focused.set(false);
-
-        if let Some(on_blur) = &props.on_blur {
-            on_blur.call(e);
-        }
-    };
-
-    // 筛选选项
-    let filtered_options = if props.filter_option && search_value.get().len() > 0 {
-        option_datas
+    // 过滤选项
+    let filtered_options = if props.filter_option && search_value().len() > 0 {
+        options
             .iter()
             .filter(|option| {
                 option
                     .label
                     .to_lowercase()
-                    .contains(&search_value.get().to_lowercase())
+                    .contains(&search_value().to_lowercase())
+                    || option
+                        .value
+                        .to_lowercase()
+                        .contains(&search_value().to_lowercase())
             })
             .cloned()
             .collect::<Vec<_>>()
     } else {
-        option_datas.clone()
+        options.clone()
     };
 
-    // CSS 类名
-    let select_class = {
-        let mut classes = vec!["ant-select"];
-
-        // 尺寸
-        let size_class = props.size.to_class();
-        if !size_class.is_empty() {
-            classes.push(size_class);
-        }
-
-        // 状态
-        let status_class = props.status.to_class();
-        if !status_class.is_empty() {
-            classes.push(status_class);
-        }
-
-        // 禁用
-        if props.disabled {
-            classes.push("ant-select-disabled");
-        }
-
-        // 聚焦
-        if focused.get() {
-            classes.push("ant-select-focused");
-        }
-
-        // 下拉框显示
-        if dropdown_visible.get() {
-            classes.push("ant-select-open");
-        }
-
-        // 多选
-        if props.multiple {
-            classes.push("ant-select-multiple");
-        }
-
-        // 搜索
-        if props.show_search {
-            classes.push("ant-select-show-search");
-        }
-
-        // 无边框
-        if !props.bordered {
-            classes.push("ant-select-borderless");
-        }
-
-        // 自定义类名
-        if let Some(class) = &props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
+    // 计算选中项标签
+    let selected_label = if props.multiple {
+        props
+            .values
+            .iter()
+            .filter_map(|value| {
+                options
+                    .iter()
+                    .find(|opt| &opt.value == value)
+                    .map(|opt| opt.label.clone())
+            })
+            .collect::<Vec<_>>()
+            .join(", ")
+    } else {
+        options
+            .iter()
+            .find(|opt| opt.value == props.value)
+            .map(|opt| opt.label.clone())
+            .unwrap_or_default()
     };
 
-    // 生成CSS样式
-    let style_builder = SelectStyleBuilder::new()
-        .size(props.size.into())
-        .status(props.status.into())
-        .disabled(props.disabled)
-        .multiple(props.multiple)
-        .show_search(props.show_search)
-        .bordered(props.bordered);
+    // 构建类名
+    let mut class_names = vec![
+        "ant-select".to_string(),
+        format!("ant-select-{}", props.size.to_class()),
+        props.status.to_class().to_string(),
+    ];
 
-    let select_styles = style_builder.build();
+    if focused() {
+        class_names.push("ant-select-focused".to_string());
+    }
 
+    if props.disabled {
+        class_names.push("ant-select-disabled".to_string());
+    }
+
+    if dropdown_visible() {
+        class_names.push("ant-select-open".to_string());
+    }
+
+    if props.multiple {
+        class_names.push("ant-select-multiple".to_string());
+    }
+
+    if !props.bordered {
+        class_names.push("ant-select-borderless".to_string());
+    }
+
+    if props.show_search {
+        class_names.push("ant-select-show-search".to_string());
+    }
+
+    if let Some(class) = &props.class {
+        class_names.push(class.clone());
+    }
+
+    let style = props.style.clone().unwrap_or_default();
+
+    // 渲染组件
     rsx! {
-        style { {select_styles} }
         div {
-            class: "{select_class}",
-            style: props.style.clone().unwrap_or_default(),
+            class: "{class_names.join(" ")}",
+            style: "{style}",
             onclick: toggle_dropdown,
+            tabindex: "0",
+            onfocus: handle_focus,
+            onblur: handle_blur,
+
+            // 选择框
             div {
                 class: "ant-select-selector",
+
+                // 多选模式
                 if props.multiple {
-                    // 多选模式
                     div {
                         class: "ant-select-selection-overflow",
-                        for option in &selected_options {
-                            div {
-                                class: "ant-select-selection-overflow-item",
+                        for value in &props.values {
+                            if let Some(option) = options.iter().find(|opt| &opt.value == value) {
                                 div {
                                     class: "ant-select-selection-item",
-                                    span {
-                                        class: "ant-select-selection-item-content",
-                                        "{option.label}"
-                                    }
-                                    span {
-                                        class: "ant-select-selection-item-remove",
-                                        onclick: move |e| {
-                                            e.stop_propagation();
-                                            handle_option_click(option.value.clone());
-                                        },
-                                        "×"
+                                    "{option.label}"
+                                    if !props.disabled {
+                                        span {
+                                            class: "ant-select-selection-item-remove",
+                                            onclick: move |e| {
+                                                e.stop_propagation();
+                                                let mut new_values = props.values.clone();
+                                                new_values.retain(|v| v != value);
+                                                if let Some(handler) = &props.on_change_multiple {
+                                                    handler.call(new_values);
+                                                }
+                                            },
+                                            "×"
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        // 搜索框
                         if props.show_search {
-                            div {
-                                class: "ant-select-selection-overflow-item",
-                                div {
-                                    class: "ant-select-selection-search",
-                                    input {
-                                        class: "ant-select-selection-search-input",
-                                        value: search_value.get(),
-                                        placeholder: if selected_options.is_empty() {
-                                            props.placeholder.clone().unwrap_or_default()
-                                        } else {
-                                            String::new()
-                                        },
-                                        oninput: handle_search,
-                                        onfocus: handle_focus,
-                                        onblur: handle_blur,
-                                    }
-                                }
-                            }
-                        } else if selected_options.is_empty() {
-                            span {
-                                class: "ant-select-selection-placeholder",
-                                "{props.placeholder.clone().unwrap_or_default()}"
+                            input {
+                                class: "ant-select-selection-search-input",
+                                placeholder: if props.values.is_empty() {
+                                    props.placeholder.clone().unwrap_or_default()
+                                } else {
+                                    String::new()
+                                },
+                                value: search_value(),
+                                oninput: handle_search_input,
+                                disabled: props.disabled,
+                                onclick: |e| e.stop_propagation(),
                             }
                         }
                     }
                 } else {
                     // 单选模式
-                    if props.show_search {
-                        div {
-                            class: "ant-select-selection-search",
-                            input {
-                                class: "ant-select-selection-search-input",
-                                value: if dropdown_visible.get() { search_value.get() } else { selected_label.clone() },
-                                placeholder: if selected_label.is_empty() { props.placeholder.clone().unwrap_or_default() } else { String::new() },
-                                oninput: handle_search,
-                                onfocus: handle_focus,
-                                onblur: handle_blur,
-                            }
-                        }
-                    } else {
-                        span {
-                            class: "ant-select-selection-item",
-                            "{selected_label}"
-                        }
-                        if selected_label.is_empty() {
-                            span {
-                                class: "ant-select-selection-placeholder",
-                                "{props.placeholder.clone().unwrap_or_default()}"
-                            }
-                        }
+                    input {
+                        class: "ant-select-selection-search-input",
+                        value: if dropdown_visible() { search_value() } else { selected_label.clone() },
+                        readonly: !props.show_search || dropdown_visible(),
+                        placeholder: if props.value.is_empty() {
+                            props.placeholder.clone().unwrap_or_default()
+                        } else {
+                            String::new()
+                        },
+                        oninput: handle_search_input,
+                        disabled: props.disabled,
+                        onclick: |e| e.stop_propagation(),
                     }
                 }
             }
@@ -531,7 +491,7 @@ pub fn Select(props: SelectProps) -> Element {
             }
 
             // 下拉菜单
-            if dropdown_visible.get() {
+            if dropdown_visible() {
                 div {
                     class: "ant-select-dropdown",
                     style: format!("width: 100%; max-height: {}px;", props.list_height),
@@ -580,7 +540,7 @@ pub fn Select(props: SelectProps) -> Element {
 // 递归提取所有选项
 fn extract_options(element: &VNode, options: &mut Vec<OptionData>) {
     match element {
-        VNode::Component(comp) => {
+        VNode::DynamicComponentNode(comp) => {
             // 检查是否是 SelectOption 组件
             if comp.name.contains("SelectOption") {
                 let mut value = String::new();
@@ -588,16 +548,16 @@ fn extract_options(element: &VNode, options: &mut Vec<OptionData>) {
                 let mut label = String::new();
 
                 // 提取属性
-                for (key, val) in comp.props.iter() {
+                for (key, val) in &comp.props {
                     match key.as_str() {
                         "value" => {
-                            if let Some(v) = val.as_string() {
+                            if let Some(v) = val.as_str() {
                                 value = v.to_string();
                             }
                         }
                         "disabled" => {
                             if let Some(d) = val.as_bool() {
-                                disabled = d;
+                                disabled = *d;
                             }
                         }
                         _ => {}
@@ -608,7 +568,7 @@ fn extract_options(element: &VNode, options: &mut Vec<OptionData>) {
                 if let Some(children) = &comp.children {
                     for child in children.iter() {
                         if let VNode::Text(text) = child {
-                            label = text.clone();
+                            label = text.to_string();
                             break;
                         }
                     }
@@ -635,8 +595,8 @@ fn extract_options(element: &VNode, options: &mut Vec<OptionData>) {
                 }
             }
         }
-        VNode::Fragment(frag) => {
-            for child in frag.children.iter() {
+        VNode::Fragment(children) => {
+            for child in children {
                 extract_options(child, options);
             }
         }

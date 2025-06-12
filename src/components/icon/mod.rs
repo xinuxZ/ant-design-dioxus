@@ -17,7 +17,8 @@
 mod styles;
 
 use self::styles::{
-    IconRotate as StyleIconRotate, IconSize, IconStyleGenerator, IconTheme as StyleIconTheme,
+    generate_icon_style, high_contrast_style, reduced_motion_style, IconRotate as StyleIconRotate,
+    IconSize, IconStyleGenerator, IconTheme as StyleIconTheme,
 };
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -93,6 +94,9 @@ pub struct IconProps {
     /// 双色图标的次色
     #[props(default)]
     pub two_tone_secondary_color: Option<String>,
+    /// 是否使用 RTL 方向
+    #[props(default = false)]
+    pub is_rtl: bool,
 }
 
 /// 图标组件
@@ -127,10 +131,22 @@ pub fn Icon(props: IconProps) -> Element {
         .with_size(convert_size(&props.size))
         .with_color(props.color.clone())
         .with_spin(props.spin)
+        .with_rtl(props.is_rtl)
         .with_disabled(false); // 图标组件暂不支持禁用状态
 
-    // 生成样式类名
-    let css_class = style_generator.generate();
+    // 生成完整的 CSS 样式
+    let icon_style = generate_icon_style(
+        convert_theme(&props.theme),
+        convert_rotate(&props.rotate),
+        convert_size(&props.size),
+        props.color.clone(),
+        props.spin,
+        props.is_rtl,
+        false,
+    );
+
+    // 添加高对比度和减少动画模式的样式
+    let additional_styles = format!("{}\n{}", high_contrast_style(), reduced_motion_style());
 
     // 合并自定义类名
     let class_name = if let Some(custom_class) = &props.class {
@@ -139,15 +155,15 @@ pub fn Icon(props: IconProps) -> Element {
         format!("anticon anticon-{}", props.icon_type)
     };
 
-    // 合并所有类名
-    let combined_class = format!("{} {}", class_name, css_class);
-
     // 获取自定义样式
     let custom_style = props.style.clone().unwrap_or_default();
 
     rsx! {
+        style { {icon_style} }
+        style { {additional_styles} }
+
         i {
-            class: combined_class,
+            class: class_name,
             style: custom_style,
             onclick: move |evt| {
                 if let Some(handler) = &props.onclick {
