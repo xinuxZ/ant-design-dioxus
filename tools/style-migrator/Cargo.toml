@@ -1,0 +1,24 @@
+[package]
+name = "style-migrator"
+version = "0.1.0"
+edition = "2021"
+description = "CSS 到 Rust 样式迁移工具"
+
+[[bin]]
+name = "style-migrator"
+path = "src/main.rs"
+
+[dependencies]
+ant-design-tools-common = { path = "../common" }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+regex = { workspace = true }
+walkdir = { workspace = true }
+toml = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+colorized = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

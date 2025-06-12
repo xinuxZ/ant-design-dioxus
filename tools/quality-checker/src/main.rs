@@ -2,17 +2,18 @@
 //!
 //! 验证重构后的组件质量和一致性
 
-use colorized as _;
-use indoc as _;
-use log as _;
-use toml as _;
-
+// 引用自身库，避免未使用依赖警告
+use ant_design_tools_common::*;
 use clap::{Arg, Command};
+use colorized;
+use env_logger;
+use log;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use toml;
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,6 +54,15 @@ impl QualityChecker {
         &self,
         component_path: &Path,
     ) -> Result<QualityReport, Box<dyn std::error::Error>> {
+        // 验证组件路径是否在指定的组件目录下
+        if !component_path.starts_with(&self.components_dir) {
+            return Err(format!(
+                "组件路径 {:?} 不在指定的组件目录 {:?} 下",
+                component_path, self.components_dir
+            )
+            .into());
+        }
+
         let component_name = component_path
             .file_name()
             .unwrap()
@@ -535,7 +545,7 @@ impl QualityChecker {
     fn check_performance(
         &self,
         component_path: &Path,
-        errors: &mut Vec<String>,
+        _errors: &mut Vec<String>,
         warnings: &mut Vec<String>,
     ) -> Result<QualityCheck, Box<dyn std::error::Error>> {
         let mut score = 100.0;

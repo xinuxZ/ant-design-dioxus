@@ -1,0 +1,22 @@
+[package]
+name = "structure-generator"
+version = "0.1.0"
+edition = "2021"
+description = "组件结构生成工具"
+
+[[bin]]
+name = "structure-generator"
+path = "src/main.rs"
+
+[dependencies]
+ant-design-tools-common = { path = "../common" }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+regex = { workspace = true }
+walkdir = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

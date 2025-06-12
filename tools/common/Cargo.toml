@@ -1,0 +1,12 @@
+[package]
+name = "ant-design-tools-common"
+version = "0.1.0"
+edition = "2021"
+description = "Ant Design Dioxus 工具集的公共库"
+
+[dependencies]
+serde = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+colorized = { workspace = true }
+walkdir = { workspace = true }
