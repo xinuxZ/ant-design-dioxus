@@ -791,3 +791,246 @@ pub fn default_input_style() -> String {
         false,
     )
 }
+
+/// 生成文本域样式
+pub fn generate_textarea_style(
+    size: InputSize,
+    status: InputStatus,
+    disabled: bool,
+    bordered: bool,
+    show_count: bool,
+    resize: bool,
+    auto_size: bool,
+    focused: bool,
+) -> String {
+    let mut generator = InputStyleGenerator::new()
+        .with_size(size)
+        .with_status(status)
+        .with_disabled(disabled)
+        .with_bordered(bordered)
+        .with_show_count(show_count)
+        .with_focused(focused);
+
+    let mut css = generator.generate_css();
+    
+    // 添加文本域特定样式
+    css.push_str(&css!(
+        r#"
+        .ant-input {
+            min-height: 32px;
+            line-height: 1.5714285714285714;
+            vertical-align: bottom;
+            transition: all 0.2s, height 0s;
+        }
+        
+        .ant-input.ant-input-lg {
+            min-height: 40px;
+            padding: 6.5px 11px;
+            font-size: 16px;
+        }
+        
+        .ant-input.ant-input-sm {
+            min-height: 24px;
+            padding: 0px 7px;
+        }
+        "#
+    ));
+    
+    if !resize {
+        css.push_str(&css!(
+            r#"
+            .ant-input {
+                resize: none;
+            }
+            "#
+        ));
+    }
+    
+    if auto_size {
+        css.push_str(&css!(
+            r#"
+            .ant-input {
+                overflow: hidden;
+                resize: none;
+            }
+            "#
+        ));
+    }
+    
+    css
+}
+
+/// 生成搜索框样式
+pub fn generate_search_style(
+    size: InputSize,
+    status: InputStatus,
+    disabled: bool,
+    bordered: bool,
+    loading: bool,
+    focused: bool,
+) -> String {
+    let mut generator = InputStyleGenerator::new()
+        .with_size(size)
+        .with_status(status)
+        .with_disabled(disabled)
+        .with_bordered(bordered)
+        .with_suffix(true)
+        .with_focused(focused);
+
+    let mut css = generator.generate_css();
+    
+    // 添加搜索框特定样式
+    css.push_str(&css!(
+        r#"
+        .ant-input-search {
+            position: relative;
+        }
+        
+        .ant-input-search .ant-input-suffix {
+            padding-inline-start: 8px;
+        }
+        
+        .ant-input-search .ant-input-search-button {
+            border-start-start-radius: 0;
+            border-end-start-radius: 0;
+            border-inline-start: 0;
+        }
+        
+        .ant-input-search .ant-input-search-button:not(.ant-btn-primary) {
+            color: rgba(0, 0, 0, 0.45);
+        }
+        
+        .ant-input-search .ant-input-search-button:not(.ant-btn-primary):hover {
+            border-inline-start: 0;
+        }
+        
+        .ant-input-search-icon {
+            color: rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .ant-input-search-icon:hover {
+            color: rgba(0, 0, 0, 0.88);
+        }
+        "#
+    ));
+    
+    if loading {
+        css.push_str(&css!(
+            r#"
+            .ant-input-search-loading {
+                color: #1890ff;
+            }
+            "#
+        ));
+    }
+    
+    css
+}
+
+/// 生成密码框样式
+pub fn generate_password_style(
+    size: InputSize,
+    status: InputStatus,
+    disabled: bool,
+    bordered: bool,
+    visibility_toggle: bool,
+    focused: bool,
+) -> String {
+    let mut generator = InputStyleGenerator::new()
+        .with_size(size)
+        .with_status(status)
+        .with_disabled(disabled)
+        .with_bordered(bordered)
+        .with_suffix(visibility_toggle)
+        .with_focused(focused);
+
+    let mut css = generator.generate_css();
+    
+    // 添加密码框特定样式
+    css.push_str(&css!(
+        r#"
+        .ant-input-password {
+            position: relative;
+        }
+        
+        .ant-input-password-icon {
+            color: rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .ant-input-password-icon:hover {
+            color: rgba(0, 0, 0, 0.88);
+        }
+        "#
+    ));
+    
+    css
+}
+
+/// 生成OTP输入框样式
+pub fn generate_otp_style(
+    size: InputSize,
+    status: InputStatus,
+    disabled: bool,
+    length: usize,
+    focused_index: Option<usize>,
+) -> String {
+    let mut generator = InputStyleGenerator::new()
+        .with_size(size)
+        .with_status(status)
+        .with_disabled(disabled)
+        .with_bordered(true);
+
+    let mut css = generator.generate_css();
+    
+    // 添加OTP特定样式
+    css.push_str(&css!(
+        r#"
+        .ant-input-otp {
+            display: inline-flex;
+            gap: 8px;
+        }
+        
+        .ant-input-otp .ant-input {
+            width: 40px;
+            text-align: center;
+            padding-inline: 0;
+        }
+        
+        .ant-input-otp .ant-input.ant-input-lg {
+            width: 48px;
+        }
+        
+        .ant-input-otp .ant-input.ant-input-sm {
+            width: 32px;
+        }
+        
+        .ant-input-otp .ant-input:focus {
+            z-index: 1;
+        }
+        "#
+    ));
+    
+    // 为每个输入框添加特定样式
+    for i in 0..length {
+        if Some(i) == focused_index {
+            css.push_str(&css!(
+                format!(
+                    r#"
+                    .ant-input-otp .ant-input:nth-child({}) {{
+                        border-color: #4096ff;
+                        box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+                        z-index: 1;
+                    }}
+                    "#,
+                    i + 1
+                )
+            ));
+        }
+    }
+    
+    css
+}
