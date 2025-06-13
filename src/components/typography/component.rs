@@ -10,6 +10,21 @@ use crate::locale::use_translate;
 use crate::theme::use_theme;
 use dioxus::prelude::*;
 
+/// 生成包含可访问性样式的完整样式
+fn generate_complete_styles() -> String {
+    let style_generator = TypographyStyleGenerator::new();
+    let accessibility_styles = style_generator.generate_accessibility_styles();
+    
+    format!(
+        r#"
+        <style>
+        {}
+        </style>
+        "#,
+        accessibility_styles
+    )
+}
+
 /// Typography 基础组件
 #[component]
 pub fn Typography(props: TypographyProps) -> Element {
@@ -17,7 +32,7 @@ pub fn Typography(props: TypographyProps) -> Element {
     let theme_style_generator = use_typography_theme();
     let t = use_translate();
     let text_type = props.r#type.as_ref().unwrap_or(&TextType::Default);
-
+    
     let style_generator = TypographyStyleGenerator::new()
         .with_type(text_type.clone())
         .with_disabled(props.disabled)
@@ -30,6 +45,9 @@ pub fn Typography(props: TypographyProps) -> Element {
         .with_keyboard(props.keyboard)
         .with_copyable(props.copyable.is_some())
         .with_editable(props.editable.is_some());
+    
+    // 获取可访问性样式
+    let accessibility_styles = style_generator.generate_accessibility_styles();
 
     let theme_classes = theme_style_generator.generate_theme_classes();
 
@@ -50,6 +68,9 @@ pub fn Typography(props: TypographyProps) -> Element {
     }
 
     rsx! {
+        // 注入可访问性样式
+        style { dangerous_inner_html: "{accessibility_styles}" }
+        
         if let Some(ellipsis) = &props.ellipsis {
             EllipsisWrapper {
                 ellipsis: ellipsis.clone(),

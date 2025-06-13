@@ -45,6 +45,79 @@ impl TypographyStyleGenerator {
             ellipsis_rows: None,
         }
     }
+    
+    /// 生成可访问性样式
+    pub fn generate_accessibility_styles(&self) -> String {
+        r#"
+        /* 屏幕阅读器专用样式 */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        
+        /* 高对比度模式支持 */
+        @media (prefers-contrast: high) {
+            .ant-typography {
+                color: CanvasText;
+                background-color: Canvas;
+            }
+            
+            .ant-typography a {
+                color: LinkText;
+                text-decoration: underline;
+            }
+            
+            .ant-typography a:visited {
+                color: VisitedText;
+            }
+            
+            .ant-typography code,
+            .ant-typography kbd {
+                border: 1px solid CanvasText;
+                background-color: Canvas;
+                color: CanvasText;
+            }
+        }
+        
+        /* 减少动画偏好支持 */
+        @media (prefers-reduced-motion: reduce) {
+            .ant-typography *,
+            .ant-typography *::before,
+            .ant-typography *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* 焦点指示器增强 */
+        .ant-typography a:focus,
+        .ant-typography button:focus,
+        .ant-typography [tabindex]:focus {
+            outline: 2px solid var(--ant-color-primary, #1890ff);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+        
+        /* 确保焦点指示器在高对比度模式下可见 */
+        @media (prefers-contrast: high) {
+            .ant-typography a:focus,
+            .ant-typography button:focus,
+            .ant-typography [tabindex]:focus {
+                outline: 2px solid Highlight;
+                outline-offset: 2px;
+            }
+        }
+        "#.to_string()
+    }
 
     /// 设置文本类型
     pub fn with_type(mut self, text_type: TextType) -> Self {
