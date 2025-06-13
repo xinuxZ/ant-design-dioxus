@@ -19,7 +19,7 @@ mod tests {
                 div { "Item 3" }
             }
         };
-        
+
         // 如果能执行到这里说明组件创建成功
         assert!(true);
     }
@@ -39,7 +39,7 @@ mod tests {
         });
 
         let _ = dom.rebuild_to_vec();
-        
+
         // 验证垂直布局
         let html = dom.base_scope().root_node();
         // 验证是否包含垂直方向的类名
@@ -236,7 +236,7 @@ mod tests {
         });
 
         let _ = dom.rebuild_to_vec();
-        
+
         // 验证换行样式
         let html = dom.base_scope().root_node();
         // 验证是否包含换行的类名
@@ -257,7 +257,7 @@ mod tests {
         });
 
         let _ = dom.rebuild_to_vec();
-        
+
         // 验证自定义样式
         let html = dom.base_scope().root_node();
         // 验证是否包含自定义类名和样式
@@ -277,7 +277,7 @@ mod tests {
         });
 
         let _ = dom.rebuild_to_vec();
-        
+
         // 验证自定义前缀
         let html = dom.base_scope().root_node();
         // 验证是否使用了自定义前缀类名
@@ -294,7 +294,7 @@ mod style_tests {
     fn test_style_generator_basic() {
         let generator = SpaceStyleGenerator::new();
         let class_name = generator.generate_class_name();
-        
+
         assert!(class_name.contains("ant-space"));
         assert!(class_name.contains("ant-space-horizontal"));
         assert!(class_name.contains("ant-space-middle"));
@@ -304,10 +304,9 @@ mod style_tests {
     /// 测试垂直方向样式生成
     #[test]
     fn test_style_generator_vertical() {
-        let generator = SpaceStyleGenerator::new()
-            .with_direction(SpaceDirection::Vertical);
+        let generator = SpaceStyleGenerator::new().with_direction(SpaceDirection::Vertical);
         let class_name = generator.generate_class_name();
-        
+
         assert!(class_name.contains("ant-space-vertical"));
     }
 
@@ -315,23 +314,20 @@ mod style_tests {
     #[test]
     fn test_style_generator_sizes() {
         // 测试小尺寸
-        let generator_small = SpaceStyleGenerator::new()
-            .with_size(SpaceSize::Small);
+        let generator_small = SpaceStyleGenerator::new().with_size(SpaceSize::Small);
         let class_name_small = generator_small.generate_class_name();
         assert!(class_name_small.contains("ant-space-small"));
 
         // 测试大尺寸
-        let generator_large = SpaceStyleGenerator::new()
-            .with_size(SpaceSize::Large);
+        let generator_large = SpaceStyleGenerator::new().with_size(SpaceSize::Large);
         let class_name_large = generator_large.generate_class_name();
         assert!(class_name_large.contains("ant-space-large"));
 
         // 测试自定义尺寸
-        let generator_custom = SpaceStyleGenerator::new()
-            .with_size(SpaceSize::Custom(32));
+        let generator_custom = SpaceStyleGenerator::new().with_size(SpaceSize::Custom(32));
         let class_name_custom = generator_custom.generate_class_name();
         assert!(class_name_custom.contains("ant-space-custom"));
-        
+
         let inline_style = generator_custom.generate_inline_styles();
         assert!(inline_style.contains("--ant-space-gap: 32px"));
     }
@@ -339,40 +335,36 @@ mod style_tests {
     /// 测试对齐方式样式生成
     #[test]
     fn test_style_generator_align() {
-        let generator = SpaceStyleGenerator::new()
-            .with_align(SpaceAlign::Center);
+        let generator = SpaceStyleGenerator::new().with_align(SpaceAlign::Center);
         let class_name = generator.generate_class_name();
-        
+
         assert!(class_name.contains("ant-space-align-center"));
     }
 
     /// 测试换行样式生成
     #[test]
     fn test_style_generator_wrap() {
-        let generator = SpaceStyleGenerator::new()
-            .with_wrap(true);
+        let generator = SpaceStyleGenerator::new().with_wrap(true);
         let class_name = generator.generate_class_name();
-        
+
         assert!(class_name.contains("ant-space-wrap"));
     }
 
     /// 测试分割样式生成
     #[test]
     fn test_style_generator_split() {
-        let generator = SpaceStyleGenerator::new()
-            .with_split(true);
+        let generator = SpaceStyleGenerator::new().with_split(true);
         let class_name = generator.generate_class_name();
-        
+
         assert!(class_name.contains("ant-space-split"));
     }
 
     /// 测试自定义前缀
     #[test]
     fn test_style_generator_custom_prefix() {
-        let generator = SpaceStyleGenerator::new()
-            .with_prefix_cls("custom");
+        let generator = SpaceStyleGenerator::new().with_prefix_cls("custom");
         let class_name = generator.generate_class_name();
-        
+
         assert!(class_name.contains("custom-space"));
         assert!(class_name.contains("custom-space-horizontal"));
     }
@@ -382,7 +374,7 @@ mod style_tests {
     fn test_base_styles() {
         let styles = SpaceStyles::new();
         let base_styles = styles.base_styles();
-        
+
         assert!(base_styles.contains(".ant-space"));
         assert!(base_styles.contains("display: inline-flex"));
         assert!(base_styles.contains(".ant-space-vertical"));
@@ -423,12 +415,12 @@ mod type_tests {
         assert_eq!(SpaceSize::Middle.to_class(), "middle");
         assert_eq!(SpaceSize::Large.to_class(), "large");
         assert_eq!(SpaceSize::Custom(32).to_class(), "custom");
-        
+
         assert_eq!(SpaceSize::Small.to_pixels(), 8);
         assert_eq!(SpaceSize::Middle.to_pixels(), 16);
         assert_eq!(SpaceSize::Large.to_pixels(), 24);
         assert_eq!(SpaceSize::Custom(32).to_pixels(), 32);
-        
+
         assert_eq!(SpaceSize::default(), SpaceSize::Middle);
     }
 }
