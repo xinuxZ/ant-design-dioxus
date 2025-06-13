@@ -3,11 +3,13 @@
 //! 本模块包含Typography组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
-use crate::theme::Theme;
 use css_in_rust::css;
+
 use super::types::*;
+use crate::theme::Theme;
 
 /// Typography 通用样式生成器
+#[derive(Clone)]
 pub struct TypographyStyleGenerator {
     pub text_type: TextType,
     pub disabled: bool,
@@ -198,34 +200,40 @@ impl TypographyStyleGenerator {
                 r#"
                 color: rgba(0, 0, 0, 0.88);
                 "#
-            ).to_string(),
+            )
+            .to_string(),
             TextType::Secondary => css!(
                 r#"
                 color: rgba(0, 0, 0, 0.65);
                 "#
-            ).to_string(),
+            )
+            .to_string(),
             TextType::Success => css!(
                 r#"
                 color: #52c41a;
                 "#
-            ).to_string(),
+            )
+            .to_string(),
             TextType::Warning => css!(
                 r#"
                 color: #faad14;
                 "#
-            ).to_string(),
+            )
+            .to_string(),
             TextType::Danger => css!(
                 r#"
                 color: #ff4d4f;
                 "#
-            ).to_string(),
+            )
+            .to_string(),
             TextType::Disabled => css!(
                 r#"
                 color: rgba(0, 0, 0, 0.25);
                 cursor: not-allowed;
                 user-select: none;
                 "#
-            ).to_string(),
+            )
+            .to_string(),
         }
     }
 
@@ -237,7 +245,8 @@ impl TypographyStyleGenerator {
             cursor: not-allowed;
             user-select: none;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 删除线样式
@@ -246,7 +255,8 @@ impl TypographyStyleGenerator {
             r#"
             text-decoration: line-through;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 下划线样式
@@ -255,7 +265,8 @@ impl TypographyStyleGenerator {
             r#"
             text-decoration: underline;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 强调样式
@@ -264,7 +275,8 @@ impl TypographyStyleGenerator {
             r#"
             font-weight: 600;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 斜体样式
@@ -273,7 +285,8 @@ impl TypographyStyleGenerator {
             r#"
             font-style: italic;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 标记样式
@@ -284,7 +297,8 @@ impl TypographyStyleGenerator {
             padding: 0 2px;
             border-radius: 2px;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 代码样式
@@ -298,7 +312,8 @@ impl TypographyStyleGenerator {
             padding: 0.2em 0.4em;
             font-size: 0.85em;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 键盘样式
@@ -315,7 +330,8 @@ impl TypographyStyleGenerator {
             display: inline-block;
             line-height: 1.2;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 省略样式
@@ -331,7 +347,8 @@ impl TypographyStyleGenerator {
                     word-break: break-all;
                     "#,
                     rows
-                ).to_string()
+                )
+                .to_string()
             } else {
                 css!(
                     r#"
@@ -339,7 +356,8 @@ impl TypographyStyleGenerator {
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     "#
-                ).to_string()
+                )
+                .to_string()
             }
         } else {
             css!(
@@ -348,7 +366,8 @@ impl TypographyStyleGenerator {
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 "#
-            ).to_string()
+            )
+            .to_string()
         }
     }
 
@@ -369,13 +388,14 @@ impl TypographyStyleGenerator {
             color: rgba(0, 0, 0, 0.45);
             border-radius: 2px;
             transition: color 0.3s;
-            
+
             &:hover {
                 color: rgba(0, 0, 0, 0.88);
                 background-color: rgba(0, 0, 0, 0.06);
             }
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 }
 
@@ -438,8 +458,13 @@ impl TitleStyleGenerator {
             margin-left: 0;
             margin-right: 0;
             "#,
-            font_weight, font_size, line_height, margin_top, margin_bottom
-        ).to_string()
+            font_weight,
+            font_size,
+            line_height,
+            margin_top,
+            margin_bottom
+        )
+        .to_string()
     }
 }
 
@@ -552,7 +577,8 @@ impl ParagraphStyleGenerator {
             margin-bottom: 1em;
             margin-top: 0;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 }
 
@@ -616,7 +642,8 @@ impl LinkStyleGenerator {
                 display: {};
                 "#,
                 if self.block { "block" } else { "inline" }
-            ).to_string()
+            )
+            .to_string()
         } else {
             let color = match self.link_type {
                 LinkType::Default => "#1677ff",
@@ -652,11 +679,11 @@ impl LinkStyleGenerator {
                 cursor: pointer;
                 transition: color 0.3s;
                 display: {};
-                
+
                 &:hover {
                     color: {};
                 }
-                
+
                 &:active {
                     color: {};
                 }
@@ -665,7 +692,8 @@ impl LinkStyleGenerator {
                 if self.block { "block" } else { "inline" },
                 hover_color,
                 active_color
-            ).to_string()
+            )
+            .to_string()
         }
     }
 }
@@ -689,13 +717,14 @@ impl EditStyleGenerator {
             background-color: #fff;
             outline: none;
             transition: border-color 0.3s, box-shadow 0.3s;
-            
+
             &:focus {
                 border-color: #4096ff;
                 box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
             }
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 生成编辑操作按钮容器样式
@@ -707,7 +736,8 @@ impl EditStyleGenerator {
             margin-left: 8px;
             align-items: center;
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 
     /// 生成编辑操作按钮样式
@@ -726,12 +756,13 @@ impl EditStyleGenerator {
             color: rgba(0, 0, 0, 0.45);
             border-radius: 2px;
             transition: color 0.3s, background-color 0.3s;
-            
+
             &:hover {
                 color: rgba(0, 0, 0, 0.88);
                 background-color: rgba(0, 0, 0, 0.06);
             }
             "#
-        ).to_string()
+        )
+        .to_string()
     }
 }

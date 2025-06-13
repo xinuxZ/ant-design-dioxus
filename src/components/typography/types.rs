@@ -491,6 +491,8 @@ pub struct ParagraphProps {
     /// 下划线样式
     #[props(default = false)]
     pub underline: bool,
+    #[props(default = false)]
+    pub keyboard: bool,
 }
 
 /// Link 组件属性
