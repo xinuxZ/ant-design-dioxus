@@ -56,14 +56,15 @@ pub struct ThemeProviderProps {
 pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     let theme_config = props.config;
 
-    // 初始化主题桥接器
-    let mut bridge = use_signal(|| {
-        ThemeBridge::new(
-            theme_config.read().theme.clone(),
-            css_in_rust::theme::core::css::variables::InjectionStrategy::Replace,
-            true,
-        )
-    });
+    // 主题桥接器
+    // TODO: 重新启用 css-in-rust 依赖后取消注释
+    // let theme_bridge = use_signal(|| {
+    //     ThemeBridge::new(
+    //         theme_config.read().theme.clone(),
+    //         css_in_rust::theme::core::css::variables::InjectionStrategy::Replace,
+    //         true,
+    //     )
+    // });
 
     // CSS变量支持
     let css_vars_enabled = props.enable_css_vars;
@@ -79,17 +80,18 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         let mut map = MapToken::default();
 
         // 根据主题类型应用不同的算法
-        match config.theme.mode {
-            css_in_rust::theme::theme_types::ThemeMode::Light => {
-                map = super::algorithm::light_algorithm(&seed);
-            }
-            css_in_rust::theme::theme_types::ThemeMode::Dark => {
-                map = super::algorithm::dark_algorithm(&seed);
-            }
-            _ => {
-                map = super::algorithm::light_algorithm(&seed);
-            }
-        }
+        // TODO: 重新启用 css-in-rust 依赖后取消注释
+        // match config.theme.mode {
+        //     css_in_rust::theme::theme_types::ThemeMode::Light => {
+        //         map = super::algorithm::light_algorithm(&seed);
+        //     }
+        //     css_in_rust::theme::theme_types::ThemeMode::Dark => {
+        //         map = super::algorithm::dark_algorithm(&seed);
+        //     }
+        //     _ => {
+        //         map = super::algorithm::light_algorithm(&seed);
+        //     }
+        // }
 
         // 如果是紧凑模式，应用紧凑算法
         if config.compact {
@@ -106,15 +108,17 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     // 创建主题切换函数
     let switch_theme = {
         let mut theme_config = theme_config.clone();
-        let mut bridge = bridge.clone();
+        // TODO: 重新启用 css-in-rust 依赖后取消注释
+        // let mut bridge = bridge.clone();
         let mut css_vars_style = css_vars_style.clone();
 
         move |new_config: ThemeConfig| {
             // 更新主题配置
             theme_config.set(new_config.clone());
 
+            // TODO: 重新启用 css-in-rust 依赖后取消注释
             // 更新主题桥接器
-            bridge.write().set_theme(new_config.theme.clone());
+            // bridge.write().set_theme(new_config.theme.clone());
 
             // 如果启用了CSS变量，重新生成CSS变量
             if css_vars_enabled {
@@ -126,17 +130,18 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
                 let mut map = MapToken::default();
 
                 // 根据主题类型应用不同的算法
-                match config.theme.mode {
-                    css_in_rust::theme::theme_types::ThemeMode::Light => {
-                        map = super::algorithm::light_algorithm(&seed);
-                    }
-                    css_in_rust::theme::theme_types::ThemeMode::Dark => {
-                        map = super::algorithm::dark_algorithm(&seed);
-                    }
-                    _ => {
-                        map = super::algorithm::light_algorithm(&seed);
-                    }
-                }
+                // TODO: 重新启用 css-in-rust 依赖后取消注释
+                // match config.theme.mode {
+                //     css_in_rust::theme::theme_types::ThemeMode::Light => {
+                //         map = super::algorithm::light_algorithm(&seed);
+                //     }
+                //     css_in_rust::theme::theme_types::ThemeMode::Dark => {
+                //         map = super::algorithm::dark_algorithm(&seed);
+                //     }
+                //     _ => {
+                //         map = super::algorithm::light_algorithm(&seed);
+                //     }
+                // }
 
                 // 如果是紧凑模式，应用紧凑算法
                 if config.compact {
@@ -155,10 +160,11 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     // 创建主题上下文
     let theme_context = ThemeContext::new(theme_config.read().clone(), switch_theme);
 
+    // TODO: 重新启用 css-in-rust 依赖后取消注释
     // 注入主题变量
-    use_effect(move || {
-        bridge.write().sync_theme_variables();
-    });
+    // use_effect(move || {
+    //     bridge.write().sync_theme_variables();
+    // });
 
     // 提供主题上下文
     use_context_provider(|| theme_context);

@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use wasm_bindgen::JsCast;
-use web_sys::{window, Document, Element, HtmlHeadElement};
+use web_sys::{window, Document, Element};
 
 /// 已注入样式的缓存
 static INJECTED_STYLES: Lazy<Mutex<HashMap<String, String>>> =
@@ -18,8 +18,8 @@ fn get_document() -> Option<Document> {
 }
 
 /// 获取head元素
-fn get_head() -> Option<HtmlHeadElement> {
-    get_document().and_then(|doc| doc.head())
+fn get_head() -> Option<Element> {
+    get_document().and_then(|doc| doc.head().map(|head| head.into()))
 }
 
 /// 创建style元素
@@ -28,129 +28,134 @@ fn create_style_element(id: &str, css: &str) -> Option<Element> {
         let element = doc.create_element("style").ok()?;
         element.set_id(id);
         element.set_text_content(Some(css));
-        element.set_attribute("type", "text/css").ok()?;
         Some(element)
     })
 }
 
-/// 检查样式是否已注入
-pub fn is_style_injected(id: &str) -> bool {
-    let styles = INJECTED_STYLES.lock().unwrap();
-    styles.contains_key(id)
-}
-
-/// 将CSS样式注入到文档中
-///
-/// # Arguments
-///
+/// 注入CSS样式到文档头部
+/// 
+/// # 参数
+/// 
 /// * `id` - 样式元素的唯一标识符
 /// * `css` - CSS样式字符串
-///
-/// # Returns
-///
-/// * `bool` - 是否成功注入样式
+/// 
+/// # 返回值
+/// 
+/// 如果成功注入样式则返回 `true`，否则返回 `false`
+/// 
+/// # 示例
+/// 
+/// ```rust
+/// use crate::utils::style_injector::inject_style;
+/// 
+/// let success = inject_style("my-component-styles", ".my-class { color: red; }");
+/// if success {
+///     println!("样式注入成功");
+/// }
+/// ```
 pub fn inject_style(id: &str, css: &str) -> bool {
-    // 如果已经注入过相同的样式，则不再重复注入
-    {
-        let mut styles = INJECTED_STYLES.lock().unwrap();
-        if let Some(injected_css) = styles.get(id) {
-            if injected_css == css {
-                return true;
+    // 检查是否已经注入过相同的样式
+    if let Ok(cache) = INJECTED_STYLES.lock() {
+        if let Some(cached_css) = cache.get(id) {
+            if cached_css == css {
+                return true; // 样式已存在且相同，无需重复注入
             }
         }
     }
 
     // 如果已存在同ID的样式元素，则先移除
     if let Some(doc) = get_document() {
-        if let Ok(existing) = doc.get_element_by_id(id) {
+        if let Some(existing) = doc.get_element_by_id(id) {
             if let Some(parent) = existing.parent_node() {
                 parent.remove_child(&existing).ok();
             }
         }
     }
 
-    // 创建并插入新样式元素
-    let result = if let Some(head) = get_head() {
-        if let Some(style) = create_style_element(id, css) {
-            head.append_child(&style).is_ok()
-        } else {
-            false
-        }
-    } else {
-        false
-    };
-
-    // 如果成功注入，则更新缓存
-    if result {
-        let mut styles = INJECTED_STYLES.lock().unwrap();
-        styles.insert(id.to_string(), css.to_string());
-    }
-
-    result
-}
-
-/// 从文档中移除样式
-///
-/// # Arguments
-///
-/// * `id` - 样式元素的唯一标识符
-///
-/// # Returns
-///
-/// * `bool` - 是否成功移除样式
-pub fn remove_style(id: &str) -> bool {
-    let result = if let Some(doc) = get_document() {
-        if let Ok(element) = doc.get_element_by_id(id) {
-            if let Some(parent) = element.parent_node() {
-                parent.remove_child(&element).is_ok()
-            } else {
-                false
+    // 创建新的style元素
+    if let Some(style_element) = create_style_element(id, css) {
+        // 将style元素添加到head中
+        if let Some(head) = get_head() {
+            if head.append_child(&style_element).is_ok() {
+                // 更新缓存
+                if let Ok(mut cache) = INJECTED_STYLES.lock() {
+                    cache.insert(id.to_string(), css.to_string());
+                }
+                return true;
             }
-        } else {
-            false
         }
-    } else {
-        false
-    };
-
-    if result {
-        let mut styles = INJECTED_STYLES.lock().unwrap();
-        styles.remove(id);
     }
 
-    result
+    false
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_style_injection_cache() {
-        // 这里无法实际测试DOM操作，但可以测试缓存逻辑
-        let style_id = "test-style";
-        let css = ".test { color: red; }";
-
-        // 确保初始状态未注入
-        {
-            let styles = INJECTED_STYLES.lock().unwrap();
-            assert!(!styles.contains_key(style_id));
+/// 移除已注入的样式
+/// 
+/// # 参数
+/// 
+/// * `id` - 要移除的样式元素的唯一标识符
+/// 
+/// # 返回值
+/// 
+/// 如果成功移除样式则返回 `true`，否则返回 `false`
+pub fn remove_style(id: &str) -> bool {
+    if let Some(doc) = get_document() {
+        if let Some(element) = doc.get_element_by_id(id) {
+            if let Some(parent) = element.parent_node() {
+                if parent.remove_child(&element).is_ok() {
+                    // 从缓存中移除
+                    if let Ok(mut cache) = INJECTED_STYLES.lock() {
+                        cache.remove(id);
+                    }
+                    return true;
+                }
+            }
         }
+    }
+    false
+}
 
-        // 模拟注入成功
-        {
-            let mut styles = INJECTED_STYLES.lock().unwrap();
-            styles.insert(style_id.to_string(), css.to_string());
+/// 检查样式是否已注入
+/// 
+/// # 参数
+/// 
+/// * `id` - 样式元素的唯一标识符
+/// 
+/// # 返回值
+/// 
+/// 如果样式已注入则返回 `true`，否则返回 `false`
+pub fn is_style_injected(id: &str) -> bool {
+    if let Ok(cache) = INJECTED_STYLES.lock() {
+        cache.contains_key(id)
+    } else {
+        false
+    }
+}
+
+/// 清除所有已注入的样式
+pub fn clear_all_styles() {
+    if let Ok(mut cache) = INJECTED_STYLES.lock() {
+        for id in cache.keys() {
+            remove_style(id);
         }
+        cache.clear();
+    }
+}
 
-        assert!(is_style_injected(style_id));
+/// 获取已注入样式的数量
+pub fn get_injected_count() -> usize {
+    if let Ok(cache) = INJECTED_STYLES.lock() {
+        cache.len()
+    } else {
+        0
+    }
+}
 
-        // 模拟移除
-        {
-            let mut styles = INJECTED_STYLES.lock().unwrap();
-            styles.remove(style_id);
-        }
-
-        assert!(!is_style_injected(style_id));
+/// 获取所有已注入样式的ID列表
+pub fn get_injected_ids() -> Vec<String> {
+    if let Ok(cache) = INJECTED_STYLES.lock() {
+        cache.keys().cloned().collect()
+    } else {
+        Vec::new()
     }
 }

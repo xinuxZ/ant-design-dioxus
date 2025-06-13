@@ -1,242 +1,93 @@
 //! Space 间距组件
 //!
 //! Space 组件用于设置组件之间的间距，避免组件紧贴在一起，拉开统一的空间。
+//! 适用于需要在某个方向上保持统一间距的场景，支持水平、垂直方向的间距设置。
+//!
+//! ## 特性
+//!
+//! - 🎯 **灵活布局**: 支持水平和垂直方向的间距设置
+//! - 📏 **多种尺寸**: 提供小、中、大三种预设尺寸，支持自定义尺寸
+//! - 🎨 **对齐控制**: 支持起始、结束、居中、基线四种对齐方式
+//! - 🔄 **自动换行**: 水平方向支持自动换行功能
+//! - ✂️ **分割元素**: 支持在元素间添加分割线或自定义分割元素
+//! - 🎭 **主题适配**: 完整的主题系统支持和CSS-in-Rust实现
+//! - 🔧 **高度可定制**: 支持自定义类名、样式和前缀
 //!
 //! ## 何时使用
 //!
-//! - 避免组件紧贴在一起，拉开统一的空间。
-//! - 在某组件的某个方向上，保持统一的间距。
-//! - 支持水平、垂直方向。
+//! - 避免组件紧贴在一起，拉开统一的空间
+//! - 在某组件的某个方向上，保持统一的间距
+//! - 需要在元素间添加分割线或分割元素
+//! - 需要控制元素的对齐方式和换行行为
 //!
-//! ## 示例
+//! ## 基础用法
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::Space;
+//! use ant_design_dioxus::{Space, SpaceSize, SpaceDirection};
 //!
 //! fn app() -> Element {
 //!     rsx! {
+//!         // 基础水平间距
 //!         Space {
 //!             Button { "按钮1" }
 //!             Button { "按钮2" }
 //!             Button { "按钮3" }
 //!         }
+//!         
+//!         // 垂直间距
+//!         Space {
+//!             direction: SpaceDirection::Vertical,
+//!             size: SpaceSize::Large,
+//!             Card { "卡片1" }
+//!             Card { "卡片2" }
+//!             Card { "卡片3" }
+//!         }
+//!     }
+//! }
+//! ```
+//!
+//! ## 高级用法
+//!
+//! ```rust
+//! use dioxus::prelude::*;
+//! use ant_design_dioxus::{Space, SpaceSize, SpaceAlign};
+//!
+//! fn advanced_space() -> Element {
+//!     rsx! {
+//!         // 自定义尺寸和对齐
+//!         Space {
+//!             size: SpaceSize::Custom(20),
+//!             align: SpaceAlign::Center,
+//!             wrap: true,
+//!             Button { "按钮1" }
+//!             Button { "按钮2" }
+//!             Button { "按钮3" }
+//!         }
+//!         
+//!         // 带分割线
+//!         Space {
+//!             split: rsx! { Divider { type: DividerType::Vertical } },
+//!             Link { "链接1" }
+//!             Link { "链接2" }
+//!             Link { "链接3" }
+//!         }
 //!     }
 //! }
 //! ```
 
-mod styles;
+// 公共模块
+pub mod component;
+pub mod styles;
+pub mod types;
 
-use css_in_rust::css;
-use dioxus::prelude::*;
-use serde::{Deserialize, Serialize};
-use styles::SpaceStyleGenerator;
+// 测试模块
+#[cfg(test)]
+mod tests;
 
-/// Space 组件的方向
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum SpaceDirection {
-    /// 水平方向 - 默认
-    Horizontal,
-    /// 垂直方向
-    Vertical,
-}
+// 重新导出公共API
+pub use component::{Space, SpaceCompact};
+pub use types::*;
 
-impl Default for SpaceDirection {
-    fn default() -> Self {
-        Self::Horizontal
-    }
-}
-
-/// Space 组件的对齐方式
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum SpaceAlign {
-    /// 起始对齐
-    Start,
-    /// 结束对齐
-    End,
-    /// 居中对齐
-    Center,
-    /// 基线对齐
-    Baseline,
-}
-
-impl Default for SpaceAlign {
-    fn default() -> Self {
-        Self::Start
-    }
-}
-
-impl SpaceAlign {
-    /// 获取CSS类名
-    pub fn to_class(&self) -> String {
-        match self {
-            SpaceAlign::Start => "start",
-            SpaceAlign::End => "end",
-            SpaceAlign::Center => "center",
-            SpaceAlign::Baseline => "baseline",
-        }
-        .to_string()
-    }
-}
-
-/// Space 组件的尺寸
-#[derive(Debug, Clone, PartialEq)]
-pub enum SpaceSize {
-    /// 小号间距
-    Small,
-    /// 中号间距（默认）
-    Middle,
-    /// 大号间距
-    Large,
-    /// 自定义间距（像素值）
-    Custom(u32),
-}
-
-impl Default for SpaceSize {
-    fn default() -> Self {
-        Self::Middle
-    }
-}
-
-/// Space 组件的属性
-#[derive(Props, Clone, PartialEq)]
-pub struct SpaceProps {
-    /// 间距方向
-    #[props(default)]
-    pub direction: SpaceDirection,
-
-    /// 间距大小
-    #[props(default)]
-    pub size: SpaceSize,
-
-    /// 对齐方式
-    #[props(default)]
-    pub align: SpaceAlign,
-
-    /// 是否自动换行，仅在 horizontal 时有效
-    #[props(default = false)]
-    pub wrap: bool,
-
-    /// 设置拆分
-    #[props(default)]
-    pub split: Option<Element>,
-
-    /// 自定义CSS类名
-    #[props(default)]
-    pub class: Option<String>,
-
-    /// 自定义样式
-    #[props(default)]
-    pub style: Option<String>,
-
-    /// 子元素
-    pub children: Element,
-}
-
-/// 注册全局样式
-fn register_styles() {
-    use_effect(|| {
-        let _ = css!(SpaceStyleGenerator::base_style());
-    });
-}
-
-/// Space 间距组件
-///
-/// 设置组件之间的间距，避免组件紧贴在一起。
-///
-/// # Props
-/// - `direction`: 间距方向，默认为水平
-/// - `size`: 间距大小，默认为中等
-/// - `align`: 对齐方式，默认为起始对齐
-/// - `wrap`: 是否自动换行，仅在水平方向时有效
-/// - `split`: 设置拆分元素
-/// - `class`: 自定义CSS类名
-/// - `style`: 自定义样式
-/// - `children`: 子元素
-///
-/// # 示例
-///
-/// ```rust
-/// use dioxus::prelude::*;
-/// use ant_design_dioxus::{Space, SpaceSize, SpaceDirection};
-///
-/// fn app() -> Element {
-///     rsx! {
-///         Space {
-///             size: SpaceSize::Large,
-///             direction: SpaceDirection::Vertical,
-///             Button { "按钮1" }
-///             Button { "按钮2" }
-///             Button { "按钮3" }
-///         }
-///     }
-/// }
-/// ```
-#[component]
-pub fn Space(props: SpaceProps) -> Element {
-    register_styles();
-
-    // 构建样式生成器
-    let mut style_generator = SpaceStyleGenerator::new();
-
-    // 设置方向
-    match props.direction {
-        SpaceDirection::Horizontal => {
-            style_generator = style_generator.with_direction("horizontal")
-        }
-        SpaceDirection::Vertical => style_generator = style_generator.with_direction("vertical"),
-    }
-
-    // 设置尺寸
-    let size_str = match props.size {
-        SpaceSize::Small => "small",
-        SpaceSize::Middle => "middle",
-        SpaceSize::Large => "large",
-        SpaceSize::Custom(_) => "custom",
-    };
-    style_generator = style_generator.with_size(size_str);
-
-    // 设置对齐方式
-    style_generator = style_generator.with_align(&props.align.to_class());
-
-    // 设置换行
-    style_generator = style_generator.with_wrap(props.wrap);
-
-    // 生成类名
-    let space_class = style_generator.generate();
-    let class = format!(
-        "{} {}",
-        space_class,
-        props.class.clone().unwrap_or_default()
-    );
-
-    // 构建自定义样式
-    let mut style_parts = Vec::new();
-
-    // 如果是自定义尺寸，添加CSS变量
-    if let SpaceSize::Custom(size) = props.size {
-        let gap_value = format!("{}", size);
-        style_parts.push(format!("--ant-space-gap: {}px", gap_value));
-    }
-
-    if let Some(style) = &props.style {
-        style_parts.push(style.clone());
-    }
-
-    let style = if style_parts.is_empty() {
-        props.style.clone().unwrap_or_default()
-    } else {
-        style_parts.join("; ")
-    };
-
-    rsx! {
-        div {
-            class: class,
-            style: style,
-            {props.children}
-        }
-    }
-}
-
-// 重新导出公共类型
-// 注意：不使用通配符导出以避免命名冲突
+// 重新导出样式相关类型（供高级用户使用）
+pub use styles::{SpaceStyleGenerator, SpaceStyles};
