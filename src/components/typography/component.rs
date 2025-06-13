@@ -33,18 +33,28 @@ pub fn Typography(props: TypographyProps) -> Element {
     );
 
     let mut style = props.style.clone().unwrap_or_default();
+
+    // 处理省略功能的样式
     if let Some(ellipsis) = &props.ellipsis {
         if let Some(suffix) = &ellipsis.suffix {
-            // 使用默认宽度，实际应该从 ellipsis 配置中获取
             style.push_str("max-width: 100%;");
         }
     }
 
     rsx! {
-        span {
-            class: "{class_name}",
-            style: "{style}",
-            {props.children}
+        if let Some(ellipsis) = &props.ellipsis {
+            EllipsisWrapper {
+                ellipsis: ellipsis.clone(),
+                class_name: class_name.clone(),
+                style: style.clone(),
+                children: props.children,
+            }
+        } else {
+            span {
+                class: "{class_name}",
+                style: "{style}",
+                {props.children}
+            }
         }
     }
 }
@@ -417,24 +427,89 @@ fn CopyButton(
     on_copy: Option<Callback<String>>,
 ) -> Element {
     let action_class = TypographyStyleGenerator::action_button_style();
+    let (copy_to_clipboard, copied) = crate::hooks::use_clipboard();
 
     let onclick = move |_| {
         if let Some(text) = &text {
-            // TODO: 实现实际的复制功能
-            // 这里需要使用 web-sys 或其他方式访问剪贴板 API
+            // 使用 use_clipboard hook 实现复制功能
+            copy_to_clipboard(&text);
+
+            // 调用用户提供的回调
             if let Some(on_copy) = &on_copy {
                 on_copy.call(text.clone());
             }
         }
     };
 
+    let button_title = if copied() {
+        "已复制!"
+    } else {
+        tooltip.as_deref().unwrap_or("复制")
+    };
+
+    let button_icon = if copied() {
+        "✓" // 复制成功图标
+    } else {
+        "📋" // 默认复制图标
+    };
+
     rsx! {
         button {
             class: "{action_class}",
-            title: tooltip.as_deref().unwrap_or("复制"),
+            title: "{button_title}",
             onclick: onclick,
-            // 复制图标 (简化版)
-            "📋"
+            disabled: copied(),
+            "{button_icon}"
+        }
+    }
+}
+
+/// 省略功能包装组件
+#[component]
+fn EllipsisWrapper(
+    ellipsis: EllipsisConfig,
+    class_name: String,
+    style: String,
+    children: Element,
+) -> Element {
+    let mut is_expanded = use_signal(|| ellipsis.expanded.unwrap_or(ellipsis.default_expanded));
+
+    let toggle_expand = move |_| {
+        let new_state = !is_expanded();
+        is_expanded.set(new_state);
+        if let Some(on_expand) = &ellipsis.on_expand {
+            on_expand.call(new_state);
+        }
+    };
+
+    // 如果可展开且当前是收起状态，应用省略样式
+    let should_ellipsis = ellipsis.expandable && !is_expanded();
+
+    rsx! {
+        span {
+            class: "{class_name}",
+            style: "{style}",
+            span {
+                class: if should_ellipsis { "typography-ellipsis-content" } else { "" },
+                {children}
+            }
+            if ellipsis.expandable {
+                button {
+                    class: "typography-expand-button",
+                    onclick: toggle_expand,
+                    title: if is_expanded() { "收起" } else { "展开" },
+                    if is_expanded() {
+                        if ellipsis.collapsible {
+                            "收起"
+                        }
+                    } else {
+                        "展开"
+                    }
+                }
+            }
+            if let Some(suffix) = &ellipsis.suffix {
+                span { class: "typography-ellipsis-suffix", "{suffix}" }
+            }
         }
     }
 }
@@ -476,9 +551,10 @@ fn EditButton(
         }
     };
 
+    let text_clone = text.clone();
     let cancel_edit = move |_| {
         is_editing.set(false);
-        edit_text.set(text.clone().unwrap_or_default());
+        edit_text.set(text_clone.clone().unwrap_or_default());
         if let Some(on_cancel) = &on_cancel {
             on_cancel.call(());
         }
@@ -501,6 +577,33 @@ fn EditButton(
         }
     };
 
+    let on_keydown = {
+        let on_end = on_end.clone();
+        let on_cancel = on_cancel.clone();
+        let text = text.clone();
+        let mut edit_text = edit_text.clone();
+        let mut is_editing = is_editing.clone();
+
+        move |evt: KeyboardEvent| match evt.key() {
+            Key::Enter => {
+                evt.prevent_default();
+                is_editing.set(false);
+                if let Some(on_end) = &on_end {
+                    on_end.call(edit_text.read().clone());
+                }
+            }
+            Key::Escape => {
+                evt.prevent_default();
+                is_editing.set(false);
+                edit_text.set(text.clone().unwrap_or_default());
+                if let Some(on_cancel) = &on_cancel {
+                    on_cancel.call(());
+                }
+            }
+            _ => {}
+        }
+    };
+
     if *is_editing.read() {
         rsx! {
             span {
@@ -510,7 +613,9 @@ fn EditButton(
                     r#type: "text",
                     value: "{edit_text.read()}",
                     oninput: on_input,
+                    onkeydown: on_keydown,
                     autofocus: true,
+                    maxlength: max_length.map(|len| len.to_string()),
                 }
                 span {
                     class: "{actions_class}",

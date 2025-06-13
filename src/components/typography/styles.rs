@@ -162,6 +162,7 @@ impl TypographyStyleGenerator {
 
         if self.ellipsis {
             classes.push(self.ellipsis_style());
+            classes.push(Self::ellipsis_content_style());
         }
 
         classes.join(" ")
@@ -369,6 +370,67 @@ impl TypographyStyleGenerator {
             )
             .to_string()
         }
+    }
+
+    /// 展开/收起按钮样式
+    pub fn expand_button_style() -> String {
+        css!(
+            r#"
+            background: none;
+            border: none;
+            color: #1890ff;
+            cursor: pointer;
+            font-size: inherit;
+            margin-left: 4px;
+            padding: 0;
+            text-decoration: none;
+            
+            &:hover {
+                color: #40a9ff;
+                text-decoration: underline;
+            }
+            
+            &:active {
+                color: #096dd9;
+            }
+            "#
+        )
+        .to_string()
+    }
+    
+    /// 省略内容样式
+    pub fn ellipsis_content_style() -> String {
+        css!(
+            r#"
+            .typography-ellipsis-content {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+            
+            .typography-expand-button {
+                background: none;
+                border: none;
+                color: #1890ff;
+                cursor: pointer;
+                font-size: inherit;
+                margin-left: 4px;
+                padding: 0;
+                text-decoration: none;
+            }
+            
+            .typography-expand-button:hover {
+                color: #40a9ff;
+                text-decoration: underline;
+            }
+            
+            .typography-ellipsis-suffix {
+                margin-left: 4px;
+                color: #8c8c8c;
+            }
+            "#
+        )
+        .to_string()
     }
 
     /// 生成交互按钮样式
