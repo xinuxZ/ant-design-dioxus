@@ -95,6 +95,8 @@ pub fn Title(props: TitleProps) -> Element {
                h1 {
                    class: class_name,
                    style: props.style.clone(),
+                   role: "heading",
+                   "aria-level": "1",
                    {props.children}
                    if let Some(copyable) = &props.copyable {
                        CopyButton {
@@ -121,6 +123,8 @@ pub fn Title(props: TitleProps) -> Element {
                h2 {
                    class: class_name,
                    style: props.style.clone(),
+                   role: "heading",
+                   "aria-level": "2",
                    {props.children}
                    if let Some(copyable) = &props.copyable {
                        CopyButton {
@@ -147,6 +151,8 @@ pub fn Title(props: TitleProps) -> Element {
                h3 {
                    class: class_name,
                    style: props.style.clone(),
+                   role: "heading",
+                   "aria-level": "3",
                    {props.children}
                    if let Some(copyable) = &props.copyable {
                        CopyButton {
@@ -173,6 +179,8 @@ pub fn Title(props: TitleProps) -> Element {
                h4 {
                    class: class_name,
                    style: props.style.clone(),
+                   role: "heading",
+                   "aria-level": "4",
                    {props.children}
                    if let Some(copyable) = &props.copyable {
                        CopyButton {
@@ -199,6 +207,8 @@ pub fn Title(props: TitleProps) -> Element {
                h5 {
                    class: class_name,
                    style: props.style.clone(),
+                   role: "heading",
+                   "aria-level": "5",
                    {props.children}
                    if let Some(copyable) = &props.copyable {
                        CopyButton {
@@ -216,16 +226,16 @@ pub fn Title(props: TitleProps) -> Element {
                            on_start: editable.on_start.clone(),
                            on_change: editable.on_change.clone(),
                            on_cancel: editable.on_cancel.clone(),
-                            on_end: editable.on_end.clone(),
-                            max_length: editable.max_length,
-                            auto_size: editable.auto_size.clone(),
-                            enter_icon: editable.enter_icon.clone(),
-                            editing: editable.editing,
-                        }
-                    }
-                }
-            },
-        }
+                           on_end: editable.on_end.clone(),
+                           max_length: editable.max_length,
+                           auto_size: editable.auto_size.clone(),
+                           enter_icon: editable.enter_icon.clone(),
+                           editing: editable.editing,
+                       }
+                   }
+               }
+           },
+       }
     }
 }
 
@@ -264,6 +274,9 @@ pub fn Text(props: TextProps) -> Element {
         span {
             class: "{class_name}",
             style: props.style.clone(),
+            role: if props.editable.is_some() { "textbox" } else { "text" },
+            "aria-readonly": if props.editable.is_some() { "false" } else { "true" },
+            "aria-disabled": if props.disabled { "true" } else { "false" },
             {props.children}
             if let Some(copyable) = &props.copyable {
                 CopyButton {
@@ -459,6 +472,9 @@ fn CopyButton(
             title: "{button_title}",
             onclick: onclick,
             disabled: copied(),
+            "aria-label": "{button_title}",
+            "aria-pressed": "{copied()}",
+            role: "button",
             "{button_icon}"
         }
     }
@@ -616,6 +632,9 @@ fn EditButton(
                     onkeydown: on_keydown,
                     autofocus: true,
                     maxlength: max_length.map(|len| len.to_string()),
+                    "aria-label": "编辑文本",
+                    "aria-describedby": "edit-help",
+                    role: "textbox",
                 }
                 span {
                     class: "{actions_class}",
@@ -623,13 +642,22 @@ fn EditButton(
                         class: "{action_btn_class}",
                         title: "确认",
                         onclick: confirm_edit,
+                        "aria-label": "确认编辑",
+                        role: "button",
                         "✓"
                     }
                     button {
                         class: "{action_btn_class}",
                         title: "取消",
                         onclick: cancel_edit,
+                        "aria-label": "取消编辑",
+                        role: "button",
                         "✕"
+                    }
+                    span {
+                        id: "edit-help",
+                        class: "sr-only",
+                        "按Enter确认，按Escape取消"
                     }
                 }
             }
@@ -640,6 +668,8 @@ fn EditButton(
                 class: "{action_class}",
                 title: tooltip.as_deref().unwrap_or("编辑"),
                 onclick: start_edit,
+                "aria-label": tooltip.as_deref().unwrap_or("编辑文本"),
+                role: "button",
                 // 编辑图标 (简化版)
                 "✏️"
             }
