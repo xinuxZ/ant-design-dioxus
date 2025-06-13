@@ -5,7 +5,6 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use wasm_bindgen::JsCast;
 use web_sys::{window, Document, Element};
 
 /// 已注入样式的缓存
@@ -33,21 +32,21 @@ fn create_style_element(id: &str, css: &str) -> Option<Element> {
 }
 
 /// 注入CSS样式到文档头部
-/// 
+///
 /// # 参数
-/// 
+///
 /// * `id` - 样式元素的唯一标识符
 /// * `css` - CSS样式字符串
-/// 
+///
 /// # 返回值
-/// 
+///
 /// 如果成功注入样式则返回 `true`，否则返回 `false`
-/// 
+///
 /// # 示例
-/// 
+///
 /// ```rust
 /// use crate::utils::style_injector::inject_style;
-/// 
+///
 /// let success = inject_style("my-component-styles", ".my-class { color: red; }");
 /// if success {
 ///     println!("样式注入成功");
@@ -90,13 +89,13 @@ pub fn inject_style(id: &str, css: &str) -> bool {
 }
 
 /// 移除已注入的样式
-/// 
+///
 /// # 参数
-/// 
+///
 /// * `id` - 要移除的样式元素的唯一标识符
-/// 
+///
 /// # 返回值
-/// 
+///
 /// 如果成功移除样式则返回 `true`，否则返回 `false`
 pub fn remove_style(id: &str) -> bool {
     if let Some(doc) = get_document() {
@@ -116,13 +115,13 @@ pub fn remove_style(id: &str) -> bool {
 }
 
 /// 检查样式是否已注入
-/// 
+///
 /// # 参数
-/// 
+///
 /// * `id` - 样式元素的唯一标识符
-/// 
+///
 /// # 返回值
-/// 
+///
 /// 如果样式已注入则返回 `true`，否则返回 `false`
 pub fn is_style_injected(id: &str) -> bool {
     if let Ok(cache) = INJECTED_STYLES.lock() {
