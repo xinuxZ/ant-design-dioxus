@@ -17,7 +17,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试默认分割线渲染
         // 这里应该包含更详细的测试逻辑
     }
@@ -32,7 +33,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试带文字的分割线渲染
     }
 
@@ -46,7 +48,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试垂直分割线渲染
     }
 
@@ -60,7 +63,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试虚线分割线渲染
     }
 
@@ -123,7 +127,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试自定义类名和样式
     }
 
@@ -195,7 +200,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试自定义前缀类名
     }
 
@@ -210,7 +216,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试纯文本样式
     }
 
@@ -232,7 +239,8 @@ mod tests {
             }
         });
         
-        let _ = dom.rebuild();
+        let mut to = Vec::new();
+        let _ = dom.rebuild(&mut to);
         // 测试复杂属性组合
     }
 }
