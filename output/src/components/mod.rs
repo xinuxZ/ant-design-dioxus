@@ -16,7 +16,7 @@ pub mod divider;
 // 布局组件
 // pub mod grid;
 // pub mod layout;
-// pub mod space;
+pub mod space;
 
 // 导航组件
 // pub mod affix;
@@ -86,6 +86,7 @@ pub mod alert;
 pub use alert::*;
 pub use button::*;
 pub use divider::*;
+pub use space::*;
 pub use tag::*;
 
 // 组件通用类型和特性

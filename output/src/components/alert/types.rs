@@ -52,6 +52,16 @@ impl Default for AlertSize {
     }
 }
 
+impl From<&str> for AlertSize {
+    fn from(value: &str) -> Self {
+        match value {
+            "small" => AlertSize::Small,
+            "large" => AlertSize::Large,
+            _ => AlertSize::Default,
+        }
+    }
+}
+
 /// Alert 变体枚举
 #[derive(Debug, Clone, PartialEq)]
 pub enum AlertVariant {

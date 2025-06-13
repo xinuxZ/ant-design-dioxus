@@ -19,21 +19,21 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert"));
         assert!(html.contains("ant-alert-info")); // 默认类型为 info
         assert!(html.contains("Test message"));
         assert!(html.contains("role=\"alert\""));
         assert!(html.contains("aria-live=\"polite\""));
     }
-    
+
     /// 测试 Alert 组件的国际化功能
     #[test]
     fn test_alert_i18n() {
-        use crate::locale::{LocaleProvider, Locale};
-        
+        use crate::locale::{Locale, LocaleProvider};
+
         // 使用中文语言环境
         let mut dom = VirtualDom::new(|| {
             rsx! {
@@ -46,11 +46,11 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
         assert!(html.contains("测试消息"));
         assert!(html.contains("aria-label=\"关闭\""));
-        
+
         // 使用英文语言环境
         let mut dom = VirtualDom::new(|| {
             rsx! {
@@ -63,7 +63,7 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
         assert!(html.contains("Test message"));
         assert!(html.contains("aria-label=\"Close\""));
@@ -83,7 +83,7 @@ mod tests {
         });
         let html = dom.rebuild_to_vec().santize();
         assert!(html.contains("ant-alert-success"));
-        
+
         // Warning 类型
         let mut dom = VirtualDom::new(|| {
             rsx! {
@@ -95,7 +95,7 @@ mod tests {
         });
         let html = dom.rebuild_to_vec().santize();
         assert!(html.contains("ant-alert-warning"));
-        
+
         // Error 类型
         let mut dom = VirtualDom::new(|| {
             rsx! {
@@ -123,7 +123,7 @@ mod tests {
         });
         let html = dom.rebuild_to_vec().santize();
         assert!(html.contains("ant-alert-sm"));
-        
+
         // Large 尺寸
         let mut dom = VirtualDom::new(|| {
             rsx! {
@@ -164,9 +164,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-with-description"));
         assert!(html.contains("Alert message"));
         assert!(html.contains("Alert description"));
@@ -184,9 +184,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-with-icon"));
         assert!(html.contains("ant-alert-icon"));
     }
@@ -202,9 +202,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-closable"));
         assert!(html.contains("ant-alert-close-icon"));
         assert!(html.contains("aria-label=\"Close\""));
@@ -222,9 +222,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("关闭"));
         assert!(html.contains("ant-alert-close-text"));
     }
@@ -240,9 +240,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-banner"));
     }
 
@@ -257,9 +257,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-no-border"));
     }
 
@@ -275,9 +275,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-disabled"));
         assert!(html.contains("disabled"));
     }
@@ -293,9 +293,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("display: none"));
     }
 
@@ -311,9 +311,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("custom-alert"));
         assert!(html.contains("margin-top: 20px"));
     }
@@ -329,9 +329,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("my-alert"));
         assert!(html.contains("my-alert-info"));
     }
@@ -347,9 +347,9 @@ mod tests {
                 }
             }
         });
-        
+
         let html = dom.rebuild_to_vec().santize();
-        
+
         assert!(html.contains("ant-alert-error"));
         assert!(html.contains("Something went wrong"));
         assert!(html.contains("ant-alert-error-actions"));
@@ -366,9 +366,9 @@ mod tests {
             .with_show_icon(true)
             .with_closable(true)
             .with_banner(true);
-        
+
         let class_names = generator.generate_class_names();
-        
+
         assert!(class_names.contains(&"ant-alert".to_string()));
         assert!(class_names.contains(&"ant-alert-success".to_string()));
         assert!(class_names.contains(&"ant-alert-lg".to_string()));
@@ -384,9 +384,9 @@ mod tests {
         let generator = AlertStyleGenerator::new()
             .with_disabled(true)
             .with_visible(false);
-        
+
         let inline_styles = generator.generate_inline_styles();
-        
+
         assert!(inline_styles.contains("display: none"));
         assert!(inline_styles.contains("opacity: 0.6"));
         assert!(inline_styles.contains("pointer-events: none"));
@@ -405,10 +405,10 @@ mod tests {
     /// 测试 AlertSize 枚举
     #[test]
     fn test_alert_size_enum() {
-        assert_eq!(AlertSize::from("small"), AlertSize::Small);
-        assert_eq!(AlertSize::from("default"), AlertSize::Default);
-        assert_eq!(AlertSize::from("large"), AlertSize::Large);
-        assert_eq!(AlertSize::from("unknown"), AlertSize::Default); // 默认值
+        assert_eq!("small".into(), AlertSize::Small);
+        assert_eq!("default".into(), AlertSize::Default);
+        assert_eq!("large".into(), AlertSize::Large);
+        assert_eq!("unknown".into(), AlertSize::Default); // 默认值
     }
 
     /// 测试 AlertVariant 枚举
@@ -424,13 +424,13 @@ mod tests {
     fn test_alert_animation_state() {
         let state = AlertAnimationState::Entering;
         assert!(matches!(state, AlertAnimationState::Entering));
-        
+
         let state = AlertAnimationState::Entered;
         assert!(matches!(state, AlertAnimationState::Entered));
-        
+
         let state = AlertAnimationState::Exiting;
         assert!(matches!(state, AlertAnimationState::Exiting));
-        
+
         let state = AlertAnimationState::Exited;
         assert!(matches!(state, AlertAnimationState::Exited));
     }
@@ -443,10 +443,13 @@ mod tests {
             animation_state: AlertAnimationState::Entered,
             closing: false,
         };
-        
+
         assert!(state.visible);
         assert!(!state.closing);
-        assert!(matches!(state.animation_state, AlertAnimationState::Entered));
+        assert!(matches!(
+            state.animation_state,
+            AlertAnimationState::Entered
+        ));
     }
 
     /// 测试 AlertStyleConfig 结构体
@@ -464,7 +467,7 @@ mod tests {
             disabled: false,
             visible: true,
         };
-        
+
         assert_eq!(config.alert_type, AlertType::Warning);
         assert_eq!(config.size, AlertSize::Large);
         assert_eq!(config.variant, AlertVariant::Outlined);
@@ -481,7 +484,7 @@ mod tests {
     #[test]
     fn test_alert_style_config_default() {
         let config = AlertStyleConfig::default();
-        
+
         assert_eq!(config.alert_type, AlertType::Info);
         assert_eq!(config.size, AlertSize::Default);
         assert_eq!(config.variant, AlertVariant::Filled);

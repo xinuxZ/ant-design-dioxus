@@ -206,9 +206,9 @@ let style_generator = DividerStyleGenerator::new()
 
 ## 参考资料
 
-1. **Ant Design官方文档**：https://ant.design/components/divider/ <mcreference link="https://ant.design/components/divider/?locale=en-US" index="1">1</mcreference>
-2. **React实现参考**：ant-design/components/divider/index.tsx <mcreference link="https://github.com/ant-design/ant-design/blob/master/components/divider/index.tsx" index="4">4</mcreference>
-3. **Material-UI对比**：https://mui.com/material-ui/react-divider/ <mcreference link="https://mui.com/material-ui/react-divider/" index="5">5</mcreference>
+1. **Ant Design官方文档**：https://ant.design/components/divider/
+2. **React实现参考**：ant-design/components/divider/index.tsx
+3. **Material-UI对比**：https://mui.com/material-ui/react-divider/
 
 ## 实施计划
 
