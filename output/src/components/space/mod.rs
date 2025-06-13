@@ -86,7 +86,7 @@ pub mod types;
 mod tests;
 
 // 重新导出公共API
-pub use component::Space;
+pub use component::{Space, SpaceCompact};
 pub use types::*;
 
 // 重新导出样式相关类型（供高级用户使用）

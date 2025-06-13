@@ -28,6 +28,99 @@ pub fn vertical_space_example() -> Element {
     }
 }
 
+/// 调试模式示例
+pub fn debug_mode_example() -> Element {
+    let debug_config = SpaceDebugConfig {
+        enabled: true,
+        show_boundaries: true,
+        show_size_info: true,
+        debug_color: Some("#ff4d4f".to_string()),
+    };
+
+    rsx! {
+        div {
+            h3 { "调试模式" }
+            Space {
+                debug_config: debug_config,
+                size: SpaceSize::Large,
+                button { "按钮1" }
+                button { "按钮2" }
+                button { "按钮3" }
+            }
+        }
+    }
+}
+
+/// 动画效果示例
+pub fn animation_example() -> Element {
+    let animation_config = SpaceAnimationConfig {
+        enabled: true,
+        duration: Some("500ms".to_string()),
+        easing: Some("ease-in-out".to_string()),
+        respect_reduced_motion: true,
+    };
+
+    rsx! {
+        div {
+            h3 { "动画效果" }
+            Space {
+                animation_config: animation_config,
+                size: SpaceSize::Middle,
+                button { "按钮1" }
+                button { "按钮2" }
+                button { "按钮3" }
+            }
+        }
+    }
+}
+
+/// 性能优化示例
+pub fn performance_example() -> Element {
+    let performance_config = SpacePerformanceConfig {
+        virtual_scroll: true,
+        lazy_loading: true,
+        memo_children: true,
+    };
+
+    rsx! {
+        div {
+            h3 { "性能优化" }
+            Space {
+                performance_config: performance_config,
+                direction: SpaceDirection::Vertical,
+                // 大量子元素示例
+                for i in 0..20 {
+                    div {
+                        key: "{i}",
+                        "项目 {i + 1}"
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// 国际化示例
+pub fn i18n_example() -> Element {
+    let rtl_config = SpaceI18nConfig {
+        rtl: true,
+        auto_direction: false,
+        locale: Some("ar".to_string()),
+    };
+
+    rsx! {
+        div {
+            h3 { "RTL 布局" }
+            Space {
+                i18n_config: rtl_config,
+                button { "زر 1" }
+                button { "زر 2" }
+                button { "زر 3" }
+            }
+        }
+    }
+}
+
 /// 不同尺寸间距示例
 pub fn space_sizes_example() -> Element {
     rsx! {
@@ -280,6 +373,245 @@ pub fn nested_space_example() -> Element {
     }
 }
 
+/// Space.Compact 紧凑模式示例
+pub fn space_compact_example() -> Element {
+    rsx! {
+        div {
+            h3 { "紧凑模式" }
+            
+            // 基础紧凑模式
+            div {
+                h4 { "基础紧凑模式" }
+                SpaceCompact {
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+            
+            // 不同尺寸的紧凑模式
+            div {
+                h4 { "不同尺寸" }
+                SpaceCompact {
+                    size: SpaceCompactSize::Small,
+                    Button { "小间距" }
+                    Button { "小间距" }
+                }
+                br {}
+                SpaceCompact {
+                    size: SpaceCompactSize::Middle,
+                    Button { "中间距" }
+                    Button { "中间距" }
+                }
+                br {}
+                SpaceCompact {
+                    size: SpaceCompactSize::Large,
+                    Button { "大间距" }
+                    Button { "大间距" }
+                }
+            }
+            
+            // 垂直紧凑模式
+            div {
+                h4 { "垂直紧凑模式" }
+                SpaceCompact {
+                    direction: SpaceDirection::Vertical,
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+            
+            // 块级紧凑模式
+            div {
+                h4 { "块级紧凑模式" }
+                SpaceCompact {
+                    block: true,
+                    Button { "全宽按钮1" }
+                    Button { "全宽按钮2" }
+                }
+            }
+        }
+    }
+}
+
+/// 数组尺寸示例
+pub fn array_size_example() -> Element {
+    rsx! {
+        div {
+            h3 { "数组尺寸" }
+            
+            // 不同水平和垂直间距
+            div {
+                h4 { "不同水平和垂直间距" }
+                Space {
+                    size: SpaceSize::Array(vec![SpaceSize::Large, SpaceSize::Small]),
+                    wrap: true,
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                    Button { "按钮4" }
+                    Button { "按钮5" }
+                    Button { "按钮6" }
+                }
+            }
+            
+            // 自定义数组尺寸
+            div {
+                h4 { "自定义数组尺寸" }
+                Space {
+                    size: SpaceSize::Array(vec![SpaceSize::Custom(32), SpaceSize::Custom(8)]),
+                    wrap: true,
+                    Button { "大水平间距" }
+                    Button { "小垂直间距" }
+                    Button { "按钮3" }
+                    Button { "按钮4" }
+                }
+            }
+            
+            // 混合尺寸数组
+            div {
+                h4 { "混合尺寸数组" }
+                Space {
+                    size: SpaceSize::Array(vec![SpaceSize::Large, SpaceSize::Middle]),
+                    direction: SpaceDirection::Vertical,
+                    Button { "垂直布局" }
+                    Button { "大水平间距" }
+                    Button { "中等垂直间距" }
+                }
+            }
+        }
+    }
+}
+
+/// 增强分割元素示例
+pub fn enhanced_split_example() -> Element {
+    rsx! {
+        div {
+            h3 { "增强分割元素" }
+            
+            // 自定义分割元素样式
+            div {
+                h4 { "自定义分割元素样式" }
+                Space {
+                    split_config: SpaceSplit {
+                        element: rsx! { span { "|" } },
+                        style: Some("color: red; font-weight: bold;".to_string()),
+                        class: Some("custom-divider".to_string()),
+                        visible: true,
+                    },
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+            
+            // 可控制显示的分割元素
+            div {
+                h4 { "可控制显示的分割元素" }
+                Space {
+                    split_config: SpaceSplit {
+                        element: rsx! { span { "•" } },
+                        style: Some("color: blue;".to_string()),
+                        class: None,
+                        visible: true,
+                    },
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+            
+            // 复杂分割元素
+            div {
+                h4 { "复杂分割元素" }
+                Space {
+                    split_config: SpaceSplit {
+                        element: rsx! {
+                            div {
+                                style: "width: 2px; height: 20px; background: linear-gradient(to bottom, #ff0000, #0000ff);",
+                            }
+                        },
+                        style: None,
+                        class: Some("gradient-divider".to_string()),
+                        visible: true,
+                    },
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+        }
+    }
+}
+
+/// 语义化DOM示例
+pub fn semantic_dom_example() -> Element {
+    rsx! {
+        div {
+            h3 { "语义化DOM" }
+            
+            // 语义化类名
+            div {
+                h4 { "语义化类名" }
+                Space {
+                    class_names: {
+                        let mut map = std::collections::HashMap::new();
+                        map.insert("container".to_string(), "semantic-space-container".to_string());
+                        map.insert("wrapper".to_string(), "semantic-space-wrapper".to_string());
+                        Some(map)
+                    },
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+            
+            // 语义化样式
+            div {
+                h4 { "语义化样式" }
+                Space {
+                    styles: {
+                        let mut map = std::collections::HashMap::new();
+                        map.insert("container".to_string(), "border: 2px dashed #ccc; padding: 10px;".to_string());
+                        map.insert("item".to_string(), "background-color: #f0f0f0; border-radius: 4px;".to_string());
+                        Some(map)
+                    },
+                    Button { "按钮1" }
+                    Button { "按钮2" }
+                    Button { "按钮3" }
+                }
+            }
+            
+            // 组合使用
+            div {
+                h4 { "组合使用" }
+                Space {
+                    class_names: {
+                        let mut map = std::collections::HashMap::new();
+                        map.insert("container".to_string(), "semantic-container".to_string());
+                        Some(map)
+                    },
+                    styles: {
+                        let mut map = std::collections::HashMap::new();
+                        map.insert("container".to_string(), "background: linear-gradient(45deg, #f0f0f0, #e0e0e0);".to_string());
+                        Some(map)
+                    },
+                    split_config: SpaceSplit {
+                        element: rsx! { span { "→" } },
+                        style: Some("color: #666;".to_string()),
+                        class: Some("arrow-divider".to_string()),
+                        visible: true,
+                    },
+                    Button { "开始" }
+                    Button { "处理" }
+                    Button { "完成" }
+                }
+            }
+        }
+    }
+}
+
 /// 所有示例的集合
 pub fn all_space_examples() -> Element {
     rsx! {
@@ -336,6 +668,26 @@ pub fn all_space_examples() -> Element {
             section {
                 h2 { "嵌套间距" }
                 {nested_space_example()}
+            }
+            
+            section {
+                h2 { "紧凑模式" }
+                {space_compact_example()}
+            }
+            
+            section {
+                h2 { "数组尺寸" }
+                {array_size_example()}
+            }
+            
+            section {
+                h2 { "增强分割元素" }
+                {enhanced_split_example()}
+            }
+            
+            section {
+                h2 { "语义化DOM" }
+                {semantic_dom_example()}
             }
         }
     }

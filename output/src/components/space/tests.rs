@@ -90,6 +90,100 @@ mod tests {
         let _ = dom_custom.rebuild_to_vec();
     }
 
+    /// 测试调试模式功能
+    #[test]
+    fn test_space_debug_mode() {
+        let debug_config = SpaceDebugConfig {
+            enabled: true,
+            show_boundaries: true,
+            show_size_info: true,
+            debug_color: Some("#ff0000".to_string()),
+        };
+
+        let mut dom = VirtualDom::new(move || {
+            rsx! {
+                Space {
+                    debug_config: debug_config.clone(),
+                    div { "Item 1" }
+                    div { "Item 2" }
+                }
+            }
+        });
+
+        let _ = dom.rebuild_to_vec();
+        // 验证调试模式相关的类名和属性
+    }
+
+    /// 测试动画效果功能
+    #[test]
+    fn test_space_animation() {
+        let animation_config = SpaceAnimationConfig {
+            enabled: true,
+            duration: Some("500ms".to_string()),
+            easing: Some("ease-out".to_string()),
+            respect_reduced_motion: true,
+        };
+
+        let mut dom = VirtualDom::new(move || {
+            rsx! {
+                Space {
+                    animation_config: animation_config.clone(),
+                    div { "Item 1" }
+                    div { "Item 2" }
+                }
+            }
+        });
+
+        let _ = dom.rebuild_to_vec();
+        // 验证动画相关的类名和样式
+    }
+
+    /// 测试性能优化功能
+    #[test]
+    fn test_space_performance() {
+        let performance_config = SpacePerformanceConfig {
+            virtual_scroll: true,
+            lazy_loading: true,
+            memo_children: true,
+        };
+
+        let mut dom = VirtualDom::new(move || {
+            rsx! {
+                Space {
+                    performance_config: performance_config.clone(),
+                    div { "Item 1" }
+                    div { "Item 2" }
+                }
+            }
+        });
+
+        let _ = dom.rebuild_to_vec();
+        // 验证性能优化相关的类名
+    }
+
+    /// 测试国际化功能
+    #[test]
+    fn test_space_i18n() {
+        let i18n_config = SpaceI18nConfig {
+            rtl: true,
+            auto_direction: false,
+            locale: Some("ar".to_string()),
+        };
+
+        let mut dom = VirtualDom::new(move || {
+            rsx! {
+                Space {
+                    i18n_config: i18n_config.clone(),
+                    div { "Item 1" }
+                    div { "Item 2" }
+                }
+            }
+        });
+
+        let _ = dom.rebuild_to_vec();
+        // 验证RTL相关的类名和样式
+    }
+
     /// 测试不同对齐方式的 Space 组件
     #[test]
     fn test_space_align() {
