@@ -108,15 +108,17 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     // 创建主题切换函数
     let switch_theme = {
         let mut theme_config = theme_config.clone();
-        let mut bridge = bridge.clone();
+        // TODO: 重新启用 css-in-rust 依赖后取消注释
+        // let mut bridge = bridge.clone();
         let mut css_vars_style = css_vars_style.clone();
 
         move |new_config: ThemeConfig| {
             // 更新主题配置
             theme_config.set(new_config.clone());
 
+            // TODO: 重新启用 css-in-rust 依赖后取消注释
             // 更新主题桥接器
-            bridge.write().set_theme(new_config.theme.clone());
+            // bridge.write().set_theme(new_config.theme.clone());
 
             // 如果启用了CSS变量，重新生成CSS变量
             if css_vars_enabled {
@@ -158,10 +160,11 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     // 创建主题上下文
     let theme_context = ThemeContext::new(theme_config.read().clone(), switch_theme);
 
+    // TODO: 重新启用 css-in-rust 依赖后取消注释
     // 注入主题变量
-    use_effect(move || {
-        bridge.write().sync_theme_variables();
-    });
+    // use_effect(move || {
+    //     bridge.write().sync_theme_variables();
+    // });
 
     // 提供主题上下文
     use_context_provider(|| theme_context);

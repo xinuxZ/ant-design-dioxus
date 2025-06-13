@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use wasm_bindgen::JsCast;
-use web_sys::{window, Document, Element, HtmlHeadElement};
+use web_sys::{window, Document, Element};
 
 /// 已注入样式的缓存
 static INJECTED_STYLES: Lazy<Mutex<HashMap<String, String>>> =
@@ -18,8 +18,8 @@ fn get_document() -> Option<Document> {
 }
 
 /// 获取head元素
-fn get_head() -> Option<HtmlHeadElement> {
-    get_document().and_then(|doc| doc.head())
+fn get_head() -> Option<Element> {
+    get_document().and_then(|doc| doc.head().map(|head| head.into()))
 }
 
 /// 创建style元素
@@ -52,7 +52,7 @@ pub fn is_style_injected(id: &str) -> bool {
 pub fn inject_style(id: &str, css: &str) -> bool {
     // 如果已经注入过相同的样式，则不再重复注入
     {
-        let mut styles = INJECTED_STYLES.lock().unwrap();
+        let styles = INJECTED_STYLES.lock().unwrap();
         if let Some(injected_css) = styles.get(id) {
             if injected_css == css {
                 return true;
@@ -62,7 +62,7 @@ pub fn inject_style(id: &str, css: &str) -> bool {
 
     // 如果已存在同ID的样式元素，则先移除
     if let Some(doc) = get_document() {
-        if let Ok(existing) = doc.get_element_by_id(id) {
+        if let Some(existing) = doc.get_element_by_id(id) {
             if let Some(parent) = existing.parent_node() {
                 parent.remove_child(&existing).ok();
             }
@@ -100,7 +100,7 @@ pub fn inject_style(id: &str, css: &str) -> bool {
 /// * `bool` - 是否成功移除样式
 pub fn remove_style(id: &str) -> bool {
     let result = if let Some(doc) = get_document() {
-        if let Ok(element) = doc.get_element_by_id(id) {
+        if let Some(element) = doc.get_element_by_id(id) {
             if let Some(parent) = element.parent_node() {
                 parent.remove_child(&element).is_ok()
             } else {

@@ -39,3 +39,4 @@ pub mod examples;
 pub use component::Divider;
 pub use types::*;
 pub use styles::*;
+pub use migrated_styles::MigratedDividerStyleGenerator;

@@ -29,20 +29,22 @@ web-sys = { version = "0.3", features = [
     "Navigator",
     "Clipboard",
     "HtmlDivElement",
+    "HtmlHeadElement",
     "VisibilityState",
     "Event",
     "EventTarget",
     "DomRect",
 ] }
 js-sys = "0.3"
-gloo-timers = { version = "0.3.0", features = ["futures"] }
+# gloo-timers = { version = "0.3.0", features = ["futures"] }
 wasm-bindgen = "0.2.100"
 wasm-bindgen-futures = "0.4.40"
 chrono = { version = "0.4.41", features = ["serde"] }
 log = "0.4"
 
 css-in-rust = { path = "../../css-in-rust/css-in-rust" }
-css-in-rust-macros = { path = "../../css-in-rust/css-in-rust-macros" }
+gloo-timers = { version = "0.3.0", features = ["futures"] }
+# css-in-rust-macros = { path = "../../css-in-rust/css-in-rust-macros" }
 
 # 启用 proc-macro 特性
 [build-dependencies]

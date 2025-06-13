@@ -1,0 +1,980 @@
+    Blocking waiting for file lock on build directory
+warning: unused import: `quote::quote`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/css_macro.rs:3:5
+  |
+3 | use quote::quote;
+  |     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: function `parse_responsive_variant` is never used
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/theme_variants.rs:145:4
+    |
+145 | fn parse_responsive_variant(input: &str) -> Option<(String, &str)> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: function `parse_pseudo_variant` is never used
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/theme_variants.rs:158:4
+    |
+158 | fn parse_pseudo_variant(input: &str) -> Option<(String, &str)> {
+    |    ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `get_media_query_for_variant` is never used
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/theme_variants.rs:187:4
+    |
+187 | fn get_media_query_for_variant(variant: &str) -> String {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Document` is never constructed
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/wasm_types.rs:50:16
+   |
+50 |     pub struct Document;
+   |                ^^^^^^^^
+
+warning: function `css_class_impl` is never used
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/css_macro.rs:28:8
+   |
+28 | pub fn css_class_impl(input: TokenStream) -> TokenStream {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `css_multi_if_impl` is never used
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust-macros/src/css_macro.rs:37:8
+   |
+37 | pub fn css_multi_if_impl(input: TokenStream) -> TokenStream {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: `css-in-rust-macros` (lib) generated 7 warnings (run `cargo fix --lib -p css-in-rust-macros` to apply 1 suggestion)
+warning: unused import: `std::thread`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/dev_experience/diagnostics.rs:8:5
+  |
+8 | use std::thread;
+  |     ^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused imports: `Duration` and `Instant`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/dev_experience/diagnostics.rs:9:17
+  |
+9 | use std::time::{Duration, Instant};
+  |                 ^^^^^^^^  ^^^^^^^
+
+warning: unused import: `HashSet`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/mod.rs:5:33
+  |
+5 | use std::collections::{HashMap, HashSet};
+  |                                 ^^^^^^^
+
+warning: unused import: `std::fs`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/mod.rs:6:5
+  |
+6 | use std::fs;
+  |     ^^^^^^^
+
+warning: unused import: `std::fs`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/reload_manager.rs:6:5
+  |
+6 | use std::fs;
+  |     ^^^^^^^
+
+warning: unused import: `Path`
+ --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/reload_manager.rs:7:17
+  |
+7 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `ChangeType`
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/reload_manager.rs:13:46
+   |
+13 | use super::change_detector::{ChangeDetector, ChangeType, FileChange};
+   |                                              ^^^^^^^^^^
+
+warning: unused imports: `Read`, `Write`, and `self`
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/performance/cache.rs:12:15
+   |
+12 | use std::io::{self, Read, Write};
+   |               ^^^^  ^^^^  ^^^^^
+
+warning: unused import: `Path`
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/performance/cache.rs:13:17
+   |
+13 | use std::path::{Path, PathBuf};
+   |                 ^^^^
+
+warning: unused import: `Instant`
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/performance/mod.rs:16:27
+   |
+16 | use std::time::{Duration, Instant};
+   |                           ^^^^^^^
+
+warning: use of deprecated function `base64::encode`: Use Engine::encode
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/websocket_server.rs:570:17
+    |
+570 |         base64::encode(hash)
+    |                 ^^^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: unused variable: `theme`
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/theme/core/css/component_style.rs:212:70
+    |
+212 |     let mut generator = DefaultComponentStyleGenerator::new(config, |theme| {
+    |                                                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_theme`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `cache_manager`
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/theme/core/css/pipeline.rs:211:21
+    |
+211 |         if let Some(cache_manager) = &self.cache_manager {
+    |                     ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_cache_manager`
+
+warning: variable does not need to be mutable
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/theme/core/css/pipeline.rs:446:13
+    |
+446 |         let mut processor = StyleProcessor::new();
+    |             ----^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: variant `Snippet` is never constructed
+    --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/dev_experience/code_completion.rs:1022:5
+     |
+1008 | enum CompletionType {
+     |      -------------- variant in this enum
+...
+1022 |     Snippet,
+     |     ^^^^^^^
+     |
+     = note: `CompletionType` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+     = note: `#[warn(dead_code)]` on by default
+
+warning: fields `line` and `position_in_line` are never read
+    --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/dev_experience/code_completion.rs:1035:5
+     |
+1029 | struct CompletionAnalysisContext {
+     |        ------------------------- fields in this struct
+...
+1035 |     line: String,
+     |     ^^^^
+1036 |     /// 行内位置
+1037 |     position_in_line: usize,
+     |     ^^^^^^^^^^^^^^^^
+     |
+     = note: `CompletionAnalysisContext` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `change_detector` is never read
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/mod.rs:221:5
+    |
+217 | pub struct HotReloadManager {
+    |            ---------------- field in this struct
+...
+221 |     change_detector: ChangeDetector,
+    |     ^^^^^^^^^^^^^^^
+
+warning: field `content_hash` is never read
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/change_detector.rs:286:5
+    |
+284 | struct CacheEntry {
+    |        ---------- field in this struct
+285 |     /// 文件内容哈希
+286 |     content_hash: u64,
+    |     ^^^^^^^^^^^^
+    |
+    = note: `CacheEntry` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `permissions` is never read
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/file_watcher.rs:142:5
+    |
+134 | struct FileState {
+    |        --------- field in this struct
+...
+142 |     permissions: Option<u32>,
+    |     ^^^^^^^^^^^
+    |
+    = note: `FileState` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `id` and `created_at` are never read
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/reload_manager.rs:138:5
+    |
+136 | struct BuildTask {
+    |        --------- fields in this struct
+137 |     /// 任务ID
+138 |     id: String,
+    |     ^^
+...
+146 |     created_at: Instant,
+    |     ^^^^^^^^^^
+    |
+    = note: `BuildTask` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `id`, `user_agent`, `current_url`, and `authenticated` are never read
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/websocket_server.rs:133:5
+    |
+131 | struct ClientConnection {
+    |        ---------------- fields in this struct
+132 |     /// 客户端ID
+133 |     id: String,
+    |     ^^
+...
+141 |     user_agent: Option<String>,
+    |     ^^^^^^^^^^
+142 |     /// 当前URL
+143 |     current_url: Option<String>,
+    |     ^^^^^^^^^^^
+144 |     /// 是否已认证
+145 |     authenticated: bool,
+    |     ^^^^^^^^^^^^^
+    |
+    = note: `ClientConnection` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: method `update_activity` is never used
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/websocket_server.rs:162:8
+    |
+148 | impl ClientConnection {
+    | --------------------- method in this implementation
+...
+162 |     fn update_activity(&mut self) {
+    |        ^^^^^^^^^^^^^^^
+
+warning: method `record_message_received` is never used
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/hot_reload/websocket_server.rs:254:8
+    |
+233 | impl WebSocketStats {
+    | ------------------- method in this implementation
+...
+254 |     fn record_message_received(&mut self) {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `config` and `incremental_compiler` are never read
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/performance/mod.rs:53:5
+   |
+52 | pub struct PerformanceManager {
+   |            ------------------ fields in this struct
+53 |     config: PerformanceConfig,
+   |     ^^^^^^
+54 |     cache_manager: CacheManager,
+55 |     incremental_compiler: IncrementalCompiler,
+   |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: field `variables` is never read
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/theme/core/css/variables.rs:41:5
+   |
+34 | pub struct CssVariableGenerator {
+   |            -------------------- field in this struct
+...
+41 |     variables: HashMap<String, String>,
+   |     ^^^^^^^^^
+
+warning: field `config` is never read
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/theme/core/ssr/hydration.rs:63:5
+   |
+61 | pub struct StyleHydration {
+   |            -------------- field in this struct
+62 |     /// 水合配置
+63 |     config: HydrationConfig,
+   |     ^^^^^^
+
+warning: field `media_query` is never read
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/theme/core/transform/px2rem.rs:47:5
+   |
+44 | pub struct Px2RemTransformer {
+   |            ----------------- field in this struct
+...
+47 |     media_query: bool,
+   |     ^^^^^^^^^^^
+
+warning: field `mobile_first` is never read
+  --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/variants/responsive.rs:46:5
+   |
+40 | pub struct ResponsiveManager {
+   |            ----------------- field in this struct
+...
+46 |     mobile_first: bool,
+   |     ^^^^^^^^^^^^
+   |
+   = note: `ResponsiveManager` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: method `get_applied_breakpoints` is never used
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/variants/variant_resolver.rs:554:8
+    |
+154 | impl VariantResolver {
+    | -------------------- method in this implementation
+...
+554 |     fn get_applied_breakpoints(&self) -> Result<Vec<String>, String> {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: creating a mutable reference to mutable static
+   --> /Users/zxl/Sites/rust/UI/css-in-rust/css-in-rust/src/variants/mod.rs:214:9
+    |
+214 |         GLOBAL_VARIANT_MANAGER.as_mut().unwrap()
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ mutable reference to mutable static
+    |
+    = note: for more information, see <https://doc.rust-lang.org/nightly/edition-guide/rust-2024/static-mut-references.html>
+    = note: mutable references to mutable statics are dangerous; it's undefined behavior if any other pointer to the static is used or if any other reference is created for the static while the mutable reference lives
+    = note: `#[warn(static_mut_refs)]` on by default
+
+warning: `css-in-rust` (lib) generated 30 warnings (run `cargo fix --lib -p css-in-rust` to apply 11 suggestions)
+   Compiling ant-design-dioxus v0.1.0 (/Users/zxl/Sites/rust/UI/ant-design-dioxus/output)
+error: Props is not supported for enums
+   --> src/components/mod.rs:94:5
+    |
+94  | /     /// 组件大小枚举
+95  | |     #[derive(Debug, Clone, PartialEq, Props)]
+96  | |     pub enum Size {
+97  | |         Small,
+98  | |         Middle,
+99  | |         Large,
+100 | |     }
+    | |_____^
+
+error: Props is not supported for enums
+   --> src/components/mod.rs:118:5
+    |
+118 | /     /// 组件状态枚举
+119 | |     #[derive(Debug, Clone, PartialEq, Props)]
+120 | |     pub enum Status {
+121 | |         Success,
+...   |
+124 | |         Info,
+125 | |     }
+    | |_____^
+
+error: Props is not supported for enums
+   --> src/components/mod.rs:138:5
+    |
+138 | /     /// 组件变体枚举
+139 | |     #[derive(Debug, Clone, PartialEq, Props)]
+140 | |     pub enum Variant {
+141 | |         Default,
+...   |
+146 | |         Link,
+147 | |     }
+    | |_____^
+
+error[E0432]: unresolved import `css_in_rust::Style`
+ --> src/components/button/styles/base.rs:5:24
+  |
+5 | use css_in_rust::{css, Style};
+  |                        ^^^^^ no `Style` in the root
+  |
+  = help: consider importing this variant instead:
+          css_in_rust::core::cache::CacheValue::Style
+
+error[E0432]: unresolved import `css_in_rust::Style`
+ --> src/components/button/migrated_styles.rs:5:24
+  |
+5 | use css_in_rust::{css, Style};
+  |                        ^^^^^ no `Style` in the root
+  |
+  = help: consider importing this variant instead:
+          css_in_rust::core::cache::CacheValue::Style
+
+error[E0432]: unresolved import `css_in_rust::Style`
+ --> src/components/divider/styles.rs:8:24
+  |
+8 | use css_in_rust::{css, Style};
+  |                        ^^^^^ no `Style` in the root
+  |
+  = help: consider importing this variant instead:
+          css_in_rust::core::cache::CacheValue::Style
+
+error[E0432]: unresolved import `css_in_rust::Style`
+ --> src/config_provider/mod.rs:6:5
+  |
+6 | use css_in_rust::Style;
+  |     ^^^^^^^^^^^^^^^^^^ no `Style` in the root
+  |
+help: consider importing this variant instead
+  |
+6 | use css_in_rust::core::cache::CacheValue::Style;
+  |                  +++++++++++++++++++++++++
+
+error[E0432]: unresolved import `web_sys::HtmlHeadElement`
+ --> src/utils/style_injector.rs:9:42
+  |
+9 | use web_sys::{window, Document, Element, HtmlHeadElement};
+  |                                          ^^^^^^^^^^^^^^^
+  |                                          |
+  |                                          no `HtmlHeadElement` in the root
+  |                                          help: a similar name exists in the module: `HtmlDivElement`
+
+error[E0412]: cannot find type `DividerStyleGenerator` in this scope
+   --> src/components/divider/migrated_styles.rs:222:6
+    |
+222 | impl DividerStyleGenerator {
+    |      ^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+    |
+help: consider importing this struct through its public re-export
+    |
+5   + use crate::prelude::DividerStyleGenerator;
+    |
+
+error[E0425]: cannot find value `bridge` in this scope
+   --> src/theme/provider/mod.rs:111:26
+    |
+111 |         let mut bridge = bridge.clone();
+    |                          ^^^^^^ not found in this scope
+
+error[E0425]: cannot find value `bridge` in this scope
+   --> src/theme/provider/mod.rs:163:9
+    |
+163 |         bridge.write().sync_theme_variables();
+    |         ^^^^^^
+    |
+help: the binding `bridge` is available in a different scope in the same function
+   --> src/theme/provider/mod.rs:111:17
+    |
+111 |         let mut bridge = bridge.clone();
+    |                 ^^^^^^
+
+error[E0659]: `ButtonStyles` is ambiguous
+  --> src/components/button/mod.rs:53:5
+   |
+53 |     ButtonStyles, VariantStyles, StateStyles, ButtonStyleGenerator,
+   |     ^^^^^^^^^^^^ ambiguous name
+   |
+   = note: ambiguous because of multiple glob imports of a name in the same module
+note: `ButtonStyles` could refer to the struct imported here
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^
+   = help: consider adding an explicit import of `ButtonStyles` to disambiguate
+note: `ButtonStyles` could also refer to the struct imported here
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider adding an explicit import of `ButtonStyles` to disambiguate
+
+error[E0659]: `VariantStyles` is ambiguous
+  --> src/components/button/mod.rs:53:19
+   |
+53 |     ButtonStyles, VariantStyles, StateStyles, ButtonStyleGenerator,
+   |                   ^^^^^^^^^^^^^ ambiguous name
+   |
+   = note: ambiguous because of multiple glob imports of a name in the same module
+note: `VariantStyles` could refer to the struct imported here
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^
+   = help: consider adding an explicit import of `VariantStyles` to disambiguate
+note: `VariantStyles` could also refer to the struct imported here
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider adding an explicit import of `VariantStyles` to disambiguate
+
+error[E0659]: `StateStyles` is ambiguous
+  --> src/components/button/mod.rs:53:34
+   |
+53 |     ButtonStyles, VariantStyles, StateStyles, ButtonStyleGenerator,
+   |                                  ^^^^^^^^^^^ ambiguous name
+   |
+   = note: ambiguous because of multiple glob imports of a name in the same module
+note: `StateStyles` could refer to the struct imported here
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^
+   = help: consider adding an explicit import of `StateStyles` to disambiguate
+note: `StateStyles` could also refer to the struct imported here
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider adding an explicit import of `StateStyles` to disambiguate
+
+error[E0659]: `ButtonStyleGenerator` is ambiguous
+  --> src/components/button/mod.rs:53:47
+   |
+53 |     ButtonStyles, VariantStyles, StateStyles, ButtonStyleGenerator,
+   |                                               ^^^^^^^^^^^^^^^^^^^^ ambiguous name
+   |
+   = note: ambiguous because of multiple glob imports of a name in the same module
+note: `ButtonStyleGenerator` could refer to the struct imported here
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^
+   = help: consider adding an explicit import of `ButtonStyleGenerator` to disambiguate
+note: `ButtonStyleGenerator` could also refer to the struct imported here
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider adding an explicit import of `ButtonStyleGenerator` to disambiguate
+
+error[E0659]: `generate_button_styles` is ambiguous
+  --> src/components/button/mod.rs:54:5
+   |
+54 |     generate_button_styles, generate_button_group_styles,
+   |     ^^^^^^^^^^^^^^^^^^^^^^ ambiguous name
+   |
+   = note: ambiguous because of multiple glob imports of a name in the same module
+note: `generate_button_styles` could refer to the function imported here
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^
+   = help: consider adding an explicit import of `generate_button_styles` to disambiguate
+note: `generate_button_styles` could also refer to the function imported here
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider adding an explicit import of `generate_button_styles` to disambiguate
+
+warning: unused import: `super::super::types::*`
+ --> src/components/button/styles/base.rs:6:5
+  |
+6 | use super::super::types::*;
+  |     ^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: ambiguous glob re-exports
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^ the name `generate_button_styles` in the value namespace is first re-exported here
+...
+10 | pub use super::migrated_styles::*;
+   |         ------------------------- but the name `generate_button_styles` in the value namespace is also re-exported here
+   |
+   = note: `#[warn(ambiguous_glob_reexports)]` on by default
+
+warning: ambiguous glob re-exports
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^ the name `ButtonStyles` in the type namespace is first re-exported here
+...
+10 | pub use super::migrated_styles::*;
+   |         ------------------------- but the name `ButtonStyles` in the type namespace is also re-exported here
+
+warning: ambiguous glob re-exports
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^ the name `VariantStyles` in the type namespace is first re-exported here
+...
+10 | pub use super::migrated_styles::*;
+   |         ------------------------- but the name `VariantStyles` in the type namespace is also re-exported here
+
+warning: ambiguous glob re-exports
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^ the name `StateStyles` in the type namespace is first re-exported here
+...
+10 | pub use super::migrated_styles::*;
+   |         ------------------------- but the name `StateStyles` in the type namespace is also re-exported here
+
+warning: `generate_button_styles` is ambiguous
+  --> src/components/button/component.rs:28:35
+   |
+28 |     let styles = use_memo(move || generate_button_styles());
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^ ambiguous name
+   |
+   = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+   = note: for more information, see issue #114095 <https://github.com/rust-lang/rust/issues/114095>
+   = note: ambiguous because of multiple glob imports of a name in the same module
+note: `generate_button_styles` could refer to the function imported here
+  --> src/components/button/styles/mod.rs:7:9
+   |
+7  | pub use base::*;
+   |         ^^^^^^^
+   = help: consider adding an explicit import of `generate_button_styles` to disambiguate
+note: `generate_button_styles` could also refer to the function imported here
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+   = help: consider adding an explicit import of `generate_button_styles` to disambiguate
+   = note: `#[warn(ambiguous_glob_imports)]` on by default
+
+warning: unused import: `super::migrated_styles::*`
+  --> src/components/button/styles/mod.rs:10:9
+   |
+10 | pub use super::migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `ButtonStyles`, `StateStyles`, `VariantStyles`, and `generate_button_styles`
+  --> src/components/button/mod.rs:53:5
+   |
+53 |     ButtonStyles, VariantStyles, StateStyles, ButtonStyleGenerator,
+   |     ^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^
+54 |     generate_button_styles, generate_button_group_styles,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `migrated_styles::*`
+  --> src/components/button/mod.rs:58:9
+   |
+58 | pub use migrated_styles::*;
+   |         ^^^^^^^^^^^^^^^^^^
+
+warning: unexpected `cfg` condition value: `examples`
+  --> src/components/divider/mod.rs:36:7
+   |
+36 | #[cfg(feature = "examples")]
+   |       ^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `examples` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: ambiguous glob re-exports
+  --> src/components/mod.rs:88:9
+   |
+87 | pub use button::*;
+   |         --------- but the name `VariantStyles` in the type namespace is also re-exported here
+88 | pub use divider::*;
+   |         ^^^^^^^^^^ the name `VariantStyles` in the type namespace is first re-exported here
+
+warning: unused import: `LocaleConfig`
+  --> src/config_provider/mod.rs:11:29
+   |
+11 | use crate::locale::{Locale, LocaleConfig};
+   |                             ^^^^^^^^^^^^
+
+warning: ambiguous glob re-exports
+  --> src/prelude.rs:9:9
+   |
+9  | pub use crate::components::*;
+   |         ^^^^^^^^^^^^^^^^^^^^ the name `Size` in the type namespace is first re-exported here
+...
+15 | pub use crate::theme::*;
+   |         --------------- but the name `Size` in the type namespace is also re-exported here
+
+warning: ambiguous glob re-exports
+  --> src/prelude.rs:12:9
+   |
+12 | pub use crate::config_provider::*;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^ the name `use_component_size` in the value namespace is first re-exported here
+...
+15 | pub use crate::theme::*;
+   |         --------------- but the name `use_component_size` in the value namespace is also re-exported here
+
+warning: ambiguous glob re-exports
+  --> src/prelude.rs:15:9
+   |
+15 | pub use crate::theme::*;
+   |         ^^^^^^^^^^^^^^^ the name `tokens` in the type namespace is first re-exported here
+...
+27 | pub use crate::shared::*;
+   |         ---------------- but the name `tokens` in the type namespace is also re-exported here
+
+warning: ambiguous glob re-exports
+  --> src/prelude.rs:27:9
+   |
+15 | pub use crate::theme::*;
+   |         --------------- but the name `dark_theme` in the value namespace is also re-exported here
+...
+27 | pub use crate::shared::*;
+   |         ^^^^^^^^^^^^^^^^ the name `dark_theme` in the value namespace is first re-exported here
+
+warning: unused imports: `Deserialize` and `Serialize`
+ --> src/theme/mod.rs:7:13
+  |
+7 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src/theme/mod.rs:9:5
+  |
+9 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+warning: unused import: `css_in_rust::theme_bridge::ThemeBridge`
+ --> src/theme/provider/mod.rs:5:5
+  |
+5 | use css_in_rust::theme_bridge::ThemeBridge;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `CssVariablesOptions`
+  --> src/theme/provider/mod.rs:10:29
+   |
+10 | use super::css_vars::{self, CssVariablesOptions};
+   |                             ^^^^^^^^^^^^^^^^^^^
+
+warning: ambiguous glob re-exports
+  --> src/theme/mod.rs:59:9
+   |
+59 | pub use algorithm::*;
+   |         ^^^^^^^^^^^^ the name `adjust_saturation` in the value namespace is first re-exported here
+60 | pub use color_utils::*;
+   |         -------------- but the name `adjust_saturation` in the value namespace is also re-exported here
+
+warning: ambiguous glob re-exports
+  --> src/theme/mod.rs:63:9
+   |
+63 | pub use hooks::*;
+   |         ^^^^^^^^ the name `use_css_var_name` in the value namespace is first re-exported here
+64 | pub use presets::*;
+65 | pub use provider::*;
+   |         ----------- but the name `use_css_var_name` in the value namespace is also re-exported here
+
+warning: unused import: `wasm_bindgen::JsCast`
+ --> src/utils/style_injector.rs:8:5
+  |
+8 | use wasm_bindgen::JsCast;
+  |     ^^^^^^^^^^^^^^^^^^^^
+
+warning: unexpected `cfg` condition value: `web`
+  --> src/lib.rs:51:11
+   |
+51 |     #[cfg(feature = "web")]
+   |           ^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `web` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: variable does not need to be mutable
+   --> src/hooks/mod.rs:503:9
+    |
+503 |     let mut is_pressed = use_signal(|| false);
+    |         ----^^^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: unused variable: `locale_context`
+   --> src/locale/mod.rs:873:9
+    |
+873 |     let locale_context = use_locale();
+    |         ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_locale_context`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `locale_context`
+   --> src/locale/mod.rs:882:9
+    |
+882 |     let locale_context = use_locale();
+    |         ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_locale_context`
+
+warning: unused variable: `locale_context`
+   --> src/locale/mod.rs:889:9
+    |
+889 |     let locale_context = use_locale();
+    |         ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_locale_context`
+
+warning: unused variable: `locale_context`
+   --> src/locale/mod.rs:896:9
+    |
+896 |     let locale_context = use_locale();
+    |         ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_locale_context`
+
+warning: unused variable: `locale_context`
+   --> src/locale/mod.rs:928:9
+    |
+928 |     let locale_context = use_locale();
+    |         ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_locale_context`
+
+error[E0308]: mismatched types
+   --> src/components/divider/component.rs:66:21
+    |
+66  |         .with_token(Some(crate::theme::AliasToken::default()));
+    |          ---------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `AliasToken`, found `Option<AliasToken>`
+    |          |
+    |          arguments to this method are incorrect
+    |
+    = note: expected struct `theme::core::types::AliasToken`
+                 found enum `std::option::Option<theme::core::types::AliasToken>`
+note: method defined here
+   --> src/components/divider/styles.rs:130:12
+    |
+130 |     pub fn with_token(mut self, token: AliasToken) -> Self {
+    |            ^^^^^^^^^^           -----------------
+
+error[E0599]: no method named `head` found for struct `web_sys::Document` in the current scope
+  --> src/utils/style_injector.rs:22:39
+   |
+22 |     get_document().and_then(|doc| doc.head())
+   |                                       ^^^^ method not found in `Document`
+
+error[E0308]: mismatched types
+  --> src/utils/style_injector.rs:65:16
+   |
+65 |         if let Ok(existing) = doc.get_element_by_id(id) {
+   |                ^^^^^^^^^^^^   ------------------------- this expression has type `std::option::Option<web_sys::Element>`
+   |                |
+   |                expected `Option<Element>`, found `Result<_, _>`
+   |
+   = note: expected enum `std::option::Option<web_sys::Element>`
+              found enum `std::result::Result<_, _>`
+
+error[E0308]: mismatched types
+   --> src/utils/style_injector.rs:103:16
+    |
+103 |         if let Ok(element) = doc.get_element_by_id(id) {
+    |                ^^^^^^^^^^^   ------------------------- this expression has type `std::option::Option<web_sys::Element>`
+    |                |
+    |                expected `Option<Element>`, found `Result<_, _>`
+    |
+    = note: expected enum `std::option::Option<web_sys::Element>`
+               found enum `std::result::Result<_, _>`
+
+warning: unused import: `dioxus::prelude`
+ --> src/theme/mod.rs:6:5
+  |
+6 | use dioxus::prelude::*;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `dioxus::prelude`
+ --> src/theme/hooks/mod.rs:5:5
+  |
+5 | use dioxus::prelude::*;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused variable: `styles`
+  --> src/components/button/component.rs:28:9
+   |
+28 |     let styles = use_memo(move || generate_button_styles());
+   |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_styles`
+
+warning: unused variable: `props`
+   --> src/components/button/component.rs:180:27
+    |
+180 | fn get_button_group_style(props: &ButtonGroupProps) -> Option<String> {
+    |                           ^^^^^ help: if this is intentional, prefix it with an underscore: `_props`
+
+warning: unused variable: `lines`
+  --> src/shared/styles/mixins.rs:38:32
+   |
+38 | pub fn text_ellipsis_multiline(lines: u32) -> String {
+   |                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_lines`
+
+warning: unused variable: `width`
+   --> src/shared/styles/mixins.rs:140:25
+    |
+140 | pub fn custom_scrollbar(width: &str, track_color: &str, thumb_color: &str) -> String {
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_width`
+
+warning: unused variable: `track_color`
+   --> src/shared/styles/mixins.rs:140:38
+    |
+140 | pub fn custom_scrollbar(width: &str, track_color: &str, thumb_color: &str) -> String {
+    |                                      ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_track_color`
+
+warning: unused variable: `thumb_color`
+   --> src/shared/styles/mixins.rs:140:57
+    |
+140 | pub fn custom_scrollbar(width: &str, track_color: &str, thumb_color: &str) -> String {
+    |                                                         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_thumb_color`
+
+warning: unused variable: `property`
+   --> src/shared/styles/mixins.rs:163:19
+    |
+163 | pub fn transition(property: &str, duration: &str, timing: &str) -> String {
+    |                   ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_property`
+
+warning: unused variable: `duration`
+   --> src/shared/styles/mixins.rs:163:35
+    |
+163 | pub fn transition(property: &str, duration: &str, timing: &str) -> String {
+    |                                   ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_duration`
+
+warning: unused variable: `timing`
+   --> src/shared/styles/mixins.rs:163:51
+    |
+163 | pub fn transition(property: &str, duration: &str, timing: &str) -> String {
+    |                                                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_timing`
+
+warning: unused variable: `color`
+   --> src/shared/styles/mixins.rs:197:21
+    |
+197 | pub fn focus_effect(color: &str) -> String {
+    |                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_color`
+
+warning: unused variable: `breakpoint`
+   --> src/shared/styles/mixins.rs:249:19
+    |
+249 | pub fn responsive(breakpoint: &str, styles: &str) -> String {
+    |                   ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_breakpoint`
+
+warning: unused variable: `styles`
+   --> src/shared/styles/mixins.rs:249:37
+    |
+249 | pub fn responsive(breakpoint: &str, styles: &str) -> String {
+    |                                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_styles`
+
+warning: unused variable: `styles`
+   --> src/shared/styles/mixins.rs:262:19
+    |
+262 | pub fn dark_theme(styles: &str) -> String {
+    |                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_styles`
+
+warning: unused variable: `styles`
+   --> src/shared/styles/mixins.rs:275:28
+    |
+275 | pub fn high_contrast_theme(styles: &str) -> String {
+    |                            ^^^^^^ help: if this is intentional, prefix it with an underscore: `_styles`
+
+warning: unused variable: `styles`
+   --> src/shared/styles/mixins.rs:288:23
+    |
+288 | pub fn reduced_motion(styles: &str) -> String {
+    |                       ^^^^^^ help: if this is intentional, prefix it with an underscore: `_styles`
+
+warning: unused variable: `styles`
+   --> src/shared/styles/mixins.rs:301:21
+    |
+301 | pub fn print_styles(styles: &str) -> String {
+    |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_styles`
+
+warning: unused variable: `seed`
+   --> src/theme/algorithm/mod.rs:506:5
+    |
+506 |     seed: &SeedToken,
+    |     ^^^^ help: if this is intentional, prefix it with an underscore: `_seed`
+
+warning: unused variable: `theme_context`
+  --> src/theme/hooks/mod.rs:49:9
+   |
+49 |     let theme_context = use_theme();
+   |         ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_theme_context`
+
+warning: unused variable: `sm`
+   --> src/theme/hooks/mod.rs:102:5
+    |
+102 |     sm: Option<T>,
+    |     ^^ help: if this is intentional, prefix it with an underscore: `_sm`
+
+warning: unused variable: `md`
+   --> src/theme/hooks/mod.rs:103:5
+    |
+103 |     md: Option<T>,
+    |     ^^ help: if this is intentional, prefix it with an underscore: `_md`
+
+warning: unused variable: `lg`
+   --> src/theme/hooks/mod.rs:104:5
+    |
+104 |     lg: Option<T>,
+    |     ^^ help: if this is intentional, prefix it with an underscore: `_lg`
+
+warning: unused variable: `xl`
+   --> src/theme/hooks/mod.rs:105:5
+    |
+105 |     xl: Option<T>,
+    |     ^^ help: if this is intentional, prefix it with an underscore: `_xl`
+
+warning: unused variable: `xxl`
+   --> src/theme/hooks/mod.rs:106:5
+    |
+106 |     xxl: Option<T>,
+    |     ^^^ help: if this is intentional, prefix it with an underscore: `_xxl`
+
+Some errors have detailed explanations: E0308, E0412, E0425, E0432, E0599, E0659.
+For more information about an error, try `rustc --explain E0308`.
+warning: `ant-design-dioxus` (lib) generated 55 warnings
+error: could not compile `ant-design-dioxus` (lib) due to 20 previous errors; 55 warnings emitted

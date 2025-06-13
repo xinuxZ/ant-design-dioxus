@@ -266,6 +266,25 @@ where
     classes.join(" ")
 }
 
+/// 合并多个类名字符串
+///
+/// # Arguments
+///
+/// * `classes` - 要合并的类名字符串数组
+///
+/// # Returns
+///
+/// 合并后的类名字符串
+pub fn merge_class_names(classes: &[&str]) -> String {
+    classes
+        .iter()
+        .filter(|c| !c.is_empty())
+        .map(|c| c.trim())
+        .filter(|c| !c.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

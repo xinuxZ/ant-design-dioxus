@@ -2,10 +2,10 @@
 //!
 //! 此文件由样式迁移工具自动生成，请勿手动修改
 
-use css_in_rust::{css, Style};
+use css_in_rust::css;
 
 /// button 组件样式
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ButtonStyles {
     pub base: String,
     pub variants: VariantStyles,
@@ -13,7 +13,7 @@ pub struct ButtonStyles {
 }
 
 /// 变体样式
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VariantStyles {
     pub type_text: String,
     pub type_primary: String,
@@ -22,7 +22,7 @@ pub struct VariantStyles {
 }
 
 /// 状态样式
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StateStyles {
     pub hover: String,
     pub disabled: String,
@@ -32,11 +32,11 @@ pub struct StateStyles {
 
 /// button 样式生成器
 #[derive(Debug, Clone)]
-pub struct ButtonStyleGenerator {
+pub struct MigratedButtonStyleGenerator {
     // 在这里添加样式生成器的字段
 }
 
-impl ButtonStyleGenerator {
+impl MigratedButtonStyleGenerator {
     pub fn new() -> Self {
         Self {}
     }

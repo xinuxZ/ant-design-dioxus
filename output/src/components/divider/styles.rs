@@ -5,7 +5,7 @@
 //!
 //! 包含 Divider 组件的所有样式生成逻辑。
 
-use css_in_rust::{css, Style};
+use css_in_rust::css;
 use super::types::*;
 use crate::theme::AliasToken;
 
@@ -201,6 +201,18 @@ impl DividerStyleGenerator {
         } else {
             None
         }
+    }
+
+    /// 生成内联样式
+    pub fn generate_inline_styles(&self) -> String {
+        let mut styles = Vec::new();
+        
+        // 添加方向边距样式
+        if let Some(margin_style) = self.generate_orientation_margin_style() {
+            styles.push(margin_style);
+        }
+        
+        styles.join(" ")
     }
 }
 

@@ -5,6 +5,7 @@
 use dioxus::prelude::*;
 use super::types::*;
 use super::styles::*;
+use crate::components::icon::Icon;
 
 /// Button 组件
 /// 
@@ -25,11 +26,11 @@ use super::styles::*;
 /// ```
 #[component]
 pub fn Button(props: ButtonProps) -> Element {
-    let styles = use_memo(move || generate_button_styles());
+    let _styles = use_memo(move || generate_button_styles());
     
     // 构建CSS类名
     let class_name = get_button_css_class(&props);
-    let full_class = format!("{} {}", class_name, props.class.unwrap_or_default());
+    let full_class = format!("{} {}", class_name, props.class.as_deref().unwrap_or_default());
     
     // 获取HTML类型
     let html_type = get_html_type(&props.html_type);
@@ -39,10 +40,12 @@ pub fn Button(props: ButtonProps) -> Element {
             class: full_class,
             style: props.style,
             r#type: html_type,
-            disabled: props.disabled,
+            disabled: props.disabled || props.loading,
             onclick: move |evt| {
-                if let Some(handler) = &props.onclick {
-                    handler.call(evt);
+                if !props.disabled && !props.loading {
+                    if let Some(handler) = &props.onclick {
+                        handler.call(evt);
+                    }
                 }
             },
             
@@ -50,12 +53,17 @@ pub fn Button(props: ButtonProps) -> Element {
             if props.loading {
                 span {
                     class: "ant-btn-loading-icon",
-                    // 这里可以添加加载图标的SVG或其他实现
+                    Icon {
+                        icon_type: "loading".to_string(),
+                        spin: true,
+                        size: Some("14px".to_string()),
+                    }
                 }
             }
             
             // 按钮内容
             span {
+                class: "ant-btn-content",
                 {props.children}
             }
         }
@@ -84,7 +92,7 @@ pub fn Button(props: ButtonProps) -> Element {
 #[component]
 pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
     let class_name = get_button_group_class_name(&props);
-    let full_class = format!("{} {}", class_name, props.class.unwrap_or_default());
+    let full_class = format!("{} {}", class_name, props.class.as_deref().unwrap_or_default());
     
     let group_style = get_button_group_style(&props);
     let full_style = match (&group_style, &props.style) {

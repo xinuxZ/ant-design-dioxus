@@ -44,7 +44,7 @@ pub fn Divider(props: DividerProps) -> Element {
     // 确定前缀类名
     let prefix_cls = props.prefix_cls
         .clone()
-        .unwrap_or_else(|| config.prefix_cls.clone());
+        .unwrap_or_else(|| config.config.prefix_cls.clone());
     
     // 确定实际的变体（variant优先级高于dashed）
     let actual_variant = if props.dashed && matches!(props.variant, DividerVariant::Solid) {
@@ -63,39 +63,45 @@ pub fn Divider(props: DividerProps) -> Element {
         .with_orientation(props.orientation.clone())
         .with_orientation_margin(props.orientation_margin.clone())
         .with_prefix_cls(prefix_cls.clone())
-        .with_token(theme.alias_token.clone());
+        .with_token(crate::theme::AliasToken::default());
     
     // 获取样式
     let styles = generate_divider_styles();
     
     // 注册基础样式
-    use_effect(|| {
-        let _ = css!(styles.base);
+    {
+        let style_generator_clone = style_generator.clone();
+        let has_children = props.children.is_some();
+        let size = props.size.clone();
         
-        // 根据属性注册变体样式
-        if props.children.is_some() {
-            let _ = css!(styles.variants.type_text);
-        }
-        
-        // 注册变体样式
-        match actual_variant {
-            DividerVariant::Dashed => { let _ = css!(styles.variants.type_dashed); },
-            DividerVariant::Dotted => { let _ = css!(styles.variants.type_dotted); },
-            _ => {}
-        }
-        
-        // 注册尺寸样式
-        match props.size {
-            DividerSize::Small => { let _ = css!(styles.variants.size_small); },
-            DividerSize::Large => { let _ = css!(styles.variants.size_large); },
-            _ => {}
-        }
-        
-        // 注册方向边距样式
-        if let Some(margin_style) = style_generator.generate_orientation_margin_style() {
-            let _ = css!(margin_style);
-        }
-    });
+        use_effect(move || {
+            let _ = css!(styles.base);
+            
+            // 根据属性注册变体样式
+            if has_children {
+                let _ = css!(styles.variants.type_text);
+            }
+            
+            // 注册变体样式
+            match actual_variant {
+                DividerVariant::Dashed => { let _ = css!(styles.variants.type_dashed); },
+                DividerVariant::Dotted => { let _ = css!(styles.variants.type_dotted); },
+                _ => {}
+            }
+            
+            // 注册尺寸样式
+            match size {
+                DividerSize::Small => { let _ = css!(styles.variants.size_small); },
+                DividerSize::Large => { let _ = css!(styles.variants.size_large); },
+                _ => {}
+            }
+            
+            // 注册方向边距样式
+            if let Some(margin_style) = style_generator_clone.generate_orientation_margin_style() {
+                let _ = css!(margin_style);
+            }
+        });
+    }
 
     // 生成CSS类名
     let mut class_names = style_generator.generate_class_names();
