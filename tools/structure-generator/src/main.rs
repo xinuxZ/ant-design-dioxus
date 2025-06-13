@@ -4,15 +4,15 @@
 
 use ant_design_tools_common::*;
 use clap::{Arg, Command};
+use env_logger;
+use log;
+use regex;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
-use serde_json;
-use regex;
-use log;
-use env_logger;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ComponentLevel {
@@ -147,16 +147,22 @@ impl StructureGenerator {
             "form",
             "table",
             "tree",
+            "tree_select",
             "transfer",
             "upload",
-            "calendar",
             "date_picker",
             "time_picker",
             "cascader",
             "auto_complete",
-            "mentions",
-            "layout",
             "menu",
+            "carousel",
+            "calendar",
+            "mentions",
+            "splitter",
+            "layout",
+            "grid",
+            "message",
+            "notification",
             "steps",
             "tour",
             "config_provider",
@@ -172,6 +178,7 @@ impl StructureGenerator {
         let level2_components = [
             "button",
             "input",
+            "input_number",
             "select",
             "checkbox",
             "radio",
@@ -183,7 +190,6 @@ impl StructureGenerator {
             "pagination",
             "tabs",
             "collapse",
-            "carousel",
             "anchor",
             "affix",
             "back_top",
@@ -194,7 +200,6 @@ impl StructureGenerator {
             "alert",
             "drawer",
             "modal",
-            "notification",
             "popconfirm",
             "popover",
             "tooltip",
@@ -564,7 +569,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .long("input")
                 .value_name("DIR")
                 .help("输入的组件目录")
-                .default_value("src/components"),
+                .default_value("../old/components"),
         )
         .arg(
             Arg::new("output")
@@ -572,7 +577,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .long("output")
                 .value_name("DIR")
                 .help("输出目录")
-                .default_value("output/components"),
+                .default_value("../src/components"),
         )
         .arg(
             Arg::new("component")
