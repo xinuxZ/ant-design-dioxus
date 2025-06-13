@@ -2,8 +2,11 @@
 //!
 //! 本模块包含Typography组件的所有组件实现，包括Title、Text、Paragraph和Link等。
 
+use super::i18n::*;
 use super::styles::*;
+use super::theme_enhanced::*;
 use super::types::*;
+use crate::locale::use_translate;
 use crate::theme::use_theme;
 use dioxus::prelude::*;
 
@@ -11,6 +14,8 @@ use dioxus::prelude::*;
 #[component]
 pub fn Typography(props: TypographyProps) -> Element {
     let theme = use_theme();
+    let theme_style_generator = use_typography_theme();
+    let t = use_translate();
     let text_type = props.r#type.as_ref().unwrap_or(&TextType::Default);
 
     let style_generator = TypographyStyleGenerator::new()
@@ -26,9 +31,12 @@ pub fn Typography(props: TypographyProps) -> Element {
         .with_copyable(props.copyable.is_some())
         .with_editable(props.editable.is_some());
 
+    let theme_classes = theme_style_generator.generate_theme_classes();
+
     let class_name = format!(
-        "{} {}",
+        "ant-typography {} {} {}",
         style_generator.generate_class(),
+        theme_classes,
         props.class.clone().unwrap_or_default()
     );
 
@@ -243,6 +251,8 @@ pub fn Title(props: TitleProps) -> Element {
 #[component]
 pub fn Text(props: TextProps) -> Element {
     let theme = use_theme();
+    let theme_style_generator = use_typography_theme();
+    let t = use_translate();
     let text_type = props.r#type.as_ref().unwrap_or(&TextType::Default);
 
     let style_generator = TypographyStyleGenerator::new()
@@ -264,9 +274,12 @@ pub fn Text(props: TextProps) -> Element {
             None
         });
 
+    let theme_classes = theme_style_generator.generate_theme_classes();
+
     let class_name = format!(
-        "{} {}",
+        "ant-typography ant-typography-text {} {} {}",
         style_generator.generate_class(),
+        theme_classes,
         props.class.clone().unwrap_or_default()
     );
 
@@ -441,6 +454,7 @@ fn CopyButton(
 ) -> Element {
     let action_class = TypographyStyleGenerator::action_button_style();
     let (copy_to_clipboard, copied) = crate::hooks::use_clipboard();
+    let t = use_translate();
 
     let onclick = move |_| {
         if let Some(text) = &text {
@@ -455,9 +469,12 @@ fn CopyButton(
     };
 
     let button_title = if copied() {
-        "已复制!"
+        t(TypographyI18nKeys::COPIED)
     } else {
-        tooltip.as_deref().unwrap_or("复制")
+        tooltip
+            .as_deref()
+            .unwrap_or(&t(TypographyI18nKeys::COPY))
+            .to_string()
     };
 
     let button_icon = if copied() {
@@ -489,6 +506,7 @@ fn EllipsisWrapper(
     children: Element,
 ) -> Element {
     let mut is_expanded = use_signal(|| ellipsis.expanded.unwrap_or(ellipsis.default_expanded));
+    let t = use_translate();
 
     let toggle_expand = move |_| {
         let new_state = !is_expanded();
@@ -513,13 +531,13 @@ fn EllipsisWrapper(
                 button {
                     class: "typography-expand-button",
                     onclick: toggle_expand,
-                    title: if is_expanded() { "收起" } else { "展开" },
+                    title: if is_expanded() { t(TypographyI18nKeys::COLLAPSE) } else { t(TypographyI18nKeys::EXPAND) },
                     if is_expanded() {
                         if ellipsis.collapsible {
-                            "收起"
+                            {t(TypographyI18nKeys::COLLAPSE)}
                         }
                     } else {
-                        "展开"
+                        {t(TypographyI18nKeys::EXPAND)}
                     }
                 }
             }
@@ -547,6 +565,7 @@ fn EditButton(
 ) -> Element {
     let mut edit_text = use_signal(|| text.clone().unwrap_or_default());
     let mut is_editing = use_signal(|| editing);
+    let t = use_translate();
 
     let action_class = TypographyStyleGenerator::action_button_style();
     let input_class = EditStyleGenerator::edit_input_style();
@@ -632,7 +651,7 @@ fn EditButton(
                     onkeydown: on_keydown,
                     autofocus: true,
                     maxlength: max_length.map(|len| len.to_string()),
-                    "aria-label": "编辑文本",
+                    "aria-label": t(TypographyI18nKeys::EDIT_TEXT),
                     "aria-describedby": "edit-help",
                     role: "textbox",
                 }
@@ -640,24 +659,24 @@ fn EditButton(
                     class: "{actions_class}",
                     button {
                         class: "{action_btn_class}",
-                        title: "确认",
+                        title: t(TypographyI18nKeys::SAVE),
                         onclick: confirm_edit,
-                        "aria-label": "确认编辑",
+                        "aria-label": t(TypographyI18nKeys::SAVE),
                         role: "button",
                         "✓"
                     }
                     button {
                         class: "{action_btn_class}",
-                        title: "取消",
+                        title: t(TypographyI18nKeys::CANCEL),
                         onclick: cancel_edit,
-                        "aria-label": "取消编辑",
+                        "aria-label": t(TypographyI18nKeys::CANCEL),
                         role: "button",
                         "✕"
                     }
                     span {
                         id: "edit-help",
                         class: "sr-only",
-                        "按Enter确认，按Escape取消"
+                        {t(TypographyI18nKeys::EDIT_HELP)}
                     }
                 }
             }
@@ -666,9 +685,9 @@ fn EditButton(
         rsx! {
             button {
                 class: "{action_class}",
-                title: tooltip.as_deref().unwrap_or("编辑"),
+                title: tooltip.as_deref().unwrap_or(&t(TypographyI18nKeys::EDIT)),
                 onclick: start_edit,
-                "aria-label": tooltip.as_deref().unwrap_or("编辑文本"),
+                "aria-label": tooltip.as_deref().unwrap_or(&t(TypographyI18nKeys::EDIT)),
                 role: "button",
                 // 编辑图标 (简化版)
                 "✏️"
