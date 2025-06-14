@@ -17,14 +17,16 @@ use super::{
 /// QRCode 二维码组件
 #[component]
 pub fn QRCode(props: QRCodeProps) -> Element {
-    let container_ref = use_signal(|| None::<web_sys::Element>);
-    let qr_code_ref = use_signal(|| None::<web_sys::Element>);
+    let mut container_ref = use_signal(|| None::<web_sys::Element>);
+    let mut qr_code_ref = use_signal(|| None::<web_sys::Element>);
     let mut error = use_signal(|| None::<String>);
-    let icon_loaded = use_signal(|| false);
+    let mut icon_loaded = use_signal(|| false);
 
     // 根据类型选择渲染方式
-    let render_qrcode = move || {
-        if error.read().is_some() {
+    let props_type = props.clone().r#type;
+    let props_clone = props.clone();
+    let mut render_qrcode = move || {
+        if error.read().clone().is_some() {
             return;
         }
 
@@ -33,21 +35,27 @@ pub fn QRCode(props: QRCodeProps) -> Element {
             return;
         }
 
-        match props.r#type {
-            QRCodeType::Svg => render_svg_qrcode(&props, qr_element.unwrap(), &mut error),
-            QRCodeType::Canvas => render_canvas_qrcode(&props, qr_element.unwrap(), &mut error),
+        match props_type {
+            QRCodeType::Svg => {
+                render_svg_qrcode(&props_clone, qr_element.unwrap(), &mut error.clone())
+            }
+            QRCodeType::Canvas => {
+                render_canvas_qrcode(&props_clone, qr_element.unwrap(), &mut error.clone())
+            }
         }
     };
 
     // 处理图标加载
+    let render_qrcode_clone = render_qrcode.clone();
     let handle_icon_load = move |_| {
         icon_loaded.set(true);
-        render_qrcode();
+        render_qrcode_clone();
     };
 
     // 处理刷新按钮点击
-    let handle_refresh = move |_| {
-        if let Some(on_refresh) = &props.on_refresh {
+    let props_clone = props.clone();
+    let handle_refresh = move |_: ()| {
+        if let Some(on_refresh) = &props_clone.clone().on_refresh {
             on_refresh.call(());
         }
     };
@@ -58,42 +66,43 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     });
 
     // 创建图标设置
-    let icon_settings = props.icon.as_ref().map(|src| QRCodeIconSettings {
+    let icon_settings = props.clone().icon.as_ref().map(|src| QRCodeIconSettings {
         src: src.clone(),
-        width: props.icon_size,
-        height: props.icon_size,
+        width: props.clone().icon_size,
+        height: props.clone().icon_size,
         ..Default::default()
     });
 
     // 容器样式
     let container_class = generate_container_style();
-    let bordered_class = if props.bordered {
+    let bordered_class = if props.clone().bordered {
         generate_bordered_style()
     } else {
         String::new()
     };
 
     // 组合自定义样式
-    let combined_style = match &props.style {
+    let combined_style = match &props.clone().style {
         Some(style) => format!("{}; {}", style, ""),
         None => String::new(),
     };
 
     // 组合自定义类名
-    let combined_class = match &props.class {
+    let combined_class = match &props.clone().class {
         Some(class) => format!("{} {} {}", container_class, bordered_class, class),
         None => format!("{} {}", container_class, bordered_class),
     };
 
     // 渲染状态遮罩
-    let status_mask = if props.status != QRCodeStatus::Active {
+    let status_mask = if props.clone().status != QRCodeStatus::Active {
         let status_info = StatusRenderInfo {
-            status: props.status,
-            on_refresh: props.on_refresh.clone(),
+            status: props.clone().status,
+            on_refresh: props.clone().on_refresh.clone(),
         };
 
+        let props_status_render = props.clone().status_render;
         // 使用自定义状态渲染或默认渲染
-        if let Some(custom_render) = &props.status_render {
+        if let Some(custom_render) = &props_status_render {
             custom_render.clone()
         } else {
             render_status_mask(status_info)
@@ -102,14 +111,17 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         rsx!()
     };
 
+    let props_icon = props.clone().icon;
+    let props_icon_size = props.clone().icon_size;
+
     // 渲染图标
-    let icon_element = if let Some(icon_src) = &props.icon {
+    let icon_element = if let Some(icon_src) = props_icon {
         rsx! {
             img {
                 class: generate_icon_style(),
                 src: "{icon_src}",
-                width: "{props.icon_size}",
-                height: "{props.icon_size}",
+                width: "{props_icon_size}",
+                height: "{props_icon_size}",
                 onload: handle_icon_load,
                 alt: "QR Code Icon"
             }
@@ -130,17 +142,20 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         rsx!()
     };
 
+    let props_size = props.clone().size.clone();
+    let props_children = props.clone().children;
+
     // 渲染二维码组件
     rsx! {
         div {
             class: "{combined_class}",
             style: "{combined_style}",
-            onmounted: move |el| container_ref.set(Some(el)),
+            onmounted: move |el| container_ref.set(Some(el.data().downcast::<web_sys::Element>().unwrap().clone())),
 
             // 二维码容器
             div {
-                onmounted: move |el| qr_code_ref.set(Some(el)),
-                style: "width: {props.size}px; height: {props.size}px;"
+                onmounted: move |el| qr_code_ref.set(Some(el.data().downcast::<web_sys::Element>().unwrap().clone())),
+                style: "width: {props_size}px; height: {props_size}px;"
             }
 
             // 图标
@@ -153,7 +168,7 @@ pub fn QRCode(props: QRCodeProps) -> Element {
             {error_element}
 
             // 子元素
-            {props.children.clone()}
+            {props_children}
         }
     }
 }
