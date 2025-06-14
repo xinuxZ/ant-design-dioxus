@@ -112,6 +112,9 @@ pub mod utils;
 pub use component::*;
 pub use types::*;
 
+#[cfg(test)]
+mod tests;
+
 // 重新导出样式和工具函数
 pub use styles::{
     generate_compact_theme_styles, generate_dark_theme_styles, generate_flex_container_styles,

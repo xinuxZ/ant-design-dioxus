@@ -408,6 +408,26 @@ impl From<&str> for FlexGap {
     }
 }
 
+/// impl merge for FlexTheme
+impl FlexTheme {
+    pub fn merge(self, other: &Self) -> Self {
+        FlexTheme {
+            gap_small: other.gap_small.clone(),
+            gap_middle: other.gap_middle.clone(),
+            gap_large: other.gap_large.clone(),
+            font_size: other.font_size.clone(),
+            line_height: other.line_height.clone(),
+            color: other.color.clone(),
+            background_color: other.background_color.clone(),
+            border_color: other.border_color.clone(),
+            border_radius: other.border_radius.clone(),
+            box_shadow: other.box_shadow.clone(),
+            transition: other.transition.clone(),
+            breakpoints: other.breakpoints.clone(),
+        }
+    }
+}
+
 // 实现 Default trait
 impl Default for FlexTheme {
     fn default() -> Self {

@@ -90,6 +90,9 @@ mod styles;
 mod types;
 mod utils;
 
+#[cfg(test)]
+mod tests;
+
 // 重新导出主要组件和类型
 pub use component::{Skeleton, SkeletonButton, SkeletonImage, SkeletonInput};
 

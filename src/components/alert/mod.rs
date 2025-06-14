@@ -218,6 +218,9 @@ pub use component::*;
 pub use types::*;
 pub use utils::*;
 
+#[cfg(test)]
+mod tests;
+
 // 便捷构造函数
 pub use component::{
     action_alert, banner_alert, closable_alert, error_alert, icon_alert, info_alert, success_alert,

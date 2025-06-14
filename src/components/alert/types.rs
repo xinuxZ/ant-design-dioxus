@@ -3,137 +3,138 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::Display;
 
 /// Alert 组件的属性
 #[derive(Props, Clone, PartialEq)]
 pub struct AlertProps {
     /// 警告提示内容
     pub message: String,
-    
+
     /// 警告类型
     #[props(default = AlertType::Info)]
     pub alert_type: AlertType,
-    
+
     /// 是否可关闭
     #[props(default = false)]
     pub closable: bool,
-    
+
     /// 辅助性文字介绍
     #[props(default)]
     pub description: Option<String>,
-    
+
     /// 是否显示辅助图标
     #[props(default = false)]
     pub show_icon: bool,
-    
+
     /// 自定义图标
     #[props(default)]
     pub icon: Option<Element>,
-    
+
     /// 自定义操作项
     #[props(default)]
     pub action: Option<Element>,
-    
+
     /// 是否用作顶部公告
     #[props(default = false)]
     pub banner: bool,
-    
+
     /// 样式类名
     #[props(default)]
     pub class_name: Option<String>,
-    
+
     /// 内联样式
     #[props(default)]
     pub style: Option<String>,
-    
+
     /// 关闭时的回调
     #[props(default)]
     pub on_close: Option<EventHandler<MouseEvent>>,
-    
+
     /// 关闭动画结束后的回调
     #[props(default)]
     pub after_close: Option<EventHandler<()>>,
-    
+
     /// 是否显示
     #[props(default = true)]
     pub visible: bool,
-    
+
     /// 主题配置
     #[props(default)]
     pub theme: Option<AlertTheme>,
-    
+
     /// 动画配置
     #[props(default)]
     pub animation: Option<AlertAnimation>,
-    
+
     /// 尺寸
     #[props(default = AlertSize::Default)]
     pub size: AlertSize,
-    
+
     /// 是否启用动画
     #[props(default = true)]
     pub enable_animation: bool,
-    
+
     /// 动画持续时间（毫秒）
     #[props(default = 300)]
     pub animation_duration: u32,
-    
+
     /// 自定义关闭图标
     #[props(default)]
     pub close_icon: Option<Element>,
-    
+
     /// 是否显示边框
     #[props(default = true)]
     pub show_border: bool,
-    
+
     /// 圆角大小
     #[props(default)]
     pub border_radius: Option<String>,
-    
+
     /// 自定义颜色
     #[props(default)]
     pub color: Option<String>,
-    
+
     /// 自定义背景色
     #[props(default)]
     pub background_color: Option<String>,
-    
+
     /// 自定义边框颜色
     #[props(default)]
     pub border_color: Option<String>,
-    
+
     /// 点击事件
     #[props(default)]
     pub on_click: Option<EventHandler<MouseEvent>>,
-    
+
     /// 鼠标进入事件
     #[props(default)]
     pub on_mouse_enter: Option<EventHandler<MouseEvent>>,
-    
+
     /// 鼠标离开事件
     #[props(default)]
     pub on_mouse_leave: Option<EventHandler<MouseEvent>>,
-    
+
     /// 键盘事件
     #[props(default)]
     pub on_key_down: Option<EventHandler<KeyboardEvent>>,
-    
+
     /// ARIA 标签
     #[props(default)]
     pub aria_label: Option<String>,
-    
+
     /// 角色
     #[props(default = "alert".to_string())]
     pub role: String,
-    
+
     /// 是否自动聚焦
     #[props(default = false)]
     pub auto_focus: bool,
-    
+
     /// Tab 索引
     #[props(default)]
     pub tab_index: Option<i32>,
-    
+
     /// 数据测试ID
     #[props(default)]
     pub data_testid: Option<String>,
@@ -191,6 +192,17 @@ pub enum AlertType {
     /// 错误提示
     Error,
 }
+/// impl Display for AlertType
+impl Display for AlertType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AlertType::Success => write!(f, "success"),
+            AlertType::Info => write!(f, "info"),
+            AlertType::Warning => write!(f, "warning"),
+            AlertType::Error => write!(f, "error"),
+        }
+    }
+}
 
 impl Default for AlertType {
     fn default() -> Self {
@@ -208,7 +220,7 @@ impl AlertType {
             AlertType::Error => "#ff4d4f",
         }
     }
-    
+
     /// 获取类型对应的背景色
     pub fn get_background_color(&self) -> &'static str {
         match self {
@@ -218,7 +230,7 @@ impl AlertType {
             AlertType::Error => "#fff2f0",
         }
     }
-    
+
     /// 获取类型对应的边框颜色
     pub fn get_border_color(&self) -> &'static str {
         match self {
@@ -228,7 +240,7 @@ impl AlertType {
             AlertType::Error => "#ffccc7",
         }
     }
-    
+
     /// 获取类型对应的图标名称
     pub fn get_icon_name(&self) -> &'static str {
         match self {
@@ -238,7 +250,7 @@ impl AlertType {
             AlertType::Error => "close-circle",
         }
     }
-    
+
     /// 获取类型对应的CSS类名
     pub fn get_css_class(&self) -> &'static str {
         match self {
@@ -261,6 +273,17 @@ pub enum AlertSize {
     Large,
 }
 
+/// impl Display for AlertSize
+impl Display for AlertSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AlertSize::Small => write!(f, "small"),
+            AlertSize::Default => write!(f, "default"),
+            AlertSize::Large => write!(f, "large"),
+        }
+    }
+}
+
 impl Default for AlertSize {
     fn default() -> Self {
         Self::Default
@@ -276,7 +299,7 @@ impl AlertSize {
             AlertSize::Large => "16px",
         }
     }
-    
+
     /// 获取尺寸对应的内边距
     pub fn get_padding(&self) -> &'static str {
         match self {
@@ -285,7 +308,7 @@ impl AlertSize {
             AlertSize::Large => "12px 20px",
         }
     }
-    
+
     /// 获取尺寸对应的图标大小
     pub fn get_icon_size(&self) -> &'static str {
         match self {
@@ -446,6 +469,25 @@ pub enum AnimationState {
     Exited,
 }
 
+/// impl Display for AnimationState
+impl Display for AnimationState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AnimationState::Idle => write!(f, "idle"),
+            AnimationState::Entering => write!(f, "entering"),
+            AnimationState::Entered => write!(f, "entered"),
+            AnimationState::Exiting => write!(f, "exiting"),
+            AnimationState::Exited => write!(f, "exited"),
+        }
+    }
+}
+
+impl Default for AnimationState {
+    fn default() -> Self {
+        Self::Idle
+    }
+}
+
 /// Alert 构建器
 #[derive(Default)]
 pub struct AlertBuilder {
@@ -457,67 +499,67 @@ impl AlertBuilder {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// 设置消息
     pub fn message<S: Into<String>>(mut self, message: S) -> Self {
         self.props.message = message.into();
         self
     }
-    
+
     /// 设置类型
     pub fn alert_type(mut self, alert_type: AlertType) -> Self {
         self.props.alert_type = alert_type;
         self
     }
-    
+
     /// 设置是否可关闭
     pub fn closable(mut self, closable: bool) -> Self {
         self.props.closable = closable;
         self
     }
-    
+
     /// 设置描述
     pub fn description<S: Into<String>>(mut self, description: S) -> Self {
         self.props.description = Some(description.into());
         self
     }
-    
+
     /// 设置是否显示图标
     pub fn show_icon(mut self, show_icon: bool) -> Self {
         self.props.show_icon = show_icon;
         self
     }
-    
+
     /// 设置是否为横幅
     pub fn banner(mut self, banner: bool) -> Self {
         self.props.banner = banner;
         self
     }
-    
+
     /// 设置尺寸
     pub fn size(mut self, size: AlertSize) -> Self {
         self.props.size = size;
         self
     }
-    
+
     /// 设置主题
     pub fn theme(mut self, theme: AlertTheme) -> Self {
         self.props.theme = Some(theme);
         self
     }
-    
+
     /// 设置样式类名
     pub fn class_name<S: Into<String>>(mut self, class_name: S) -> Self {
         self.props.class_name = Some(class_name.into());
         self
     }
-    
+
     /// 设置内联样式
     pub fn style<S: Into<String>>(mut self, style: S) -> Self {
         self.props.style = Some(style.into());
         self
     }
-    
+
     /// 构建属性
     pub fn build(self) -> AlertProps {
         self.props
@@ -536,9 +578,7 @@ pub fn set_global_alert_config(config: AlertConfig) {
 
 /// 获取全局默认Alert配置
 pub fn get_global_alert_config() -> AlertConfig {
-    unsafe {
-        GLOBAL_ALERT_CONFIG.clone().unwrap_or_default()
-    }
+    unsafe { GLOBAL_ALERT_CONFIG.clone().unwrap_or_default() }
 }
 
 /// 创建Alert配置
@@ -561,11 +601,11 @@ pub fn validate_alert_props(props: &AlertProps) -> Result<(), String> {
     if props.message.is_empty() {
         return Err("Alert message cannot be empty".to_string());
     }
-    
+
     if props.animation_duration == 0 {
         return Err("Animation duration must be greater than 0".to_string());
     }
-    
+
     Ok(())
 }
 
