@@ -6,14 +6,16 @@ use dioxus::prelude::*;
 use gloo_timers::callback::Timeout;
 use std::rc::Rc;
 
-use super::{
-    calculate_spin_size, generate_css_variables,
-    generate_spin_container_styles, generate_spin_dot_styles, generate_spin_indicator_style,
-    generate_spin_mask_styles, generate_spin_text_styles, generate_spin_theme_styles,
-    get_spin_container_class_name, get_spin_content_class_name, get_spin_indicator_class,
-    get_spin_mask_class, get_spin_text_class,
+use super::utils::{
+    create_spin_state, generate_cache_key, should_show_with_delay, validate_spin_props,
 };
-use super::utils::{create_spin_state, generate_cache_key, should_show_with_delay, validate_spin_props};
+use super::{
+    calculate_spin_size, generate_css_variables, generate_spin_container_styles,
+    generate_spin_dot_styles, generate_spin_indicator_style, generate_spin_mask_styles,
+    generate_spin_text_styles, generate_spin_theme_styles, get_spin_container_class_name,
+    get_spin_content_class_name, get_spin_indicator_class, get_spin_mask_class,
+    get_spin_text_class,
+};
 
 /// Spin 加载指示器组件
 ///
@@ -494,7 +496,7 @@ where
             loading.set(true);
             error.set(None);
 
-            match async_fn().await {
+            match (*async_fn)().await {
                 Ok(result) => {
                     data.set(Some(result));
                 }
