@@ -339,7 +339,7 @@ pub fn FlexThemeProvider(props: FlexThemeProviderProps) -> Element {
 
 /// 使用 Flex 主题的 Hook
 pub fn use_flex_theme() -> FlexTheme {
-    use_context::<FlexTheme>() //.unwrap_or_else(|| get_default_flex_theme())
+    use_context::<FlexTheme>()
 }
 
 /// 设置全局默认 Flex 主题
