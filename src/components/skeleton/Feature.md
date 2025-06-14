@@ -259,9 +259,9 @@ pub fn generate_skeleton_animation(active: bool) -> String {
     if active {
         css! {
             animation: skeleton-loading 1.4s ease-in-out infinite;
-            background: linear-gradient(90deg, 
-                var(--skeleton-gradient-from) 25%, 
-                var(--skeleton-gradient-to) 37%, 
+            background: linear-gradient(90deg,
+                var(--skeleton-gradient-from) 25%,
+                var(--skeleton-gradient-to) 37%,
                 var(--skeleton-gradient-from) 63%);
             background-size: 400% 100%;
         }

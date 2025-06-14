@@ -63,18 +63,26 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
         generate_skeleton_style(active, round, &theme, props.class_name.as_deref());
 
     let class_name = get_skeleton_class_name(loading, active, round, props.class_name.as_deref());
+    let title_props = title_props.unwrap();
+    let paragraph_props = paragraph_props.unwrap();
+
+    let avatar_shape = avatar_props.clone().unwrap().shape;
+    let avatar_size = avatar_props.clone().unwrap().size;
+
+    let props_style = props.style.clone();
 
     rsx! {
         div {
             class: "{class_name}",
-            style: "{container_style} {props.style.unwrap_or_default()}",
+            style: "{container_style} {props_style.as_ref().unwrap()}",
 
             // 头像和内容区域
             if has_avatar {
                 div {
                     class: "ant-skeleton-header",
                     SkeletonAvatar {
-                        props: avatar_props.unwrap(),
+                        shape: avatar_shape,
+                        size: avatar_size,
                         active,
                         theme: theme.clone(),
                     }
@@ -86,7 +94,6 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
 
                 // 标题
                 if has_title {
-                    let title_props = title_props.unwrap();
                     SkeletonTitle {
                         width: title_props.width,
                         active,
@@ -97,7 +104,6 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
 
                 // 段落
                 if has_paragraph {
-                    let paragraph_props = paragraph_props.unwrap();
                     SkeletonParagraph {
                         rows: paragraph_props.rows,
                         width: paragraph_props.width,
@@ -113,10 +119,16 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
 
 /// Skeleton Avatar 子组件
 #[component]
-fn SkeletonAvatar(props: SkeletonAvatarProps, active: bool, theme: SkeletonTheme) -> Element {
-    let shape = props.shape.unwrap_or(AvatarShape::Circle);
-    let size = props.size.unwrap_or(AvatarSize::Large);
-    let is_active = props.active.unwrap_or(active);
+// fn SkeletonAvatar(props: SkeletonAvatarProps, active: bool, theme: SkeletonTheme) -> Element {
+fn SkeletonAvatar(
+    shape: Option<AvatarShape>,
+    size: Option<AvatarSize>,
+    active: Option<bool>,
+    theme: SkeletonTheme,
+) -> Element {
+    let shape = shape.unwrap_or(AvatarShape::Circle);
+    let size = size.unwrap_or(AvatarSize::Large);
+    let is_active = active.unwrap_or(false);
 
     let style = generate_skeleton_avatar_style(&shape, &size, is_active, &theme);
     let class_name = get_skeleton_avatar_class_name(&shape, &size, is_active, None);
@@ -150,7 +162,7 @@ fn SkeletonTitle(
 /// Skeleton Paragraph 子组件
 #[component]
 fn SkeletonParagraph(
-    rows: Option<usize>,
+    rows: Option<u32>,
     width: Option<SkeletonWidthConfig>,
     active: bool,
     round: bool,
