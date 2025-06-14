@@ -444,19 +444,19 @@ impl AlertStyles {
 
     /// 获取完整样式
     pub fn get_styles() -> String {
-        let mut combined = Style::new();
-        combined.merge(Self::base());
-        combined.merge(Self::type_styles());
-        combined.merge(Self::size_styles());
-        combined.merge(Self::state_styles());
-        combined.merge(Self::animation_styles());
-        combined.merge(Self::dark_theme_styles());
-        combined.merge(Self::rtl_styles());
-        combined.merge(Self::responsive_styles());
-        combined.merge(Self::high_contrast_styles());
-        combined.merge(Self::reduced_motion_styles());
-        combined.merge(Self::print_styles());
-        combined
+        let mut combined = Vec::new();
+        combined.push(Self::base());
+        combined.push(Self::type_styles());
+        combined.push(Self::size_styles());
+        combined.push(Self::state_styles());
+        combined.push(Self::animation_styles());
+        combined.push(Self::dark_theme_styles());
+        combined.push(Self::rtl_styles());
+        combined.push(Self::responsive_styles());
+        combined.push(Self::high_contrast_styles());
+        combined.push(Self::reduced_motion_styles());
+        combined.push(Self::print_styles());
+        combined.join("\n")
     }
 
     /// 根据主题生成自定义样式
@@ -597,7 +597,7 @@ impl AlertStyles {
         css_content.push_str("}");
 
         // 注意：这里需要根据实际的css_in_rust库API调整
-        Style::from_string(css_content)
+        css_content
     }
 }
 
@@ -730,7 +730,7 @@ impl ThemeManager {
     }
 
     /// 获取主题样式
-    pub fn get_theme_styles(&self, theme_name: &str) -> Option<Style> {
+    pub fn get_theme_styles(&self, theme_name: &str) -> Option<String> {
         self.themes
             .get(theme_name)
             .map(|theme| AlertStyles::generate_theme_styles(theme))

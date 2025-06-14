@@ -86,8 +86,9 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
 
                 // 标题
                 if has_title {
+                    let title_props = title_props.unwrap();
                     SkeletonTitle {
-                        props: title_props.unwrap(),
+                        width: title_props.width,
                         active,
                         round,
                         theme: theme.clone(),
@@ -96,8 +97,10 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
 
                 // 段落
                 if has_paragraph {
+                    let paragraph_props = paragraph_props.unwrap();
                     SkeletonParagraph {
-                        props: paragraph_props.unwrap(),
+                        rows: paragraph_props.rows,
+                        width: paragraph_props.width,
                         active,
                         round,
                         theme: theme.clone(),
@@ -129,12 +132,12 @@ fn SkeletonAvatar(props: SkeletonAvatarProps, active: bool, theme: SkeletonTheme
 /// Skeleton Title 子组件
 #[component]
 fn SkeletonTitle(
-    props: SkeletonTitleProps,
+    width: Option<SkeletonWidth>,
     active: bool,
     round: bool,
     theme: SkeletonTheme,
 ) -> Element {
-    let style = generate_skeleton_title_style(props.width.as_ref(), active, round, &theme);
+    let style = generate_skeleton_title_style(width.as_ref(), active, round, &theme);
 
     rsx! {
         h3 {
@@ -147,13 +150,14 @@ fn SkeletonTitle(
 /// Skeleton Paragraph 子组件
 #[component]
 fn SkeletonParagraph(
-    props: SkeletonParagraphProps,
+    rows: Option<usize>,
+    width: Option<SkeletonWidthConfig>,
     active: bool,
     round: bool,
     theme: SkeletonTheme,
 ) -> Element {
-    let rows = props.rows.unwrap_or(2);
-    let widths = generate_paragraph_widths(rows, props.width.as_ref());
+    let rows = rows.unwrap_or(2);
+    let widths = generate_paragraph_widths(rows, width.as_ref());
 
     let container_style = generate_skeleton_paragraph_style(rows, &widths, active, round, &theme);
 

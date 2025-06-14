@@ -10,6 +10,7 @@ alwaysApply: true
 
 # 执行任务的要求
 1. 按照 [COMPONENT_RESTRUCTURE_STRATEGY.md](mdc:css-in-rust/css-in-rust/css-in-rust/css-in-rust/css-in-rust/ant-design-dioxus/COMPONENT_RESTRUCTURE_STRATEGY.md) 中复刻组件的实施计划，循环每个组件完成完成复刻工作。
+2. 筛选错误 cargo check 2>&1 | grep -C 15 -E 'error\[E[0-9]+\]'; 命令前面不要带 sh -c 或者 bash -c
 
 # MCP Interactive Feedback 规则
 1. 在任何流程、任务、对话进行时，无论是询问、回复、或完成阶段性任务，皆必须调用 MCP mcp-feedback-enhanced。

@@ -439,11 +439,11 @@ pub fn use_spin_theme() -> Signal<SpinTheme> {
 }
 
 /// 创建加载状态 Hook
-pub fn use_loading(initial: bool) -> (Signal<bool>, impl Fn(bool)) {
+pub fn use_loading(initial: bool) -> (Signal<bool>, Box<dyn Fn(bool)>) {
     let loading = use_signal(|| initial);
-    let set_loading = move |value: bool| {
+    let set_loading = Box::new(move |value: bool| {
         loading.set(value);
-    };
+    });
 
     (loading, set_loading)
 }
@@ -455,7 +455,7 @@ pub fn use_async_loading<T, F, Fut>(
     Signal<bool>,
     Signal<Option<T>>,
     Signal<Option<String>>,
-    impl Fn(),
+    Box<dyn Fn()>,
 )
 where
     F: Fn() -> Fut + 'static,
@@ -466,7 +466,7 @@ where
     let data = use_signal(|| None);
     let error = use_signal(|| None);
 
-    let execute = move || {
+    let execute = Box::new(move || {
         let loading = loading.clone();
         let data = data.clone();
         let error = error.clone();
@@ -486,7 +486,7 @@ where
 
             loading.set(false);
         });
-    };
+    });
 
     (loading, data, error, execute)
 }

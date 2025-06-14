@@ -86,9 +86,11 @@ pub mod alert; // 警告提示 - 依赖 icon
 // pub mod tour;
 
 // 重新导出组件
-// pub use alert::*;
+pub use alert::*;
+pub use divider::*;
 pub use flex::*;
 pub use icon::*;
 pub use qr_code::*;
+pub use skeleton::*;
 pub use space::*;
 pub use spin::*;

@@ -135,11 +135,11 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         div {
             class: "{combined_class}",
             style: "{combined_style}",
-            ref: move |el| container_ref.set(Some(el)),
+            onmounted: move |el| container_ref.set(Some(el)),
 
             // 二维码容器
             div {
-                ref: move |el| qr_code_ref.set(Some(el)),
+                onmounted: move |el| qr_code_ref.set(Some(el)),
                 style: "width: {props.size}px; height: {props.size}px;"
             }
 

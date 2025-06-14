@@ -95,13 +95,7 @@ pub fn Space(props: SpaceProps) -> Element {
     };
 
     // 渲染子元素
-    let children_elements = match children {
-        Ok(children) => {
-            // 这里需要处理子元素的包装和分割
-            render_space_children(Ok(children), direction.unwrap(), &split, &merged_theme)
-        }
-        _ => rsx! {},
-    };
+    let children_elements = render_space_children(children, direction.unwrap(), &split, &merged_theme);
 
     rsx! {
         div {
@@ -178,15 +172,12 @@ pub fn SpaceCompact(props: SpaceCompactProps) -> Element {
     };
 
     // 渲染子元素
-    let children_elements = match children {
-        Ok(children) => render_space_compact_children(
-            Ok(children),
-            direction.unwrap(),
-            size.unwrap(),
-            &merged_theme,
-        ),
-        _ => rsx! {},
-    };
+    let children_elements = render_space_compact_children(
+        children,
+        direction.unwrap(),
+        size.unwrap(),
+        &merged_theme,
+    );
 
     rsx! {
         div {

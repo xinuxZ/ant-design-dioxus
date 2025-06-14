@@ -1,6 +1,7 @@
 //! Alert 组件的工具函数
 
 use dioxus::prelude::*;
+use dioxus::events::Key;
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
 use web_sys::{window, Element, HtmlElement};
@@ -478,8 +479,8 @@ impl AlertEventHandler {
 
     /// 处理键盘事件
     pub fn handle_keyboard(event: &KeyboardEvent, on_close: Option<EventHandler<MouseEvent>>) {
-        match event.key().as_str() {
-            "Escape" => {
+        match event.key() {
+            Key::Escape => {
                 if let Some(handler) = on_close {
                     // 创建一个模拟的鼠标事件
                     // 注意：这里需要根据实际情况调整
