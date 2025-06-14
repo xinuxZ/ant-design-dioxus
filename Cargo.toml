@@ -30,6 +30,8 @@ web-sys = { version = "0.3", features = [
     "Clipboard",
     "HtmlDivElement",
     "HtmlHeadElement",
+    "HtmlElement",
+    "CssStyleDeclaration",
     "VisibilityState",
     "Event",
     "EventTarget",
