@@ -184,9 +184,12 @@ pub fn Spin(props: SpinProps) -> Element {
         }
     };
 
+    // 检查是否有子元素
+    let has_children = props.children.is_ok();
+    
     // 渲染提示文本
     let render_tip = || {
-        if should_show_tip(&props.tip, props.children.is_ok()) {
+        if should_show_tip(&props.tip, has_children) {
             if let Some(formatted_tip) = format_tip_text(&props.tip) {
                 rsx! {
                     div {
