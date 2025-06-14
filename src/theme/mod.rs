@@ -116,6 +116,21 @@ impl ThemeConfig {
         Self::default()
     }
 
+    /// 设置令牌
+    pub fn with_token(mut self, tokens: HashMap<String, String>) -> Self {
+        self.token = tokens;
+        self
+    }
+
+    pub fn with_components(mut self, compacts: HashMap<String, HashMap<String, String>>) -> Self {
+        // 循环 compacts 插入 components
+        for (key, value) in compacts {
+            self.components.insert(key, value);
+        }
+
+        self
+    }
+
     /// 设置主题
     pub fn theme(mut self, theme: Theme) -> Self {
         match theme {
@@ -404,7 +419,7 @@ mod tests {
 
     #[test]
     fn test_theme_config_with_compact() {
-        let config = ThemeConfig::default().with_compact(true);
+        let config = ThemeConfig::default().compact(true);
         assert!(config.compact);
     }
 
@@ -503,7 +518,7 @@ mod tests {
         override_components.insert("Input".to_string(), override_input);
 
         let override_config = ThemeConfig::default()
-            .with_compact(true)
+            .compact(true)
             .with_token(override_token)
             .with_components(override_components);
 
