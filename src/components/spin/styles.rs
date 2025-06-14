@@ -1,279 +1,409 @@
-//! Spin 组件样式定义
+//! Spin 组件的样式实现
 
-use css_in_rust::*;
-use crate::theme::Theme as AntTheme;
-use super::types::*;
+use crate::theme::use_theme;
+use crate::utils::class_names::class_names;
+use super::types::{SpinSize, SpinTheme};
 
-/// 生成Spin组件的基础样式
-pub fn spin_base_styles(theme: &AntTheme) -> String {
-    css! {
-        ".ant-spin" {
-            box_sizing: "border-box";
-            margin: 0;
-            padding: 0;
-            color: theme.color_text;
-            font_size: px(theme.font_size);
-            line_height: theme.line_height;
-            list_style: "none";
-            font_family: theme.font_family;
-            position: "absolute";
-            display: "none";
-            color: theme.color_primary;
-            text_align: "center";
-            vertical_align: "middle";
+/// 生成 Spin 容器的样式
+pub fn generate_spin_container_styles(size: &SpinSize, has_children: bool) -> String {
+    let base_styles = r#"
+        .ant-spin {
+            color: var(--ant-primary-color);
+            vertical-align: middle;
+            text-align: center;
             opacity: 0;
-            transition: "transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86)";
+            position: absolute;
+            transition: transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+            font-size: 14px;
+            display: inline-block;
+            line-height: 1;
         }
-
-        ".ant-spin-spinning" {
-            position: "static";
-            display: "inline-block";
+        
+        .ant-spin-spinning {
             opacity: 1;
+            position: static;
         }
-
-        ".ant-spin-container" {
-            position: "relative";
-            transition: "opacity 0.3s";
+        
+        .ant-spin-nested-loading {
+            position: relative;
         }
-
-        ".ant-spin-container > .ant-spin" {
-            position: "absolute";
+        
+        .ant-spin-nested-loading > div > .ant-spin {
+            position: absolute;
             top: 0;
             left: 0;
-            z_index: 4;
-            display: "block";
-            width: percent(100);
-            height: percent(100);
-            max_height: px(400);
+            z-index: 4;
+            display: block;
+            width: 100%;
+            height: 100%;
+            max-height: 400px;
         }
-
-        ".ant-spin-container > .ant-spin .ant-spin-dot" {
-            position: "absolute";
-            top: percent(50);
-            left: percent(50);
-            margin: px(-10);
+        
+        .ant-spin-nested-loading > div > .ant-spin .ant-spin-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -10px;
         }
-
-        ".ant-spin-container > .ant-spin .ant-spin-text" {
-            position: "absolute";
-            top: percent(50);
-            width: percent(100);
-            padding_top: px(5);
-            text_shadow: format!("0 1px 2px {}", theme.color_bg_container);
+        
+        .ant-spin-nested-loading > div > .ant-spin .ant-spin-text {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            padding-top: 5px;
+            text-shadow: 0 1px 2px var(--ant-color-bg-container);
         }
-
-        ".ant-spin-container > .ant-spin.ant-spin-show-text .ant-spin-dot" {
-            margin_top: px(-20);
+        
+        .ant-spin-nested-loading > div > .ant-spin.ant-spin-show-text .ant-spin-dot {
+            margin-top: -20px;
         }
-
-        ".ant-spin-blur" {
-            clear: "both";
-            overflow: "hidden";
-            opacity: 0.5;
-            user_select: "none";
-            pointer_events: "none";
+        
+        .ant-spin-nested-loading > div > .ant-spin-sm .ant-spin-dot {
+            margin: -7px;
         }
-
-        ".ant-spin-blur::after" {
-            opacity: 0.4;
-            pointer_events: "none";
+        
+        .ant-spin-nested-loading > div > .ant-spin-sm .ant-spin-text {
+            padding-top: 2px;
+            font-size: 12px;
         }
-
-        ".ant-spin-dot-holder" {
-            position: "relative";
-            display: "block";
-            font_size: px(20);
+        
+        .ant-spin-nested-loading > div > .ant-spin-sm.ant-spin-show-text .ant-spin-dot {
+            margin-top: -17px;
         }
-
-        ".ant-spin-dot" {
-            position: "relative";
-            display: "inline-block";
-            font_size: px(20);
-            width: em(1);
-            height: em(1);
+        
+        .ant-spin-nested-loading > div > .ant-spin-lg .ant-spin-dot {
+            margin: -16px;
         }
+        
+        .ant-spin-nested-loading > div > .ant-spin-lg .ant-spin-text {
+            padding-top: 8px;
+            font-size: 16px;
+        }
+        
+        .ant-spin-nested-loading > div > .ant-spin-lg.ant-spin-show-text .ant-spin-dot {
+            margin-top: -26px;
+        }
+    "#;
 
-        ".ant-spin-dot-item" {
-            position: "absolute";
-            display: "block";
-            width: px(9);
-            height: px(9);
-            background_color: theme.color_primary;
-            border_radius: percent(100);
-            transform: "scale(0.75)";
-            transform_origin: "50% 50%";
+    let size_styles = match size {
+        SpinSize::Small => r#"
+            .ant-spin-sm .ant-spin-dot {
+                font-size: 14px;
+                width: 14px;
+                height: 14px;
+            }
+            
+            .ant-spin-sm .ant-spin-dot i {
+                width: 6px;
+                height: 6px;
+            }
+        "#,
+        SpinSize::Default => r#"
+            .ant-spin .ant-spin-dot {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+            
+            .ant-spin .ant-spin-dot i {
+                width: 9px;
+                height: 9px;
+            }
+        "#,
+        SpinSize::Large => r#"
+            .ant-spin-lg .ant-spin-dot {
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+            }
+            
+            .ant-spin-lg .ant-spin-dot i {
+                width: 14px;
+                height: 14px;
+            }
+        "#,
+    };
+
+    let container_styles = if has_children {
+        r#"
+            .ant-spin-container {
+                position: relative;
+                transition: opacity 0.3s;
+            }
+            
+            .ant-spin-blur {
+                clear: both;
+                opacity: 0.5;
+                user-select: none;
+                pointer-events: none;
+            }
+            
+            .ant-spin-blur::after {
+                opacity: 0.4;
+                pointer-events: none;
+            }
+        "#
+    } else {
+        ""
+    };
+
+    format!("{}{}{}", base_styles, size_styles, container_styles)
+}
+
+/// 生成 Spin 指示器的样式
+pub fn generate_spin_dot_styles() -> String {
+    r#"
+        .ant-spin-dot {
+            position: relative;
+            display: inline-block;
+            font-size: 20px;
+            width: 1em;
+            height: 1em;
+        }
+        
+        .ant-spin-dot-item {
+            position: absolute;
+            display: block;
+            width: 9px;
+            height: 9px;
+            background-color: var(--ant-primary-color);
+            border-radius: 100%;
+            transform: scale(0.75);
+            transform-origin: 50% 50%;
             opacity: 0.3;
-            animation: "antSpinMove 1s infinite linear alternate";
+            animation: antSpinMove 1s infinite linear alternate;
         }
-
-        ".ant-spin-dot-item:nth-child(1)" {
+        
+        .ant-spin-dot-item:nth-child(1) {
             top: 0;
             left: 0;
         }
-
-        ".ant-spin-dot-item:nth-child(2)" {
+        
+        .ant-spin-dot-item:nth-child(2) {
             top: 0;
             right: 0;
-            animation_delay: "0.4s";
+            animation-delay: 0.4s;
         }
-
-        ".ant-spin-dot-item:nth-child(3)" {
+        
+        .ant-spin-dot-item:nth-child(3) {
             right: 0;
             bottom: 0;
-            animation_delay: "0.8s";
+            animation-delay: 0.8s;
         }
-
-        ".ant-spin-dot-item:nth-child(4)" {
+        
+        .ant-spin-dot-item:nth-child(4) {
             bottom: 0;
             left: 0;
-            animation_delay: "1.2s";
+            animation-delay: 1.2s;
         }
-
-        ".ant-spin-dot-spin" {
-            transform: "rotate(45deg)";
-            animation: "antRotate 1.2s infinite linear";
-        }
-
-        ".ant-spin-text" {
-            position: "relative";
-            top: px(5);
-            color: theme.color_primary;
-            font_size: px(theme.font_size);
-            text_shadow: format!("0 1px 2px {}", theme.color_bg_container);
-        }
-
-        ".ant-spin-show-text .ant-spin-dot" {
-            margin_top: px(-10);
-        }
-
-        // 尺寸变体
-        ".ant-spin-sm .ant-spin-dot" {
-            font_size: px(14);
-        }
-
-        ".ant-spin-sm .ant-spin-dot-item" {
-            width: px(6);
-            height: px(6);
-        }
-
-        ".ant-spin-lg .ant-spin-dot" {
-            font_size: px(32);
-        }
-
-        ".ant-spin-lg .ant-spin-dot-item" {
-            width: px(14);
-            height: px(14);
-        }
-
-        // 全屏模式
-        ".ant-spin-fullscreen" {
-            position: "fixed";
-            top: 0;
-            left: 0;
-            width: percent(100);
-            height: percent(100);
-            z_index: 9999;
-            background_color: rgba(255, 255, 255, 0.8);
-            display: "flex";
-            align_items: "center";
-            justify_content: "center";
-            flex_direction: "column";
-        }
-
-        // 进度显示
-        ".ant-spin-progress" {
-            margin_top: px(8);
-            font_size: px(12);
-            color: theme.color_text_secondary;
-        }
-
-        // 动画定义
-        "@keyframes antSpinMove" {
-            "to" {
+        
+        @keyframes antSpinMove {
+            to {
                 opacity: 1;
             }
         }
-
-        "@keyframes antRotate" {
-            "to" {
-                transform: "rotate(405deg)";
+        
+        .ant-spin-dot-spin {
+            transform: rotate(45deg);
+            animation: antRotate 1.2s infinite linear;
+        }
+        
+        @keyframes antRotate {
+            to {
+                transform: rotate(405deg);
             }
         }
+    "#.to_string()
+}
 
-        // RTL 支持
-        ".ant-spin-rtl" {
-            direction: "rtl";
+/// 生成 Spin 文本的样式
+pub fn generate_spin_text_styles() -> String {
+    r#"
+        .ant-spin-text {
+            padding-top: 5px;
+            color: var(--ant-primary-color);
+            font-size: 14px;
         }
-
-        // 嵌套模式
-        ".ant-spin-nested-loading" {
-            position: "relative";
+        
+        .ant-spin-sm .ant-spin-text {
+            font-size: 12px;
         }
+        
+        .ant-spin-lg .ant-spin-text {
+            font-size: 16px;
+        }
+    "#.to_string()
+}
 
-        ".ant-spin-nested-loading > div > .ant-spin" {
-            position: "absolute";
+/// 生成遮罩层样式
+pub fn generate_spin_mask_styles() -> String {
+    r#"
+        .ant-spin-mask {
+            position: absolute;
             top: 0;
             left: 0;
-            z_index: 4;
-            display: "block";
-            width: percent(100);
-            height: percent(100);
-            max_height: px(400);
+            width: 100%;
+            height: 100%;
+            background: var(--ant-color-bg-mask);
+            z-index: 3;
         }
+    "#.to_string()
+}
 
-        ".ant-spin-nested-loading > div > .ant-spin .ant-spin-dot" {
-            position: "absolute";
-            top: percent(50);
-            left: percent(50);
-            margin: px(-10);
-        }
+/// 生成完整的 Spin 样式表
+pub fn generate_spin_styles(size: &SpinSize, has_children: bool) -> String {
+    let container_styles = generate_spin_container_styles(size, has_children);
+    let dot_styles = generate_spin_dot_styles();
+    let text_styles = generate_spin_text_styles();
+    let mask_styles = if has_children {
+        generate_spin_mask_styles()
+    } else {
+        String::new()
+    };
 
-        ".ant-spin-nested-loading > div > .ant-spin .ant-spin-text" {
-            position: "absolute";
-            top: percent(50);
-            width: percent(100);
-            padding_top: px(5);
-            text_shadow: format!("0 1px 2px {}", theme.color_bg_container);
-        }
+    format!("{}{}{}{}", container_styles, dot_styles, text_styles, mask_styles)
+}
 
-        ".ant-spin-nested-loading > div > .ant-spin.ant-spin-show-text .ant-spin-dot" {
-            margin_top: px(-20);
-        }
+/// 获取 Spin 组件的 CSS 类名
+pub fn get_spin_class_name(
+    size: &SpinSize,
+    spinning: bool,
+    has_children: bool,
+    has_tip: bool,
+    custom_class: Option<&str>,
+) -> String {
+    let mut classes = vec!["ant-spin"];
+
+    // 添加尺寸类名
+    match size {
+        SpinSize::Small => classes.push("ant-spin-sm"),
+        SpinSize::Large => classes.push("ant-spin-lg"),
+        SpinSize::Default => {}
+    }
+
+    // 添加状态类名
+    if spinning {
+        classes.push("ant-spin-spinning");
+    }
+
+    if has_tip {
+        classes.push("ant-spin-show-text");
+    }
+
+    // 添加自定义类名
+    let base_class = class_names(&classes);
+    if let Some(custom) = custom_class {
+        format!("{} {}", base_class, custom)
+    } else {
+        base_class
     }
 }
 
-/// 生成暗色主题的Spin样式
-pub fn spin_dark_styles(theme: &Theme) -> String {
-    css! {
-        ".ant-spin" {
-            color: theme.color_primary;
-        }
+/// 获取 Spin 容器的 CSS 类名
+pub fn get_spin_container_class_name(
+    spinning: bool,
+    wrapper_class_name: Option<&str>,
+) -> String {
+    let mut classes = vec!["ant-spin-nested-loading"];
 
-        ".ant-spin-dot-item" {
-            background_color: theme.color_primary;
-        }
-
-        ".ant-spin-text" {
-            color: theme.color_primary;
-            text_shadow: format!("0 1px 2px {}", theme.color_bg_elevated);
-        }
-
-        ".ant-spin-container > .ant-spin .ant-spin-text" {
-            text_shadow: format!("0 1px 2px {}", theme.color_bg_elevated);
-        }
-
-        ".ant-spin-fullscreen" {
-            background_color: rgba(0, 0, 0, 0.8);
-        }
-
-        ".ant-spin-blur" {
-            opacity: 0.3;
-        }
+    let base_class = class_names(&classes);
+    if let Some(wrapper) = wrapper_class_name {
+        format!("{} {}", base_class, wrapper)
+    } else {
+        base_class
     }
 }
 
-/// 生成Spin组件的完整样式
-pub fn generate_spin_styles() -> String {
-    // 返回基础CSS类名，实际样式通过CSS文件提供
-    String::new()
+/// 获取 Spin 内容容器的 CSS 类名
+pub fn get_spin_content_class_name(spinning: bool) -> String {
+    let mut classes = vec!["ant-spin-container"];
+    
+    if spinning {
+        classes.push("ant-spin-blur");
+    }
+    
+    class_names(&classes)
+}
+
+/// 计算 Spin 指示器的尺寸
+pub fn calculate_spin_size(size: &SpinSize) -> (u32, u32) {
+    match size {
+        SpinSize::Small => (14, 14),
+        SpinSize::Default => (20, 20),
+        SpinSize::Large => (32, 32),
+    }
+}
+
+/// 获取 Spin 动画持续时间
+pub fn get_spin_duration(size: &SpinSize) -> &'static str {
+    match size {
+        SpinSize::Small => "0.8s",
+        SpinSize::Default => "1s",
+        SpinSize::Large => "1.2s",
+    }
+}
+
+/// 生成 CSS 变量映射
+pub fn generate_spin_css_vars(theme: &SpinTheme) -> String {
+    format!(
+        r#"
+        :root {{
+            --ant-primary-color: {};
+            --ant-color-text: {};
+            --ant-color-bg-container: {};
+            --ant-color-bg-mask: {};
+            --ant-motion-duration-slow: {};
+            --ant-font-size-sm: {};
+            --ant-font-size: {};
+            --ant-font-size-lg: {};
+        }}
+        "#,
+        theme.color_primary,
+        theme.color_text,
+        theme.color_bg_container,
+        theme.color_bg_mask,
+        theme.motion_duration_slow,
+        theme.font_size_sm,
+        theme.font_size,
+        theme.font_size_lg
+    )
+}
+
+/// 检查是否需要显示遮罩
+pub fn should_show_mask(spinning: bool, has_children: bool) -> bool {
+    spinning && has_children
+}
+
+/// 获取指示器的变换样式
+pub fn get_indicator_transform(size: &SpinSize) -> String {
+    let (width, height) = calculate_spin_size(size);
+    let offset = width / 2;
+    format!("translate(-{}px, -{}px)", offset, offset)
+}
+
+/// 生成响应式样式
+pub fn generate_responsive_styles() -> String {
+    r#"
+        @media (max-width: 576px) {
+            .ant-spin-lg .ant-spin-dot {
+                font-size: 24px;
+                width: 24px;
+                height: 24px;
+            }
+            
+            .ant-spin-lg .ant-spin-text {
+                font-size: 14px;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .ant-spin-dot-item {
+                animation: none;
+            }
+            
+            .ant-spin-dot-spin {
+                animation: none;
+            }
+        }
+    "#.to_string()
 }

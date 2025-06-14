@@ -1,0 +1,570 @@
+/* Typography 排版组件样式 */
+
+/* 基础排版样式 */
+.ant-typography {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5715;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  margin: 0;
+  padding: 0;
+}
+
+/* 标题样式 */
+.ant-typography.ant-typography-title {
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 1.23;
+}
+
+.ant-typography h1.ant-typography {
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 1.23;
+}
+
+.ant-typography h2.ant-typography {
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.35;
+}
+
+.ant-typography h3.ant-typography {
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.35;
+}
+
+.ant-typography h4.ant-typography {
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.ant-typography h5.ant-typography {
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 段落样式 */
+.ant-typography p {
+  margin-bottom: 1em;
+}
+
+.ant-typography-paragraph {
+  margin-bottom: 1em;
+}
+
+.ant-typography-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* 链接样式 */
+.ant-typography-link {
+  color: #1677ff;
+  text-decoration: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.ant-typography-link:hover {
+  color: #4096ff;
+}
+
+.ant-typography-link:active {
+  color: #0958d9;
+}
+
+.ant-typography-link:focus {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+
+/* 链接类型 */
+.ant-typography-link-default {
+  color: #1677ff;
+}
+
+.ant-typography-link-default:hover {
+  color: #4096ff;
+}
+
+.ant-typography-link-secondary {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-typography-link-secondary:hover {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.ant-typography-link-success {
+  color: #52c41a;
+}
+
+.ant-typography-link-success:hover {
+  color: #73d13d;
+}
+
+.ant-typography-link-warning {
+  color: #faad14;
+}
+
+.ant-typography-link-warning:hover {
+  color: #ffc53d;
+}
+
+.ant-typography-link-danger {
+  color: #ff4d4f;
+}
+
+.ant-typography-link-danger:hover {
+  color: #ff7875;
+}
+
+/* 链接状态 */
+.ant-typography-link-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ant-typography-link-disabled:hover {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 下划线样式 */
+.ant-typography-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
+}
+
+.ant-typography-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.ant-typography-link-no-underline {
+  text-decoration: none;
+}
+
+.ant-typography-link-strong {
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+/* 块级链接 */
+.ant-typography-link-block {
+  display: block;
+  width: 100%;
+}
+
+/* 链接样式 */
+.ant-typography.ant-typography-link {
+  color: #1677ff;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  touch-action: manipulation;
+}
+
+.ant-typography.ant-typography-link:hover {
+  color: #69b1ff;
+}
+
+.ant-typography.ant-typography-link:active {
+  color: #0958d9;
+}
+
+.ant-typography.ant-typography-link:focus {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+}
+
+.ant-typography.ant-typography-link.ant-typography-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ant-typography.ant-typography-link.ant-typography-disabled:hover {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 链接在不同文本类型下的颜色 */
+.ant-typography.ant-typography-link.ant-typography-success {
+  color: #52c41a;
+}
+
+.ant-typography.ant-typography-link.ant-typography-success:hover {
+  color: #95de64;
+}
+
+.ant-typography.ant-typography-link.ant-typography-success:active {
+  color: #389e0d;
+}
+
+.ant-typography.ant-typography-link.ant-typography-warning {
+  color: #faad14;
+}
+
+.ant-typography.ant-typography-link.ant-typography-warning:hover {
+  color: #ffd666;
+}
+
+.ant-typography.ant-typography-link.ant-typography-warning:active {
+  color: #d48806;
+}
+
+.ant-typography.ant-typography-link.ant-typography-danger {
+  color: #ff4d4f;
+}
+
+.ant-typography.ant-typography-link.ant-typography-danger:hover {
+  color: #ff7875;
+}
+
+.ant-typography.ant-typography-link.ant-typography-danger:active {
+  color: #d9363e;
+}
+
+.ant-typography.ant-typography-link.ant-typography-caption {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-typography.ant-typography-link.ant-typography-caption:hover {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.ant-typography.ant-typography-link.ant-typography-caption:active {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 文本类型样式 */
+.ant-typography.ant-typography-caption {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-typography.ant-typography-success {
+  color: #52c41a;
+}
+
+.ant-typography.ant-typography-warning {
+  color: #faad14;
+}
+
+.ant-typography.ant-typography-danger {
+  color: #ff4d4f;
+}
+
+.ant-typography.ant-typography-disabled {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+  user-select: none;
+}
+
+/* 文本修饰样式 */
+.ant-typography.ant-typography-delete {
+  text-decoration: line-through;
+}
+
+.ant-typography.ant-typography-underline {
+  text-decoration: underline;
+}
+
+.ant-typography.ant-typography-strong {
+  font-weight: 600;
+}
+
+.ant-typography.ant-typography-italic {
+  font-style: italic;
+}
+
+.ant-typography.ant-typography-mark {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: #fff2e8;
+  border-radius: 3px;
+}
+
+.ant-typography.ant-typography-code {
+  margin: 0 0.2em;
+  padding: 0.2em 0.4em 0.1em;
+  font-size: 85%;
+  background: rgba(150, 150, 150, 0.1);
+  border: 1px solid rgba(100, 100, 100, 0.2);
+  border-radius: 3px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+/* 省略样式 */
+.ant-typography.ant-typography-ellipsis {
+  overflow: hidden;
+}
+
+.ant-typography.ant-typography-ellipsis-single-line {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ant-typography.ant-typography-ellipsis-multiple-line {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 可复制样式 */
+.ant-typography.ant-typography-copy {
+  position: relative;
+}
+
+.ant-typography.ant-typography-copy:hover::after {
+  content: '📋';
+  position: absolute;
+  right: -20px;
+  top: 0;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.ant-typography.ant-typography-copy:hover::after:hover {
+  opacity: 1;
+}
+
+/* 可编辑样式 */
+.ant-typography.ant-typography-edit {
+  position: relative;
+}
+
+.ant-typography.ant-typography-edit:hover::after {
+  content: '✏️';
+  position: absolute;
+  right: -20px;
+  top: 0;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.ant-typography.ant-typography-edit:hover::after:hover {
+  opacity: 1;
+}
+
+/* 链接样式 */
+.ant-typography a {
+  color: #1677ff;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.ant-typography a:hover {
+  color: #69b1ff;
+}
+
+.ant-typography a:active {
+  color: #0958d9;
+}
+
+.ant-typography a:focus {
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+}
+
+.ant-typography a[disabled] {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 列表样式 */
+.ant-typography ul,
+.ant-typography ol {
+  margin: 0 0 1em 0;
+  padding: 0;
+}
+
+.ant-typography li {
+  margin: 0 0 0 20px;
+  padding: 0 0 0 4px;
+}
+
+.ant-typography ul li {
+  list-style-type: circle;
+}
+
+.ant-typography ol li {
+  list-style-type: decimal;
+}
+
+/* 引用样式 */
+.ant-typography blockquote {
+  margin: 1em 0;
+  padding-left: 0.8em;
+  border-left: 4px solid #d9d9d9;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+/* 预格式化文本样式 */
+.ant-typography pre {
+  margin: 1em 0;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+/* 表格样式 */
+.ant-typography table {
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.ant-typography table th,
+.ant-typography table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-typography table th {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 500;
+  background: #fafafa;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ant-typography h1.ant-typography {
+    font-size: 32px;
+  }
+
+  .ant-typography h2.ant-typography {
+    font-size: 24px;
+  }
+
+  .ant-typography h3.ant-typography {
+    font-size: 20px;
+  }
+
+  .ant-typography h4.ant-typography {
+    font-size: 18px;
+  }
+
+  .ant-typography h5.ant-typography {
+    font-size: 16px;
+  }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .ant-typography {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-typography.ant-typography-title,
+  .ant-typography h1.ant-typography,
+  .ant-typography h2.ant-typography,
+  .ant-typography h3.ant-typography,
+  .ant-typography h4.ant-typography,
+  .ant-typography h5.ant-typography {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-typography.ant-typography-caption {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .ant-typography.ant-typography-disabled {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .ant-typography.ant-typography-mark {
+    background-color: #614700;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-typography.ant-typography-code {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-typography blockquote {
+    border-left-color: #434343;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .ant-typography pre {
+    background-color: #141414;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-typography table th {
+    background: #1f1f1f;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-typography table th,
+  .ant-typography table td {
+    border-bottom-color: #303030;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .ant-typography {
+    color: #000;
+  }
+
+  .ant-typography.ant-typography-caption {
+    color: #666;
+  }
+
+  .ant-typography.ant-typography-disabled {
+    color: #999;
+  }
+
+  .ant-typography a {
+    color: #0000EE;
+    text-decoration: underline;
+  }
+
+  .ant-typography a:visited {
+    color: #551A8B;
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-typography a {
+    transition: none;
+  }
+}

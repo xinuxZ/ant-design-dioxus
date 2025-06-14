@@ -66,8 +66,8 @@
 - Mobile applications (via Capacitor)
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br/>Safari |
-| --- | --- | --- | --- |
-| Edge | last 2 versions | last 2 versions | last 2 versions |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Edge                                                                                                                                                                                                  | last 2 versions                                                                                                                                                                                                   | last 2 versions                                                                                                                                                                                               | last 2 versions                                                                                                                                                                                               |
 
 ## 📦 Installation
 
@@ -251,13 +251,13 @@ dx serve --example main
 
 ## 📋 Roadmap
 
-- [x] **Phase 1**: Project infrastructure setup
-- [x] **Phase 2**: Basic components implementation (Layout, General)
-- [x] **Phase 3**: Data display components
-- [x] **Phase 4**: Data entry components
-- [x] **Phase 5**: Navigation components
-- [x] **Phase 6**: Feedback components
-- [x] **Phase 7**: Other components
+- [] **Phase 1**: Project infrastructure setup
+- [] **Phase 2**: Basic components implementation (Layout, General)
+- [] **Phase 3**: Data display components
+- [] **Phase 4**: Data entry components
+- [] **Phase 5**: Navigation components
+- [] **Phase 6**: Feedback components
+- [] **Phase 7**: Other components
 - [ ] **Phase 8**: Component refinement and Ant Design alignment
   - [ ] Button component enhancement (loading states, ghost style, danger type)
   - [ ] Form component validation and layout improvements

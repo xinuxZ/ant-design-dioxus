@@ -1,0 +1,434 @@
+/* Notification 通知提醒框样式 */
+
+/* 通知容器 */
+.ant-notification {
+  position: fixed;
+  z-index: 1010;
+  width: 384px;
+  max-width: calc(100vw - 32px);
+  margin-right: 24px;
+  pointer-events: none;
+}
+
+/* 位置样式 */
+.ant-notification-topLeft {
+  top: 24px;
+  left: 24px;
+}
+
+.ant-notification-topRight {
+  top: 24px;
+  right: 24px;
+}
+
+.ant-notification-bottomLeft {
+  bottom: 24px;
+  left: 24px;
+}
+
+.ant-notification-bottomRight {
+  bottom: 24px;
+  right: 24px;
+}
+
+.ant-notification-top {
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ant-notification-bottom {
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 通知项 */
+.ant-notification-notice {
+  position: relative;
+  margin-bottom: 16px;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  pointer-events: auto;
+  overflow: hidden;
+  line-height: 1.5715;
+  word-wrap: break-word;
+  animation: ant-notification-fade-in 0.24s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: all 0.3s;
+}
+
+.ant-notification-notice:hover {
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* 通知内容 */
+.ant-notification-notice-content {
+  display: flex;
+}
+
+.ant-notification-notice-with-icon {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* 图标 */
+.ant-notification-notice-icon {
+  flex-shrink: 0;
+  margin-right: 12px;
+  font-size: 24px;
+  line-height: 24px;
+}
+
+/* 成功图标 */
+.ant-notification-notice-success .ant-notification-notice-icon {
+  color: #52c41a;
+}
+
+/* 信息图标 */
+.ant-notification-notice-info .ant-notification-notice-icon {
+  color: #1677ff;
+}
+
+/* 警告图标 */
+.ant-notification-notice-warning .ant-notification-notice-icon {
+  color: #faad14;
+}
+
+/* 错误图标 */
+.ant-notification-notice-error .ant-notification-notice-icon {
+  color: #ff4d4f;
+}
+
+/* 消息内容 */
+.ant-notification-notice-message {
+  flex: 1;
+  width: 0;
+}
+
+/* 标题 */
+.ant-notification-notice-title {
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* 描述 */
+.ant-notification-notice-description {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* 关闭按钮 */
+.ant-notification-notice-close {
+  position: absolute;
+  top: 16px;
+  right: 22px;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: 700;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 22px;
+  text-align: center;
+  text-transform: none;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  outline: 0;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+  user-select: none;
+}
+
+.ant-notification-notice-close:hover {
+  color: rgba(0, 0, 0, 0.67);
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.ant-notification-notice-close:active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.ant-notification-notice-close-x {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* 关闭动画 */
+.ant-notification-notice-close {
+  animation: ant-notification-fade-out 0.24s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+}
+
+/* 动画效果 */
+@keyframes ant-notification-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes ant-notification-fade-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* 左侧位置的动画 */
+.ant-notification-topLeft .ant-notification-notice,
+.ant-notification-bottomLeft .ant-notification-notice {
+  animation: ant-notification-fade-in-left 0.24s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.ant-notification-topLeft .ant-notification-notice-close,
+.ant-notification-bottomLeft .ant-notification-notice-close {
+  animation: ant-notification-fade-out-left 0.24s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+}
+
+@keyframes ant-notification-fade-in-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes ant-notification-fade-out-left {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+}
+
+/* 顶部和底部居中位置的动画 */
+.ant-notification-top .ant-notification-notice,
+.ant-notification-bottom .ant-notification-notice {
+  animation: ant-notification-fade-in-top 0.24s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.ant-notification-top .ant-notification-notice-close,
+.ant-notification-bottom .ant-notification-notice-close {
+  animation: ant-notification-fade-out-top 0.24s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+}
+
+@keyframes ant-notification-fade-in-top {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ant-notification-fade-out-top {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+/* RTL 支持 */
+.ant-notification-rtl {
+  direction: rtl;
+}
+
+.ant-notification-rtl .ant-notification-notice-icon {
+  margin-right: 0;
+  margin-left: 12px;
+}
+
+.ant-notification-rtl .ant-notification-notice-close {
+  right: auto;
+  left: 22px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ant-notification {
+    width: calc(100vw - 32px);
+    margin-right: 16px;
+    margin-left: 16px;
+  }
+
+  .ant-notification-topLeft,
+  .ant-notification-topRight {
+    top: 16px;
+  }
+
+  .ant-notification-bottomLeft,
+  .ant-notification-bottomRight {
+    bottom: 16px;
+  }
+
+  .ant-notification-topLeft {
+    left: 16px;
+  }
+
+  .ant-notification-topRight {
+    right: 16px;
+  }
+
+  .ant-notification-bottomLeft {
+    left: 16px;
+  }
+
+  .ant-notification-bottomRight {
+    right: 16px;
+  }
+
+  .ant-notification-top {
+    top: 16px;
+  }
+
+  .ant-notification-bottom {
+    bottom: 16px;
+  }
+
+  .ant-notification-notice {
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+
+  .ant-notification-notice-title {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .ant-notification-notice-description {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .ant-notification-notice-close {
+    top: 12px;
+    right: 16px;
+  }
+
+  .ant-notification-rtl .ant-notification-notice-close {
+    right: auto;
+    left: 16px;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .ant-notification-notice {
+    border: 2px solid;
+  }
+
+  .ant-notification-notice-close {
+    border: 1px solid;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-notification-notice {
+    animation: none;
+    transition: none;
+  }
+
+  .ant-notification-notice-close {
+    animation: none;
+  }
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .ant-notification-notice {
+    background: #141414;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-notification-notice-title {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-notification-notice-description {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .ant-notification-notice-close {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .ant-notification-notice-close:hover {
+    color: rgba(255, 255, 255, 0.67);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ant-notification-notice-close:active {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* 堆叠模式 */
+.ant-notification-stack .ant-notification-notice {
+  margin-bottom: 8px;
+}
+
+.ant-notification-stack .ant-notification-notice:not(:first-child) {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.ant-notification-stack .ant-notification-notice:not(:first-child):not(:nth-child(2)) {
+  transform: scale(0.9);
+  opacity: 0.6;
+}
+
+/* 进度条（5.18.0+ 功能预留） */
+.ant-notification-notice-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.ant-notification-notice-progress-bar {
+  height: 100%;
+  background: #1677ff;
+  transition: width 0.1s linear;
+}

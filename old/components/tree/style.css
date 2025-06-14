@@ -1,0 +1,483 @@
+/* Tree 树形控件组件样式 */
+
+.ant-tree {
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: 'tnum';
+  background: #fff;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.ant-tree-focused:not(:hover):not(.ant-tree-active-focused) {
+  background: #e6f4ff;
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode {
+  position: relative;
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transition: background-color 0.3s;
+  content: '';
+  pointer-events: none;
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode:hover::before {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode.ant-tree-treenode-selected::before {
+  background: #e6f4ff;
+}
+
+.ant-tree-list {
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+.ant-tree-list-holder-inner {
+  align-items: flex-start;
+}
+
+.ant-tree-treenode {
+  display: flex;
+  align-items: flex-start;
+  padding: 0 0 4px 0;
+  outline: none;
+  position: relative;
+}
+
+.ant-tree-treenode-disabled .ant-tree-node-content-wrapper {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+}
+
+.ant-tree-treenode-disabled .ant-tree-node-content-wrapper:hover {
+  background: transparent;
+}
+
+.ant-tree-treenode-active .ant-tree-node-content-wrapper {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.ant-tree-node-content-wrapper {
+  position: relative;
+  z-index: auto;
+  min-height: 24px;
+  margin: 0;
+  padding: 0 4px;
+  color: inherit;
+  line-height: 24px;
+  background: transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.3s, border 0s, line-height 0s, box-shadow 0s;
+  display: flex;
+  align-items: center;
+}
+
+.ant-tree-node-content-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.ant-tree-node-content-wrapper.ant-tree-node-selected {
+  background-color: #bae0ff;
+}
+
+.ant-tree-treenode-selected .ant-tree-node-content-wrapper {
+  background-color: #bae0ff;
+}
+
+.ant-tree-node-content-wrapper:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.ant-tree-switcher {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  width: 24px;
+  margin: 0;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-tree-switcher-noop {
+  cursor: default;
+}
+
+.ant-tree-switcher_close .ant-tree-switcher-icon,
+.ant-tree-switcher_open .ant-tree-switcher-icon {
+  display: inline-block;
+  font-size: 10px;
+  vertical-align: baseline;
+}
+
+.ant-tree-switcher_close .ant-tree-switcher-icon svg,
+.ant-tree-switcher_open .ant-tree-switcher-icon svg {
+  transition: transform 0.3s;
+}
+
+.ant-tree-switcher_open .ant-tree-switcher-icon svg {
+  transform: rotate(90deg);
+}
+
+.ant-tree-switcher-loading-icon {
+  color: #1677ff;
+}
+
+.ant-tree-switcher-leaf-line {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+}
+
+.ant-tree-switcher-leaf-line::before {
+  position: absolute;
+  top: 0;
+  right: 12px;
+  bottom: -4px;
+  margin-left: -1px;
+  border-right: 1px solid #d9d9d9;
+  content: ' ';
+}
+
+.ant-tree-switcher-leaf-line::after {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  border-bottom: 1px solid #d9d9d9;
+  content: ' ';
+  margin-left: -1px;
+}
+
+.ant-tree-checkbox {
+  position: relative;
+  top: initial;
+  margin: 0 8px 0 0;
+  color: #1677ff;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ant-tree-checkbox input[type='checkbox'] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.ant-tree-checkbox-inner {
+  position: relative;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 16px;
+  height: 16px;
+  direction: ltr;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  border-collapse: separate;
+  transition: all 0.3s;
+}
+
+.ant-tree-checkbox-inner::after {
+  position: absolute;
+  top: 50%;
+  left: 21.5%;
+  display: table;
+  width: 5.71428571px;
+  height: 9.14285714px;
+  border: 2px solid #fff;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg) scale(0) translate(-50%, -50%);
+  opacity: 0;
+  content: ' ';
+  transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6), opacity 0.1s;
+}
+
+.ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+  background-color: #1677ff;
+  border-color: #1677ff;
+}
+
+.ant-tree-checkbox-checked .ant-tree-checkbox-inner::after {
+  position: absolute;
+  display: table;
+  border: 2px solid #fff;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg) scale(1) translate(-50%, -50%);
+  opacity: 1;
+  transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+  content: ' ';
+}
+
+.ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner {
+  background-color: #1677ff;
+  border-color: #1677ff;
+}
+
+.ant-tree-checkbox-indeterminate .ant-tree-checkbox-inner::after {
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border: 0;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  content: ' ';
+}
+
+.ant-tree-checkbox-disabled {
+  cursor: not-allowed;
+}
+
+.ant-tree-checkbox-disabled.ant-tree-checkbox-checked .ant-tree-checkbox-inner::after {
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-tree-checkbox-disabled .ant-tree-checkbox-inner {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9 !important;
+}
+
+.ant-tree-checkbox-disabled .ant-tree-checkbox-inner::after {
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-tree-checkbox-disabled+span {
+  color: rgba(0, 0, 0, 0.25);
+  cursor: not-allowed;
+}
+
+.ant-tree-iconEle {
+  display: inline-block;
+  margin: 0 4px 0 2px;
+  vertical-align: top;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.ant-tree-title {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 0;
+  padding: 0 4px;
+  color: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  word-wrap: normal;
+  line-height: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  user-select: none;
+}
+
+.ant-tree-title:hover {
+  color: #1677ff;
+}
+
+.ant-tree-node-selected .ant-tree-title {
+  color: #1677ff;
+}
+
+.ant-tree-child-tree {
+  display: block;
+}
+
+.ant-tree-child-tree-open {
+  display: block;
+}
+
+.ant-tree-child-tree-open.ant-tree-child-tree-open {
+  animation: antTreeSlideDown 0.3s ease-in-out;
+}
+
+.ant-tree-treenode-leaf-last .ant-tree-switcher-leaf-line::before {
+  top: auto !important;
+  bottom: auto !important;
+  height: 14px !important;
+}
+
+/* 显示连接线样式 */
+.ant-tree.ant-tree-show-line .ant-tree-indent-unit::before {
+  position: relative;
+  height: 100%;
+  border-right: 1px solid #d9d9d9;
+  content: '';
+}
+
+.ant-tree.ant-tree-show-line .ant-tree-switcher {
+  background: #fff;
+}
+
+.ant-tree.ant-tree-show-line .ant-tree-switcher-line-icon {
+  vertical-align: -0.15em;
+}
+
+/* 禁用状态 */
+.ant-tree.ant-tree-disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-tree.ant-tree-disabled .ant-tree-node-content-wrapper {
+  cursor: not-allowed;
+}
+
+.ant-tree.ant-tree-disabled .ant-tree-node-content-wrapper:hover {
+  background: transparent;
+}
+
+/* 拖拽样式 */
+.ant-tree-draggable .ant-tree-node-content-wrapper {
+  cursor: grab;
+}
+
+.ant-tree-draggable .ant-tree-node-content-wrapper:active {
+  cursor: grabbing;
+}
+
+.ant-tree-drop-indicator {
+  position: absolute;
+  z-index: 1;
+  height: 2px;
+  background-color: #1677ff;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.ant-tree-drop-indicator::after {
+  position: absolute;
+  top: -3px;
+  left: -6px;
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+  border: 2px solid #1677ff;
+  border-radius: 50%;
+  content: '';
+}
+
+/* 动画效果 */
+@keyframes antTreeSlideDown {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+
+  100% {
+    height: auto;
+    opacity: 1;
+  }
+}
+
+@keyframes antTreeSlideUp {
+  0% {
+    height: auto;
+    opacity: 1;
+  }
+
+  100% {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 576px) {
+  .ant-tree {
+    font-size: 12px;
+  }
+
+  .ant-tree-node-content-wrapper {
+    min-height: 20px;
+    line-height: 20px;
+  }
+
+  .ant-tree-switcher {
+    width: 20px;
+    line-height: 20px;
+  }
+
+  .ant-tree-title {
+    line-height: 20px;
+    font-size: 12px;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .ant-tree {
+    border: 1px solid #000;
+  }
+
+  .ant-tree-node-content-wrapper:hover {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .ant-tree-treenode-selected .ant-tree-node-content-wrapper {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .ant-tree {
+    background: #141414;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-tree-node-content-wrapper:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ant-tree-treenode-selected .ant-tree-node-content-wrapper {
+    background-color: #111b26;
+  }
+
+  .ant-tree-checkbox-inner {
+    background-color: #141414;
+    border-color: #434343;
+  }
+}

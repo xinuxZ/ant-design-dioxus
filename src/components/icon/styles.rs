@@ -1,88 +1,247 @@
-//! Icon 组件样式
+//! Icon 组件的样式实现
 
 use css_in_rust::css;
-use std::collections::HashMap;
+use super::types::{IconTheme, IconSize};
 
-/// 生成图标基础样式
-pub fn generate_icon_styles() -> String {
-    css! (
-        ".ant-icon {
+/// 生成Icon组件的基础样式
+pub fn generate_base_style() -> String {
+    css!(
+        r#"
+        display: inline-block;
+        color: inherit;
+        font-style: normal;
+        line-height: 0;
+        text-align: center;
+        text-transform: none;
+        vertical-align: -0.125em;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        
+        svg {
             display: inline-block;
-            color: inherit;
-            font-style: normal;
-            line-height: 0;
-            text-align: center;
-            text-transform: none;
+            width: 1em;
+            height: 1em;
+            fill: currentColor;
             vertical-align: -0.125em;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
-
-        .ant-icon > * {
-            line-height: 1;
-        }
-
-        .ant-icon svg {
-            display: inline-block;
-        }
-
-        .ant-icon-spin {
-            animation: ant-icon-spin 1s infinite linear;
-        }
-
-        @keyframes ant-icon-spin {
-            "0%" {
-                transform: rotate(0deg);
-            }
-            "100%" {
-                transform: rotate(360deg);
-            }
-        }"
+        "#
     )
 }
 
-/// 生成加载图标SVG
-pub fn get_loading_icon_svg() -> String {
-    r#"<svg viewBox="0 0 1024 1024" focusable="false" data-icon="loading" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-        <path d="M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 00-94.3-139.9 437.71 437.71 0 00-139.9-94.3C637 83.6 579.4 72 520 72s-117 11.6-171.3 34.6a440.45 440.45 0 00-139.9 94.3 437.71 437.71 0 00-94.3 139.9C91.6 395 80 452.6 80 512s11.6 117 34.6 171.3a440.45 440.45 0 0094.3 139.9 437.71 437.71 0 00139.9 94.3C395 941.4 452.6 953 512 953s117-11.6 171.3-34.6a440.45 440.45 0 00139.9-94.3 437.71 437.71 0 0094.3-139.9C941.4 629 953 571.4 953 512c0-19.9 16.1-36 36-36s36 16.1 36 36c0 256.1-207.9 464-464 464S48 768.1 48 512 255.9 48 512 48s464 207.9 464 464c0 19.9-16.1 36-36 36z"></path>
-    </svg>"#.to_string()
+/// 生成Icon组件的尺寸样式
+pub fn generate_size_style(size: &IconSize) -> String {
+    let pixel_size = size.to_css();
+    css!(
+        r#"
+        font-size: {pixel_size};
+        width: {pixel_size};
+        height: {pixel_size};
+        "#
+    )
 }
 
-/// 获取图标SVG内容
-pub fn get_icon_svg(icon_type: &str) -> String {
-    match icon_type {
-        "loading" => get_loading_icon_svg(),
-        "check" => r#"<svg viewBox="64 64 896 896" focusable="false" data-icon="check" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-            <path d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 00-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"></path>
-        </svg>"#.to_string(),
-        "close" => r#"<svg viewBox="64 64 896 896" focusable="false" data-icon="close" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-            <path d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3.1-3.6-7.6-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9A7.95 7.95 0 00203 838h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3.1 3.6 7.6 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"></path>
-        </svg>"#.to_string(),
-        "plus" => r#"<svg viewBox="64 64 896 896" focusable="false" data-icon="plus" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-            <path d="M482 152h60q8 0 8 8v704q0 8-8 8h-60q-8 0-8-8V160q0-8 8-8z"></path>
-            <path d="M176 474h672q8 0 8 8v60q0 8-8 8H176q-8 0-8-8v-60q0-8 8-8z"></path>
-        </svg>"#.to_string(),
-        "minus" => r#"<svg viewBox="64 64 896 896" focusable="false" data-icon="minus" width="1em" height="1em" fill="currentColor" aria-hidden="true">
-            <path d="M176 474h672q8 0 8 8v60q0 8-8 8H176q-8 0-8-8v-60q0-8 8-8z"></path>
-        </svg>"#.to_string(),
-        _ => get_loading_icon_svg(), // 默认使用加载图标
+/// 生成Icon组件的旋转样式
+pub fn generate_rotation_style(degrees: i32) -> String {
+    css!(
+        r#"
+        transform: rotate({degrees}deg);
+        "#
+    )
+}
+
+/// 生成Icon组件的旋转动画样式
+pub fn generate_spin_style() -> String {
+    css!(
+        r#"
+        animation: antIconSpin 1s infinite linear;
+        
+        @keyframes antIconSpin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        "#
+    )
+}
+
+/// 生成Icon组件的主题样式
+pub fn generate_theme_style(theme: &IconTheme) -> String {
+    match theme {
+        IconTheme::Outlined => css!(
+            r#"
+            svg {
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 1;
+            }
+            "#
+        ),
+        IconTheme::Filled => css!(
+            r#"
+            svg {
+                fill: currentColor;
+                stroke: none;
+            }
+            "#
+        ),
+        IconTheme::TwoTone => css!(
+            r#"
+            svg {
+                fill: currentColor;
+            }
+            
+            .ant-icon-two-tone-primary {
+                fill: var(--ant-primary-color, #1890ff);
+            }
+            
+            .ant-icon-two-tone-secondary {
+                fill: var(--ant-primary-color-hover, #40a9ff);
+                opacity: 0.3;
+            }
+            "#
+        ),
     }
 }
 
-/// 生成图标样式映射
-pub fn generate_icon_style_map() -> HashMap<String, String> {
-    let mut styles = HashMap::new();
+/// 生成双色图标的自定义颜色样式
+pub fn generate_two_tone_color_style(color: &str) -> String {
+    css!(
+        r#"
+        .ant-icon-two-tone-primary {
+            fill: {color};
+        }
+        "#
+    )
+}
 
-    styles.insert(
-        "ant-icon".to_string(),
-        "display: inline-block; color: inherit; font-style: normal; line-height: 0; text-align: center; text-transform: none; vertical-align: -0.125em; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;".to_string(),
-    );
+/// 生成禁用状态的样式
+pub fn generate_disabled_style() -> String {
+    css!(
+        r#"
+        color: rgba(0, 0, 0, 0.25);
+        cursor: not-allowed;
+        pointer-events: none;
+        "#
+    )
+}
 
-    styles.insert(
-        "ant-icon-spin".to_string(),
-        "animation: ant-icon-spin 1s infinite linear;".to_string(),
-    );
+/// 生成可点击状态的样式
+pub fn generate_clickable_style() -> String {
+    css!(
+        r#"
+        cursor: pointer;
+        transition: color 0.3s;
+        
+        &:hover {
+            color: var(--ant-primary-color-hover, #40a9ff);
+        }
+        
+        &:active {
+            color: var(--ant-primary-color-active, #096dd9);
+        }
+        "#
+    )
+}
 
-    styles
+/// 生成Icon组件的完整样式
+pub fn generate_icon_style(
+    theme: &IconTheme,
+    size: Option<&IconSize>,
+    rotation: Option<i32>,
+    spin: bool,
+    disabled: bool,
+    clickable: bool,
+    two_tone_color: Option<&str>,
+) -> String {
+    let mut styles = vec![generate_base_style()];
+    
+    // 添加主题样式
+    styles.push(generate_theme_style(theme));
+    
+    // 添加尺寸样式
+    if let Some(size) = size {
+        styles.push(generate_size_style(size));
+    }
+    
+    // 添加旋转样式
+    if let Some(degrees) = rotation {
+        if degrees != 0 {
+            styles.push(generate_rotation_style(degrees));
+        }
+    }
+    
+    // 添加旋转动画样式
+    if spin {
+        styles.push(generate_spin_style());
+    }
+    
+    // 添加禁用样式
+    if disabled {
+        styles.push(generate_disabled_style());
+    }
+    
+    // 添加可点击样式
+    if clickable && !disabled {
+        styles.push(generate_clickable_style());
+    }
+    
+    // 添加双色图标自定义颜色样式
+    if let (IconTheme::TwoTone, Some(color)) = (theme, two_tone_color) {
+        styles.push(generate_two_tone_color_style(color));
+    }
+    
+    styles.join(" ")
+}
+
+/// Icon组件的CSS类名常量
+pub mod class_names {
+    pub const ICON: &str = "ant-icon";
+    pub const ICON_OUTLINED: &str = "ant-icon-outlined";
+    pub const ICON_FILLED: &str = "ant-icon-filled";
+    pub const ICON_TWO_TONE: &str = "ant-icon-two-tone";
+    pub const ICON_SPIN: &str = "ant-icon-spin";
+    pub const ICON_DISABLED: &str = "ant-icon-disabled";
+    pub const ICON_CLICKABLE: &str = "ant-icon-clickable";
+}
+
+/// 生成Icon组件的CSS类名
+pub fn generate_class_names(
+    theme: &IconTheme,
+    spin: bool,
+    disabled: bool,
+    clickable: bool,
+    custom_class: Option<&str>,
+) -> String {
+    let mut classes = vec![class_names::ICON];
+    
+    // 添加主题类名
+    match theme {
+        IconTheme::Outlined => classes.push(class_names::ICON_OUTLINED),
+        IconTheme::Filled => classes.push(class_names::ICON_FILLED),
+        IconTheme::TwoTone => classes.push(class_names::ICON_TWO_TONE),
+    }
+    
+    // 添加状态类名
+    if spin {
+        classes.push(class_names::ICON_SPIN);
+    }
+    
+    if disabled {
+        classes.push(class_names::ICON_DISABLED);
+    }
+    
+    if clickable && !disabled {
+        classes.push(class_names::ICON_CLICKABLE);
+    }
+    
+    // 添加自定义类名
+    if let Some(custom) = custom_class {
+        classes.push(custom);
+    }
+    
+    classes.join(" ")
 }

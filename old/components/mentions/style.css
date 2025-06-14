@@ -1,0 +1,417 @@
+/* Mentions 提及组件样式 */
+
+/* 基础样式 */
+.ant-mentions {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-width: 0;
+    padding: 4px 11px;
+    color: rgba(0, 0, 0, 0.88);
+    font-size: 14px;
+    line-height: 1.5714285714285714;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.ant-mentions:hover {
+    border-color: #4096ff;
+    border-inline-end-width: 1px;
+}
+
+.ant-mentions:focus,
+.ant-mentions-focused {
+    border-color: #4096ff;
+    box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+    border-inline-end-width: 1px;
+    outline: 0;
+}
+
+/* 包装器 */
+.ant-mentions-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* 输入框 */
+.ant-mentions-input {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.ant-mentions-input::placeholder {
+    color: rgba(0, 0, 0, 0.25);
+    user-select: none;
+}
+
+/* 清除按钮 */
+.ant-mentions-clear {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 8px;
+    z-index: 1;
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    color: rgba(0, 0, 0, 0.25);
+    font-size: 12px;
+    font-style: normal;
+    line-height: 1;
+    text-align: center;
+    text-transform: none;
+    background: #ffffff;
+    cursor: pointer;
+    opacity: 0;
+    transition: color 0.3s ease, opacity 0.15s ease;
+    text-rendering: optimizeLegibility;
+    user-select: none;
+}
+
+.ant-mentions:hover .ant-mentions-clear {
+    opacity: 1;
+}
+
+.ant-mentions-clear:hover {
+    color: rgba(0, 0, 0, 0.45);
+}
+
+/* 尺寸变体 */
+.ant-mentions-small {
+    padding: 0px 7px;
+    font-size: 12px;
+}
+
+.ant-mentions-large {
+    padding: 6.5px 11px;
+    font-size: 16px;
+}
+
+/* 无边框 */
+.ant-mentions-borderless {
+    border: none;
+    box-shadow: none;
+}
+
+.ant-mentions-borderless:hover,
+.ant-mentions-borderless:focus,
+.ant-mentions-borderless.ant-mentions-focused {
+    border: none;
+    box-shadow: none;
+}
+
+/* 禁用状态 */
+.ant-mentions-disabled {
+    color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: #d9d9d9;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.ant-mentions-disabled:hover {
+    border-color: #d9d9d9;
+}
+
+.ant-mentions-disabled .ant-mentions-input {
+    cursor: not-allowed;
+}
+
+.ant-mentions-disabled .ant-mentions-clear {
+    display: none;
+}
+
+/* 状态变体 */
+.ant-mentions-status-error {
+    border-color: #ff4d4f;
+}
+
+.ant-mentions-status-error:hover {
+    border-color: #ff7875;
+}
+
+.ant-mentions-status-error:focus,
+.ant-mentions-status-error.ant-mentions-focused {
+    border-color: #ff4d4f;
+    box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
+}
+
+.ant-mentions-status-warning {
+    border-color: #faad14;
+}
+
+.ant-mentions-status-warning:hover {
+    border-color: #ffc53d;
+}
+
+.ant-mentions-status-warning:focus,
+.ant-mentions-status-warning.ant-mentions-focused {
+    border-color: #faad14;
+    box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.1);
+}
+
+/* 下拉菜单 */
+.ant-mentions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1050;
+    width: 100%;
+    margin: 4px 0 0;
+    padding: 4px 0;
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08),
+        0 3px 6px -4px rgba(0, 0, 0, 0.12),
+        0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    animation: slideUpIn 0.3s ease;
+}
+
+.ant-mentions-dropdown-menu {
+    max-height: 250px;
+    overflow-y: auto;
+    outline: none;
+}
+
+.ant-mentions-dropdown-menu-item {
+    position: relative;
+    display: block;
+    min-height: 32px;
+    padding: 5px 12px;
+    color: rgba(0, 0, 0, 0.88);
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 22px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ant-mentions-dropdown-menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.ant-mentions-dropdown-menu-item-active {
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+.ant-mentions-dropdown-menu-item-disabled {
+    color: rgba(0, 0, 0, 0.25);
+    cursor: not-allowed;
+}
+
+.ant-mentions-dropdown-menu-item-disabled:hover {
+    background-color: transparent;
+}
+
+/* 多行文本区域 */
+.ant-mentions textarea.ant-mentions-input {
+    min-height: 32px;
+    max-height: 180px;
+    line-height: 1.5714285714285714;
+    vertical-align: bottom;
+    transition: all 0.3s, height 0s;
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+    .ant-mentions {
+        font-size: 16px;
+    }
+
+    .ant-mentions-small {
+        font-size: 14px;
+    }
+
+    .ant-mentions-large {
+        font-size: 18px;
+    }
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+    .ant-mentions {
+        color: rgba(255, 255, 255, 0.85);
+        background-color: #141414;
+        border-color: #434343;
+    }
+
+    .ant-mentions:hover {
+        border-color: #4096ff;
+    }
+
+    .ant-mentions:focus,
+    .ant-mentions-focused {
+        border-color: #4096ff;
+        box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+    }
+
+    .ant-mentions-input::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    .ant-mentions-clear {
+        color: rgba(255, 255, 255, 0.25);
+        background: #141414;
+    }
+
+    .ant-mentions-clear:hover {
+        color: rgba(255, 255, 255, 0.45);
+    }
+
+    .ant-mentions-disabled {
+        color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(255, 255, 255, 0.04);
+        border-color: #434343;
+    }
+
+    .ant-mentions-dropdown {
+        background-color: #1f1f1f;
+        box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.32),
+            0 3px 6px -4px rgba(0, 0, 0, 0.48),
+            0 9px 28px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .ant-mentions-dropdown-menu-item {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .ant-mentions-dropdown-menu-item:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .ant-mentions-dropdown-menu-item-active {
+        background-color: #262626;
+    }
+
+    .ant-mentions-dropdown-menu-item-disabled {
+        color: rgba(255, 255, 255, 0.25);
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    .ant-mentions {
+        border-color: #000000;
+    }
+
+    .ant-mentions:hover,
+    .ant-mentions:focus,
+    .ant-mentions-focused {
+        border-color: #0000ff;
+        box-shadow: 0 0 0 2px rgba(0, 0, 255, 0.3);
+    }
+
+    .ant-mentions-dropdown {
+        border: 1px solid #000000;
+    }
+
+    .ant-mentions-dropdown-menu-item:hover,
+    .ant-mentions-dropdown-menu-item-active {
+        background-color: #000000;
+        color: #ffffff;
+    }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+
+    .ant-mentions,
+    .ant-mentions-clear,
+    .ant-mentions-dropdown-menu-item,
+    .ant-mentions textarea.ant-mentions-input {
+        transition: none;
+    }
+
+    .ant-mentions-dropdown {
+        animation: none;
+    }
+}
+
+/* 焦点可见性 */
+.ant-mentions:focus-visible {
+    outline: 2px solid #4096ff;
+    outline-offset: 2px;
+}
+
+.ant-mentions-dropdown-menu-item:focus-visible {
+    outline: 2px solid #4096ff;
+    outline-offset: -2px;
+}
+
+/* 打印样式 */
+@media print {
+    .ant-mentions {
+        border: 1px solid #000000;
+        box-shadow: none;
+    }
+
+    .ant-mentions-dropdown {
+        display: none;
+    }
+
+    .ant-mentions-clear {
+        display: none;
+    }
+}
+
+/* 动画 */
+@keyframes slideUpIn {
+    0% {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 滚动条样式 */
+.ant-mentions-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ant-mentions-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ant-mentions-dropdown-menu::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+}
+
+.ant-mentions-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+    .ant-mentions-dropdown-menu::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .ant-mentions-dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+}

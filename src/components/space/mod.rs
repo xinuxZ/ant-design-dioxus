@@ -1,44 +1,51 @@
-//! Space 间距组件
+//! # Space 组件
 //!
-//! Space 组件用于设置组件之间的间距，避免组件紧贴在一起，拉开统一的空间。
-//! 适用于需要在某个方向上保持统一间距的场景，支持水平、垂直方向的间距设置。
+//! Space 组件用于设置组件之间的间距，避免组件紧贴在一起，提供统一的空间布局。
+//! 它为内联元素设置间距，会为每个子元素添加包装元素以实现内联对齐。
 //!
 //! ## 特性
 //!
-//! - 🎯 **灵活布局**: 支持水平和垂直方向的间距设置
-//! - 📏 **多种尺寸**: 提供小、中、大三种预设尺寸，支持自定义尺寸
-//! - 🎨 **对齐控制**: 支持起始、结束、居中、基线四种对齐方式
-//! - 🔄 **自动换行**: 水平方向支持自动换行功能
-//! - ✂️ **分割元素**: 支持在元素间添加分割线或自定义分割元素
-//! - 🎭 **主题适配**: 完整的主题系统支持和CSS-in-Rust实现
-//! - 🔧 **高度可定制**: 支持自定义类名、样式和前缀
+//! - 🎯 **间距控制** - 支持预设和自定义间距大小
+//! - 📐 **方向布局** - 支持水平和垂直方向布局
+//! - 🎨 **对齐方式** - 多种对齐选项（start、end、center、baseline）
+//! - 📱 **响应式** - 支持不同方向的响应式间距
+//! - 🔄 **自动换行** - 水平布局时支持自动换行
+//! - ✂️ **分割元素** - 支持在子元素间插入分割线
+//! - 🎯 **紧凑模式** - Space.Compact 支持表单组件紧密连接
+//! - 🎨 **主题定制** - 完整的主题系统支持
 //!
-//! ## 何时使用
+//! ## 使用示例
 //!
-//! - 避免组件紧贴在一起，拉开统一的空间
-//! - 在某组件的某个方向上，保持统一的间距
-//! - 需要在元素间添加分割线或分割元素
-//! - 需要控制元素的对齐方式和换行行为
-//!
-//! ## 基础用法
+//! ### 基础用法
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Space, SpaceSize, SpaceDirection};
+//! use ant_design_dioxus::Space;
 //!
-//! fn app() -> Element {
+//! #[component]
+//! fn App() -> Element {
 //!     rsx! {
-//!         // 基础水平间距
 //!         Space {
 //!             Button { "按钮1" }
 //!             Button { "按钮2" }
 //!             Button { "按钮3" }
 //!         }
-//!         
-//!         // 垂直间距
+//!     }
+//! }
+//! ```
+//!
+//! ### 垂直布局
+//!
+//! ```rust
+//! use dioxus::prelude::*;
+//! use ant_design_dioxus::{Space, SpaceDirection};
+//!
+//! #[component]
+//! fn App() -> Element {
+//!     rsx! {
 //!         Space {
 //!             direction: SpaceDirection::Vertical,
-//!             size: SpaceSize::Large,
+//!             size: "large",
 //!             Card { "卡片1" }
 //!             Card { "卡片2" }
 //!             Card { "卡片3" }
@@ -47,47 +54,78 @@
 //! }
 //! ```
 //!
-//! ## 高级用法
+//! ### 紧凑模式
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Space, SpaceSize, SpaceAlign};
+//! use ant_design_dioxus::SpaceCompact;
 //!
-//! fn advanced_space() -> Element {
+//! #[component]
+//! fn App() -> Element {
 //!     rsx! {
-//!         // 自定义尺寸和对齐
-//!         Space {
-//!             size: SpaceSize::Custom(20),
-//!             align: SpaceAlign::Center,
-//!             wrap: true,
+//!         SpaceCompact {
 //!             Button { "按钮1" }
 //!             Button { "按钮2" }
-//!             Button { "按钮3" }
+//!             Input { placeholder: "输入框" }
 //!         }
-//!         
-//!         // 带分割线
+//!     }
+//! }
+//! ```
+//!
+//! ### 响应式间距
+//!
+//! ```rust
+//! use dioxus::prelude::*;
+//! use ant_design_dioxus::{Space, SpaceSizeConfig};
+//!
+//! #[component]
+//! fn App() -> Element {
+//!     rsx! {
 //!         Space {
-//!             split: rsx! { Divider { type: DividerType::Vertical } },
-//!             Link { "链接1" }
-//!             Link { "链接2" }
-//!             Link { "链接3" }
+//!             size: SpaceSizeConfig::Array([16, 24]),
+//!             wrap: true,
+//!             Tag { "标签1" }
+//!             Tag { "标签2" }
+//!             Tag { "标签3" }
 //!         }
 //!     }
 //! }
 //! ```
 
-// 公共模块
 pub mod component;
 pub mod styles;
 pub mod types;
+pub mod utils;
 
-// 测试模块
 #[cfg(test)]
 mod tests;
 
-// 重新导出公共API
+// 重新导出主要组件和类型
 pub use component::{Space, SpaceCompact};
-pub use types::*;
 
-// 重新导出样式相关类型（供高级用户使用）
-pub use styles::{SpaceStyleGenerator, SpaceStyles};
+// 为了支持 Space.Compact 语法，我们需要为 Space 添加关联的 Compact 组件
+// impl Space {
+//     /// Space.Compact 组件 - 紧凑模式的间距组件
+//     ///
+//     /// 这是 Space 组件的关联组件，用于实现类似 Space.Compact 的语法
+//     pub fn Compact(props: SpaceCompactProps) -> Element {
+//         SpaceCompact(props)
+//     }
+// }
+
+pub use types::{
+    CompactSize, SpaceAlign, SpaceCompactProps, SpaceDirection, SpaceProps, SpaceSize,
+    SpaceSizeConfig, SpaceState, SpaceTheme,
+};
+
+pub use styles::{
+    generate_nested_space_compact_styles, generate_space_compact_styles, generate_space_styles,
+    get_space_class_name, get_space_compact_class_name,
+};
+
+pub use utils::{
+    calculate_space_size, detect_space_compact_nesting_level,
+    get_nested_space_compact_container_class, get_space_compact_container_class,
+    get_space_container_class, get_space_gap_value, merge_space_theme, should_wrap_children,
+    validate_space_compact_nesting, validate_space_config,
+};

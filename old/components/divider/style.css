@@ -1,0 +1,244 @@
+/* Divider 分割线组件样式 */
+
+/* 基础样式 */
+.ant-divider {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  border-block-start: 1px solid rgba(5, 5, 5, 0.06);
+}
+
+/* 水平分割线 */
+.ant-divider-horizontal {
+  display: flex;
+  clear: both;
+  width: 100%;
+  min-width: 100%;
+  margin: 24px 0;
+}
+
+.ant-divider-horizontal.ant-divider-with-text {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 500;
+  font-size: 16px;
+  white-space: nowrap;
+  text-align: center;
+  border-block-start: 0;
+}
+
+.ant-divider-horizontal.ant-divider-with-text::before,
+.ant-divider-horizontal.ant-divider-with-text::after {
+  position: relative;
+  top: 50%;
+  width: 50%;
+  border-block-start: 1px solid transparent;
+  border-block-start-color: inherit;
+  border-bottom: 0;
+  transform: translateY(50%);
+  content: '';
+}
+
+.ant-divider-horizontal.ant-divider-with-text-left::before {
+  top: 50%;
+  width: 5%;
+}
+
+.ant-divider-horizontal.ant-divider-with-text-left::after {
+  top: 50%;
+  width: 95%;
+}
+
+.ant-divider-horizontal.ant-divider-with-text-right::before {
+  top: 50%;
+  width: 95%;
+}
+
+.ant-divider-horizontal.ant-divider-with-text-right::after {
+  top: 50%;
+  width: 5%;
+}
+
+.ant-divider-inner-text {
+  display: inline-block;
+  padding: 0 1em;
+}
+
+/* 垂直分割线 */
+.ant-divider-vertical {
+  position: relative;
+  top: -0.06em;
+  display: inline-block;
+  height: 0.9em;
+  margin: 0 8px;
+  vertical-align: middle;
+  border-top: 0;
+  border-inline-start: 1px solid rgba(5, 5, 5, 0.06);
+}
+
+/* 虚线样式 */
+.ant-divider-dashed {
+  background: none;
+  border-color: rgba(5, 5, 5, 0.06);
+  border-style: dashed;
+  border-width: 1px 0 0;
+}
+
+.ant-divider-horizontal.ant-divider-dashed {
+  border-block-start-style: dashed;
+}
+
+.ant-divider-vertical.ant-divider-dashed {
+  border-inline-start-style: dashed;
+  border-top: 0;
+}
+
+.ant-divider-dashed.ant-divider-with-text::before,
+.ant-divider-dashed.ant-divider-with-text::after {
+  border-style: dashed none none;
+}
+
+/* 简洁模式 */
+.ant-divider-plain.ant-divider-with-text {
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: normal;
+  font-size: 14px;
+}
+
+/* 尺寸变体 */
+.ant-divider-small {
+  margin: 16px 0;
+}
+
+.ant-divider-small.ant-divider-with-text {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.ant-divider-small.ant-divider-vertical {
+  height: 0.7em;
+  margin: 0 6px;
+}
+
+.ant-divider-large {
+  margin: 32px 0;
+}
+
+.ant-divider-large.ant-divider-with-text {
+  margin: 24px 0;
+  font-size: 18px;
+}
+
+.ant-divider-large.ant-divider-vertical {
+  height: 1.1em;
+  margin: 0 12px;
+}
+
+/* RTL 支持 */
+.ant-divider-rtl {
+  direction: rtl;
+}
+
+.ant-divider-rtl.ant-divider-with-text-left::before {
+  width: 95%;
+}
+
+.ant-divider-rtl.ant-divider-with-text-left::after {
+  width: 5%;
+}
+
+.ant-divider-rtl.ant-divider-with-text-right::before {
+  width: 5%;
+}
+
+.ant-divider-rtl.ant-divider-with-text-right::after {
+  width: 95%;
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+  .ant-divider {
+    color: rgba(255, 255, 255, 0.85);
+    border-block-start-color: rgba(253, 253, 253, 0.12);
+  }
+
+  .ant-divider-vertical {
+    border-inline-start-color: rgba(253, 253, 253, 0.12);
+  }
+
+  .ant-divider-dashed {
+    border-color: rgba(253, 253, 253, 0.12);
+  }
+
+  .ant-divider-with-text {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .ant-divider-plain.ant-divider-with-text {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .ant-divider {
+    border-block-start-color: #000;
+  }
+
+  .ant-divider-vertical {
+    border-inline-start-color: #000;
+  }
+
+  .ant-divider-dashed {
+    border-color: #000;
+  }
+}
+
+@media (prefers-color-scheme: dark) and (prefers-contrast: high) {
+  .ant-divider {
+    border-block-start-color: #fff;
+  }
+
+  .ant-divider-vertical {
+    border-inline-start-color: #fff;
+  }
+
+  .ant-divider-dashed {
+    border-color: #fff;
+  }
+}
+
+/* 减少动画效果 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-divider {
+    transition: none;
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 576px) {
+  .ant-divider-horizontal {
+    margin: 16px 0;
+  }
+
+  .ant-divider-horizontal.ant-divider-with-text {
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  .ant-divider-large {
+    margin: 24px 0;
+  }
+
+  .ant-divider-large.ant-divider-with-text {
+    margin: 16px 0;
+    font-size: 16px;
+  }
+}

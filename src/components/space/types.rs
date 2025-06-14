@@ -1,34 +1,104 @@
-//! Space 组件的类型定义
+//! Space 组件类型定义
 //!
-//! 定义了 Space 组件使用的所有类型，包括方向、对齐方式、尺寸等。
+//! 定义了 Space 组件及其子组件的所有属性结构体、枚举类型和配置选项。
 
 use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-/// 间距方向
-#[derive(Debug, Clone, PartialEq, Default)]
+/// Space 主组件属性
+#[derive(Props, Clone, PartialEq)]
+pub struct SpaceProps {
+    /// 子元素
+    #[props(default)]
+    pub children: Element,
+
+    /// 对齐方式
+    #[props(default)]
+    pub align: Option<SpaceAlign>,
+
+    /// 自定义类名
+    #[props(default)]
+    pub class: Option<String>,
+
+    /// 自定义样式
+    #[props(default)]
+    pub style: Option<String>,
+
+    /// 间距方向
+    #[props(default)]
+    pub direction: Option<SpaceDirection>,
+
+    /// 间距大小
+    #[props(default)]
+    pub size: Option<SpaceSizeConfig>,
+
+    /// 分割元素
+    #[props(default)]
+    pub split: Option<Element>,
+
+    /// 是否自动换行（仅水平方向有效）
+    #[props(default)]
+    pub wrap: Option<bool>,
+
+    /// 主题配置
+    #[props(default)]
+    pub theme: Option<SpaceTheme>,
+
+    /// 点击事件
+    #[props(default)]
+    pub onclick: Option<EventHandler<MouseEvent>>,
+}
+
+/// Space.Compact 组件属性
+#[derive(Props, Clone, PartialEq)]
+pub struct SpaceCompactProps {
+    /// 子元素
+    #[props(default)]
+    pub children: Element,
+
+    /// 自定义类名
+    #[props(default)]
+    pub class: Option<String>,
+
+    /// 自定义样式
+    #[props(default)]
+    pub style: Option<String>,
+
+    /// 是否适应父容器宽度
+    #[props(default)]
+    pub block: Option<bool>,
+
+    /// 布局方向
+    #[props(default)]
+    pub direction: Option<SpaceDirection>,
+
+    /// 子组件尺寸
+    #[props(default)]
+    pub size: Option<CompactSize>,
+
+    /// 主题配置
+    #[props(default)]
+    pub theme: Option<SpaceTheme>,
+
+    /// 点击事件
+    #[props(default)]
+    pub onclick: Option<EventHandler<MouseEvent>>,
+}
+
+/// 间距方向枚举
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpaceDirection {
     /// 水平方向
-    #[default]
     Horizontal,
     /// 垂直方向
     Vertical,
 }
 
-impl SpaceDirection {
-    /// 转换为CSS类名
-    pub fn to_class(&self) -> &'static str {
-        match self {
-            SpaceDirection::Horizontal => "horizontal",
-            SpaceDirection::Vertical => "vertical",
-        }
-    }
-}
-
-/// 对齐方式
-#[derive(Debug, Clone, PartialEq, Default)]
+/// 对齐方式枚举
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpaceAlign {
     /// 起始对齐
-    #[default]
     Start,
     /// 结束对齐
     End,
@@ -38,300 +108,385 @@ pub enum SpaceAlign {
     Baseline,
 }
 
-impl SpaceAlign {
-    /// 转换为CSS类名
-    pub fn to_class(&self) -> &'static str {
-        match self {
-            SpaceAlign::Start => "start",
-            SpaceAlign::End => "end",
-            SpaceAlign::Center => "center",
-            SpaceAlign::Baseline => "baseline",
-        }
-    }
-}
-
-/// 间距大小
-#[derive(Debug, Clone, PartialEq, Default)]
+/// 间距大小枚举
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SpaceSize {
     /// 小间距 (8px)
     Small,
     /// 中等间距 (16px)
-    #[default]
     Middle,
     /// 大间距 (24px)
     Large,
-    /// 自定义间距
+    /// 自定义数值间距
     Custom(u32),
-    /// 数组尺寸支持（水平间距，垂直间距）
-    Array(Vec<SpaceSize>),
 }
 
-/// Space.Compact 组件的尺寸
-#[derive(Debug, Clone, PartialEq)]
-pub enum SpaceCompactSize {
-    /// 大号紧凑间距
+/// 间距大小配置
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum SpaceSizeConfig {
+    /// 单一尺寸
+    Single(SpaceSize),
+    /// 数组形式 [水平间距, 垂直间距]
+    Array([u32; 2]),
+    /// 字符串形式（预设值）
+    String(String),
+}
+
+/// 紧凑模式尺寸枚举
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum CompactSize {
+    /// 大尺寸
     Large,
-    /// 中号紧凑间距（默认）
+    /// 中等尺寸
     Middle,
-    /// 小号紧凑间距
+    /// 小尺寸
     Small,
 }
 
-impl Default for SpaceCompactSize {
+/// Space 主题配置
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SpaceTheme {
+    /// 小间距值
+    pub space_small: u32,
+    /// 中等间距值
+    pub space_middle: u32,
+    /// 大间距值
+    pub space_large: u32,
+    /// 紧凑模式边框颜色
+    pub compact_border_color: String,
+    /// 紧凑模式边框宽度
+    pub compact_border_width: u32,
+    /// 紧凑模式圆角
+    pub compact_border_radius: u32,
+    /// 自定义CSS变量
+    pub css_vars: HashMap<String, String>,
+}
+
+/// Space 组件状态
+#[derive(Debug, Clone, PartialEq)]
+pub struct SpaceState {
+    /// 是否已初始化
+    pub initialized: bool,
+    /// 当前方向
+    pub current_direction: SpaceDirection,
+    /// 当前间距值
+    pub current_gap: u32,
+    /// 是否换行
+    pub is_wrapped: bool,
+    /// 子元素数量
+    pub children_count: usize,
+}
+
+impl Default for SpaceProps {
+    fn default() -> Self {
+        SpaceProps::new()
+    }
+}
+
+impl Default for SpaceCompactProps {
+    fn default() -> Self {
+        SpaceCompactProps::new()
+    }
+}
+// 默认实现
+impl Default for SpaceDirection {
+    fn default() -> Self {
+        Self::Horizontal
+    }
+}
+
+impl Default for SpaceAlign {
+    fn default() -> Self {
+        Self::Start
+    }
+}
+
+impl Default for SpaceSize {
+    fn default() -> Self {
+        Self::Small
+    }
+}
+
+impl Default for SpaceSizeConfig {
+    fn default() -> Self {
+        Self::Single(SpaceSize::Small)
+    }
+}
+
+impl Default for CompactSize {
     fn default() -> Self {
         Self::Middle
     }
 }
 
-impl SpaceSize {
-    /// 转换为CSS类名
-    pub fn to_class(&self) -> &'static str {
-        match self {
-            SpaceSize::Small => "small",
-            SpaceSize::Middle => "middle",
-            SpaceSize::Large => "large",
-            SpaceSize::Custom(_) => "custom",
-            SpaceSize::Array(_) => "array",
+impl Default for SpaceTheme {
+    fn default() -> Self {
+        let mut css_vars = HashMap::new();
+        css_vars.insert("--ant-space-small".to_string(), "8px".to_string());
+        css_vars.insert("--ant-space-middle".to_string(), "16px".to_string());
+        css_vars.insert("--ant-space-large".to_string(), "24px".to_string());
+
+        Self {
+            space_small: 8,
+            space_middle: 16,
+            space_large: 24,
+            compact_border_color: "#d9d9d9".to_string(),
+            compact_border_width: 1,
+            compact_border_radius: 6,
+            css_vars,
         }
     }
+}
 
-    /// 获取间距值（像素）
-    pub fn to_pixels(&self) -> u32 {
-        match self {
-            SpaceSize::Small => 8,
-            SpaceSize::Middle => 16,
-            SpaceSize::Large => 24,
-            SpaceSize::Custom(size) => *size,
-            SpaceSize::Array(sizes) => {
-                // 对于数组尺寸，返回第一个元素的像素值，如果为空则返回默认值
-                sizes.first().map(|s| s.to_pixels()).unwrap_or(16)
+impl Default for SpaceState {
+    fn default() -> Self {
+        Self {
+            initialized: false,
+            current_direction: SpaceDirection::Horizontal,
+            current_gap: 8,
+            is_wrapped: false,
+            children_count: 0,
+        }
+    }
+}
+
+// 类型转换实现
+impl From<&str> for SpaceSize {
+    fn from(s: &str) -> Self {
+        match s {
+            "small" => Self::Small,
+            "middle" => Self::Middle,
+            "large" => Self::Large,
+            _ => {
+                if let Ok(num) = s.parse::<u32>() {
+                    Self::Custom(num)
+                } else {
+                    Self::Small
+                }
             }
         }
     }
+}
 
-    /// 获取水平间距值（像素）
-    pub fn to_horizontal_pixels(&self) -> u32 {
+impl From<u32> for SpaceSize {
+    fn from(num: u32) -> Self {
+        match num {
+            8 => Self::Small,
+            16 => Self::Middle,
+            24 => Self::Large,
+            _ => Self::Custom(num),
+        }
+    }
+}
+
+impl From<&str> for SpaceDirection {
+    fn from(s: &str) -> Self {
+        match s {
+            "vertical" => Self::Vertical,
+            "horizontal" | _ => Self::Horizontal,
+        }
+    }
+}
+
+impl From<&str> for SpaceAlign {
+    fn from(s: &str) -> Self {
+        match s {
+            "start" => Self::Start,
+            "end" => Self::End,
+            "center" => Self::Center,
+            "baseline" => Self::Baseline,
+            _ => Self::Start,
+        }
+    }
+}
+
+impl From<&str> for CompactSize {
+    fn from(s: &str) -> Self {
+        match s {
+            "large" => Self::Large,
+            "small" => Self::Small,
+            "middle" | _ => Self::Middle,
+        }
+    }
+}
+
+// 显示特性实现
+impl std::fmt::Display for SpaceDirection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SpaceSize::Array(sizes) => {
-                // 数组的第一个元素是水平间距
-                sizes.first().map(|s| s.to_pixels()).unwrap_or(16)
-            }
-            _ => self.to_pixels(),
+            Self::Horizontal => write!(f, "horizontal"),
+            Self::Vertical => write!(f, "vertical"),
         }
     }
+}
 
-    /// 获取垂直间距值（像素）
-    pub fn to_vertical_pixels(&self) -> u32 {
+impl std::fmt::Display for SpaceAlign {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SpaceSize::Array(sizes) => {
-                // 数组的第二个元素是垂直间距，如果没有则使用第一个
-                sizes.get(1).or_else(|| sizes.first()).map(|s| s.to_pixels()).unwrap_or(16)
-            }
-            _ => self.to_pixels(),
+            Self::Start => write!(f, "start"),
+            Self::End => write!(f, "end"),
+            Self::Center => write!(f, "center"),
+            Self::Baseline => write!(f, "baseline"),
         }
     }
 }
 
-/// 分割元素配置
-#[derive(Clone, PartialEq)]
-pub struct SpaceSplit {
-    /// 分割元素内容
-    pub element: Element,
-    /// 分割元素样式
-    pub style: Option<String>,
-    /// 分割元素类名
-    pub class: Option<String>,
-    /// 是否显示分割元素
-    pub visible: bool,
+impl std::fmt::Display for SpaceSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Small => write!(f, "small"),
+            Self::Middle => write!(f, "middle"),
+            Self::Large => write!(f, "large"),
+            Self::Custom(num) => write!(f, "{}px", num),
+        }
+    }
 }
 
-/// 调试模式配置
-#[derive(Debug, Clone, PartialEq)]
-pub struct SpaceDebugConfig {
-    /// 是否启用调试模式
-    pub enabled: bool,
-    /// 是否显示间距边界
-    pub show_boundaries: bool,
-    /// 是否显示尺寸信息
-    pub show_size_info: bool,
-    /// 调试信息颜色
-    pub debug_color: Option<String>,
+impl std::fmt::Display for CompactSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Large => write!(f, "large"),
+            Self::Middle => write!(f, "middle"),
+            Self::Small => write!(f, "small"),
+        }
+    }
 }
 
-impl Default for SpaceDebugConfig {
-    fn default() -> Self {
+// 便捷构造函数
+impl SpaceProps {
+    /// 创建新的 SpaceProps
+    pub fn new() -> Self {
         Self {
-            enabled: false,
-            show_boundaries: false,
-            show_size_info: false,
-            debug_color: None,
+            children: Ok(VNode::default()),
+            align: None,
+            class: None,
+            style: None,
+            direction: None,
+            size: None,
+            split: None,
+            wrap: None,
+            theme: None,
+            onclick: None,
         }
     }
-}
 
-/// 动画配置
-#[derive(Debug, Clone, PartialEq)]
-pub struct SpaceAnimationConfig {
-    /// 是否启用动画
-    pub enabled: bool,
-    /// 动画持续时间（毫秒）
-    pub duration: u32,
-    /// 动画缓动函数
-    pub easing: String,
-    /// 是否遵循用户的减少动画偏好
-    pub respect_reduced_motion: bool,
-}
+    /// 设置方向
+    pub fn direction(mut self, direction: SpaceDirection) -> Self {
+        self.direction = Some(direction);
+        self
+    }
 
-impl Default for SpaceAnimationConfig {
-    fn default() -> Self {
+    /// 设置间距大小
+    pub fn size(mut self, size: SpaceSizeConfig) -> Self {
+        self.size = Some(size);
+        self
+    }
+
+    /// 设置对齐方式
+    pub fn align(mut self, align: SpaceAlign) -> Self {
+        self.align = Some(align);
+        self
+    }
+
+    /// 设置是否换行
+    pub fn wrap(mut self, wrap: bool) -> Self {
+        self.wrap = Some(wrap);
+        self
+    }
+
+    /// 设置自定义类名
+    pub fn class(mut self, class: impl Into<String>) -> Self {
+        self.class = Some(class.into());
+        self
+    }
+
+    /// 创建水平方向的 Space
+    pub fn horizontal() -> Self {
         Self {
-            enabled: false,
-            duration: 300,
-            easing: "ease-in-out".to_string(),
-            respect_reduced_motion: true,
+            direction: Some(SpaceDirection::Horizontal),
+            ..Default::default()
         }
     }
-}
 
-/// 性能优化配置
-#[derive(Debug, Clone, PartialEq)]
-pub struct SpacePerformanceConfig {
-    /// 是否启用虚拟滚动（大量子元素时）
-    pub virtual_scroll: bool,
-    /// 虚拟滚动阈值
-    pub virtual_scroll_threshold: usize,
-    /// 是否启用懒加载
-    pub lazy_loading: bool,
-    /// 是否启用渲染缓存
-    pub render_cache: bool,
-}
-
-impl Default for SpacePerformanceConfig {
-    fn default() -> Self {
+    /// 创建垂直方向的 Space
+    pub fn vertical() -> Self {
         Self {
-            virtual_scroll: false,
-            virtual_scroll_threshold: 100,
-            lazy_loading: false,
-            render_cache: true,
+            direction: Some(SpaceDirection::Vertical),
+            ..Default::default()
         }
+    }
+
+    /// 设置分割元素
+    pub fn split(mut self, split: Element) -> Self {
+        self.split = Some(split);
+        self
+    }
+
+    /// 设置自定义主题
+    pub fn theme(mut self, theme: SpaceTheme) -> Self {
+        self.theme = Some(theme);
+        self
+    }
+
+    /// 设置自定义样式
+    pub fn style(mut self, style: impl Into<String>) -> Self {
+        self.style = Some(style.into());
+        self
     }
 }
 
-/// 国际化配置
-#[derive(Debug, Clone, PartialEq)]
-pub struct SpaceI18nConfig {
-    /// 是否启用 RTL 布局
-    pub rtl: bool,
-    /// 语言代码
-    pub locale: Option<String>,
-    /// 是否自动检测方向
-    pub auto_direction: bool,
-}
-
-impl Default for SpaceI18nConfig {
-    fn default() -> Self {
+impl SpaceCompactProps {
+    /// 创建新的 SpaceCompactProps
+    pub fn new() -> Self {
         Self {
-            rtl: false,
-            locale: None,
-            auto_direction: false,
+            children: Ok(VNode::default()),
+            class: None,
+            style: None,
+            block: None,
+            direction: None,
+            size: None,
+            theme: None,
+            onclick: None,
         }
     }
-}
 
-/// Space 组件的属性
-#[derive(Props, Clone, PartialEq)]
-pub struct SpaceProps {
-    /// 间距方向
-    #[props(default = SpaceDirection::Horizontal)]
-    pub direction: SpaceDirection,
+    /// 创建水平方向的 Space.Compact
+    pub fn horizontal() -> Self {
+        Self {
+            direction: Some(SpaceDirection::Horizontal),
+            ..Default::default()
+        }
+    }
 
-    /// 间距大小
-    #[props(default = SpaceSize::Middle)]
-    pub size: SpaceSize,
+    /// 创建垂直方向的 Space.Compact
+    pub fn vertical() -> Self {
+        Self {
+            direction: Some(SpaceDirection::Vertical),
+            ..Default::default()
+        }
+    }
 
-    /// 对齐方式
-    #[props(default = SpaceAlign::Start)]
-    pub align: SpaceAlign,
+    /// 设置是否块级
+    pub fn block(mut self, block: bool) -> Self {
+        self.block = Some(block);
+        self
+    }
 
-    /// 是否自动换行，仅在 horizontal 时有效
-    #[props(default = false)]
-    pub wrap: bool,
+    /// 设置方向
+    pub fn direction(mut self, direction: SpaceDirection) -> Self {
+        self.direction = Some(direction);
+        self
+    }
 
-    /// 分割元素（简单版本，向后兼容）
-    #[props(default = None)]
-    pub split: Option<Element>,
+    /// 设置尺寸
+    pub fn size(mut self, size: CompactSize) -> Self {
+        self.size = Some(size);
+        self
+    }
 
-    /// 增强的分割元素配置
-    #[props(default = None)]
-    pub split_config: Option<SpaceSplit>,
-
-    /// 自定义类名
-    #[props(default = None)]
-    pub class: Option<String>,
-
-    /// 自定义样式
-    #[props(default = None)]
-    pub style: Option<String>,
-
-    /// 自定义前缀类名
-    #[props(default)]
-    pub prefix_cls: Option<String>,
-
-    /// 语义化类名
-    #[props(default = None)]
-    pub class_names: Option<std::collections::HashMap<String, String>>,
-
-    /// 语义化样式
-    #[props(default = None)]
-    pub styles: Option<std::collections::HashMap<String, String>>,
-
-    /// 调试模式配置
-    #[props(default)]
-    pub debug_config: SpaceDebugConfig,
-
-    /// 动画配置
-    #[props(default)]
-    pub animation_config: SpaceAnimationConfig,
-
-    /// 性能优化配置
-    #[props(default)]
-    pub performance_config: SpacePerformanceConfig,
-
-    /// 国际化配置
-    #[props(default)]
-    pub i18n_config: SpaceI18nConfig,
-
-    /// 子元素
-    pub children: Element,
-}
-
-/// Space.Compact 组件的属性
-#[derive(Props, Clone, PartialEq)]
-pub struct SpaceCompactProps {
-    /// 适应父元素宽度
-    #[props(default = false)]
-    pub block: bool,
-
-    /// 间距方向
-    #[props(default)]
-    pub direction: SpaceDirection,
-
-    /// 紧凑间距大小
-    #[props(default)]
-    pub size: SpaceCompactSize,
-
-    /// 自定义CSS类名
-    #[props(default)]
-    pub class: Option<String>,
-
-    /// 自定义样式
-    #[props(default)]
-    pub style: Option<String>,
-
-    /// 自定义前缀类名
-    #[props(default)]
-    pub prefix_cls: Option<String>,
-
-    /// 子元素
-    pub children: Element,
+    /// 设置自定义类名
+    pub fn class(mut self, class: impl Into<String>) -> Self {
+        self.class = Some(class.into());
+        self
+    }
 }

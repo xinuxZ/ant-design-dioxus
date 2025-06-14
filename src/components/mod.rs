@@ -1,173 +1,94 @@
-//! # Components
+//! Ant Design components for Dioxus.
 //!
-//! Ant Design Dioxus 组件库
-//!
-//! 本模块包含了所有的 UI 组件实现，遵循 Ant Design 设计规范。
+//! This module provides all Ant Design components implemented for Dioxus framework.
 
-// 基础组件
+// Level 1 组件
+pub mod qr_code; // 已实现 // 临时实现
+
+// pub mod back_top;
 pub mod icon;
-// pub mod typography;  // TODO: 待实现
-
-// 通用组件
-pub mod button;
+// pub mod alert;
 pub mod divider;
-// pub mod typography;
-
-// 布局组件
+// pub mod breadcrumb;
+// pub mod empty;
+pub mod flex;
 // pub mod grid;
 // pub mod layout;
+// pub mod popconfirm;
+// pub mod popover;
+// pub mod progress;
+// pub mod rate;
+// pub mod result;
+pub mod skeleton;
 pub mod space;
+pub mod spin;
+// pub mod switch;
+// pub mod tag;
+// pub mod tooltip;
+// pub mod watermark;
 
-// 导航组件
+// Level 2 组件 (依赖 Level 1)
+pub mod alert; // 警告提示 - 依赖 icon
+
+// pub mod avatar;          // 头像 - 依赖 icon
+// pub mod badge;           // 徽标数 - 依赖 icon
+// pub mod button;          // 按钮 - 依赖 icon, spin
+// pub mod card;            // 卡片 - 依赖 divider
+// pub mod collapse;        // 折叠面板 - 依赖 icon
+// pub mod empty;           // 空状态 - 依赖 icon
+// pub mod image;           // 图片 - 依赖 icon, spin
+// pub mod input;           // 输入框 - 依赖 icon
+// pub mod list;            // 列表 - 依赖 icon, spin
+// pub mod message;         // 全局提示 - 依赖 icon
+// pub mod notification;    // 通知提醒框 - 依赖 icon
+// pub mod pagination;      // 分页 - 依赖 icon
+// pub mod popover;         // 气泡卡片 - 依赖 icon
+// pub mod progress;        // 进度条 - 依赖 icon
+// pub mod result;          // 结果 - 依赖 icon, button
+// pub mod select;          // 选择器 - 依赖 icon, spin
+// pub mod slider;          // 滑动输入条 - 依赖 icon
+// pub mod steps;           // 步骤条 - 依赖 icon
+// pub mod switch;          // 开关 - 依赖 icon
+// pub mod tag;             // 标签 - 依赖 icon
+// pub mod timeline;        // 时间轴 - 依赖 icon
+// pub mod tooltip;         // 文字提示 - 依赖 icon
+// pub mod tree;            // 树形控件 - 依赖 icon
+
+// Level 3 组件
 // pub mod affix;
 // pub mod anchor;
-// pub mod breadcrumb;
-// pub mod dropdown;
-// pub mod menu;
-// pub mod pagination;
-// pub mod steps;
-
-// 数据录入组件
 // pub mod auto_complete;
+// pub mod cascader;
 // pub mod checkbox;
 // pub mod date_picker;
 // pub mod form;
 // pub mod input;
 // pub mod input_number;
 // pub mod mentions;
+// pub mod menu;
 // pub mod radio;
-// pub mod rate;
 // pub mod select;
 // pub mod slider;
-// pub mod switch;
+// pub mod time_picker;
 // pub mod transfer;
 // pub mod tree_select;
 // pub mod upload;
 
-// 数据展示组件
-// pub mod avatar;
-// pub mod badge;
-// pub mod calendar;
-// pub mod card;
-// pub mod carousel;
-// pub mod collapse;
-// pub mod descriptions;
-// pub mod empty;
-// pub mod image;
-// pub mod list;
-// pub mod popover;
-// pub mod segmented;
-// pub mod statistic;
-// pub mod table;
-// pub mod tabs;
-pub mod tag;
-// pub mod timeline;
-// pub mod tooltip;
-// pub mod tour;
-// pub mod tree;
-pub mod typography;
-
-// 反馈组件
-pub mod alert;
-// pub mod drawer;
-// pub mod message;
-// pub mod modal;
-// pub mod notification;
-// pub mod popconfirm;
-// pub mod progress;
-// pub mod result;
-// pub mod skeleton;
-// pub mod spin;
-
 // 其他组件
-// pub mod flex;
-// pub mod watermark;
+// pub mod app;
+// pub mod color_picker;
+// pub mod drawer;
+// pub mod float_button;
+// pub mod message;
+// pub mod notification;
+// pub mod splitter;
+// pub mod statistic;
+// pub mod tour;
 
-// 重新导出所有组件
-pub use alert::*;
-pub use button::*;
-pub use divider::*;
+// 重新导出组件
+// pub use alert::*;
+pub use flex::*;
+pub use icon::*;
+pub use qr_code::*;
 pub use space::*;
-pub use tag::*;
-
-// 组件通用类型和特性
-pub mod common {
-    use dioxus::prelude::*;
-
-    /// 组件大小枚举
-    #[derive(Debug, Clone, PartialEq)]
-    pub enum Size {
-        Small,
-        Middle,
-        Large,
-    }
-
-    impl Default for Size {
-        fn default() -> Self {
-            Size::Middle
-        }
-    }
-
-    impl From<&str> for Size {
-        fn from(value: &str) -> Self {
-            match value {
-                "small" => Size::Small,
-                "large" => Size::Large,
-                _ => Size::Middle,
-            }
-        }
-    }
-
-    /// 组件状态枚举
-    #[derive(Debug, Clone, PartialEq)]
-    pub enum Status {
-        Success,
-        Warning,
-        Error,
-        Info,
-    }
-
-    impl From<&str> for Status {
-        fn from(value: &str) -> Self {
-            match value {
-                "success" => Status::Success,
-                "warning" => Status::Warning,
-                "error" => Status::Error,
-                _ => Status::Info,
-            }
-        }
-    }
-
-    /// 组件变体枚举
-    #[derive(Debug, Clone, PartialEq)]
-    pub enum Variant {
-        Default,
-        Primary,
-        Secondary,
-        Dashed,
-        Text,
-        Link,
-    }
-
-    impl Default for Variant {
-        fn default() -> Self {
-            Variant::Default
-        }
-    }
-
-    impl From<&str> for Variant {
-        fn from(value: &str) -> Self {
-            match value {
-                "primary" => Variant::Primary,
-                "secondary" => Variant::Secondary,
-                "dashed" => Variant::Dashed,
-                "text" => Variant::Text,
-                "link" => Variant::Link,
-                _ => Variant::Default,
-            }
-        }
-    }
-}
-
-// 重新导出通用类型
-pub use common::*;
+pub use spin::*;

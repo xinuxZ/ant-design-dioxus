@@ -1,242 +1,632 @@
-//! Divider 组件样式
+//! Divider 组件的样式系统
 
-//!
-//! Divider 组件样式定义
-//!
-//! 包含 Divider 组件的所有样式生成逻辑。
+use crate::components::divider::types::*;
+use crate::components::divider::utils::*;
 
-use css_in_rust::css;
-use super::types::*;
-use crate::theme::AliasToken;
+/// 生成 Divider 容器样式
+pub fn generate_divider_container_style(config: &DividerConfig, theme: &DividerTheme) -> String {
+    let mut styles = Vec::new();
 
-/// Divider 样式
-#[derive(Debug, Clone)]
-pub struct DividerStyles {
-    /// 基础样式
-    pub base: String,
-    /// 变体样式
-    pub variants: VariantStyles,
-}
+    // 基础样式
+    styles.push("box-sizing: border-box".to_string());
+    styles.push("position: relative".to_string());
+    styles.push("display: flex".to_string());
 
-/// 变体样式
-#[derive(Debug, Clone)]
-pub struct VariantStyles {
-    /// 带文字类型样式
-    pub type_text: String,
-    /// 虚线类型样式
-    pub type_dashed: String,
-    /// 点线类型样式
-    pub type_dotted: String,
-    /// 小尺寸样式
-    pub size_small: String,
-    /// 大尺寸样式
-    pub size_large: String,
-}
+    if config.is_vertical() {
+        // 垂直分割线样式
+        styles.push("flex-direction: column".to_string());
+        styles.push("align-items: center".to_string());
+        styles.push("justify-content: center".to_string());
+        styles.push(format!("height: {}", theme.vertical_height));
+        styles.push(format!("margin: {}", theme.vertical_margin));
+        styles.push("display: inline-flex".to_string());
+    } else {
+        // 水平分割线样式
+        styles.push("flex-direction: row".to_string());
+        styles.push("align-items: center".to_string());
+        styles.push("width: 100%".to_string());
 
-/// Divider 样式生成器
-#[derive(Debug, Clone)]
-pub struct DividerStyleGenerator {
-    /// 分割线类型
-    pub divider_type: DividerType,
-    /// 分割线尺寸
-    pub size: DividerSize,
-    /// 分割线变体
-    pub variant: DividerVariant,
-    /// 是否简洁模式
-    pub plain: bool,
-    /// 是否有文字
-    pub has_text: bool,
-    /// 文字位置
-    pub orientation: DividerOrientation,
-    /// 方向边距
-    pub orientation_margin: Option<OrientationMargin>,
-    /// 前缀类名
-    pub prefix_cls: String,
-    /// 主题令牌
-    pub token: AliasToken,
-}
+        let margin = match config.size {
+            DividerSize::Small => &theme.margin_sm,
+            DividerSize::Middle => &theme.margin,
+            DividerSize::Large => &theme.margin_lg,
+        };
+        styles.push(format!("margin: {}", margin));
 
-impl Default for DividerStyleGenerator {
-    fn default() -> Self {
-        Self {
-            divider_type: DividerType::default(),
-            size: DividerSize::default(),
-            variant: DividerVariant::default(),
-            plain: false,
-            has_text: false,
-            orientation: DividerOrientation::default(),
-            orientation_margin: None,
-            prefix_cls: "ant".to_string(),
-            token: AliasToken::default(),
+        if config.has_text {
+            styles.push("justify-content: center".to_string());
         }
     }
+
+    // 过渡动画
+    styles.push(format!("transition: {}", theme.transition));
+
+    styles.join("; ")
+}
+
+/// 生成分割线样式
+pub fn generate_divider_line_style(
+    config: &DividerConfig,
+    theme: &DividerTheme,
+    position: Option<&str>, // "before" | "after" | None
+) -> String {
+    let mut styles = Vec::new();
+
+    // 基础样式
+    styles.push("border: 0".to_string());
+    styles.push("background: transparent".to_string());
+
+    // 边框颜色和样式
+    styles.push(format!("border-color: {}", theme.color_split));
+    styles.push(format!("border-style: {}", config.get_border_style()));
+
+    // 厚度
+    let thickness = calculate_divider_thickness(&config.size, &config.variant);
+
+    if config.is_vertical() {
+        styles.push(format!("border-left-width: {}", thickness));
+        styles.push("border-top-width: 0".to_string());
+        styles.push("width: 0".to_string());
+        styles.push("height: 100%".to_string());
+    } else {
+        styles.push(format!("border-top-width: {}", thickness));
+        styles.push("border-left-width: 0".to_string());
+        styles.push("height: 0".to_string());
+
+        if config.has_text {
+            // 有文本时，分割线分为两部分
+            match position {
+                Some("before") => match get_actual_orientation(&config.orientation) {
+                    DividerOrientation::Left => styles.push("width: 5%".to_string()),
+                    DividerOrientation::Right => styles.push("flex: 1".to_string()),
+                    _ => styles.push("flex: 1".to_string()),
+                },
+                Some("after") => match get_actual_orientation(&config.orientation) {
+                    DividerOrientation::Left => styles.push("flex: 1".to_string()),
+                    DividerOrientation::Right => styles.push("width: 5%".to_string()),
+                    _ => styles.push("flex: 1".to_string()),
+                },
+                _ => styles.push("width: 100%".to_string()),
+            }
+        } else {
+            styles.push("width: 100%".to_string());
+        }
+    }
+
+    styles.join("; ")
+}
+
+/// 生成文本样式
+pub fn generate_divider_text_style(config: &DividerConfig, theme: &DividerTheme) -> String {
+    let mut styles = Vec::new();
+
+    // 基础样式
+    styles.push("display: inline-block".to_string());
+    styles.push("white-space: nowrap".to_string());
+    styles.push("text-align: center".to_string());
+    styles.push("background: inherit".to_string());
+    styles.push("font-weight: 500".to_string());
+
+    // 字体大小
+    let font_size = match config.size {
+        DividerSize::Small => &theme.font_size_sm,
+        DividerSize::Middle => &theme.font_size,
+        DividerSize::Large => &theme.font_size_lg,
+    };
+    styles.push(format!("font-size: {}", font_size));
+
+    // 文本颜色
+    let color = if config.plain {
+        &theme.color_text_secondary
+    } else {
+        &theme.color_text
+    };
+    styles.push(format!("color: {}", color));
+
+    // 行高
+    styles.push(format!("line-height: {}", theme.line_height));
+
+    // 内边距
+    let padding = calculate_text_margin(
+        &config.orientation,
+        config.orientation_margin.as_ref(),
+        &config.size,
+    );
+    styles.push(format!("padding: {}", padding));
+
+    // 朴素样式调整
+    if config.plain {
+        styles.push("font-weight: normal".to_string());
+        styles.push("font-size: 0.875em".to_string());
+    }
+
+    styles.join("; ")
+}
+
+/// 生成 CSS 类名
+pub fn generate_divider_class_name(config: &DividerConfig) -> String {
+    let mut classes = vec!["ant-divider".to_string()];
+
+    // 类型
+    classes.push(format!("ant-divider-{}", config.r#type));
+
+    // 样式变体
+    if config.variant != DividerVariant::Solid {
+        classes.push(format!("ant-divider-{}", config.variant));
+    }
+
+    // 尺寸
+    if config.size != DividerSize::Middle {
+        classes.push(format!("ant-divider-{}", config.size));
+    }
+
+    // 文本相关
+    if config.has_text {
+        classes.push("ant-divider-with-text".to_string());
+        classes.push(format!(
+            "ant-divider-with-text-{}",
+            get_actual_orientation(&config.orientation)
+        ));
+
+        if config.plain {
+            classes.push("ant-divider-plain".to_string());
+        }
+    }
+
+    // 自定义类名
+    if let Some(ref custom_class) = config.class {
+        classes.push(custom_class.clone());
+    }
+
+    classes.join(" ")
+}
+
+/// 生成响应式样式
+pub fn generate_responsive_style(
+    config: &DividerConfig,
+    theme: &DividerTheme,
+    breakpoint: &str,
+) -> String {
+    let mut styles = Vec::new();
+
+    match breakpoint {
+        "xs" => {
+            // 超小屏幕
+            if config.has_text {
+                styles.push("font-size: 12px".to_string());
+                styles.push("padding: 0 8px".to_string());
+            }
+            if config.is_vertical() {
+                styles.push("height: 0.8em".to_string());
+                styles.push("margin: 0 4px".to_string());
+            }
+        }
+        "sm" => {
+            // 小屏幕
+            if config.has_text {
+                styles.push("font-size: 13px".to_string());
+                styles.push("padding: 0 12px".to_string());
+            }
+            if config.is_vertical() {
+                styles.push("height: 0.85em".to_string());
+                styles.push("margin: 0 6px".to_string());
+            }
+        }
+        "md" => {
+            // 中等屏幕 - 使用默认样式
+        }
+        "lg" => {
+            // 大屏幕
+            if config.has_text {
+                styles.push("font-size: 15px".to_string());
+                styles.push("padding: 0 20px".to_string());
+            }
+            if config.is_vertical() {
+                styles.push("height: 1.1em".to_string());
+                styles.push("margin: 0 10px".to_string());
+            }
+        }
+        "xl" => {
+            // 超大屏幕
+            if config.has_text {
+                styles.push("font-size: 16px".to_string());
+                styles.push("padding: 0 24px".to_string());
+            }
+            if config.is_vertical() {
+                styles.push("height: 1.2em".to_string());
+                styles.push("margin: 0 12px".to_string());
+            }
+        }
+        _ => {}
+    }
+
+    if styles.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "@media (min-width: {}) {{ {} }}",
+            get_breakpoint_value(breakpoint),
+            styles.join("; ")
+        )
+    }
+}
+
+/// 获取断点值
+fn get_breakpoint_value(breakpoint: &str) -> &'static str {
+    match breakpoint {
+        "xs" => "0px",
+        "sm" => "576px",
+        "md" => "768px",
+        "lg" => "992px",
+        "xl" => "1200px",
+        _ => "0px",
+    }
+}
+
+/// 生成暗色主题样式
+pub fn generate_dark_theme_style(config: &DividerConfig, dark_theme: &DividerDarkTheme) -> String {
+    let mut styles = Vec::new();
+
+    // 分割线颜色
+    styles.push(format!("border-color: {}", dark_theme.color_split));
+
+    // 文本颜色
+    if config.has_text {
+        let color = if config.plain {
+            &dark_theme.color_text_secondary
+        } else {
+            &dark_theme.color_text
+        };
+        styles.push(format!("color: {}", color));
+    }
+
+    styles.join("; ")
+}
+
+/// 生成紧凑主题样式
+pub fn generate_compact_theme_style(
+    config: &DividerConfig,
+    compact_theme: &DividerCompactTheme,
+) -> String {
+    let mut styles = Vec::new();
+
+    if config.is_vertical() {
+        styles.push(format!("margin: {}", compact_theme.vertical_margin));
+    } else {
+        let margin = match config.size {
+            DividerSize::Small => &compact_theme.margin_sm,
+            DividerSize::Middle => &compact_theme.margin,
+            DividerSize::Large => &compact_theme.margin_lg,
+        };
+        styles.push(format!("margin: {}", margin));
+    }
+
+    if config.has_text {
+        styles.push(format!("padding: {}", compact_theme.text_padding));
+    }
+
+    styles.join("; ")
+}
+
+/// 生成动画样式
+pub fn generate_animation_style(config: &DividerConfig, theme: &DividerTheme) -> String {
+    let mut styles = Vec::new();
+
+    // 基础过渡
+    styles.push(format!("transition: {}", theme.transition));
+
+    // 悬停效果（仅对有文本的分割线）
+    if config.has_text {
+        styles.push("cursor: default".to_string());
+    }
+
+    styles.join("; ")
+}
+
+/// 生成可访问性样式
+pub fn generate_accessibility_style(config: &DividerConfig) -> String {
+    let mut styles = Vec::new();
+
+    // ARIA 属性
+    if config.has_text {
+        // 有文本的分割线作为标题
+        styles.push("role: separator".to_string());
+    } else {
+        // 纯分割线作为装饰
+        styles.push("role: presentation".to_string());
+        styles.push("aria-hidden: true".to_string());
+    }
+
+    // 高对比度模式支持
+    styles.push("@media (prefers-contrast: high) { border-color: currentColor }".to_string());
+
+    // 减少动画模式支持
+    styles.push("@media (prefers-reduced-motion: reduce) { transition: none }".to_string());
+
+    styles.join("; ")
+}
+
+/// 生成完整的 CSS 样式表
+pub fn generate_divider_stylesheet(theme: &DividerTheme) -> String {
+    let mut css = Vec::new();
+
+    // 基础样式
+    css.push(format!(r#"
+.ant-divider {{
+    box-sizing: border-box;
+    margin: {};
+    color: {};
+    font-size: {};
+    line-height: {};
+    list-style: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    border-top: {} solid {};
+    transition: {};
+}}
+"#,
+        theme.margin,
+        theme.color_text,
+        theme.font_size,
+        theme.line_height,
+        theme.border_width,
+        theme.color_split,
+        theme.transition
+    ));
+
+    // 垂直分割线
+    css.push(format!(
+        r#"
+.ant-divider-vertical {{
+    position: relative;
+    top: -0.06em;
+    display: inline-block;
+    height: {};
+    margin: {};
+    vertical-align: middle;
+    border-top: 0;
+    border-left: {} solid {};
+}}
+"#,
+        theme.vertical_height, theme.vertical_margin, theme.border_width, theme.color_split
+    ));
+
+    // 带文本的分割线
+    css.push(format!(
+        r#"
+.ant-divider-with-text {{
+    display: flex;
+    margin: {};
+    color: {};
+    font-weight: 500;
+    font-size: {};
+    white-space: nowrap;
+    text-align: center;
+    border-top: 0;
+    align-items: center;
+}}
+
+.ant-divider-with-text::before,
+.ant-divider-with-text::after {{
+    position: relative;
+    width: 50%;
+    border-top: {} solid transparent;
+    border-top-color: inherit;
+    border-bottom: 0;
+    transform: translateY(50%);
+    content: '';
+}}
+"#,
+        theme.margin, theme.color_text, theme.font_size, theme.border_width
+    ));
+
+    // 文本位置样式
+    css.push(
+        r#"
+.ant-divider-with-text-left::before {
+    width: 5%;
+}
+
+.ant-divider-with-text-left::after {
+    width: 95%;
+}
+
+.ant-divider-with-text-right::before {
+    width: 95%;
+}
+
+.ant-divider-with-text-right::after {
+    width: 5%;
+}
+
+.ant-divider-inner-text {
+    display: inline-block;
+    padding: 0 16px;
+}
+"#
+        .to_string(),
+    );
+
+    // 朴素文本样式
+    css.push(format!(
+        r#"
+.ant-divider-plain.ant-divider-with-text {{
+    color: {};
+    font-weight: normal;
+    font-size: {};
+}}
+"#,
+        theme.color_text_secondary, theme.font_size_sm
+    ));
+
+    // 样式变体
+    css.push(format!(
+        r#"
+.ant-divider-dashed {{
+    background: none;
+    border-color: {};
+    border-style: dashed;
+    border-width: {} 0 0;
+}}
+
+.ant-divider-dashed.ant-divider-vertical {{
+    border-width: 0 0 0 {};
+}}
+
+.ant-divider-dotted {{
+    background: none;
+    border-color: {};
+    border-style: dotted;
+    border-width: {} 0 0;
+}}
+
+.ant-divider-dotted.ant-divider-vertical {{
+    border-width: 0 0 0 {};
+}}
+"#,
+        theme.color_split,
+        theme.border_width,
+        theme.border_width,
+        theme.color_split,
+        theme.border_width,
+        theme.border_width
+    ));
+
+    // 尺寸变体
+    css.push(format!(
+        r#"
+.ant-divider-small {{
+    margin: {};
+    font-size: {};
+}}
+
+.ant-divider-large {{
+    margin: {};
+    font-size: {};
+}}
+"#,
+        theme.margin_sm, theme.font_size_sm, theme.margin_lg, theme.font_size_lg
+    ));
+
+    // 响应式样式
+    css.push(
+        r#"
+@media (max-width: 575px) {
+    .ant-divider-with-text {
+        font-size: 12px;
+    }
+
+    .ant-divider-inner-text {
+        padding: 0 8px;
+    }
+
+    .ant-divider-vertical {
+        height: 0.8em;
+        margin: 0 4px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .ant-divider-with-text {
+        font-size: 16px;
+    }
+
+    .ant-divider-inner-text {
+        padding: 0 24px;
+    }
+
+    .ant-divider-vertical {
+        height: 1.2em;
+        margin: 0 12px;
+    }
+}
+"#
+        .to_string(),
+    );
+
+    // 可访问性样式
+    css.push(
+        r#"
+@media (prefers-contrast: high) {
+    .ant-divider {
+        border-color: currentColor;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ant-divider {
+        transition: none;
+    }
+}
+"#
+        .to_string(),
+    );
+
+    css.join("\n")
+}
+
+/// 样式生成器结构体
+pub struct DividerStyleGenerator {
+    theme: DividerTheme,
+    dark_theme: Option<DividerDarkTheme>,
+    compact_theme: Option<DividerCompactTheme>,
 }
 
 impl DividerStyleGenerator {
     /// 创建新的样式生成器
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// 设置分割线类型
-    pub fn with_type(mut self, divider_type: DividerType) -> Self {
-        self.divider_type = divider_type;
-        self
-    }
-
-    /// 设置分割线尺寸
-    pub fn with_size(mut self, size: DividerSize) -> Self {
-        self.size = size;
-        self
-    }
-
-    /// 设置分割线变体
-    pub fn with_variant(mut self, variant: DividerVariant) -> Self {
-        self.variant = variant;
-        self
-    }
-
-    /// 设置是否为简洁模式
-    pub fn with_plain(mut self, plain: bool) -> Self {
-        self.plain = plain;
-        self
-    }
-
-    /// 设置是否有文字
-    pub fn with_has_text(mut self, has_text: bool) -> Self {
-        self.has_text = has_text;
-        self
-    }
-
-    /// 设置文字位置
-    pub fn with_orientation(mut self, orientation: DividerOrientation) -> Self {
-        self.orientation = orientation;
-        self
-    }
-
-    /// 设置方向边距
-    pub fn with_orientation_margin(mut self, margin: Option<OrientationMargin>) -> Self {
-        self.orientation_margin = margin;
-        self
-    }
-
-    /// 设置前缀类名
-    pub fn with_prefix_cls(mut self, prefix_cls: String) -> Self {
-        self.prefix_cls = prefix_cls;
-        self
-    }
-
-    /// 设置主题令牌
-    pub fn with_token(mut self, token: AliasToken) -> Self {
-        self.token = token;
-        self
-    }
-
-    /// 生成样式类名
-    pub fn generate_class_names(&self) -> Vec<String> {
-        let mut classes = vec![format!("{}-divider", self.prefix_cls)];
-
-        // 添加类型相关的类名
-        match self.divider_type {
-            DividerType::Horizontal => {
-                classes.push(format!("{}-divider-horizontal", self.prefix_cls));
-                if self.has_text {
-                    classes.push(format!("{}-divider-with-text", self.prefix_cls));
-                    match self.orientation {
-                        DividerOrientation::Left => classes.push(format!("{}-divider-with-text-left", self.prefix_cls)),
-                        DividerOrientation::Center => classes.push(format!("{}-divider-with-text-center", self.prefix_cls)),
-                        DividerOrientation::Right => classes.push(format!("{}-divider-with-text-right", self.prefix_cls)),
-                    }
-                }
-            }
-            DividerType::Vertical => {
-                classes.push(format!("{}-divider-vertical", self.prefix_cls));
-            }
-        }
-
-        // 添加尺寸相关的类名
-        match self.size {
-            DividerSize::Small => classes.push(format!("{}-divider-small", self.prefix_cls)),
-            DividerSize::Default => {},
-            DividerSize::Large => classes.push(format!("{}-divider-large", self.prefix_cls)),
-        }
-
-        // 添加变体相关的类名
-        match self.variant {
-            DividerVariant::Solid => {},
-            DividerVariant::Dashed => classes.push(format!("{}-divider-dashed", self.prefix_cls)),
-            DividerVariant::Dotted => classes.push(format!("{}-divider-dotted", self.prefix_cls)),
-        }
-
-        // 添加简洁模式相关的类名
-        if self.plain {
-            classes.push(format!("{}-divider-plain", self.prefix_cls));
-        }
-
-        classes
-    }
-
-    /// 生成方向边距样式
-    pub fn generate_orientation_margin_style(&self) -> Option<String> {
-        if let Some(margin) = &self.orientation_margin {
-            let margin_value = match margin {
-                OrientationMargin::Pixels(px) => format!("{}px", px),
-                OrientationMargin::Percentage(pct) => format!("{}%", pct),
-            };
-            
-            match self.orientation {
-                DividerOrientation::Left => Some(format!(
-                    ".{}-divider-with-text-left::before {{ width: {}; }} .{}-divider-with-text-left::after {{ width: calc(100% - {}); }}",
-                    self.prefix_cls, margin_value, self.prefix_cls, margin_value
-                )),
-                DividerOrientation::Right => Some(format!(
-                    ".{}-divider-with-text-right::before {{ width: calc(100% - {}); }} .{}-divider-with-text-right::after {{ width: {}; }}",
-                    self.prefix_cls, margin_value, self.prefix_cls, margin_value
-                )),
-                DividerOrientation::Center => Some(format!(
-                    ".{}-divider-inner-text {{ margin: 0 {}; }}",
-                    self.prefix_cls, margin_value
-                )),
-            }
-        } else {
-            None
+    pub fn new(theme: DividerTheme) -> Self {
+        Self {
+            theme,
+            dark_theme: None,
+            compact_theme: None,
         }
     }
 
-    /// 生成内联样式
-    pub fn generate_inline_styles(&self) -> String {
+    /// 设置暗色主题
+    pub fn with_dark_theme(mut self, dark_theme: DividerDarkTheme) -> Self {
+        self.dark_theme = Some(dark_theme);
+        self
+    }
+
+    /// 设置紧凑主题
+    pub fn with_compact_theme(mut self, compact_theme: DividerCompactTheme) -> Self {
+        self.compact_theme = Some(compact_theme);
+        self
+    }
+
+    /// 生成组件样式
+    pub fn generate_component_style(&self, config: &DividerConfig) -> String {
         let mut styles = Vec::new();
-        
-        // 添加方向边距样式
-        if let Some(margin_style) = self.generate_orientation_margin_style() {
-            styles.push(margin_style);
+
+        // 基础样式
+        styles.push(generate_divider_container_style(config, &self.theme));
+
+        // 暗色主题样式
+        if let Some(ref dark_theme) = self.dark_theme {
+            styles.push(generate_dark_theme_style(config, dark_theme));
         }
-        
-        styles.join(" ")
+
+        // 紧凑主题样式
+        if let Some(ref compact_theme) = self.compact_theme {
+            styles.push(generate_compact_theme_style(config, compact_theme));
+        }
+
+        // 动画样式
+        styles.push(generate_animation_style(config, &self.theme));
+
+        // 可访问性样式
+        styles.push(generate_accessibility_style(config));
+
+        styles.join("; ")
+    }
+
+    /// 生成完整样式表
+    pub fn generate_stylesheet(&self) -> String {
+        generate_divider_stylesheet(&self.theme)
     }
 }
 
-/// 生成 Divider 样式
-pub fn generate_divider_styles() -> DividerStyles {
-    // 重用迁移后的样式，并添加新的变体样式
-    let base_styles = super::migrated_styles::generate_divider_styles();
-    
-    let type_dotted = css!(r#"
-        .ant-divider-dotted {
-            background: none;
-            border-style: dotted;
-            border-width: 1px 0 0;
-        }
-    "#);
-    
-    DividerStyles {
-        base: base_styles.base,
-        variants: VariantStyles {
-            type_text: base_styles.variants.type_text,
-            type_dashed: base_styles.variants.type_dashed,
-            type_dotted,
-            size_small: base_styles.variants.size_small,
-            size_large: base_styles.variants.size_large,
-        },
+impl Default for DividerStyleGenerator {
+    fn default() -> Self {
+        Self::new(DividerTheme::default())
     }
 }

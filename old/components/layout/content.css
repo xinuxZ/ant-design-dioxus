@@ -1,0 +1,313 @@
+/* Content 内容部分样式 */
+.ant-layout-content {
+  flex: auto;
+  min-height: 0;
+  color: rgba(0, 0, 0, 0.85);
+  background: #fff;
+}
+
+.ant-layout-content,
+.ant-layout-content * {
+  box-sizing: border-box;
+}
+
+/* 内容区域内边距 */
+.ant-layout-content-padded {
+  padding: 24px;
+}
+
+.ant-layout-content-padded-sm {
+  padding: 16px;
+}
+
+.ant-layout-content-padded-lg {
+  padding: 32px;
+}
+
+/* 内容区域背景 */
+.ant-layout-content-white {
+  background: #fff;
+}
+
+.ant-layout-content-gray {
+  background: #f0f2f5;
+}
+
+.ant-layout-content-transparent {
+  background: transparent;
+}
+
+/* 内容区域边框 */
+.ant-layout-content-bordered {
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+}
+
+/* 内容区域阴影 */
+.ant-layout-content-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.ant-layout-content-shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.ant-layout-content-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 滚动区域 */
+.ant-layout-content-scrollable {
+  overflow: auto;
+  height: 100%;
+}
+
+.ant-layout-content-scrollable-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.ant-layout-content-scrollable-y {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* 滚动条样式 */
+.ant-layout-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ant-layout-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.ant-layout-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.ant-layout-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 内容区域布局 */
+.ant-layout-content-flex {
+  display: flex;
+}
+
+.ant-layout-content-flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-layout-content-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-layout-content-flex-start {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.ant-layout-content-flex-end {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.ant-layout-content-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ant-layout-content-flex-around {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+/* 内容区域网格 */
+.ant-layout-content-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.ant-layout-content-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.ant-layout-content-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.ant-layout-content-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* 响应式网格 */
+@media (max-width: 575px) {
+
+  .ant-layout-content-grid-2,
+  .ant-layout-content-grid-3,
+  .ant-layout-content-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .ant-layout-content-padded {
+    padding: 16px;
+  }
+
+  .ant-layout-content-padded-lg {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+
+  .ant-layout-content-grid-3,
+  .ant-layout-content-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 991px) {
+  .ant-layout-content-grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 内容区域动画 */
+.ant-layout-content-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.ant-layout-content-slide-in {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 内容区域状态 */
+.ant-layout-content-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.ant-layout-content-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+
+.ant-layout-content-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1001;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 内容区域错误状态 */
+.ant-layout-content-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-layout-content-error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #ff4d4f;
+}
+
+.ant-layout-content-error-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.ant-layout-content-error-description {
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 内容区域空状态 */
+.ant-layout-content-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-layout-content-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-layout-content-empty-title {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-layout-content-empty-description {
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.5;
+}

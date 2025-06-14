@@ -1,0 +1,161 @@
+/* Layout 布局容器样式 */
+.ant-layout {
+  display: flex;
+  flex: auto;
+  flex-direction: column;
+  min-height: 0;
+  background: #f0f2f5;
+}
+
+.ant-layout,
+.ant-layout * {
+  box-sizing: border-box;
+}
+
+.ant-layout.ant-layout-has-sider {
+  flex-direction: row;
+}
+
+.ant-layout.ant-layout-has-sider>.ant-layout,
+.ant-layout.ant-layout-has-sider>.ant-layout-content {
+  width: 0;
+}
+
+.ant-layout-header,
+.ant-layout-footer {
+  flex: 0 0 auto;
+}
+
+.ant-layout-sider {
+  position: relative;
+  min-width: 0;
+  background: #001529;
+  transition: all 0.2s;
+}
+
+.ant-layout-sider-children {
+  height: 100%;
+  margin-top: -0.1px;
+  padding-top: 0.1px;
+}
+
+.ant-layout-content {
+  flex: auto;
+  min-height: 0;
+}
+
+.ant-layout-sider-trigger {
+  position: fixed;
+  bottom: 0;
+  z-index: 1;
+  height: 48px;
+  color: #fff;
+  line-height: 48px;
+  text-align: center;
+  background: #002140;
+  border-top: 1px solid #001529;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ant-layout-sider-trigger:hover {
+  background: #1890ff;
+}
+
+.ant-layout-sider-zero-width-trigger {
+  position: absolute;
+  top: 64px;
+  right: -36px;
+  z-index: 1;
+  width: 36px;
+  height: 42px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 42px;
+  text-align: center;
+  background: #001529;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ant-layout-sider-zero-width-trigger:hover {
+  background: #1890ff;
+}
+
+.ant-layout-sider-zero-width-trigger-right {
+  left: -36px;
+  border-radius: 6px 0 0 6px;
+}
+
+.ant-layout-sider-light {
+  background: #fff;
+  border-right: 1px solid #f0f0f0;
+}
+
+.ant-layout-sider-light .ant-layout-sider-trigger {
+  color: rgba(0, 0, 0, 0.65);
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+}
+
+.ant-layout-sider-light .ant-layout-sider-zero-width-trigger {
+  color: rgba(0, 0, 0, 0.65);
+  background: #fff;
+  border: 1px solid #f0f0f0;
+}
+
+@media (max-width: 575px) {
+  .ant-layout-sider {
+    max-width: 100vw;
+    min-width: 100vw !important;
+    width: 100vw !important;
+  }
+}
+
+/* 响应式断点 */
+@media (max-width: 575px) {
+  .ant-layout-sider-xs {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-layout-sider-sm {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 991px) {
+  .ant-layout-sider-md {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 1199px) {
+  .ant-layout-sider-lg {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+  }
+}
+
+@media (max-width: 1599px) {
+  .ant-layout-sider-xl {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    width: auto;
+  }
+}

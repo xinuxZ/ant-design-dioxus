@@ -1,0 +1,506 @@
+/* Upload 上传组件样式 */
+
+/* 基础上传组件样式 */
+.ant-upload-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.ant-upload {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.ant-upload-input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.ant-upload-btn {
+  display: block;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+}
+
+.ant-upload-disabled {
+  cursor: not-allowed;
+}
+
+.ant-upload-disabled .ant-upload-btn {
+  cursor: not-allowed;
+}
+
+.ant-upload-disabled .ant-upload-input {
+  cursor: not-allowed;
+}
+
+/* 拖拽上传样式 */
+.ant-upload-drag {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  text-align: center;
+  background: #fafafa;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.ant-upload-drag:hover {
+  border-color: #4096ff;
+}
+
+.ant-upload-drag-hover {
+  border-color: #1677ff;
+  background-color: rgba(22, 119, 255, 0.02);
+}
+
+.ant-upload-drag-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 16px 0;
+}
+
+.ant-upload-drag-icon {
+  margin-bottom: 8px;
+  font-size: 48px;
+  color: #1677ff;
+}
+
+.ant-upload-text {
+  margin: 0 0 4px;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 16px;
+}
+
+.ant-upload-hint {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+}
+
+.ant-upload-drag.ant-upload-disabled {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.ant-upload-drag.ant-upload-disabled .ant-upload-text,
+.ant-upload-drag.ant-upload-disabled .ant-upload-hint,
+.ant-upload-drag.ant-upload-disabled .ant-upload-drag-icon {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* 上传列表样式 */
+.ant-upload-list {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-feature-settings: 'tnum';
+}
+
+.ant-upload-list-text {
+  margin-top: 8px;
+}
+
+.ant-upload-list-picture {
+  margin-top: 8px;
+}
+
+.ant-upload-list-picture-card {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* 上传列表项样式 */
+.ant-upload-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.ant-upload-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.ant-upload-list-item-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.ant-upload-list-item-name {
+  flex: 1;
+  margin: 0 8px 0 4px;
+  color: rgba(0, 0, 0, 0.88);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ant-upload-list-item-name:hover {
+  color: #1677ff;
+}
+
+.ant-upload-list-item-actions {
+  display: flex;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-upload-list-item-action {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.ant-upload-list-item-action:hover {
+  color: rgba(0, 0, 0, 0.88);
+}
+
+/* 上传状态样式 */
+.ant-upload-list-item-uploading {
+  pointer-events: none;
+}
+
+.ant-upload-list-item-uploading .ant-upload-list-item-name {
+  color: rgba(0, 0, 0, 0.45);
+  cursor: default;
+}
+
+.ant-upload-list-item-done {
+  /* 上传完成状态 */
+}
+
+.ant-upload-list-item-error {
+  color: #ff4d4f;
+  background-color: #fff2f0;
+}
+
+.ant-upload-list-item-error .ant-upload-list-item-name {
+  color: #ff4d4f;
+}
+
+.ant-upload-list-item-error .ant-upload-list-item-actions {
+  color: #ff4d4f;
+}
+
+/* 缩略图样式 */
+.ant-upload-list-item-thumbnail {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  margin-right: 8px;
+  text-align: center;
+  vertical-align: top;
+  background-color: #fafafa;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ant-upload-list-item-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ant-upload-list-item-thumbnail-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* 图片卡片样式 */
+.ant-upload-list-picture-card .ant-upload-list-item {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 8px 8px 0;
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background-color: #fafafa;
+  text-align: center;
+  vertical-align: top;
+  display: inline-block;
+  flex: none;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-info {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-thumbnail {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-name {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  margin: 0;
+  padding: 0 4px;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 12px;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-actions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item:hover .ant-upload-list-item-actions {
+  opacity: 1;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-action {
+  width: 24px;
+  height: 24px;
+  margin: 0 4px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-action:hover {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* 进度条样式 */
+.ant-upload-list-item-progress {
+  position: absolute;
+  bottom: 14px;
+  left: 48px;
+  right: 14px;
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.ant-progress {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-feature-settings: 'tnum';
+  display: inline-block;
+}
+
+.ant-progress-line {
+  position: relative;
+  width: 100%;
+  font-size: 14px;
+}
+
+.ant-progress-outer {
+  display: inline-block;
+  width: 100%;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+.ant-progress-inner {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  overflow: hidden;
+  vertical-align: middle;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 100px;
+}
+
+.ant-progress-bg {
+  position: relative;
+  background-color: #1677ff;
+  border-radius: 100px;
+  transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+}
+
+.ant-progress-status-active .ant-progress-bg::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  opacity: 0;
+  animation: ant-progress-active 2.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  content: '';
+}
+
+@keyframes ant-progress-active {
+  0% {
+    opacity: 0.1;
+    width: 0;
+  }
+
+  20% {
+    opacity: 0.5;
+    width: 0;
+  }
+
+  100% {
+    opacity: 0;
+    width: 100%;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 575px) {
+  .ant-upload-list-picture-card .ant-upload-list-item {
+    width: 96px;
+    height: 96px;
+    margin: 0 4px 4px 0;
+  }
+
+  .ant-upload-drag {
+    height: 160px;
+  }
+
+  .ant-upload-drag-icon {
+    font-size: 36px;
+  }
+
+  .ant-upload-text {
+    font-size: 14px;
+  }
+}
+
+/* RTL 支持 */
+.ant-upload-wrapper[dir="rtl"] .ant-upload-list-item-actions {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.ant-upload-wrapper[dir="rtl"] .ant-upload-list-item-action {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+.ant-upload-wrapper[dir="rtl"] .ant-upload-list-item-thumbnail {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+.ant-upload-wrapper[dir="rtl"] .ant-upload-list-item-progress {
+  left: 14px;
+  right: 48px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* 动画效果 */
+.ant-upload-list-item {
+  animation: uploadAnimateIn 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+}
+
+@keyframes uploadAnimateIn {
+  0% {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+  }
+
+  100% {
+    height: auto;
+    margin: 8px 0 0;
+    padding: 8px 0;
+    opacity: 1;
+  }
+}
+
+.ant-upload-list-item.ant-upload-list-item-removed {
+  animation: uploadAnimateOut 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+}
+
+@keyframes uploadAnimateOut {
+  0% {
+    height: auto;
+    margin: 8px 0 0;
+    padding: 8px 0;
+    opacity: 1;
+  }
+
+  100% {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+  }
+}

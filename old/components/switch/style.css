@@ -1,0 +1,257 @@
+/* Switch 开关组件样式 */
+/* 基于 Ant Design 5.25.3 版本的开关样式 */
+
+.ant-switch {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: 44px;
+  height: 22px;
+  line-height: 22px;
+  vertical-align: middle;
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 0;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  outline: none;
+}
+
+.ant-switch:focus {
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+}
+
+.ant-switch:focus:hover {
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+}
+
+.ant-switch-checked {
+  background-color: #1677ff;
+}
+
+.ant-switch:hover:not(.ant-switch-disabled) {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.ant-switch-checked:hover:not(.ant-switch-disabled) {
+  background-color: #4096ff;
+}
+
+.ant-switch-loading,
+.ant-switch-disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.ant-switch-loading *,
+.ant-switch-disabled * {
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.ant-switch-loading:hover:not(.ant-switch-disabled),
+.ant-switch-disabled:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-switch-checked.ant-switch-loading:hover:not(.ant-switch-disabled),
+.ant-switch-checked.ant-switch-disabled:hover {
+  background-color: #1677ff;
+}
+
+/* Switch 手柄 */
+.ant-switch-handle {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  transition: all 0.2s ease-in-out;
+}
+
+.ant-switch-handle::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #fff;
+  border-radius: 9px;
+  box-shadow: 0 2px 4px 0 rgba(0, 35, 11, 0.2);
+  transition: all 0.2s ease-in-out;
+  content: '';
+}
+
+.ant-switch-checked .ant-switch-handle {
+  left: calc(100% - 20px);
+}
+
+.ant-switch-loading-icon {
+  position: relative;
+  display: inline-block;
+  color: #1677ff;
+  font-size: 12px;
+  transform: translateY(-1px);
+  animation: antSwitchLoadingIcon 1s infinite linear;
+}
+
+.ant-switch-checked .ant-switch-loading-icon {
+  color: #fff;
+}
+
+/* Switch 内容区域 */
+.ant-switch-inner {
+  display: block;
+  overflow: hidden;
+  border-radius: 100px;
+  height: 100%;
+  padding-left: 24px;
+  padding-right: 9px;
+  transition: padding-left 0.2s ease-in-out, padding-right 0.2s ease-in-out;
+}
+
+.ant-switch-checked .ant-switch-inner {
+  padding-left: 9px;
+  padding-right: 24px;
+}
+
+.ant-switch-inner-checked,
+.ant-switch-inner-unchecked {
+  display: block;
+  color: #fff;
+  font-size: 12px;
+  transition: margin-left 0.2s ease-in-out, margin-right 0.2s ease-in-out;
+  pointer-events: none;
+}
+
+.ant-switch-inner-checked {
+  margin-left: -18px;
+  margin-right: 0;
+}
+
+.ant-switch-inner-unchecked {
+  margin-top: -22px;
+  margin-left: 0;
+  margin-right: -18px;
+}
+
+.ant-switch-checked .ant-switch-inner-checked {
+  margin-left: 0;
+  margin-right: -18px;
+}
+
+.ant-switch-checked .ant-switch-inner-unchecked {
+  margin-left: -18px;
+  margin-right: 0;
+}
+
+/* 小尺寸开关 */
+.ant-switch-small {
+  min-width: 28px;
+  height: 16px;
+  line-height: 16px;
+}
+
+.ant-switch-small .ant-switch-handle {
+  width: 12px;
+  height: 12px;
+  top: 2px;
+  left: 2px;
+}
+
+.ant-switch-small .ant-switch-handle::before {
+  border-radius: 6px;
+}
+
+.ant-switch-small.ant-switch-checked .ant-switch-handle {
+  left: calc(100% - 14px);
+}
+
+.ant-switch-small .ant-switch-inner {
+  padding-left: 18px;
+  padding-right: 6px;
+  font-size: 12px;
+}
+
+.ant-switch-small.ant-switch-checked .ant-switch-inner {
+  padding-left: 6px;
+  padding-right: 18px;
+}
+
+.ant-switch-small .ant-switch-inner-checked {
+  margin-left: -12px;
+  margin-right: 0;
+}
+
+.ant-switch-small .ant-switch-inner-unchecked {
+  margin-top: -16px;
+  margin-left: 0;
+  margin-right: -12px;
+}
+
+.ant-switch-small.ant-switch-checked .ant-switch-inner-checked {
+  margin-left: 0;
+  margin-right: -12px;
+}
+
+.ant-switch-small.ant-switch-checked .ant-switch-inner-unchecked {
+  margin-left: -12px;
+  margin-right: 0;
+}
+
+.ant-switch-small .ant-switch-loading-icon {
+  font-size: 9px;
+  transform: translateY(-0.5px);
+}
+
+/* 加载动画 */
+@keyframes antSwitchLoadingIcon {
+  0% {
+    transform: rotate(0deg) translateY(-1px);
+  }
+
+  100% {
+    transform: rotate(360deg) translateY(-1px);
+  }
+}
+
+.ant-switch-small .ant-switch-loading-icon {
+  animation: antSwitchLoadingIconSmall 1s infinite linear;
+}
+
+@keyframes antSwitchLoadingIconSmall {
+  0% {
+    transform: rotate(0deg) translateY(-0.5px);
+  }
+
+  100% {
+    transform: rotate(360deg) translateY(-0.5px);
+  }
+}
+
+/* RTL 支持 */
+.ant-switch-rtl {
+  direction: rtl;
+}
+
+.ant-switch-rtl .ant-switch-handle {
+  right: 2px;
+  left: auto;
+}
+
+.ant-switch-rtl.ant-switch-checked .ant-switch-handle {
+  right: calc(100% - 20px);
+  left: auto;
+}
+
+.ant-switch-rtl.ant-switch-small .ant-switch-handle {
+  right: 2px;
+  left: auto;
+}
+
+.ant-switch-rtl.ant-switch-small.ant-switch-checked .ant-switch-handle {
+  right: calc(100% - 14px);
+  left: auto;
+}

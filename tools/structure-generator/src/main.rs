@@ -577,7 +577,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .long("output")
                 .value_name("DIR")
                 .help("输出目录")
-                .default_value("../src/components"),
+                .default_value("../output/src/components"),
         )
         .arg(
             Arg::new("component")

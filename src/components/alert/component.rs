@@ -1,349 +1,505 @@
-//!
 //! Alert 组件实现
-//!
-//! 提供警告提示组件，用于页面中展示重要的提示信息。
 
 use dioxus::prelude::*;
-use gloo_timers::future::TimeoutFuture;
-use std::time::Duration;
+use gloo_timers::callback::Timeout;
 
-use crate::components::icon::Icon;
-use crate::locale::{use_locale, LocaleContext};
-use crate::theme::{use_compact_mode, use_dark_mode, use_theme};
-use crate::utils::class_names::merge_class_names;
-
-use super::styles::AlertAnimationStyles;
-use super::styles::AlertStyleGenerator;
-use super::types::*;
+use crate::components::alert::{
+    styles::AlertStyles,
+    types::*,
+    utils::{AlertAnimationManager, AlertEventHandler, AlertUtils},
+};
 
 /// Alert 组件
-///
-/// 警告提示，展示需要关注的信息。
 #[component]
 pub fn Alert(props: AlertProps) -> Element {
     // 状态管理
     let mut alert_state = use_signal(|| AlertState {
         visible: props.visible,
-        animation_state: if props.visible {
-            AlertAnimationState::Entered
-        } else {
-            AlertAnimationState::Exited
-        },
         closing: false,
+        mounted: false,
+        animation_state: AnimationState::Idle,
+    });
+
+    // 内部可见性状态
+    let mut internal_visible = use_signal(|| props.visible);
+
+    // 动画定时器
+    let mut animation_timer = use_signal(|| None::<Timeout>);
+
+    // 组件挂载效果
+    use_effect(move || {
+        if !alert_state.read().mounted {
+            alert_state.write().mounted = true;
+            if props.visible && props.enable_animation {
+                alert_state.write().animation_state = AnimationState::Entering;
+
+                // 设置进入动画完成定时器
+                let timer = Timeout::new(props.animation_duration, move || {
+                    alert_state.write().animation_state = AnimationState::Entered;
+                });
+                animation_timer.set(Some(timer));
+            } else if props.visible {
+                alert_state.write().animation_state = AnimationState::Entered;
+            }
+        }
     });
 
     // 监听visible属性变化
     use_effect(move || {
-        if props.visible && alert_state.read().animation_state == AlertAnimationState::Exited {
-            // 显示时添加进入动画
-            alert_state.with_mut(|state| {
-                state.visible = true;
-                state.animation_state = AlertAnimationState::Entering;
-            });
+        let current_visible = internal_visible.read();
+        if props.visible != *current_visible {
+            internal_visible.set(props.visible);
 
-            // 延迟设置为已进入状态
-            // 注意：motion 和 animation_duration 需要从 AlertProps 中添加
-            let motion = true; // 默认启用动画
-            let animation_duration = Duration::from_millis(300); // 默认动画时长
-            if motion {
-                spawn(async move {
-                    gloo_timers::future::TimeoutFuture::new(animation_duration.as_millis() as u32)
-                        .await;
-                    alert_state.with_mut(|state| {
-                        state.animation_state = AlertAnimationState::Entered;
-                    });
-                });
-            } else {
-                alert_state.with_mut(|state| {
-                    state.animation_state = AlertAnimationState::Entered;
-                });
-            }
-        } else if !props.visible
-            && alert_state.read().animation_state != AlertAnimationState::Exited
-        {
-            // 隐藏时添加退出动画
-            alert_state.with_mut(|state| {
-                state.animation_state = AlertAnimationState::Exiting;
-            });
+            if props.visible {
+                // 显示Alert
+                alert_state.write().visible = true;
+                alert_state.write().closing = false;
 
-            // 延迟设置为已退出状态
-            let motion = true; // 默认启用动画
-            let animation_duration = Duration::from_millis(300); // 默认动画时长
-            if motion {
-                spawn(async move {
-                    gloo_timers::future::TimeoutFuture::new(animation_duration.as_millis() as u32)
-                        .await;
-                    alert_state.with_mut(|state| {
-                        state.visible = false;
-                        state.animation_state = AlertAnimationState::Exited;
+                if props.enable_animation {
+                    alert_state.write().animation_state = AnimationState::Entering;
+
+                    let timer = Timeout::new(props.animation_duration, move || {
+                        alert_state.write().animation_state = AnimationState::Entered;
                     });
-                });
+                    animation_timer.set(Some(timer));
+                }
             } else {
-                alert_state.with_mut(|state| {
-                    state.visible = false;
-                    state.animation_state = AlertAnimationState::Exited;
-                });
+                // 隐藏Alert
+                handle_close_animation(&props, &mut alert_state, &mut animation_timer);
             }
         }
-
-        // 返回空闭包以满足use_effect要求
     });
 
-    // 获取主题上下文
-    let theme_context = use_theme();
-    let is_dark_mode = use_dark_mode();
-    let is_compact_mode = use_compact_mode();
+    // 自动聚焦
+    let alert_ref = use_signal(|| None::<web_sys::Element>);
 
-    // 获取国际化上下文
-    let locale_context = use_locale();
-    let translate = crate::locale::use_translate();
-
-    // 样式生成器
-    let style_generator = AlertStyleGenerator::new()
-        .with_prefix_cls(
-            props
-                .prefix_cls
-                .clone()
-                .unwrap_or_else(|| "ant-alert".to_string()),
-        )
-        .with_type(props.r#type.clone())
-        .with_size(props.size)
-        .with_variant(props.variant)
-        .with_show_icon(props.show_icon.unwrap_or(false) || props.icon.is_some())
-        .with_description(props.description.is_some())
-        .with_closable(props.closable.unwrap_or(false))
-        .with_banner(props.banner.unwrap_or(false))
-        .with_theme_enabled(true)
-        .with_bordered(props.bordered)
-        .with_disabled(props.disabled.unwrap_or(false))
-        .with_visible(alert_state.read().visible);
-
-    // 生成类名和样式
-    let class_names = style_generator.generate_class_names();
-    let inline_styles = style_generator.generate_inline_styles();
-
-    // 动画类名（暂时为空，后续可以根据动画状态添加）
-    let animation_class = "";
-
-    // 合并自定义类名和动画类名
-    let final_class = if let Some(custom_class) = &props.class {
-        if animation_class.is_empty() {
-            format!("{} {}", class_names.join(" "), custom_class)
-        } else {
-            format!(
-                "{} {} {}",
-                class_names.join(" "),
-                animation_class,
-                custom_class
-            )
+    use_effect(move || {
+        if props.auto_focus && alert_state.read().visible {
+            if let Some(element) = alert_ref.read().as_ref() {
+                AlertEventHandler::handle_focus(element);
+            }
         }
-    } else {
-        if animation_class.is_empty() {
-            class_names.join(" ")
-        } else {
-            format!("{} {}", class_names.join(" "), animation_class)
-        }
-    };
-
-    // 合并自定义样式
-    let final_style = if let Some(custom_style) = &props.style {
-        if inline_styles.is_empty() {
-            custom_style.clone()
-        } else {
-            format!("{};{}", inline_styles.clone(), custom_style)
-        }
-    } else {
-        inline_styles.clone()
-    };
+    });
 
     // 关闭处理函数
-    let handle_close = move |event: Event<MouseData>| {
-        if props.disabled.unwrap_or(false) {
-            return;
+    let handle_close = move |event: MouseEvent| {
+        if let Some(ref on_close) = props.on_close {
+            on_close.call(event);
         }
 
-        // 设置关闭状态
-        alert_state.with_mut(|state| {
-            state.closing = true;
-            state.animation_state = AlertAnimationState::Exiting;
-        });
+        handle_close_animation(&props, &mut alert_state, &mut animation_timer);
+    };
 
-        // 调用关闭回调
-        if let Some(on_close_cb) = &props.on_close {
-            on_close_cb.call(event);
+    // 键盘事件处理
+    let handle_keydown = move |event: KeyboardEvent| {
+        if let Some(ref on_key_down) = props.on_key_down {
+            on_key_down.call(event.clone());
         }
 
-        // 延迟隐藏（等待动画完成）
-        let motion = true; // 默认启用动画
-        let animation_duration = Duration::from_millis(300); // 默认动画时长
-        if motion {
-            let duration_ms = animation_duration.as_millis() as u32;
-            let after_close = props.after_close.clone();
-            spawn(async move {
-                gloo_timers::future::TimeoutFuture::new(duration_ms).await;
-                alert_state.with_mut(|state| {
-                    state.visible = false;
-                    state.animation_state = AlertAnimationState::Exited;
-                    state.closing = false;
-                });
+        // 处理Escape键关闭
+        if event.key() == Key::Escape && props.closable {
+            handle_close_animation(&props, &mut alert_state, &mut animation_timer);
+        }
 
-                // 调用关闭后回调
-                if let Some(after_close_cb) = &after_close {
-                    after_close_cb.call(());
-                }
-            });
-        } else {
-            // 无动画时立即隐藏
-            alert_state.with_mut(|state| {
-                state.visible = false;
-                state.animation_state = AlertAnimationState::Exited;
-                state.closing = false;
-            });
+        AlertEventHandler::handle_keyboard(&event, props.on_close.clone());
+    };
 
-            // 调用关闭后回调
-            if let Some(after_close_cb) = &props.after_close {
-                after_close_cb.call(());
-            }
+    // 鼠标事件处理
+    let handle_mouse_enter = move |event: MouseEvent| {
+        if let Some(ref on_mouse_enter) = props.on_mouse_enter {
+            on_mouse_enter.call(event);
         }
     };
 
-    // 获取默认图标
-    let default_icon = match props.r#type {
-        AlertType::Success => rsx! {
-            Icon {
-                icon_type: "check-circle",
-                class: "ant-alert-icon"
-            }
-        },
-        AlertType::Info => rsx! {
-            Icon {
-                icon_type: "info-circle",
-                class: "ant-alert-icon"
-            }
-        },
-        AlertType::Warning => rsx! {
-            Icon {
-                icon_type: "exclamation-circle",
-                class: "ant-alert-icon"
-            }
-        },
-        AlertType::Error => rsx! {
-            Icon {
-                icon_type: "close-circle",
-                class: "ant-alert-icon"
-            }
-        },
+    let handle_mouse_leave = move |event: MouseEvent| {
+        if let Some(ref on_mouse_leave) = props.on_mouse_leave {
+            on_mouse_leave.call(event);
+        }
     };
 
-    // 如果完全退出，返回空
-    if alert_state.read().animation_state == AlertAnimationState::Exited {
-        return rsx! { div { style: "display: none;" } };
+    let handle_click = move |event: MouseEvent| {
+        if let Some(ref on_click) = props.on_click {
+            on_click.call(event);
+        }
+    };
+
+    // 如果不可见且没有动画，直接返回空
+    if !alert_state.read().visible && !alert_state.read().closing {
+        return rsx! {};
     }
 
-    // 根据动画状态生成额外的类名
-    let motion = true; // 默认启用动画
-    let animation_class = if motion {
-        match alert_state.read().animation_state {
-            AlertAnimationState::Entering => "ant-alert-entering",
-            AlertAnimationState::Entered => "",
-            AlertAnimationState::Exiting => "ant-alert-exiting",
-            AlertAnimationState::Exited => "", // 不应该到达这里
+    // 生成样式和类名
+    let class_names = AlertUtils::generate_class_names(&props, &alert_state.read());
+    let inline_styles = AlertUtils::generate_inline_styles(&props);
+    let aria_attributes = AlertUtils::generate_aria_attributes(&props);
+
+    // 渲染图标
+    let render_icon = move || {
+        if props.show_icon {
+            if let Some(ref custom_icon) = props.icon {
+                rsx! {
+                    span { class: "ant-alert-icon", {custom_icon} }
+                }
+            } else {
+                let icon_name = AlertUtils::get_default_icon(&props.alert_type);
+                rsx! {
+                    span {
+                        class: "ant-alert-icon",
+                        i { class: format!("anticon anticon-{}", icon_name) }
+                    }
+                }
+            }
+        } else {
+            rsx! {}
         }
-    } else {
-        ""
     };
 
-    // 根据动画状态应用特定样式
-    let animation_style = if motion {
-        match alert_state.read().animation_state {
-            AlertAnimationState::Entering => AlertAnimationStyles::default().entering,
-            AlertAnimationState::Exiting => AlertAnimationStyles::default().exiting,
-            _ => String::new(),
+    // 渲染关闭按钮
+    let render_close_button = move || {
+        if props.closable {
+            if let Some(ref custom_close_icon) = props.close_icon {
+                rsx! {
+                    button {
+                        class: "ant-alert-close-icon",
+                        r#type: "button",
+                        onclick: handle_close,
+                        "aria-label": "Close",
+                        {custom_close_icon}
+                    }
+                }
+            } else {
+                rsx! {
+                    button {
+                        class: "ant-alert-close-icon",
+                        r#type: "button",
+                        onclick: handle_close,
+                        "aria-label": "Close",
+                        i { class: "anticon anticon-close" }
+                    }
+                }
+            }
+        } else {
+            rsx! {}
         }
-    } else {
-        String::new()
     };
 
-    // 合并所有样式
-    let combined_style = if animation_style.is_empty() {
-        inline_styles
+    // 渲染消息内容
+    let render_content = move || {
+        rsx! {
+            div { class: "ant-alert-content",
+                div { class: "ant-alert-message", "{props.message}" }
+                if let Some(ref description) = props.description {
+                    div { class: "ant-alert-description", "{description}" }
+                }
+            }
+        }
+    };
+
+    // 渲染操作区域
+    let render_action = move || {
+        if let Some(ref action) = props.action {
+            rsx! {
+                div { class: "ant-alert-action", {action} }
+            }
+        } else {
+            rsx! {}
+        }
+    };
+
+    let data_testid_clone = props.data_testid.clone();
+    let tab_index_clone = props.tab_index.clone();
+
+    // 主要渲染
+    rsx! {
+        div {
+            class: "{class_names}",
+            style: "{inline_styles}",
+            role: "{props.role}",
+            "aria-label": aria_attributes.get("aria-label").cloned().unwrap_or_default(),
+            "aria-live": aria_attributes.get("aria-live").cloned().unwrap_or_default(),
+            "aria-atomic": aria_attributes.get("aria-atomic").cloned().unwrap_or_default(),
+            tabindex: tab_index_clone.unwrap_or(-1),
+            "data-testid": data_testid_clone.clone().unwrap_or_default(),
+            onmounted: move |event| {
+                if let Some(element) = event.data.downcast::<web_sys::Element>() {
+                    alert_ref.set(Some(element.clone()));
+                }
+            },
+            onclick: handle_click,
+            onmouseenter: handle_mouse_enter,
+            onmouseleave: handle_mouse_leave,
+            onkeydown: handle_keydown,
+
+            {render_icon()}
+            {render_content()}
+            {render_action()}
+            {render_close_button()}
+        }
+    }
+}
+
+/// 处理关闭动画
+fn handle_close_animation(
+    props: &AlertProps,
+    alert_state: &mut Signal<AlertState>,
+    animation_timer: &mut Signal<Option<Timeout>>,
+) {
+    if props.enable_animation {
+        alert_state.write().closing = true;
+        alert_state.write().animation_state = AnimationState::Exiting;
+
+        // 设置退出动画完成定时器
+        let timer = Timeout::new(props.animation_duration, move || {
+            alert_state.write().visible = false;
+            alert_state.write().closing = false;
+            alert_state.write().animation_state = AnimationState::Exited;
+
+            // 调用after_close回调
+            if let Some(ref after_close) = props.after_close {
+                after_close.call(());
+            }
+        });
+        animation_timer.set(Some(timer));
     } else {
-        format!("{};{}", inline_styles, animation_style)
+        alert_state.write().visible = false;
+        alert_state.write().closing = false;
+        alert_state.write().animation_state = AnimationState::Exited;
+
+        // 调用after_close回调
+        if let Some(ref after_close) = props.after_close {
+            after_close.call(());
+        }
+    }
+}
+
+/// Alert 便捷组件 - 成功提示
+#[component]
+pub fn AlertSuccess(message: String, #[props(optional)] description: Option<String>) -> Element {
+    rsx! {
+        Alert {
+            message,
+            description,
+            alert_type: AlertType::Success,
+            show_icon: true,
+        }
+    }
+}
+
+/// Alert 便捷组件 - 信息提示
+#[component]
+pub fn AlertInfo(message: String, #[props(optional)] description: Option<String>) -> Element {
+    rsx! {
+        Alert {
+            message,
+            description,
+            alert_type: AlertType::Info,
+            show_icon: true,
+        }
+    }
+}
+
+/// Alert 便捷组件 - 警告提示
+#[component]
+pub fn AlertWarning(message: String, #[props(optional)] description: Option<String>) -> Element {
+    rsx! {
+        Alert {
+            message,
+            description,
+            alert_type: AlertType::Warning,
+            show_icon: true,
+        }
+    }
+}
+
+/// Alert 便捷组件 - 错误提示
+#[component]
+pub fn AlertError(message: String, #[props(optional)] description: Option<String>) -> Element {
+    rsx! {
+        Alert {
+            message,
+            description,
+            alert_type: AlertType::Error,
+            show_icon: true,
+        }
+    }
+}
+
+/// Alert 便捷组件 - 可关闭提示
+#[component]
+pub fn AlertClosable(
+    message: String,
+    alert_type: AlertType,
+    #[props(optional)] description: Option<String>,
+    #[props(optional)] on_close: Option<EventHandler<MouseEvent>>,
+) -> Element {
+    rsx! {
+        Alert {
+            message,
+            description,
+            alert_type,
+            closable: true,
+            show_icon: true,
+            on_close,
+        }
+    }
+}
+
+/// Alert 便捷组件 - 横幅提示
+#[component]
+pub fn AlertBanner(
+    message: String,
+    alert_type: AlertType,
+    #[props(optional)] description: Option<String>,
+    #[props(optional)] closable: Option<bool>,
+) -> Element {
+    rsx! {
+        Alert {
+            message,
+            description,
+            alert_type,
+            banner: true,
+            closable: closable.unwrap_or(false),
+            show_icon: true,
+        }
+    }
+}
+
+/// Alert 组合组件 - 多个Alert的容器
+#[component]
+pub fn AlertGroup(
+    children: Element,
+    #[props(optional)] class_name: Option<String>,
+    #[props(optional)] style: Option<String>,
+) -> Element {
+    let class_names = if let Some(custom_class) = class_name {
+        format!("ant-alert-group {}", custom_class)
+    } else {
+        "ant-alert-group".to_string()
     };
 
     rsx! {
         div {
-            class: "{final_class}",
-            style: "{combined_style}",
-            role: "alert",
-            "aria-live": "polite",
-            "data-testid": "alert",
+            class: "{class_names}",
+            style: style.unwrap_or_default(),
+            {children}
+        }
+    }
+}
 
-            // 图标区域
-            if props.show_icon.unwrap_or(false) || props.icon.is_some() {
-                div {
-                    class: "ant-alert-icon",
-                    if let Some(custom_icon) = &props.icon {
-                        {custom_icon.clone()}
-                    } else {
-                        {default_icon}
-                    }
-                }
-            }
+/// Alert 提供者组件 - 提供全局配置
+#[component]
+pub fn AlertProvider(children: Element, #[props(optional)] config: Option<AlertConfig>) -> Element {
+    // 设置全局配置
+    if let Some(cfg) = config {
+        use_effect(move || {
+            crate::components::alert::types::set_global_alert_config(cfg.clone());
+        });
+    }
 
-            // 内容区域
-            div {
-                class: "ant-alert-content",
+    rsx! {
+        div { class: "ant-alert-provider", {children} }
+    }
+}
 
-                // 消息内容
-                if let Some(msg) = &props.message {
-                    div {
-                        class: "ant-alert-message",
-                        "{msg}"
-                    }
-                }
+/// Alert 钩子 - 用于程序化显示Alert
+pub fn use_alert() -> AlertController {
+    let alerts = use_signal(|| Vec::<AlertItem>::new());
 
-                // 描述内容
-                if let Some(desc) = &props.description {
-                    div {
-                        class: "ant-alert-description",
-                        "{desc}"
-                    }
-                }
+    AlertController { alerts }
+}
 
-                // 子元素
-                {props.children}
-            }
+/// Alert 控制器
+pub struct AlertController {
+    alerts: Signal<Vec<AlertItem>>,
+}
 
-            // 操作区域
-            if let Some(action_content) = &props.action {
-                div {
-                    class: "ant-alert-action",
-                    {action_content.clone()}
-                }
-            }
+impl AlertController {
+    /// 显示成功提示
+    pub fn success(&mut self, message: &str, duration: Option<u32>) {
+        self.show(AlertItem {
+            id: self.generate_id(),
+            message: message.to_string(),
+            alert_type: AlertType::Success,
+            duration,
+            ..Default::default()
+        });
+    }
 
-            // 关闭按钮
-            if props.closable.unwrap_or(false) {
-                button {
-                    class: "ant-alert-close-icon",
-                    r#type: "button",
-                    "aria-label": translate("alert.close"),
-                    onclick: handle_close,
-                    disabled: props.disabled.unwrap_or(false),
+    /// 显示信息提示
+    pub fn info(&mut self, message: &str, duration: Option<u32>) {
+        self.show(AlertItem {
+            id: self.generate_id(),
+            message: message.to_string(),
+            alert_type: AlertType::Info,
+            duration,
+            ..Default::default()
+        });
+    }
 
-                    if let Some(custom_close_icon) = &props.close_icon {
-                        {custom_close_icon.clone()}
-                    } else if let Some(close_txt) = &props.close_text {
-                        span {
-                            class: "ant-alert-close-text",
-                            "{close_txt}"
-                        }
-                    } else {
-                        Icon {
-                            icon_type: "close",
-                            class: "ant-alert-close-icon-svg"
-                        }
+    /// 显示警告提示
+    pub fn warning(&mut self, message: &str, duration: Option<u32>) {
+        self.show(AlertItem {
+            id: self.generate_id(),
+            message: message.to_string(),
+            alert_type: AlertType::Warning,
+            duration,
+            ..Default::default()
+        });
+    }
+
+    /// 显示错误提示
+    pub fn error(&mut self, message: &str, duration: Option<u32>) {
+        self.show(AlertItem {
+            id: self.generate_id(),
+            message: message.to_string(),
+            alert_type: AlertType::Error,
+            duration,
+            ..Default::default()
+        });
+    }
+
+    /// 显示Alert
+    pub fn show(&mut self, item: AlertItem) {
+        self.alerts.write().push(item);
+    }
+
+    /// 关闭Alert
+    pub fn close(&mut self, id: &str) {
+        self.alerts.write().retain(|item| item.id != id);
+    }
+
+    /// 关闭所有Alert
+    pub fn close_all(&mut self) {
+        self.alerts.write().clear();
+    }
+
+    /// 生成唯一ID
+    fn generate_id(&self) -> String {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+        format!("alert-{}", timestamp)
+    }
+
+    /// 渲染Alert列表
+    pub fn render(&self) -> Element {
+        let alerts = self.alerts.read();
+
+        rsx! {
+            div { class: "ant-alert-container",
+                for item in alerts.iter() {
+                    Alert {
+                        key: "{item.id}",
+                        message: item.message.clone(),
+                        alert_type: item.alert_type.clone(),
+                        description: item.description.clone(),
+                        closable: true,
+                        show_icon: true,
+                        on_close: move |_| {
+                            // 这里需要实现关闭逻辑
+                        },
                     }
                 }
             }
@@ -351,81 +507,54 @@ pub fn Alert(props: AlertProps) -> Element {
     }
 }
 
-/// ErrorBoundary Alert 组件
-///
-/// 用于捕获和显示错误信息的特殊 Alert 组件。
-#[component]
-pub fn ErrorBoundaryAlert(
-    error_message: String,
-    error_details: Option<String>,
+/// Alert 项目
+#[derive(Clone, PartialEq, Debug)]
+pub struct AlertItem {
+    pub id: String,
+    pub message: String,
+    pub alert_type: AlertType,
+    pub description: Option<String>,
+    pub duration: Option<u32>,
+    pub closable: bool,
+    pub show_icon: bool,
+}
 
-    #[props(default = true)] show_details: bool,
-
-    #[props(default = true)] show_reload_button: bool,
-
-    on_reload: Option<Callback<()>>,
-
-    #[props(default = "ant-alert".to_string())] prefix_cls: String,
-
-    class: Option<String>,
-    style: Option<String>,
-) -> Element {
-    let mut show_details_state = use_signal(|| false);
-
-    let handle_reload = move |_| {
-        if let Some(reload_cb) = &on_reload {
-            reload_cb.call(());
-        } else {
-            // 默认重新加载页面
-            web_sys::window().and_then(|w| w.location().reload().ok());
-        }
-    };
-
-    let toggle_details = move |_| {
-        show_details_state.with_mut(|state| *state = !*state);
-    };
-
-    rsx! {
-        Alert {
-            r#type: AlertType::Error,
-            message: error_message,
-            description: if show_details && error_details.is_some() {
-                error_details.clone()
-            } else {
-                None
-            },
+impl Default for AlertItem {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            message: String::new(),
+            alert_type: AlertType::Info,
+            description: None,
+            duration: Some(3000),
+            closable: true,
             show_icon: true,
-            closable: false,
-            prefix_cls: prefix_cls,
-            class: class,
-            style: style,
-
-            action: rsx! {
-                div {
-                    class: "ant-alert-error-actions",
-                    style: "display: flex; gap: 8px;",
-
-                    if show_details && error_details.is_some() {
-                        button {
-                            class: "ant-btn ant-btn-sm ant-btn-text",
-                            onclick: toggle_details,
-                            if show_details_state() {
-                                "隐藏详情"
-                            } else {
-                                "显示详情"
-                            }
-                        }
-                    }
-
-                    if show_reload_button {
-                        button {
-                            class: "ant-btn ant-btn-sm ant-btn-primary",
-                            onclick: handle_reload,
-                            "重新加载"
-                        }
-                    }
-                }
-            }
         }
+    }
+}
+
+/// 全局Alert函数
+pub mod global {
+    use super::*;
+
+    /// 全局成功提示
+    pub fn success(message: &str) {
+        // 这里需要实现全局Alert显示逻辑
+        // 可以通过事件系统或全局状态管理来实现
+    }
+
+    /// 全局信息提示
+    pub fn info(message: &str) {
+        // 实现全局信息提示
+    }
+
+    /// 全局警告提示
+    pub fn warning(message: &str) {
+        // 实现全局警告提示
+    }
+
+    /// 全局错误提示
+    pub fn error(message: &str) {
+        // 实现全局错误提示
     }
 }

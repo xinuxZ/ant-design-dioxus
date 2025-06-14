@@ -1,0 +1,269 @@
+/* Splitter Component Styles */
+.ant-splitter {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 14px;
+  line-height: 1.5714285714285714;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  box-sizing: border-box;
+}
+
+.ant-splitter-horizontal {
+  flex-direction: row;
+}
+
+.ant-splitter-vertical {
+  flex-direction: column;
+}
+
+/* Splitter Panel */
+.ant-splitter-panel {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #fff;
+}
+
+.ant-splitter-panel-content {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/* Splitter Resizer */
+.ant-splitter-resizer {
+  position: relative;
+  background: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.ant-splitter-resizer:hover {
+  background: #e6f4ff;
+  border-color: #91caff;
+}
+
+.ant-splitter-resizer:active {
+  background: #bae0ff;
+  border-color: #69b1ff;
+}
+
+.ant-splitter-resizer-horizontal {
+  width: 8px;
+  cursor: col-resize;
+  border-left: 0;
+  border-right: 0;
+}
+
+.ant-splitter-resizer-vertical {
+  height: 8px;
+  cursor: row-resize;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+/* Resizer handle */
+.ant-splitter-resizer-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.25);
+  transition: color 0.2s;
+}
+
+.ant-splitter-resizer:hover .ant-splitter-resizer-handle {
+  color: #1677ff;
+}
+
+.ant-splitter-resizer-handle-horizontal {
+  flex-direction: column;
+}
+
+.ant-splitter-resizer-handle-vertical {
+  flex-direction: row;
+}
+
+.ant-splitter-resizer-handle::before,
+.ant-splitter-resizer-handle::after {
+  content: '';
+  display: block;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.ant-splitter-resizer-handle-horizontal::before,
+.ant-splitter-resizer-handle-horizontal::after {
+  width: 12px;
+  height: 1px;
+  margin: 1px 0;
+}
+
+.ant-splitter-resizer-handle-vertical::before,
+.ant-splitter-resizer-handle-vertical::after {
+  width: 1px;
+  height: 12px;
+  margin: 0 1px;
+}
+
+/* Collapsible */
+.ant-splitter-panel-collapsible {
+  position: relative;
+}
+
+.ant-splitter-collapse-button {
+  position: absolute;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.45);
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ant-splitter-collapse-button:hover {
+  color: #1677ff;
+  border-color: #91caff;
+  background: #e6f4ff;
+}
+
+.ant-splitter-collapse-button:active {
+  color: #0958d9;
+  border-color: #69b1ff;
+  background: #bae0ff;
+}
+
+/* Collapse button positioning */
+.ant-splitter-horizontal .ant-splitter-collapse-button {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ant-splitter-vertical .ant-splitter-collapse-button {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ant-splitter-collapse-button-start {
+  left: -12px;
+}
+
+.ant-splitter-collapse-button-end {
+  right: -12px;
+}
+
+.ant-splitter-collapse-button-top {
+  top: -12px;
+}
+
+.ant-splitter-collapse-button-bottom {
+  bottom: -12px;
+}
+
+/* Collapsed state */
+.ant-splitter-panel-collapsed {
+  flex: 0 0 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ant-splitter-panel-collapsed .ant-splitter-panel-content {
+  display: none;
+}
+
+/* Disabled state */
+.ant-splitter-disabled {
+  cursor: not-allowed;
+}
+
+.ant-splitter-disabled .ant-splitter-resizer {
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+}
+
+.ant-splitter-disabled .ant-splitter-resizer:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+}
+
+.ant-splitter-disabled .ant-splitter-resizer-handle {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.ant-splitter-disabled .ant-splitter-collapse-button {
+  cursor: not-allowed;
+  color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+}
+
+.ant-splitter-disabled .ant-splitter-collapse-button:hover {
+  color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #d9d9d9;
+}
+
+/* Size variants */
+.ant-splitter-sm .ant-splitter-resizer-horizontal {
+  width: 6px;
+}
+
+.ant-splitter-sm .ant-splitter-resizer-vertical {
+  height: 6px;
+}
+
+.ant-splitter-sm .ant-splitter-collapse-button {
+  width: 20px;
+  height: 20px;
+}
+
+.ant-splitter-lg .ant-splitter-resizer-horizontal {
+  width: 10px;
+}
+
+.ant-splitter-lg .ant-splitter-resizer-vertical {
+  height: 10px;
+}
+
+.ant-splitter-lg .ant-splitter-collapse-button {
+  width: 28px;
+  height: 28px;
+}
+
+/* Animation */
+.ant-splitter-panel {
+  transition: flex 0.2s ease-in-out;
+}
+
+.ant-splitter-resizer {
+  transition: background 0.2s, border-color 0.2s;
+}
+
+/* RTL support */
+.ant-splitter-rtl .ant-splitter-collapse-button-start {
+  left: auto;
+  right: -12px;
+}
+
+.ant-splitter-rtl .ant-splitter-collapse-button-end {
+  right: auto;
+  left: -12px;
+}

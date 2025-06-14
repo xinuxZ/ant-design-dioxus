@@ -1,238 +1,258 @@
 //! Spin 组件实现
 
+use super::styles::*;
+use super::types::{SpinProps, SpinSize, SpinState, SpinTheme};
+use super::utils::*;
 use dioxus::prelude::*;
 use std::time::Duration;
-use gloo_timers::future::TimeoutFuture;
-use super::types::*;
-use super::styles::*;
 
-/// 默认的加载指示器组件
+/// Spin 加载指示器组件
 ///
-/// 渲染一个旋转的圆形指示器
-#[component]
-fn DefaultIndicator(size: SpinSize) -> Element {
-    let indicator_size = size.indicator_size();
-
-    rsx! {
-        span {
-            class: "ant-spin-dot ant-spin-dot-spin",
-            style: format!("width: {}px; height: {}px;", indicator_size, indicator_size),
-            i { class: "ant-spin-dot-item" }
-            i { class: "ant-spin-dot-item" }
-            i { class: "ant-spin-dot-item" }
-            i { class: "ant-spin-dot-item" }
-        }
-    }
-}
-
-/// 获取无障碍属性
-fn get_accessibility_attrs(props: &SpinProps) -> AccessibilityAttrs {
-    AccessibilityAttrs {
-        role: Some("status".to_string()),
-        aria_label: props.aria_label.clone().or_else(|| Some("加载中".to_string())),
-        aria_describedby: props.aria_describedby.clone(),
-        aria_live: Some("polite".to_string()),
-        aria_busy: Some(props.spinning.to_string()),
-    }
-}
-
-/// 获取进度文本
-fn get_progress_text(props: &SpinProps) -> Option<String> {
-    if let Some(percent) = props.percent {
-        Some(format!("{}%", percent.round() as i32))
-    } else {
-        None
-    }
-}
-
-/// 无障碍属性结构体
-#[derive(Debug, Clone, PartialEq)]
-struct AccessibilityAttrs {
-    role: Option<String>,
-    aria_label: Option<String>,
-    aria_describedby: Option<String>,
-    aria_live: Option<String>,
-    aria_busy: Option<String>,
-}
-
-/// Spin 加载中组件
+/// 用于页面和区块的加载中状态。
 ///
-/// 用于页面和区块的加载中状态，提供了一个简单的加载动画
+/// # 特性
+/// - 流畅的旋转动画
+/// - 多种尺寸选择
+/// - 延迟显示支持
+/// - 自定义指示器
+/// - 内容包装功能
+/// - 主题支持
+/// - 可访问性支持
+///
+/// # 示例
+///
+/// ```rust
+/// use dioxus::prelude::*;
+/// use ant_design_dioxus::Spin;
+///
+/// fn app() -> Element {
+///     rsx! {
+///         // 基础用法
+///         Spin { spinning: true }
+///
+///         // 包装内容
+///         Spin {
+///             spinning: true,
+///             tip: "加载中...",
+///             div {
+///                 class: "content",
+///                 "这里是内容"
+///             }
+///         }
+///
+///         // 不同尺寸
+///         Spin { spinning: true, size: SpinSize::Small }
+///         Spin { spinning: true, size: SpinSize::Large }
+///
+///         // 延迟显示
+///         Spin {
+///             spinning: true,
+///             delay: 500, // 500ms 后显示
+///         }
+///     }
+/// }
+/// ```
 #[component]
-pub fn Spin(props: SpinProps) -> Element {
-    // 暂时移除主题依赖，使用默认值
-    // let theme = use_theme();
-    // let config = use_config_provider();
-    let mut is_visible = use_signal(|| props.spinning);
+pub fn Spin<UseTimer>(props: SpinProps) -> Element {
+    // 验证 Props
+    if let Err(error) = validate_spin_props(&props) {
+        return rsx! {
+            div {
+                class: "ant-spin-error",
+                "Spin 组件错误: {error}"
+            }
+        };
+    }
 
-    // 处理延迟显示逻辑
+    // 状态管理
+    let mut spin_state = use_signal(|| create_spin_state(props.spinning, props.delay));
+    let mut delay_timer = use_signal(|| None::<UseTimer>);
+
+    // 主题
+    let theme =
+        use_context::<Signal<SpinTheme>>().unwrap_or_else(|| Signal::new(SpinTheme::default()));
+
+    // 延迟显示逻辑
     use_effect(move || {
-        if props.delay > 0 && props.spinning {
-            is_visible.set(false);
-            let delay = props.delay;
-            spawn(async move {
-                gloo_timers::future::TimeoutFuture::new(delay).await;
-                is_visible.set(true);
-            });
+        if props.spinning {
+            if let Some(delay_ms) = props.delay {
+                // 设置延迟显示
+                spin_state.write().visible = false;
+                spin_state.write().delayed = true;
+
+                let timer = use_timer(Duration::from_millis(delay_ms as u64), move || {
+                    spin_state.write().visible = true;
+                    spin_state.write().delayed = false;
+                });
+
+                delay_timer.set(Some(timer));
+            } else {
+                // 立即显示
+                spin_state.write().visible = true;
+                spin_state.write().delayed = false;
+            }
         } else {
-            is_visible.set(props.spinning);
+            // 停止旋转
+            spin_state.write().visible = false;
+            spin_state.write().delayed = false;
+
+            // 清除计时器
+            if let Some(timer) = delay_timer.take() {
+                timer.stop();
+            }
         }
     });
 
     // 生成样式
-    let spin_class = use_memo(move || {
-        generate_spin_styles()
-    });
+    let container_class = get_spin_container_class_name(&props.size, props.children.is_ok());
+    let indicator_class = get_spin_indicator_class(&props.size);
+    let text_class = get_spin_text_class();
+    let mask_class = get_spin_mask_class();
 
-    let spin_class = use_memo(move || {
-        let mut classes = vec!["ant-spin"];
+    let container_style = generate_spin_container_styles(&props.size, props.children.is_ok());
+    let indicator_style = generate_spin_indicator_style(&theme.read(), &props.size);
+    let text_style = generate_spin_text_styles();
+    let mask_style = generate_spin_mask_styles();
 
-        if is_visible() {
-            classes.push("ant-spin-spinning");
-        }
+    // CSS 变量
+    let css_vars = generate_css_variables(&theme.read(), &props.size);
+    let css_vars_style = css_vars
+        .iter()
+        .map(|(k, v)| format!("{}: {}", k, v))
+        .collect::<Vec<_>>()
+        .join("; ");
 
-        if props.fullscreen {
-            classes.push("ant-spin-fullscreen");
-        }
+    // 组合最终样式
+    let final_container_style = if props.style.is_some() {
+        format!(
+            "{};{};{}",
+            container_style,
+            css_vars_style,
+            props.style.as_ref().unwrap()
+        )
+    } else {
+        format!("{};{}", container_style, css_vars_style)
+    };
 
-        let size_class = props.size.to_class();
-        if !size_class.is_empty() {
-            classes.push(size_class);
-        }
+    // 组合类名
+    let final_container_class = if let Some(ref class) = props.class {
+        format!("{} {}", container_class, class)
+    } else {
+        container_class
+    };
 
-        if props.tip.is_some() || props.percent.is_some() {
-            classes.push("ant-spin-show-text");
-        }
-
-        // 暂时移除RTL支持，后续可以重新添加
-        // if config.direction == crate::config_provider::Direction::Rtl {
-        //     classes.push("ant-spin-rtl");
-        // }
-
-        if let Some(ref class) = props.class {
-            classes.push(class);
-        }
-
-        classes.join(" ")
-    });
-
-    // 获取无障碍属性
-    let accessibility_attrs = get_accessibility_attrs(&props);
-
-    // 渲染逻辑
-    if props.fullscreen {
-        // 全屏模式
-        rsx! {
-            div {
-                class: "{spin_class()}",
-                style: props.style.clone().unwrap_or_default(),
-                role: accessibility_attrs.role.unwrap_or_default(),
-                "aria-label": accessibility_attrs.aria_label.unwrap_or_default(),
-                "aria-describedby": accessibility_attrs.aria_describedby.unwrap_or_default(),
-                "aria-live": accessibility_attrs.aria_live.unwrap_or_default(),
-                "aria-busy": accessibility_attrs.aria_busy.unwrap_or_default(),
-                
+    // 渲染指示器
+    let render_indicator = || {
+        if let Some(ref custom_indicator) = props.indicator {
+            // 自定义指示器
+            rsx! {
                 div {
-                    class: "ant-spin-container",
-                    
-                    if let Some(indicator) = &props.indicator {
-                        {indicator.clone()}
-                    } else {
-                        DefaultIndicator { size: props.size.unwrap_or(SpinSize::Default) }
-                    }
-                    
-                    if let Some(tip) = &props.tip {
-                        div {
-                            class: "ant-spin-text",
-                            {tip.clone()}
-                        }
-                    }
-                    
-                    if let Some(progress_text) = get_progress_text(&props) {
-                        div {
-                            class: "ant-spin-progress",
-                            {progress_text}
-                        }
+                    class: "{indicator_class} ant-spin-custom",
+                    style: "{indicator_style}",
+                    "{custom_indicator}"
+                }
+            }
+        } else {
+            // 默认指示器
+            rsx! {
+                div {
+                    class: "{indicator_class}",
+                    style: "{indicator_style}",
+                    "aria-label": "loading",
+
+                    // 旋转圆点
+                    div {
+                        class: "ant-spin-dot",
+                        div { class: "ant-spin-dot-item" }
+                        div { class: "ant-spin-dot-item" }
+                        div { class: "ant-spin-dot-item" }
+                        div { class: "ant-spin-dot-item" }
                     }
                 }
             }
         }
-    } else if props.children.is_some() {
-        // 包裹内容模式
+    };
+
+    // 渲染提示文本
+    let render_tip = || {
+        if should_show_tip(&props.tip, props.children.is_ok()) {
+            if let Some(formatted_tip) = format_tip_text(&props.tip) {
+                rsx! {
+                    div {
+                        class: "{text_class}",
+                        style: "{text_style}",
+                        "{formatted_tip}"
+                    }
+                }
+            } else {
+                rsx! { div {} }
+            }
+        } else {
+            rsx! { div {} }
+        }
+    };
+
+    // 如果有子元素，渲染包装模式
+    if let Some(children) = props.children {
+        let wrapper_class = if let Some(ref wrapper_class_name) = props.wrapper_class_name {
+            format!("ant-spin-container {}", wrapper_class_name)
+        } else {
+            "ant-spin-container".to_string()
+        };
+
         rsx! {
             div {
-                class: "{spin_class()} ant-spin-container",
-                style: props.style.clone().unwrap_or_default(),
-                
+                class: "{wrapper_class}",
+                "data-spinning": "{spin_state.read().visible}",
+
+                // 内容区域
                 div {
-                     class: if is_visible() { "ant-spin-blur" } else { "" },
-                     {props.children.clone()}
+                    class: if spin_state.read().visible { "ant-spin-blur" } else { "" },
+                    {children}
                 }
-                
-                if is_visible() {
+
+                // 加载遮罩
+                if spin_state.read().visible {
                     div {
-                        class: "ant-spin-spinning",
-                        role: accessibility_attrs.role.unwrap_or_default(),
-                        "aria-label": accessibility_attrs.aria_label.unwrap_or_default(),
-                        "aria-describedby": accessibility_attrs.aria_describedby.unwrap_or_default(),
-                        "aria-live": accessibility_attrs.aria_live.unwrap_or_default(),
-                        "aria-busy": accessibility_attrs.aria_busy.unwrap_or_default(),
-                        
-                        if let Some(indicator) = &props.indicator {
-                            {indicator.clone()}
-                        } else {
-                            DefaultIndicator { size: props.size.unwrap_or(SpinSize::Default) }
-                        }
-                        
-                        if let Some(tip) = &props.tip {
-                            div {
-                                class: "ant-spin-text",
-                                {tip.clone()}
-                            }
-                        }
-                        
-                        if let Some(progress_text) = get_progress_text(&props) {
-                            div {
-                                class: "ant-spin-progress",
-                                {progress_text}
-                            }
+                        class: "{mask_class}",
+                        style: "{mask_style}",
+                        "aria-hidden": "true",
+
+                        div {
+                            class: "{final_container_class}",
+                            style: "{final_container_style}",
+                            role: "status",
+                            "aria-live": "polite",
+                            "aria-label": if props.tip.is_some() {
+                                props.tip.as_ref().unwrap()
+                            } else {
+                                "loading"
+                            },
+
+                            {render_indicator()}
+                            {render_tip()}
                         }
                     }
                 }
             }
         }
     } else {
-        // 独立加载指示器模式
-         if is_visible() {
+        // 独立模式
+        if spin_state.read().visible {
             rsx! {
                 div {
-                    class: "{spin_class()}",
-                    style: props.style.clone().unwrap_or_default(),
-                    role: accessibility_attrs.role.unwrap_or_default(),
-                    "aria-label": accessibility_attrs.aria_label.unwrap_or_default(),
-                    "aria-describedby": accessibility_attrs.aria_describedby.unwrap_or_default(),
-                    "aria-live": accessibility_attrs.aria_live.unwrap_or_default(),
-                    "aria-busy": accessibility_attrs.aria_busy.unwrap_or_default(),
-                    
-                    if let Some(indicator) = &props.indicator {
-                        {indicator.clone()}
+                    class: "{final_container_class}",
+                    style: "{final_container_style}",
+                    role: "status",
+                    "aria-live": "polite",
+                    "aria-label": if props.tip.is_some() {
+                        props.tip.as_ref().unwrap()
                     } else {
-                        DefaultIndicator { size: props.size.unwrap_or(SpinSize::Default) }
-                    }
-                    
-                    if let Some(tip) = &props.tip {
-                        div {
-                            class: "ant-spin-text",
-                            {tip.clone()}
-                        }
-                    }
-                    
-                    if let Some(progress_text) = get_progress_text(&props) {
-                        div {
-                            class: "ant-spin-progress",
-                            {progress_text}
-                        }
-                    }
+                        "loading"
+                    },
+
+                    {render_indicator()}
+                    {render_tip()}
                 }
             }
         } else {
@@ -241,15 +261,232 @@ pub fn Spin(props: SpinProps) -> Element {
     }
 }
 
+// ============================================================================
+// 便捷构造函数
+// ============================================================================
 
-
-/// 全局设置Spin配置的Hook
-pub fn use_spin_config() -> SpinConfig {
-    SpinConfig::default()
+/// 创建小尺寸 Spin
+pub fn spin_small() -> SpinProps {
+    SpinProps {
+        size: SpinSize::Small,
+        spinning: true,
+        ..Default::default()
+    }
 }
 
-/// 设置全局Spin配置
-pub fn set_global_spin_config(config: SpinConfig) {
-    // 这里可以实现全局配置的设置逻辑
-    // 在实际应用中，可能需要通过Context或其他状态管理方式来实现
+/// 创建大尺寸 Spin
+pub fn spin_large() -> SpinProps {
+    SpinProps {
+        size: SpinSize::Large,
+        spinning: true,
+        ..Default::default()
+    }
+}
+
+/// 创建带延迟的 Spin
+pub fn spin_with_delay(delay_ms: u32) -> SpinProps {
+    SpinProps {
+        spinning: true,
+        delay: Some(delay_ms),
+        ..Default::default()
+    }
+}
+
+/// 创建带提示的 Spin
+pub fn spin_with_tip(tip: impl Into<String>) -> SpinProps {
+    SpinProps {
+        spinning: true,
+        tip: Some(tip.into()),
+        ..Default::default()
+    }
+}
+
+/// 创建自定义指示器的 Spin
+pub fn spin_with_indicator(indicator: impl Into<String>) -> SpinProps {
+    SpinProps {
+        spinning: true,
+        indicator: Some(Ok(indicator.into())),
+        ..Default::default()
+    }
+}
+
+/// 创建包装内容的 Spin
+pub fn spin_wrapper(spinning: bool) -> SpinProps {
+    SpinProps {
+        spinning,
+        ..Default::default()
+    }
+}
+
+// ============================================================================
+// 高阶组件
+// ============================================================================
+
+/// Spin 包装器组件
+///
+/// 用于包装其他组件并提供加载状态
+#[component]
+pub fn SpinWrapper(
+    spinning: bool,
+    #[props(optional)] tip: Option<String>,
+    #[props(optional)] delay: Option<u32>,
+    #[props(optional)] size: Option<SpinSize>,
+    #[props(optional)] class: Option<String>,
+    #[props(optional)] style: Option<String>,
+    children: Element,
+) -> Element {
+    rsx! {
+        Spin {
+            spinning,
+            tip,
+            delay,
+            size: size.unwrap_or(SpinSize::Default),
+            class,
+            style,
+            children
+        }
+    }
+}
+
+/// 全屏加载组件
+#[component]
+pub fn SpinFullscreen(
+    spinning: bool,
+    #[props(optional)] tip: Option<String>,
+    #[props(optional)] size: Option<SpinSize>,
+) -> Element {
+    if spinning {
+        rsx! {
+            div {
+                class: "ant-spin-fullscreen",
+                style: "
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(255, 255, 255, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                ",
+
+                Spin {
+                    spinning: true,
+                    tip,
+                    size: size.unwrap_or(SpinSize::Large),
+                }
+            }
+        }
+    } else {
+        rsx! { div {} }
+    }
+}
+
+/// 页面加载组件
+#[component]
+pub fn SpinPage(
+    spinning: bool,
+    #[props(optional)] tip: Option<String>,
+    #[props(optional)] min_height: Option<String>,
+    children: Element,
+) -> Element {
+    let min_height = min_height.unwrap_or_else(|| "200px".to_string());
+
+    rsx! {
+        div {
+            class: "ant-spin-page",
+            style: "min-height: {min_height}; position: relative;",
+
+            SpinWrapper {
+                spinning,
+                tip,
+                size: SpinSize::Large,
+                children
+            }
+        }
+    }
+}
+
+// ============================================================================
+// 辅助函数
+// ============================================================================
+
+/// 设置全局默认指示器
+pub fn set_default_indicator(indicator: String) {
+    super::types::set_default_indicator(indicator);
+}
+
+/// 获取全局默认指示器
+pub fn get_default_indicator() -> Option<String> {
+    super::types::get_default_indicator()
+}
+
+/// 创建主题提供者
+#[component]
+pub fn SpinThemeProvider(theme: SpinTheme, children: Element) -> Element {
+    use_context_provider(|| Signal::new(theme));
+
+    rsx! {
+        {children}
+    }
+}
+
+/// 使用 Spin 主题
+pub fn use_spin_theme() -> Signal<SpinTheme> {
+    use_context::<Signal<SpinTheme>>().unwrap_or_else(|| Signal::new(SpinTheme::default()))
+}
+
+/// 创建加载状态 Hook
+pub fn use_loading(initial: bool) -> (Signal<bool>, impl Fn(bool)) {
+    let loading = use_signal(|| initial);
+    let set_loading = move |value: bool| {
+        loading.set(value);
+    };
+
+    (loading, set_loading)
+}
+
+/// 创建异步加载 Hook
+pub fn use_async_loading<T, F, Fut>(
+    async_fn: F,
+) -> (
+    Signal<bool>,
+    Signal<Option<T>>,
+    Signal<Option<String>>,
+    impl Fn(),
+)
+where
+    F: Fn() -> Fut + 'static,
+    Fut: std::future::Future<Output = Result<T, String>> + 'static,
+    T: 'static,
+{
+    let loading = use_signal(|| false);
+    let data = use_signal(|| None);
+    let error = use_signal(|| None);
+
+    let execute = move || {
+        let loading = loading.clone();
+        let data = data.clone();
+        let error = error.clone();
+
+        spawn(async move {
+            loading.set(true);
+            error.set(None);
+
+            match async_fn().await {
+                Ok(result) => {
+                    data.set(Some(result));
+                }
+                Err(err) => {
+                    error.set(Some(err));
+                }
+            }
+
+            loading.set(false);
+        });
+    };
+
+    (loading, data, error, execute)
 }
