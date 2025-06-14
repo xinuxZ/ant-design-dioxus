@@ -6,6 +6,9 @@ use super::i18n::*;
 use super::styles::*;
 use super::theme_enhanced::*;
 use super::types::*;
+use crate::components::typography::i18n::{
+    use_typography_i18n_safe, use_typography_locale, TypographyI18n, TypographyLocale,
+};
 use crate::locale::use_translate;
 use crate::theme::use_theme;
 use dioxus::prelude::*;
@@ -14,7 +17,7 @@ use dioxus::prelude::*;
 fn generate_complete_styles() -> String {
     let style_generator = TypographyStyleGenerator::new();
     let accessibility_styles = style_generator.generate_accessibility_styles();
-    
+
     format!(
         r#"
         <style>
@@ -30,9 +33,10 @@ fn generate_complete_styles() -> String {
 pub fn Typography(props: TypographyProps) -> Element {
     let theme = use_theme();
     let theme_style_generator = use_typography_theme();
-    let t = use_translate();
+    // 使用新的类型安全国际化方案
+    let typography_i18n = use_typography_i18n_safe();
     let text_type = props.r#type.as_ref().unwrap_or(&TextType::Default);
-    
+
     let style_generator = TypographyStyleGenerator::new()
         .with_type(text_type.clone())
         .with_disabled(props.disabled)
@@ -45,7 +49,7 @@ pub fn Typography(props: TypographyProps) -> Element {
         .with_keyboard(props.keyboard)
         .with_copyable(props.copyable.is_some())
         .with_editable(props.editable.is_some());
-    
+
     // 获取可访问性样式
     let accessibility_styles = style_generator.generate_accessibility_styles();
 
@@ -70,7 +74,7 @@ pub fn Typography(props: TypographyProps) -> Element {
     rsx! {
         // 注入可访问性样式
         style { dangerous_inner_html: "{accessibility_styles}" }
-        
+
         if let Some(ellipsis) = &props.ellipsis {
             EllipsisWrapper {
                 ellipsis: ellipsis.clone(),
@@ -273,7 +277,7 @@ pub fn Title(props: TitleProps) -> Element {
 pub fn Text(props: TextProps) -> Element {
     let theme = use_theme();
     let theme_style_generator = use_typography_theme();
-    let t = use_translate();
+    let typography_i18n = use_typography_i18n_safe();
     let text_type = props.r#type.as_ref().unwrap_or(&TextType::Default);
 
     let style_generator = TypographyStyleGenerator::new()
@@ -475,7 +479,7 @@ fn CopyButton(
 ) -> Element {
     let action_class = TypographyStyleGenerator::action_button_style();
     let (copy_to_clipboard, copied) = crate::hooks::use_clipboard();
-    let t = use_translate();
+    let typography_i18n = use_typography_i18n_safe();
 
     let onclick = move |_| {
         if let Some(text) = &text {
@@ -490,12 +494,9 @@ fn CopyButton(
     };
 
     let button_title = if copied() {
-        t(TypographyI18nKeys::COPIED)
+        typography_i18n.copied()
     } else {
-        tooltip
-            .as_deref()
-            .unwrap_or(&t(TypographyI18nKeys::COPY))
-            .to_string()
+        tooltip.as_deref().unwrap_or(typography_i18n.copy())
     };
 
     let button_icon = if copied() {
@@ -527,7 +528,7 @@ fn EllipsisWrapper(
     children: Element,
 ) -> Element {
     let mut is_expanded = use_signal(|| ellipsis.expanded.unwrap_or(ellipsis.default_expanded));
-    let t = use_translate();
+    let typography_i18n = use_typography_i18n_safe();
 
     let toggle_expand = move |_| {
         let new_state = !is_expanded();
@@ -552,13 +553,13 @@ fn EllipsisWrapper(
                 button {
                     class: "typography-expand-button",
                     onclick: toggle_expand,
-                    title: if is_expanded() { t(TypographyI18nKeys::COLLAPSE) } else { t(TypographyI18nKeys::EXPAND) },
+                    title: if is_expanded() { typography_i18n.collapse() } else { typography_i18n.expand() },
                     if is_expanded() {
                         if ellipsis.collapsible {
-                            {t(TypographyI18nKeys::COLLAPSE)}
+                            {typography_i18n.collapse()}
                         }
                     } else {
-                        {t(TypographyI18nKeys::EXPAND)}
+                        {typography_i18n.expand()}
                     }
                 }
             }
@@ -586,7 +587,7 @@ fn EditButton(
 ) -> Element {
     let mut edit_text = use_signal(|| text.clone().unwrap_or_default());
     let mut is_editing = use_signal(|| editing);
-    let t = use_translate();
+    let typography_i18n = use_typography_i18n_safe();
 
     let action_class = TypographyStyleGenerator::action_button_style();
     let input_class = EditStyleGenerator::edit_input_style();
@@ -672,7 +673,7 @@ fn EditButton(
                     onkeydown: on_keydown,
                     autofocus: true,
                     maxlength: max_length.map(|len| len.to_string()),
-                    "aria-label": t(TypographyI18nKeys::EDIT_TEXT),
+                    "aria-label": typography_i18n.edit_text(),
                     "aria-describedby": "edit-help",
                     role: "textbox",
                 }
@@ -680,24 +681,24 @@ fn EditButton(
                     class: "{actions_class}",
                     button {
                         class: "{action_btn_class}",
-                        title: t(TypographyI18nKeys::SAVE),
+                        title: typography_i18n.save(),
                         onclick: confirm_edit,
-                        "aria-label": t(TypographyI18nKeys::SAVE),
+                        "aria-label": typography_i18n.save(),
                         role: "button",
                         "✓"
                     }
                     button {
                         class: "{action_btn_class}",
-                        title: t(TypographyI18nKeys::CANCEL),
+                        title: typography_i18n.cancel(),
                         onclick: cancel_edit,
-                        "aria-label": t(TypographyI18nKeys::CANCEL),
+                        "aria-label": typography_i18n.cancel(),
                         role: "button",
                         "✕"
                     }
                     span {
                         id: "edit-help",
                         class: "sr-only",
-                        {t(TypographyI18nKeys::EDIT_HELP)}
+                        {typography_i18n.edit_help()}
                     }
                 }
             }
@@ -706,13 +707,40 @@ fn EditButton(
         rsx! {
             button {
                 class: "{action_class}",
-                title: tooltip.as_deref().unwrap_or(&t(TypographyI18nKeys::EDIT)),
+                title: tooltip.as_deref().unwrap_or(typography_i18n.edit()),
                 onclick: start_edit,
-                "aria-label": tooltip.as_deref().unwrap_or(&t(TypographyI18nKeys::EDIT)),
+                "aria-label": tooltip.as_deref().unwrap_or(typography_i18n.edit()),
                 role: "button",
                 // 编辑图标 (简化版)
                 "✏️"
             }
         }
     }
+}
+
+/// 文本统计功能
+#[derive(Debug, Clone, PartialEq)]
+pub struct TextStatistics {
+    pub character_count: usize,
+    pub word_count: usize,
+    pub line_count: usize,
+}
+
+impl TextStatistics {
+    pub fn new(text: &str) -> Self {
+        let character_count = text.chars().count();
+        let word_count = text.split_whitespace().count();
+        let line_count = text.lines().count().max(1);
+
+        Self {
+            character_count,
+            word_count,
+            line_count,
+        }
+    }
+}
+
+/// 文本统计Hook
+pub fn use_text_statistics(text: &str) -> TextStatistics {
+    TextStatistics::new(text)
 }

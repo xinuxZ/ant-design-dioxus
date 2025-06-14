@@ -3,10 +3,9 @@
 //! 本模块包含Typography组件的所有样式定义，从组件逻辑中分离出来，
 //! 提高代码的可维护性和复用性。
 
-use css_in_rust::css;
-
 use super::types::*;
-use crate::theme::Theme;
+use css_in_rust::css;
+use once_cell::sync::Lazy;
 
 /// Typography 通用样式生成器
 #[derive(Clone)]
@@ -14,7 +13,6 @@ pub struct TypographyStyleGenerator {
     pub text_type: TextType,
     pub disabled: bool,
     pub delete: bool,
-    pub underline: bool,
     pub strong: bool,
     pub italic: bool,
     pub mark: bool,
@@ -24,6 +22,7 @@ pub struct TypographyStyleGenerator {
     pub editable: bool,
     pub ellipsis: bool,
     pub ellipsis_rows: Option<u32>,
+    pub underline: bool,
 }
 
 impl TypographyStyleGenerator {
@@ -45,15 +44,20 @@ impl TypographyStyleGenerator {
             ellipsis_rows: None,
         }
     }
-    
+
     /// 生成可访问性样式
     pub fn generate_accessibility_styles(&self) -> String {
         r#"
         /* 屏幕阅读器专用样式 */
         .sr-only {
             position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
+
+                      width: 1p
+           x !important;
+
+              heig
+    h       t: 1px !
+        important;
             padding: 0 !important;
             margin: -1px !important;
             overflow: hidden !important;
@@ -61,23 +65,23 @@ impl TypographyStyleGenerator {
             white-space: nowrap !important;
             border: 0 !important;
         }
-        
+
         /* 高对比度模式支持 */
         @media (prefers-contrast: high) {
             .ant-typography {
                 color: CanvasText;
                 background-color: Canvas;
             }
-            
+
             .ant-typography a {
                 color: LinkText;
                 text-decoration: underline;
             }
-            
+
             .ant-typography a:visited {
                 color: VisitedText;
             }
-            
+
             .ant-typography code,
             .ant-typography kbd {
                 border: 1px solid CanvasText;
@@ -85,7 +89,7 @@ impl TypographyStyleGenerator {
                 color: CanvasText;
             }
         }
-        
+
         /* 减少动画偏好支持 */
         @media (prefers-reduced-motion: reduce) {
             .ant-typography *,
@@ -97,7 +101,7 @@ impl TypographyStyleGenerator {
                 scroll-behavior: auto !important;
             }
         }
-        
+
         /* 焦点指示器增强 */
         .ant-typography a:focus,
         .ant-typography button:focus,
@@ -106,7 +110,7 @@ impl TypographyStyleGenerator {
             outline-offset: 2px;
             border-radius: 2px;
         }
-        
+
         /* 确保焦点指示器在高对比度模式下可见 */
         @media (prefers-contrast: high) {
             .ant-typography a:focus,
@@ -116,7 +120,8 @@ impl TypographyStyleGenerator {
                 outline-offset: 2px;
             }
         }
-        "#.to_string()
+        "#
+        .to_string()
     }
 
     /// 设置文本类型
@@ -197,7 +202,7 @@ impl TypographyStyleGenerator {
         self
     }
 
-    /// 生成完整的Typography样式类名
+    ///             生成完整的Typography样式类名
     pub fn generate(&self) -> String {
         let mut classes = vec![self.base_style(), self.type_style()];
 
@@ -457,12 +462,12 @@ impl TypographyStyleGenerator {
             margin-left: 4px;
             padding: 0;
             text-decoration: none;
-            
+
             &:hover {
                 color: #40a9ff;
                 text-decoration: underline;
             }
-            
+
             &:active {
                 color: #096dd9;
             }
@@ -470,7 +475,7 @@ impl TypographyStyleGenerator {
         )
         .to_string()
     }
-    
+
     /// 省略内容样式
     pub fn ellipsis_content_style() -> String {
         css!(
@@ -480,7 +485,7 @@ impl TypographyStyleGenerator {
                 white-space: nowrap;
                 text-overflow: ellipsis;
             }
-            
+
             .typography-expand-button {
                 background: none;
                 border: none;
@@ -491,12 +496,12 @@ impl TypographyStyleGenerator {
                 padding: 0;
                 text-decoration: none;
             }
-            
+
             .typography-expand-button:hover {
                 color: #40a9ff;
                 text-decoration: underline;
             }
-            
+
             .typography-ellipsis-suffix {
                 margin-left: 4px;
                 color: #8c8c8c;

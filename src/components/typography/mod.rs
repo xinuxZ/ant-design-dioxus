@@ -5,7 +5,10 @@
 
 pub mod component;
 pub mod i18n;
+pub mod rtl;
 pub mod styles;
+pub mod text_search;
+pub mod text_selection;
 pub mod theme_enhanced;
 pub mod types;
 
