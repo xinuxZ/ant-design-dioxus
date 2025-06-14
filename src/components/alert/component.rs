@@ -50,10 +50,11 @@ pub fn Alert(props: AlertProps) -> Element {
     let animation_duration = props.animation_duration;
     let after_close = props.after_close.clone();
 
+    let current_visible_clone = internal_visible.clone();
     // 监听visible属性变化
     use_effect(move || {
-        let current_visible = internal_visible.read();
-        if visible != *current_visible {
+        // let current_visible = internal_visible.read();
+        if visible != *current_visible_clone.read() {
             internal_visible.set(visible);
 
             if visible {
@@ -71,7 +72,13 @@ pub fn Alert(props: AlertProps) -> Element {
                 }
             } else {
                 // 隐藏Alert
-                handle_close_animation_internal(enable_animation, animation_duration, after_close, &mut alert_state, &mut animation_timer);
+                handle_close_animation_internal(
+                    enable_animation,
+                    animation_duration,
+                    after_close,
+                    &mut alert_state,
+                    &mut animation_timer,
+                );
             }
         }
     });
@@ -308,6 +315,7 @@ fn handle_close_animation_internal(
         alert_state.write().animation_state = AnimationState::Exiting;
 
         // 设置退出动画完成定时器
+        let mut alert_state = alert_state.clone();
         let timer = Timeout::new(animation_duration, move || {
             alert_state.write().visible = false;
             alert_state.write().closing = false;
@@ -617,9 +625,6 @@ pub mod global {
         // 实现全局错误提示
     }
 }
-
-// 便捷构造函数
-use dioxus::prelude::*;
 
 /// 创建成功类型的Alert
 pub fn success_alert(message: String) -> Element {

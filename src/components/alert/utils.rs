@@ -1,10 +1,10 @@
 //! Alert 组件的工具函数
 
-use dioxus::prelude::*;
 use dioxus::events::Key;
+use dioxus::prelude::*;
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
-use web_sys::{window, Element, HtmlElement};
+use web_sys::{window, CssStyleDeclaration, Element, HtmlElement};
 
 use crate::components::alert::types::*;
 
@@ -487,8 +487,12 @@ impl AlertEventHandler {
                     event.prevent_default();
                 }
             }
-            "Enter" | " " => {
-                // 处理回车和空格键
+            Key::Enter => {
+                // 处理回车键
+                event.prevent_default();
+            }
+            Key::Character(ch) if ch == " " => {
+                // 处理空格键
                 event.prevent_default();
             }
             _ => {}
@@ -516,7 +520,7 @@ pub struct AlertAnimationManager;
 impl AlertAnimationManager {
     /// 开始进入动画
     pub fn start_enter_animation(element: &Element, duration: u32) {
-        if let Ok(html_element) = element.dyn_into::<HtmlElement>() {
+        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
             let style = html_element.style();
             let _ = style.set_property(
                 "animation",
@@ -527,7 +531,7 @@ impl AlertAnimationManager {
 
     /// 开始退出动画
     pub fn start_exit_animation(element: &Element, duration: u32) {
-        if let Ok(html_element) = element.dyn_into::<HtmlElement>() {
+        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
             let style = html_element.style();
             let _ = style.set_property(
                 "animation",
@@ -538,7 +542,7 @@ impl AlertAnimationManager {
 
     /// 清除动画
     pub fn clear_animation(element: &Element) {
-        if let Ok(html_element) = element.dyn_into::<HtmlElement>() {
+        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
             let style = html_element.style();
             let _ = style.remove_property("animation");
         }
