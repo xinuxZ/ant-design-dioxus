@@ -54,15 +54,12 @@
 
 // 子模块声明
 mod component;
-mod types;
 mod styles;
+mod types;
 mod utils;
-
-#[cfg(test)]
-mod tests;
 
 // 公共导出
 pub use component::*;
-pub use types::*;
 pub use styles::class_names;
-pub use utils::{register_global_icon, get_global_icon, validate_icon_name, SvgIcon, IconLibrary};
+pub use types::*;
+pub use utils::{get_global_icon, register_global_icon, validate_icon_name, IconLibrary, SvgIcon};

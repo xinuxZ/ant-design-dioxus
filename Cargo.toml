@@ -53,6 +53,11 @@ base64 = "0.21.7"
 css-in-rust = { path = "../css-in-rust/css-in-rust" }
 # css-in-rust-macros = { path = "../css-in-rust/css-in-rust-macros" }
 
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+rand = "0.8"
+dioxus-ssr = "0.6.2"
+
 # 启用 proc-macro 特性
 [build-dependencies]
 

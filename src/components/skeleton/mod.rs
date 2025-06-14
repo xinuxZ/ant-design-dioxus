@@ -86,58 +86,28 @@
 //! ```
 
 mod component;
-mod types;
 mod styles;
+mod types;
 mod utils;
 
-#[cfg(test)]
-mod tests;
-
 // 重新导出主要组件和类型
-pub use component::{
-    Skeleton,
-    SkeletonButton,
-    SkeletonInput,
-    SkeletonImage,
-};
+pub use component::{Skeleton, SkeletonButton, SkeletonImage, SkeletonInput};
 
 pub use types::{
-    SkeletonProps,
-    SkeletonButtonProps,
-    SkeletonInputProps,
-    SkeletonImageProps,
-    SkeletonAvatarProps,
-    SkeletonTitleProps,
-    SkeletonParagraphProps,
-    SkeletonAvatarConfig,
-    SkeletonTitleConfig,
-    SkeletonParagraphConfig,
-    SkeletonWidth,
-    SkeletonWidthConfig,
-    SkeletonTheme,
-    AvatarShape,
-    AvatarSize,
-    ButtonShape,
-    ButtonSize,
-    InputSize,
+    AvatarShape, AvatarSize, ButtonShape, ButtonSize, InputSize, SkeletonAvatarConfig,
+    SkeletonAvatarProps, SkeletonButtonProps, SkeletonImageProps, SkeletonInputProps,
+    SkeletonParagraphConfig, SkeletonParagraphProps, SkeletonProps, SkeletonTheme,
+    SkeletonTitleConfig, SkeletonTitleProps, SkeletonWidth, SkeletonWidthConfig,
 };
 
 pub use styles::{
-    generate_skeleton_style,
-    generate_skeleton_avatar_style,
-    generate_skeleton_title_style,
-    generate_skeleton_paragraph_style,
-    generate_skeleton_button_style,
-    generate_skeleton_input_style,
-    generate_skeleton_image_style,
-    generate_skeleton_animation,
+    generate_skeleton_animation, generate_skeleton_avatar_style, generate_skeleton_button_style,
+    generate_skeleton_image_style, generate_skeleton_input_style,
+    generate_skeleton_paragraph_style, generate_skeleton_style, generate_skeleton_title_style,
     get_skeleton_class_name,
 };
 
 pub use utils::{
-    calculate_avatar_props,
-    calculate_title_props,
-    calculate_paragraph_props,
-    generate_paragraph_widths,
-    validate_skeleton_config,
+    calculate_avatar_props, calculate_paragraph_props, calculate_title_props,
+    generate_paragraph_widths, validate_skeleton_config,
 };

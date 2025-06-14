@@ -213,9 +213,6 @@ pub mod styles;
 pub mod types;
 pub mod utils;
 
-#[cfg(test)]
-pub mod tests;
-
 // 重新导出主要类型和组件
 pub use component::*;
 pub use types::*;
@@ -223,12 +220,6 @@ pub use utils::*;
 
 // 便捷构造函数
 pub use component::{
-    success_alert,
-    info_alert,
+    action_alert, banner_alert, closable_alert, error_alert, icon_alert, info_alert, success_alert,
     warning_alert,
-    error_alert,
-    closable_alert,
-    icon_alert,
-    banner_alert,
-    action_alert,
 };

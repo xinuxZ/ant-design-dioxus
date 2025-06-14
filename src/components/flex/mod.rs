@@ -108,9 +108,6 @@ pub mod styles;
 pub mod types;
 pub mod utils;
 
-#[cfg(test)]
-mod tests;
-
 // 重新导出主要类型和组件
 pub use component::*;
 pub use types::*;
