@@ -3,6 +3,7 @@
 use crate::theme::use_theme;
 use crate::utils::class_names::class_names;
 use super::types::{SpinSize, SpinTheme};
+use std::collections::HashMap;
 
 /// 生成 Spin 容器的样式
 pub fn generate_spin_container_styles(size: &SpinSize, has_children: bool) -> String {
@@ -406,4 +407,78 @@ pub fn generate_responsive_styles() -> String {
             }
         }
     "#.to_string()
+}
+
+/// 获取 Spin 指示器的 CSS 类名
+pub fn get_spin_indicator_class(size: &SpinSize) -> String {
+    let size_class = match size {
+        SpinSize::Small => "ant-spin-sm",
+        SpinSize::Default => "",
+        SpinSize::Large => "ant-spin-lg",
+    };
+    
+    class_names(&[
+        "ant-spin-spinning",
+        size_class,
+    ])
+}
+
+/// 获取 Spin 文本的 CSS 类名
+pub fn get_spin_text_class() -> String {
+    "ant-spin-text".to_string()
+}
+
+/// 获取 Spin 遮罩的 CSS 类名
+pub fn get_spin_mask_class() -> String {
+    "ant-spin-mask".to_string()
+}
+
+/// 生成 Spin 指示器的内联样式
+pub fn generate_spin_indicator_style(theme: &SpinTheme, size: &SpinSize) -> String {
+    let (width, height) = calculate_spin_size(size);
+    format!(
+        "width: {}px; height: {}px; color: {};",
+        width, height, theme.color_primary
+    )
+}
+
+/// 生成 CSS 变量映射
+pub fn generate_css_variables(theme: &SpinTheme, size: &SpinSize) -> HashMap<String, String> {
+    let mut vars = HashMap::new();
+    
+    vars.insert("--spin-color-primary".to_string(), theme.color_primary.clone());
+    vars.insert("--spin-color-text".to_string(), theme.color_text.clone());
+    vars.insert("--spin-color-bg".to_string(), theme.color_bg_container.clone());
+    vars.insert("--spin-color-mask".to_string(), theme.color_bg_mask.clone());
+    vars.insert("--spin-duration".to_string(), theme.motion_duration_slow.clone());
+    
+    // 根据尺寸设置字体大小
+    let font_size = match size {
+        SpinSize::Small => &theme.font_size_sm,
+        SpinSize::Default => &theme.font_size,
+        SpinSize::Large => &theme.font_size_lg,
+    };
+    vars.insert("--spin-font-size".to_string(), font_size.clone());
+    
+    vars
+}
+
+/// 生成 Spin 主题样式
+pub fn generate_spin_theme_styles(theme: &SpinTheme) -> String {
+    format!(
+        r#"
+        .ant-spin {{
+            --ant-primary-color: {};
+            --ant-text-color: {};
+            --ant-bg-color: {};
+            --ant-mask-color: {};
+            --ant-motion-duration: {};
+        }}
+        "#,
+        theme.color_primary,
+        theme.color_text,
+        theme.color_bg_container,
+        theme.color_bg_mask,
+        theme.motion_duration_slow
+    )
 }

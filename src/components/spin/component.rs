@@ -1,10 +1,19 @@
 //! Spin 组件实现
 
-use super::styles::*;
-use super::types::{SpinProps, SpinSize, SpinState, SpinTheme};
+use super::types::{SpinProps, SpinSize, SpinTheme};
 use super::utils::*;
 use dioxus::prelude::*;
-use std::time::Duration;
+use gloo_timers::callback::Timeout;
+use std::rc::Rc;
+
+use super::{
+    calculate_spin_size, generate_css_variables,
+    generate_spin_container_styles, generate_spin_dot_styles, generate_spin_indicator_style,
+    generate_spin_mask_styles, generate_spin_text_styles, generate_spin_theme_styles,
+    get_spin_container_class_name, get_spin_content_class_name, get_spin_indicator_class,
+    get_spin_mask_class, get_spin_text_class,
+};
+use super::utils::{create_spin_state, generate_cache_key, should_show_with_delay, validate_spin_props};
 
 /// Spin 加载指示器组件
 ///
@@ -53,7 +62,7 @@ use std::time::Duration;
 /// }
 /// ```
 #[component]
-pub fn Spin<UseTimer>(props: SpinProps) -> Element {
+pub fn Spin(props: SpinProps) -> Element {
     // 验证 Props
     if let Err(error) = validate_spin_props(&props) {
         return rsx! {
@@ -66,11 +75,10 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
 
     // 状态管理
     let mut spin_state = use_signal(|| create_spin_state(props.spinning, props.delay));
-    let mut delay_timer = use_signal(|| None::<UseTimer>);
+    let mut delay_timer = use_signal(|| None::<Timeout>);
 
     // 主题
-    let theme =
-        use_context::<Signal<SpinTheme>>().unwrap_or_else(|| Signal::new(SpinTheme::default()));
+    let theme = use_context::<Signal<SpinTheme>>(); //.unwrap_or(Signal::new(SpinTheme::default()));
 
     // 延迟显示逻辑
     use_effect(move || {
@@ -80,7 +88,7 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
                 spin_state.write().visible = false;
                 spin_state.write().delayed = true;
 
-                let timer = use_timer(Duration::from_millis(delay_ms as u64), move || {
+                let timer = Timeout::new(delay_ms, move || {
                     spin_state.write().visible = true;
                     spin_state.write().delayed = false;
                 });
@@ -97,14 +105,15 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
             spin_state.write().delayed = false;
 
             // 清除计时器
-            if let Some(timer) = delay_timer.take() {
-                timer.stop();
+            if let Some(_timer) = delay_timer.take() {
+                // gloo_timers::callback::Timeout 会在 drop 时自动取消
             }
         }
     });
 
     // 生成样式
-    let container_class = get_spin_container_class_name(&props.size, props.children.is_ok());
+    let container_class =
+        get_spin_container_class_name(spin_state.read().visible, props.class.as_deref());
     let indicator_class = get_spin_indicator_class(&props.size);
     let text_class = get_spin_text_class();
     let mask_class = get_spin_mask_class();
@@ -143,13 +152,13 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
 
     // 渲染指示器
     let render_indicator = || {
-        if let Some(ref custom_indicator) = props.indicator {
+        if let Some(custom_indicator) = props.indicator {
             // 自定义指示器
             rsx! {
                 div {
                     class: "{indicator_class} ant-spin-custom",
                     style: "{indicator_style}",
-                    "{custom_indicator}"
+                    {custom_indicator}
                 }
             }
         } else {
@@ -193,11 +202,17 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
     };
 
     // 如果有子元素，渲染包装模式
-    if let Some(children) = props.children {
+    if let Ok(children) = props.children {
         let wrapper_class = if let Some(ref wrapper_class_name) = props.wrapper_class_name {
             format!("ant-spin-container {}", wrapper_class_name)
         } else {
             "ant-spin-container".to_string()
+        };
+
+        let aria_label = if props.tip.is_some() {
+            props.tip.as_ref().unwrap().clone()
+        } else {
+            "loading".to_string()
         };
 
         rsx! {
@@ -223,11 +238,7 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
                             style: "{final_container_style}",
                             role: "status",
                             "aria-live": "polite",
-                            "aria-label": if props.tip.is_some() {
-                                props.tip.as_ref().unwrap()
-                            } else {
-                                "loading"
-                            },
+                            "aria-label": "{aria_label}",
 
                             {render_indicator()}
                             {render_tip()}
@@ -237,6 +248,12 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
             }
         }
     } else {
+        let arial_label2 = if props.tip.is_some() {
+            props.tip.as_ref().unwrap().clone()
+        } else {
+            "loading".to_string()
+        };
+
         // 独立模式
         if spin_state.read().visible {
             rsx! {
@@ -245,11 +262,7 @@ pub fn Spin<UseTimer>(props: SpinProps) -> Element {
                     style: "{final_container_style}",
                     role: "status",
                     "aria-live": "polite",
-                    "aria-label": if props.tip.is_some() {
-                        props.tip.as_ref().unwrap()
-                    } else {
-                        "loading"
-                    },
+                    "aria-label": "{arial_label2}",
 
                     {render_indicator()}
                     {render_tip()}
@@ -302,7 +315,7 @@ pub fn spin_with_tip(tip: impl Into<String>) -> SpinProps {
 }
 
 /// 创建自定义指示器的 Spin
-pub fn spin_with_indicator(indicator: impl Into<String>) -> SpinProps {
+pub fn spin_with_indicator(indicator: Element) -> SpinProps {
     SpinProps {
         spinning: true,
         indicator: Some(Ok(indicator.into())),
@@ -414,12 +427,12 @@ pub fn SpinPage(
 // ============================================================================
 
 /// 设置全局默认指示器
-pub fn set_default_indicator(indicator: String) {
+pub fn set_default_indicator(indicator: fn() -> Element) {
     super::types::set_default_indicator(indicator);
 }
 
 /// 获取全局默认指示器
-pub fn get_default_indicator() -> Option<String> {
+pub fn get_default_indicator() -> Option<fn() -> Element> {
     super::types::get_default_indicator()
 }
 
@@ -435,12 +448,12 @@ pub fn SpinThemeProvider(theme: SpinTheme, children: Element) -> Element {
 
 /// 使用 Spin 主题
 pub fn use_spin_theme() -> Signal<SpinTheme> {
-    use_context::<Signal<SpinTheme>>().unwrap_or_else(|| Signal::new(SpinTheme::default()))
+    use_context::<Signal<SpinTheme>>()
 }
 
 /// 创建加载状态 Hook
-pub fn use_loading(initial: bool) -> (Signal<bool>, Box<dyn Fn(bool)>) {
-    let loading = use_signal(|| initial);
+pub fn use_loading(initial: bool) -> (Signal<bool>, Box<dyn FnMut(bool)>) {
+    let mut loading = use_signal(|| initial);
     let set_loading = Box::new(move |value: bool| {
         loading.set(value);
     });
@@ -455,7 +468,7 @@ pub fn use_async_loading<T, F, Fut>(
     Signal<bool>,
     Signal<Option<T>>,
     Signal<Option<String>>,
-    Box<dyn Fn()>,
+    Box<dyn Fn() + 'static>,
 )
 where
     F: Fn() -> Fut + 'static,
@@ -466,10 +479,16 @@ where
     let data = use_signal(|| None);
     let error = use_signal(|| None);
 
+    let loading_clone = loading.clone();
+    let data_clone = data.clone();
+    let error_clone = error.clone();
+    let async_fn = Rc::new(async_fn);
+
     let execute = Box::new(move || {
-        let loading = loading.clone();
-        let data = data.clone();
-        let error = error.clone();
+        let mut loading = loading_clone.clone();
+        let mut data = data_clone.clone();
+        let mut error = error_clone.clone();
+        let async_fn = async_fn.clone();
 
         spawn(async move {
             loading.set(true);
