@@ -1,12 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::components::qr_code::types::*;
-    use crate::components::qr_code::utils::*;
-    use crate::components::qr_code::styles::*;
     use dioxus::prelude::*;
-    use dioxus_testing::*;
-    use std::collections::HashMap;
 
     // 测试 QRCodeType 枚举
     #[test]
@@ -233,7 +228,7 @@ mod tests {
             false,
             "#ff4d4f".to_string(),
         );
-        
+
         assert_eq!(config.value, "https://example.com");
         assert_eq!(config.qr_type, QRCodeType::Svg);
         assert_eq!(config.size, QRCodeSize::Large);
@@ -251,7 +246,7 @@ mod tests {
     fn test_qr_code_config_with_icon() {
         let mut config = QRCodeConfig::default();
         config = config.with_icon("logo.svg".to_string(), 60);
-        
+
         assert_eq!(config.icon, Some("logo.svg".to_string()));
         assert_eq!(config.icon_size, 60);
     }
@@ -260,7 +255,7 @@ mod tests {
     fn test_qr_code_config_with_border() {
         let mut config = QRCodeConfig::default();
         config = config.with_border(true, "#52c41a".to_string());
-        
+
         assert_eq!(config.bordered, true);
         assert_eq!(config.border_color, "#52c41a");
     }
@@ -269,7 +264,7 @@ mod tests {
     fn test_qr_code_config_with_colors() {
         let mut config = QRCodeConfig::default();
         config = config.with_colors("#722ed1".to_string(), "#f6ffed".to_string());
-        
+
         assert_eq!(config.color, "#722ed1");
         assert_eq!(config.bg_color, "#f6ffed");
     }
@@ -281,7 +276,7 @@ mod tests {
             ..Default::default()
         };
         assert!(valid_config.is_valid());
-        
+
         let invalid_config = QRCodeConfig {
             value: "".to_string(),
             ..Default::default()
@@ -296,7 +291,7 @@ mod tests {
             ..Default::default()
         };
         assert!(!active_config.needs_refresh());
-        
+
         let expired_config = QRCodeConfig {
             status: QRCodeStatus::Expired,
             ..Default::default()
@@ -311,7 +306,7 @@ mod tests {
             ..Default::default()
         };
         assert!(active_config.can_scan());
-        
+
         let loading_config = QRCodeConfig {
             status: QRCodeStatus::Loading,
             ..Default::default()
@@ -325,6 +320,7 @@ mod tests {
         let valid_props = QRCodeProps {
             value: "https://example.com".to_string(),
             qr_type: QRCodeType::Canvas,
+            r#type: QRCodeType::Canvas,
             size: QRCodeSize::Medium,
             status: QRCodeStatus::Active,
             error_level: QRCodeErrorLevel::M,
@@ -334,11 +330,13 @@ mod tests {
             icon_size: Some(40),
             bordered: Some(true),
             border_color: Some("#d9d9d9".to_string()),
+            status_render: None,
             class: None,
             style: None,
             on_refresh: None,
+            children: None,
         };
-        
+
         assert!(validate_qr_code_props(&valid_props).is_ok());
     }
 
@@ -347,6 +345,7 @@ mod tests {
         let invalid_props = QRCodeProps {
             value: "".to_string(),
             qr_type: QRCodeType::Canvas,
+            r#type: QRCodeType::Canvas,
             size: QRCodeSize::Medium,
             status: QRCodeStatus::Active,
             error_level: QRCodeErrorLevel::M,
@@ -356,11 +355,13 @@ mod tests {
             icon_size: None,
             bordered: None,
             border_color: None,
+            status_render: None,
             class: None,
             style: None,
             on_refresh: None,
+            children: None,
         };
-        
+
         assert!(validate_qr_code_props(&invalid_props).is_err());
     }
 
@@ -369,6 +370,7 @@ mod tests {
         let invalid_props = QRCodeProps {
             value: "test".to_string(),
             qr_type: QRCodeType::Canvas,
+            r#type: QRCodeType::Canvas,
             size: QRCodeSize::Medium,
             status: QRCodeStatus::Active,
             error_level: QRCodeErrorLevel::M,
@@ -378,11 +380,13 @@ mod tests {
             icon_size: None,
             bordered: None,
             border_color: None,
+            status_render: None,
             class: None,
             style: None,
             on_refresh: None,
+            children: None,
         };
-        
+
         assert!(validate_qr_code_props(&invalid_props).is_err());
     }
 
@@ -391,6 +395,7 @@ mod tests {
         let props = QRCodeProps {
             value: "https://ant.design".to_string(),
             qr_type: QRCodeType::Svg,
+            r#type: QRCodeType::Svg,
             size: QRCodeSize::Large,
             status: QRCodeStatus::Active,
             error_level: QRCodeErrorLevel::H,
@@ -400,11 +405,13 @@ mod tests {
             icon_size: Some(50),
             bordered: Some(false),
             border_color: Some("#52c41a".to_string()),
+            status_render: None,
             class: None,
             style: None,
             on_refresh: None,
+            children: None,
         };
-        
+
         let config = create_qr_code_config(&props);
         assert_eq!(config.value, "https://ant.design");
         assert_eq!(config.qr_type, QRCodeType::Svg);
@@ -426,10 +433,10 @@ mod tests {
             error_level: QRCodeErrorLevel::M,
             ..Default::default()
         };
-        
+
         let qr_data = generate_qr_code_data(&config);
         assert!(qr_data.is_ok());
-        
+
         let data = qr_data.unwrap();
         assert!(!data.is_empty());
     }
@@ -440,7 +447,7 @@ mod tests {
             value: "".to_string(),
             ..Default::default()
         };
-        
+
         let qr_data = generate_qr_code_data(&config);
         assert!(qr_data.is_err());
     }
@@ -455,10 +462,10 @@ mod tests {
             bg_color: "#ffffff".to_string(),
             ..Default::default()
         };
-        
+
         let svg_result = generate_qr_code_svg(&config);
         assert!(svg_result.is_ok());
-        
+
         let svg_content = svg_result.unwrap();
         assert!(svg_content.contains("<svg"));
         assert!(svg_content.contains("</svg>"));
@@ -473,10 +480,10 @@ mod tests {
             size: QRCodeSize::Small,
             ..Default::default()
         };
-        
+
         let canvas_data = generate_qr_code_canvas_data(&config);
         assert!(canvas_data.is_ok());
-        
+
         let data = canvas_data.unwrap();
         assert!(data.starts_with("data:image/png;base64,"));
     }
@@ -488,7 +495,7 @@ mod tests {
             bordered: true,
             ..Default::default()
         };
-        
+
         let class_name = get_qr_code_container_class(&config);
         assert!(class_name.contains("ant-qrcode"));
         assert!(class_name.contains("ant-qrcode-bordered"));
@@ -501,7 +508,7 @@ mod tests {
             bordered: false,
             ..Default::default()
         };
-        
+
         let class_name = get_qr_code_container_class(&config);
         assert!(class_name.contains("ant-qrcode"));
         assert!(class_name.contains("ant-qrcode-expired"));
@@ -516,26 +523,15 @@ mod tests {
             bordered: true,
             ..Default::default()
         };
-        
+
         let styles = get_qr_code_container_styles(&config);
         assert!(styles.contains("width: 200px"));
         assert!(styles.contains("height: 200px"));
         assert!(styles.contains("border-color: #1890ff"));
     }
 
-    #[test]
-    fn test_handle_qr_code_refresh() {
-        let mut refreshed = false;
-        let callback = move |_| {
-            refreshed = true;
-        };
-        
-        // 模拟刷新事件
-        let event = MouseEvent::new("click".to_string());
-        handle_qr_code_refresh(Some(callback), event);
-        // 由于闭包的限制，这里无法直接测试refreshed的值变化
-        // 但函数调用本身测试了事件处理逻辑
-    }
+    // 注意：QRCode组件的刷新事件处理是在组件内部实现的，
+    // 不需要单独的handle_qr_code_refresh函数测试
 
     #[test]
     fn test_is_valid_color_format() {
@@ -545,7 +541,7 @@ mod tests {
         assert!(is_valid_color_format("rgba(0, 0, 0, 0.5)"));
         assert!(is_valid_color_format("red"));
         assert!(is_valid_color_format("transparent"));
-        
+
         assert!(!is_valid_color_format("invalid"));
         assert!(!is_valid_color_format("#gggggg"));
         assert!(!is_valid_color_format(""));
@@ -565,15 +561,15 @@ mod tests {
         let small_styles = QRCodeStyles::size_styles(&QRCodeSize::Small);
         assert!(small_styles.contains("width: 120px"));
         assert!(small_styles.contains("height: 120px"));
-        
+
         let medium_styles = QRCodeStyles::size_styles(&QRCodeSize::Medium);
         assert!(medium_styles.contains("width: 160px"));
         assert!(medium_styles.contains("height: 160px"));
-        
+
         let large_styles = QRCodeStyles::size_styles(&QRCodeSize::Large);
         assert!(large_styles.contains("width: 200px"));
         assert!(large_styles.contains("height: 200px"));
-        
+
         let custom_styles = QRCodeStyles::size_styles(&QRCodeSize::Custom(250));
         assert!(custom_styles.contains("width: 250px"));
         assert!(custom_styles.contains("height: 250px"));
@@ -583,14 +579,14 @@ mod tests {
     fn test_qr_code_styles_status_styles() {
         let active_styles = QRCodeStyles::status_styles(&QRCodeStatus::Active);
         assert!(active_styles.contains("ant-qrcode-active"));
-        
+
         let expired_styles = QRCodeStyles::status_styles(&QRCodeStatus::Expired);
         assert!(expired_styles.contains("ant-qrcode-expired"));
         assert!(expired_styles.contains("opacity: 0.3"));
-        
+
         let loading_styles = QRCodeStyles::status_styles(&QRCodeStatus::Loading);
         assert!(loading_styles.contains("ant-qrcode-loading"));
-        
+
         let scanned_styles = QRCodeStyles::status_styles(&QRCodeStatus::Scanned);
         assert!(scanned_styles.contains("ant-qrcode-scanned"));
     }
@@ -599,7 +595,7 @@ mod tests {
     fn test_qr_code_styles_border_styles() {
         let bordered_styles = QRCodeStyles::border_styles(true, "#d9d9d9");
         assert!(bordered_styles.contains("border: 1px solid #d9d9d9"));
-        
+
         let no_border_styles = QRCodeStyles::border_styles(false, "#000000");
         assert!(no_border_styles.is_empty());
     }
