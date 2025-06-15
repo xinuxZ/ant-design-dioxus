@@ -29,15 +29,15 @@ pub struct WaveProps {
 /// 波纹效果组件
 #[component]
 pub fn Wave(props: WaveProps) -> Element {
-    let node_ref = use_signal(|| None::<HtmlElement>);
-    let ripple_active = use_signal(|| false);
-    let animation_in_progress = use_signal(|| false);
+    let mut node_ref = use_signal(|| None::<HtmlElement>);
+    let mut ripple_active = use_signal(|| false);
+    let mut animation_in_progress = use_signal(|| false);
 
     // 波纹元素的引用
-    let ripple_ref = use_signal(|| None::<HtmlElement>);
+    let mut ripple_ref = use_signal(|| None::<HtmlElement>);
 
     // 波纹样式状态
-    let ripple_style = use_signal(|| String::from(""));
+    let mut ripple_style = use_signal(|| String::from(""));
 
     // 处理点击事件
     let handle_click = move |_: MouseEvent| {
@@ -115,16 +115,16 @@ pub fn Wave(props: WaveProps) -> Element {
 
     // 在组件挂载时保存元素引用
     let on_mount = move |event: Event<MountedData>| {
-        // 获取挂载的元素
-        if let Some(element) = event.target().and_then(|el| el.dyn_ref::<HtmlElement>()) {
-            node_ref.set(Some(element.clone()));
+        let element = event.data();
+        if let Some(html_element) = element.downcast::<HtmlElement>() {
+            node_ref.set(Some(html_element.clone()));
         }
     };
 
     // 在波纹元素挂载时保存引用
     let on_ripple_mount = move |event: Event<MountedData>| {
         // 获取挂载的元素
-        if let Some(element) = event.target().and_then(|el| el.dyn_ref::<HtmlElement>()) {
+        if let Some(element) = event.data().downcast::<HtmlElement>() {
             ripple_ref.set(Some(element.clone()));
         }
     };
