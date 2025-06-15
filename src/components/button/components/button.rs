@@ -233,9 +233,9 @@ fn generate_button_class_name(
 
     // 处理按钮大小
     match props.size {
-        ButtonSize::Large => classes.push("ant-btn-large".to_string()),
+        ButtonSize::Large => classes.push("ant-btn-lg".to_string()),
         ButtonSize::Middle => {} // 默认大小，不添加类名
-        ButtonSize::Small => classes.push("ant-btn-small".to_string()),
+        ButtonSize::Small => classes.push("ant-btn-sm".to_string()),
     }
 
     // 处理按钮形状
@@ -267,7 +267,7 @@ fn generate_button_class_name(
 
     // 处理图标位置
     if props.icon_position == IconPosition::End {
-        classes.push("ant-btn-icon-right".to_string());
+        classes.push("ant-btn-icon-end".to_string());
     }
 
     // 处理两个中文字符之间的空格

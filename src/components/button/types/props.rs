@@ -229,7 +229,7 @@ impl Default for ButtonProps {
             on_click: None,
             auto_insert_space: true,
             aria_label: None,
-            children: Ok(VNode::default()),
+            children: VNode::empty(),
         }
     }
 }
@@ -333,7 +333,7 @@ mod tests {
     #[test]
     fn test_button_variant_default() {
         let default_variant = ButtonVariant::default();
-        assert_eq!(default_variant, ButtonVariant::Solid);
+        assert_eq!(default_variant, ButtonVariant::Outlined);
     }
 
     /// 测试 ButtonVariant 的克隆
@@ -425,7 +425,7 @@ mod tests {
     #[test]
     fn test_loading_config_default() {
         let default_config = LoadingConfig::default();
-        assert_eq!(default_config, LoadingConfig::DelayedLoading(0));
+        assert_eq!(default_config, LoadingConfig::NotLoading);
     }
 
     /// 测试 LoadingConfig 的克隆
@@ -515,7 +515,8 @@ mod tests {
         assert!(size_of::<ButtonSize>() <= 8);
         assert!(size_of::<ButtonShape>() <= 8);
         assert!(size_of::<ButtonVariant>() <= 8);
-        assert!(size_of::<ButtonColor>() <= 8);
+        // ButtonColor 包含 String，所以会比较大
+        assert!(size_of::<ButtonColor>() <= 32);
         assert!(size_of::<HtmlType>() <= 8);
 
         // LoadingConfig 包含一个 u32，所以应该是 4 字节

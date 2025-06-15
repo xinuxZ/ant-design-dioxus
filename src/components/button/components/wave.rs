@@ -254,7 +254,9 @@ mod tests {
         // 这里只是演示测试结构
         let (x, y) = calculate_ripple_position(&rect);
         // 验证位置计算是否正确
-        // 具体的断言需要根据实际的 rect 尺寸来确定
+        // 由于 DomRect::new() 创建的矩形默认宽高为0，所以x和y都应该是0
+        assert_eq!(x, 0.0);
+        assert_eq!(y, 0.0);
     }
 
     /// 测试 Wave 组件的复杂配置属性

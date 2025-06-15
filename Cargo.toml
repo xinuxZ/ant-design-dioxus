@@ -55,8 +55,8 @@ css-in-rust = { path = "../css-in-rust/css-in-rust" }
 
 [dev-dependencies]
 tokio = { version = "1.0", features = ["full"] }
-rand = "0.9.1"
-dioxus-ssr = "0.6.2"
+# rand = "0.9.1"
+# dioxus-ssr = "0.6.2"
 
 # 启用 proc-macro 特性
 [build-dependencies]
