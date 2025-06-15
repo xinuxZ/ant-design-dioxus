@@ -12,7 +12,7 @@ pub fn Button(props: ButtonProps) -> Element {
     provide_context(button_styles());
 
     // 状态管理
-    let is_loading = use_signal(|| match props.loading {
+    let is_loading = use_state(|| match props.loading {
         LoadingConfig::Loading => true,
         LoadingConfig::NotLoading => false,
         LoadingConfig::DelayedLoading(_) => false,
@@ -32,8 +32,8 @@ pub fn Button(props: ButtonProps) -> Element {
     }
 
     // 处理两个中文字符之间的空格
-    let has_two_cn_chars = use_signal(|| false);
-    let inner_content = use_signal(|| String::new());
+    let has_two_cn_chars = use_state(|| false);
+    let inner_content = use_state(|| String::new());
 
     // 提取文本内容
     if props.auto_insert_space {
@@ -46,13 +46,12 @@ pub fn Button(props: ButtonProps) -> Element {
     }
 
     // 使用 memo 优化类名生成，避免不必要的重新计算
-    let class_name = use_memo(move || {
-        generate_button_class_name(&props, has_two_cn_chars.get(), is_loading.get())
-    });
+    let class_name =
+        use_memo(move || generate_button_class_name(&props, *has_two_cn_chars, *is_loading));
 
     // 处理点击事件
     let handle_click = move |e: MouseEvent| {
-        if props.disabled || is_loading.get() {
+        if props.disabled || *is_loading {
             e.stop_propagation();
             return;
         }
@@ -64,7 +63,7 @@ pub fn Button(props: ButtonProps) -> Element {
 
     // 处理键盘事件
     let handle_key_down = move |e: KeyboardEvent| {
-        if props.disabled || is_loading.get() {
+        if props.disabled || *is_loading {
             return;
         }
 
@@ -73,19 +72,19 @@ pub fn Button(props: ButtonProps) -> Element {
             e.prevent_default();
 
             if let Some(handler) = &props.on_click {
-                let event = MouseEvent::new(web_sys::MouseEvent::new("click").unwrap(), e.target());
-                handler.call(event);
+                // 创建一个模拟的点击事件
+                handler.call(e.into_mouse_event());
             }
         }
     };
 
     // 使用 memo 优化按钮内容渲染，避免不必要的重新渲染
-    let button_children = use_memo(move || render_button_content(&props, is_loading.get()));
+    let button_children = use_memo(move || render_button_content(&props, *is_loading));
 
     // 获取 ARIA 标签
     let aria_label = props.aria_label.clone().unwrap_or_default();
     let aria_disabled = props.disabled.to_string();
-    let aria_busy = is_loading.get().to_string();
+    let aria_busy = (*is_loading).to_string();
 
     // 按钮内容
     let button_content = if let Some(href) = &props.href {
@@ -131,7 +130,7 @@ pub fn Button(props: ButtonProps) -> Element {
     // 使用 Wave 组件包装按钮内容，添加波纹效果
     rsx! {
         Wave {
-            disabled: props.disabled || is_loading.get(),
+            disabled: props.disabled || *is_loading,
             color: get_ripple_color(&props),
             {button_content}
         }
@@ -274,7 +273,7 @@ fn render_button_content(props: &ButtonProps, is_loading: bool) -> Element {
 
     // 加载图标
     let loading_icon = if is_loading {
-        Some(rsx! {
+        rsx! {
             span {
                 class: "ant-btn-loading-icon",
                 "aria-hidden": "true",
@@ -283,9 +282,9 @@ fn render_button_content(props: &ButtonProps, is_loading: bool) -> Element {
                     ..Default::default()
                 }
             }
-        })
+        }
     } else {
-        None
+        rsx! {}
     };
 
     // 图标
@@ -345,23 +344,26 @@ fn render_button_content(props: &ButtonProps, is_loading: bool) -> Element {
 /// 提取文本内容
 fn extract_text_content(element: &Element) -> Option<String> {
     match element {
-        Ok(vnode) => match vnode {
-            VNode::Text(text) => Some(text.to_string()),
-            VNode::Fragment(children) => {
-                let mut result = String::new();
-                for child in children {
-                    if let VNode::Text(text) = child {
-                        result.push_str(text);
+        Ok(vnode) => {
+            // 递归提取文本内容
+            match vnode {
+                VNode::Text(text) => Some(text.clone()),
+                VNode::Fragment(children) => {
+                    let mut result = String::new();
+                    for child in children {
+                        if let VNode::Text(text) = child {
+                            result.push_str(text);
+                        }
+                    }
+                    if result.is_empty() {
+                        None
+                    } else {
+                        Some(result)
                     }
                 }
-                if result.is_empty() {
-                    None
-                } else {
-                    Some(result)
-                }
+                _ => None,
             }
-            _ => None,
-        },
+        }
         Err(_) => None,
     }
 }

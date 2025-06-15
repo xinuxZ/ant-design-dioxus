@@ -1,149 +1,156 @@
 use dioxus::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys::Element as WebElement;
+use wasm_bindgen::{closure::Closure, JsCast};
+use web_sys::{window, HtmlElement};
 
-/// Wave 组件属性
+/// 波纹效果组件属性
 #[derive(Props, PartialEq, Clone)]
 pub struct WaveProps {
     /// 子元素
-    #[props(default)]
     pub children: Element,
 
-    /// 波纹颜色
-    #[props(into, default = "rgba(255, 255, 255, 0.3)".to_string())]
-    pub color: String,
-
     /// 禁用波纹效果
-    #[props(default)]
+    #[props(default = false)]
     pub disabled: bool,
+
+    /// 自定义波纹颜色
+    #[props(into, optional)]
+    pub color: Option<String>,
+
+    /// 波纹持续时间(毫秒)
+    #[props(default = 500)]
+    pub duration: u32,
+
+    /// 波纹透明度
+    #[props(default = 0.6)]
+    pub opacity: f32,
 }
 
-/// Wave 组件 - 实现波纹效果
+/// 波纹效果组件
 #[component]
 pub fn Wave(props: WaveProps) -> Element {
-    let target_ref = use_ref(|| None::<WebElement>);
+    let node_ref = use_node_ref();
+    let ripple_active = use_state(|| false);
+    let animation_in_progress = use_state(|| false);
 
-    // 使用 use_effect 在组件挂载后设置事件监听
-    use_effect(move || {
-        if props.disabled {
-            return (|| {})();
+    // 波纹元素的引用
+    let ripple_ref = use_node_ref();
+
+    // 波纹样式状态
+    let ripple_style = use_state(|| String::from(""));
+
+    // 处理点击事件
+    let handle_click = move |_| {
+        if props.disabled || *animation_in_progress.get() {
+            return;
         }
 
-        let current_target = target_ref.read().clone();
+        animation_in_progress.set(true);
 
-        if let Some(element) = current_target {
-            let element_clone = element.clone();
+        if let Some(element) = node_ref.get() {
+            if let Some(dom_node) = element.get_raw_element() {
+                if let Some(html_element) = dom_node.dyn_ref::<HtmlElement>() {
+                    // 获取元素尺寸和位置
+                    let rect = html_element.get_bounding_client_rect();
+                    let width = rect.width();
+                    let height = rect.height();
 
-            // 添加点击事件监听器
-            let listener = move |event: web_sys::MouseEvent| {
-                create_ripple(&element_clone, event, &props.color);
-            };
+                    // 计算波纹尺寸 (取宽高的较大值的2.5倍，确保波纹能覆盖整个按钮)
+                    let ripple_size = (width.max(height) * 2.5) as i32;
 
-            let closure = wasm_bindgen::closure::Closure::wrap(
-                Box::new(listener) as Box<dyn FnMut(web_sys::MouseEvent)>
-            );
+                    // 获取点击位置 (默认为中心点)
+                    let x = width / 2.0;
+                    let y = height / 2.0;
 
-            element
-                .add_event_listener_with_callback("click", closure.as_ref().unchecked_ref())
-                .expect("Failed to add event listener");
+                    // 计算波纹位置 (居中)
+                    let left = x - (ripple_size as f64) / 2.0;
+                    let top = y - (ripple_size as f64) / 2.0;
 
-            // 保持闭包活跃，防止被回收
-            closure.forget();
-        }
+                    // 设置波纹样式
+                    let color = props
+                        .color
+                        .clone()
+                        .unwrap_or_else(|| "currentColor".to_string());
+                    let style = format!(
+                        "position: absolute; \
+                         left: {}px; \
+                         top: {}px; \
+                         width: {}px; \
+                         height: {}px; \
+                         border-radius: 50%; \
+                         background-color: {}; \
+                         opacity: {}; \
+                         transform: scale(0); \
+                         pointer-events: none; \
+                         transition: transform {}ms cubic-bezier(0.08, 0.82, 0.17, 1), opacity {}ms cubic-bezier(0.08, 0.82, 0.17, 1);",
+                        left, top, ripple_size, ripple_size, color, props.opacity, props.duration, props.duration
+                    );
 
-        (|| {})()
-    });
+                    ripple_style.set(style);
+                    ripple_active.set(true);
 
-    rsx! {
-        div {
-            ref: move |el| {
-                if let Some(element) = el {
-                    if let Some(web_element) = element.get_raw_element() {
-                        *target_ref.write() = Some(web_element.clone());
-                    }
+                    // 使用requestAnimationFrame确保DOM更新后再触发动画
+                    let window = window().expect("window should be available");
+                    let ripple_ref_clone = ripple_ref.clone();
+
+                    let callback = Closure::once(move || {
+                        if let Some(ripple_element) = ripple_ref_clone.get() {
+                            if let Some(dom_node) = ripple_element.get_raw_element() {
+                                if let Some(html_element) = dom_node.dyn_ref::<HtmlElement>() {
+                                    // 触发波纹扩散动画
+                                    let _ =
+                                        html_element.style().set_property("transform", "scale(1)");
+                                    let _ = html_element.style().set_property("opacity", "0");
+                                }
+                            }
+                        }
+                    });
+
+                    let _ = window.request_animation_frame(callback.as_ref().unchecked_ref());
+                    callback.forget();
+
+                    // 动画结束后清理
+                    let animation_in_progress = animation_in_progress.clone();
+                    let ripple_active = ripple_active.clone();
+                    let duration = props.duration;
+
+                    // 使用JavaScript的setTimeout代替tokio::time::sleep
+                    let cleanup_callback = Closure::once(move || {
+                        ripple_active.set(false);
+                        animation_in_progress.set(false);
+                    });
+
+                    let _ = window.set_timeout_with_callback_and_timeout_and_arguments_0(
+                        cleanup_callback.as_ref().unchecked_ref(),
+                        duration,
+                    );
+                    cleanup_callback.forget();
                 }
-            },
-            style: "position: relative; overflow: hidden; display: inline-block;",
-            {props.children}
-        }
-    }
-}
-
-/// 创建波纹效果
-fn create_ripple(element: &WebElement, event: web_sys::MouseEvent, color: &str) {
-    // 获取元素的位置和大小
-    let rect = element.get_bounding_client_rect();
-
-    // 计算点击位置相对于元素的坐标
-    let x = event.client_x() as f64 - rect.left();
-    let y = event.client_y() as f64 - rect.top();
-
-    // 计算波纹大小 (取元素宽高的较大值)
-    let size = f64::max(rect.width(), rect.height());
-    let diameter = size * 2.0;
-
-    // 创建波纹元素
-    let window = web_sys::window().expect("No global window exists");
-    let document = window.document().expect("No document exists");
-    let ripple = document
-        .create_element("span")
-        .expect("Failed to create element");
-
-    // 设置波纹样式
-    let style = ripple.dyn_into::<web_sys::HtmlElement>().unwrap().style();
-    style.set_property("position", "absolute").unwrap();
-    style.set_property("border-radius", "50%").unwrap();
-    style.set_property("pointer-events", "none").unwrap();
-    style.set_property("transform", "scale(0)").unwrap();
-    style.set_property("background-color", color).unwrap();
-    style.set_property("opacity", "1").unwrap();
-    style
-        .set_property("transition", "transform 0.6s, opacity 0.6s")
-        .unwrap();
-    style
-        .set_property("width", &format!("{}px", diameter))
-        .unwrap();
-    style
-        .set_property("height", &format!("{}px", diameter))
-        .unwrap();
-    style
-        .set_property("left", &format!("{}px", x - diameter / 2.0))
-        .unwrap();
-    style
-        .set_property("top", &format!("{}px", y - diameter / 2.0))
-        .unwrap();
-
-    // 添加波纹元素到父元素
-    element
-        .append_child(&ripple)
-        .expect("Failed to append child");
-
-    // 触发动画
-    window.request_animation_frame(move |_| {
-        let style = ripple.style();
-        style.set_property("transform", "scale(1)").unwrap();
-        style.set_property("opacity", "0").unwrap();
-    });
-
-    // 动画结束后移除波纹元素
-    let ripple_clone = ripple.clone();
-    let window_clone = window.clone();
-
-    let cleanup = move || {
-        if let Some(parent) = ripple_clone.parent_node() {
-            let _ = parent.remove_child(&ripple_clone);
+            }
         }
     };
 
-    let cleanup_closure =
-        wasm_bindgen::closure::Closure::wrap(Box::new(cleanup) as Box<dyn FnMut()>);
+    rsx! {
+        div {
+            ref: node_ref,
+            class: "ant-wave-wrapper",
+            style: "position: relative; display: inline-block; width: 100%; height: 100%; overflow: hidden;",
+            onclick: handle_click,
 
-    window_clone
-        .set_timeout_with_callback_and_timeout_and_arguments_0(
-            cleanup_closure.as_ref().unchecked_ref(),
-            650, // 略长于动画时间，确保动画完成
-        )
-        .expect("Failed to set timeout");
+            // 渲染波纹元素
+            {
+                if *ripple_active.get() {
+                    rsx! {
+                        div {
+                            ref: ripple_ref,
+                            class: "ant-wave-ripple",
+                            style: "{ripple_style}",
+                        }
+                    }
+                }
+            }
 
-    cleanup_closure.forget();
+            // 渲染子元素
+            {props.children}
+        }
+    }
 }

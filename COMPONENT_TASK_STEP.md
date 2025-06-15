@@ -383,11 +383,11 @@ pub fn OptimizedComponent(props: ComponentProps) -> Element {
 - **验证点**：性能基准测试通过，包大小在合理范围内
 
 #### **Step 7: 文档和示例**
-- **API 文档**：生成完整的 API 文档
+- **API 文档**：生成完整的 API 文档, 保存到 README.md
 - **使用示例**：提供丰富的使用示例
 - **迁移指南**：提供从 Ant Design React 的迁移指南
 - **最佳实践**：提供组件使用的最佳实践
-- **更新组件实现情况**： 更新 Feature.md 文件；组件目录增加当前任务步骤执行进度文件 PROCESS_LOG.md
+- **更新组件实现情况**： 更新 Feature.md 中功能点完成状态；组件目录增加当前任务步骤执行进度文件 PROCESS_LOG.md
 ```rust
 /// # Button 组件
 ///
