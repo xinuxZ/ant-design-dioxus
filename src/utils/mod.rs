@@ -9,6 +9,7 @@ pub mod style_injector;
 // 重新导出常用工具
 pub use class_names::*;
 pub use responsive::*;
+pub use style_injector::*;
 
 /// 检查字符串是否为两个中文字符
 ///

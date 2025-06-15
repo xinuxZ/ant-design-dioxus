@@ -11,7 +11,7 @@
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::components::qr_code::{QRCode, QRCodeErrorLevel, QRCodeType};
+//! use ant_design_dioxus::components::qr_code::{QRCode, QRCodeSize, QRCodeErrorLevel, QRCodeType};
 //!
 //! #[component]
 //! fn App() -> Element {
@@ -27,7 +27,7 @@
 //!             // 自定义样式
 //!             QRCode {
 //!                 value: "https://ant-design-dioxus.rs",
-//!                 size: 200,
+//!                 size: QRCodeSize::Custom(200),
 //!                 color: "#1677FF",
 //!                 bg_color: "#f5f5f5",
 //!                 error_level: QRCodeErrorLevel::H,
@@ -50,4 +50,4 @@ mod types;
 mod utils;
 
 pub use component::QRCode;
-pub use types::{QRCodeErrorLevel, QRCodeProps, QRCodeStatus, QRCodeType};
+pub use types::{QRCodeErrorLevel, QRCodeProps, QRCodeSize, QRCodeStatus, QRCodeType};

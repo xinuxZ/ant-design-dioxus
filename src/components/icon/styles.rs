@@ -1,7 +1,7 @@
 //! Icon 组件的样式实现
 
+use super::types::{IconSize, IconTheme};
 use css_in_rust::css;
-use super::types::{IconTheme, IconSize};
 
 /// 生成Icon组件的基础样式
 pub fn generate_base_style() -> String {
@@ -17,7 +17,7 @@ pub fn generate_base_style() -> String {
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        
+
         svg {
             display: inline-block;
             width: 1em;
@@ -27,6 +27,7 @@ pub fn generate_base_style() -> String {
         }
         "#
     )
+    .to_string()
 }
 
 /// 生成Icon组件的尺寸样式
@@ -39,6 +40,7 @@ pub fn generate_size_style(size: &IconSize) -> String {
         height: {pixel_size};
         "#
     )
+    .to_string()
 }
 
 /// 生成Icon组件的旋转样式
@@ -48,6 +50,7 @@ pub fn generate_rotation_style(degrees: i32) -> String {
         transform: rotate({degrees}deg);
         "#
     )
+    .to_string()
 }
 
 /// 生成Icon组件的旋转动画样式
@@ -55,7 +58,7 @@ pub fn generate_spin_style() -> String {
     css!(
         r#"
         animation: antIconSpin 1s infinite linear;
-        
+
         @keyframes antIconSpin {
             from {
                 transform: rotate(0deg);
@@ -66,6 +69,7 @@ pub fn generate_spin_style() -> String {
         }
         "#
     )
+    .to_string()
 }
 
 /// 生成Icon组件的主题样式
@@ -79,7 +83,8 @@ pub fn generate_theme_style(theme: &IconTheme) -> String {
                 stroke-width: 1;
             }
             "#
-        ),
+        )
+        .to_string(),
         IconTheme::Filled => css!(
             r#"
             svg {
@@ -87,23 +92,25 @@ pub fn generate_theme_style(theme: &IconTheme) -> String {
                 stroke: none;
             }
             "#
-        ),
+        )
+        .to_string(),
         IconTheme::TwoTone => css!(
             r#"
             svg {
                 fill: currentColor;
             }
-            
+
             .ant-icon-two-tone-primary {
                 fill: var(--ant-primary-color, #1890ff);
             }
-            
+
             .ant-icon-two-tone-secondary {
                 fill: var(--ant-primary-color-hover, #40a9ff);
                 opacity: 0.3;
             }
             "#
-        ),
+        )
+        .to_string(),
     }
 }
 
@@ -116,6 +123,7 @@ pub fn generate_two_tone_color_style(color: &str) -> String {
         }
         "#
     )
+    .to_string()
 }
 
 /// 生成禁用状态的样式
@@ -127,6 +135,7 @@ pub fn generate_disabled_style() -> String {
         pointer-events: none;
         "#
     )
+    .to_string()
 }
 
 /// 生成可点击状态的样式
@@ -135,16 +144,17 @@ pub fn generate_clickable_style() -> String {
         r#"
         cursor: pointer;
         transition: color 0.3s;
-        
+
         &:hover {
             color: var(--ant-primary-color-hover, #40a9ff);
         }
-        
+
         &:active {
             color: var(--ant-primary-color-active, #096dd9);
         }
         "#
     )
+    .to_string()
 }
 
 /// 生成Icon组件的完整样式
@@ -158,42 +168,42 @@ pub fn generate_icon_style(
     two_tone_color: Option<&str>,
 ) -> String {
     let mut styles = vec![generate_base_style()];
-    
+
     // 添加主题样式
     styles.push(generate_theme_style(theme));
-    
+
     // 添加尺寸样式
     if let Some(size) = size {
         styles.push(generate_size_style(size));
     }
-    
+
     // 添加旋转样式
     if let Some(degrees) = rotation {
         if degrees != 0 {
             styles.push(generate_rotation_style(degrees));
         }
     }
-    
+
     // 添加旋转动画样式
     if spin {
         styles.push(generate_spin_style());
     }
-    
+
     // 添加禁用样式
     if disabled {
         styles.push(generate_disabled_style());
     }
-    
+
     // 添加可点击样式
     if clickable && !disabled {
         styles.push(generate_clickable_style());
     }
-    
+
     // 添加双色图标自定义颜色样式
     if let (IconTheme::TwoTone, Some(color)) = (theme, two_tone_color) {
         styles.push(generate_two_tone_color_style(color));
     }
-    
+
     styles.join(" ")
 }
 
@@ -217,31 +227,31 @@ pub fn generate_class_names(
     custom_class: Option<&str>,
 ) -> String {
     let mut classes = vec![class_names::ICON];
-    
+
     // 添加主题类名
     match theme {
         IconTheme::Outlined => classes.push(class_names::ICON_OUTLINED),
         IconTheme::Filled => classes.push(class_names::ICON_FILLED),
         IconTheme::TwoTone => classes.push(class_names::ICON_TWO_TONE),
     }
-    
+
     // 添加状态类名
     if spin {
         classes.push(class_names::ICON_SPIN);
     }
-    
+
     if disabled {
         classes.push(class_names::ICON_DISABLED);
     }
-    
+
     if clickable && !disabled {
         classes.push(class_names::ICON_CLICKABLE);
     }
-    
+
     // 添加自定义类名
     if let Some(custom) = custom_class {
         classes.push(custom);
     }
-    
+
     classes.join(" ")
 }

@@ -9,7 +9,7 @@ use std::fmt;
 pub struct IconProps {
     /// 图标类型/名称
     #[props(default)]
-    pub icon_type: Option<CommonIconType>,
+    pub icon_type: Option<IconType>,
 
     /// 主题类型
     #[props(default)]
@@ -271,54 +271,6 @@ impl Default for IconState {
     }
 }
 
-/// 预定义的常用图标类型
-#[derive(Clone, PartialEq, Debug)]
-pub enum CommonIconType {
-    // 方向性图标
-    ArrowUp,
-    ArrowDown,
-    ArrowLeft,
-    ArrowRight,
-    CaretUp,
-    CaretDown,
-    CaretLeft,
-    CaretRight,
-
-    // 建议性图标
-    Question,
-    Plus,
-    Minus,
-    Info,
-    Exclamation,
-    Close,
-    Check,
-
-    // 应用图标
-    Home,
-    Setting,
-    User,
-    Search,
-    Menu,
-    More,
-    Edit,
-    Delete,
-    Copy,
-    Save,
-
-    // 状态图标
-    Loading,
-    Success,
-    Warning,
-    Error,
-
-    // 文件图标
-    Download,
-    Upload,
-
-    // 自定义图标
-    Custom(String),
-}
-
 /// 图标类型枚举（用于测试兼容性）
 #[derive(Clone, PartialEq, Debug)]
 pub enum IconType {
@@ -532,56 +484,5 @@ impl IconType {
         // 这里应该返回对应的SVG内容
         // 为了测试，返回一个简单的占位符
         Some(format!("<svg>{}</svg>", self))
-    }
-}
-
-impl CommonIconType {
-    /// 获取图标的字符串标识
-    pub fn as_str(&self) -> &str {
-        match self {
-            // 方向性图标
-            CommonIconType::ArrowUp => "arrow-up",
-            CommonIconType::ArrowDown => "arrow-down",
-            CommonIconType::ArrowLeft => "arrow-left",
-            CommonIconType::ArrowRight => "arrow-right",
-            CommonIconType::CaretUp => "caret-up",
-            CommonIconType::CaretDown => "caret-down",
-            CommonIconType::CaretLeft => "caret-left",
-            CommonIconType::CaretRight => "caret-right",
-
-            // 建议性图标
-            CommonIconType::Question => "question",
-            CommonIconType::Plus => "plus",
-            CommonIconType::Minus => "minus",
-            CommonIconType::Info => "info",
-            CommonIconType::Exclamation => "exclamation",
-            CommonIconType::Close => "close",
-            CommonIconType::Check => "check",
-
-            // 应用图标
-            CommonIconType::Home => "home",
-            CommonIconType::Setting => "setting",
-            CommonIconType::User => "user",
-            CommonIconType::Search => "search",
-            CommonIconType::Menu => "menu",
-            CommonIconType::More => "more",
-            CommonIconType::Edit => "edit",
-            CommonIconType::Delete => "delete",
-            CommonIconType::Copy => "copy",
-            CommonIconType::Save => "save",
-
-            // 状态图标
-            CommonIconType::Loading => "loading",
-            CommonIconType::Success => "check-circle",
-            CommonIconType::Warning => "warning",
-            CommonIconType::Error => "close-circle",
-
-            // 文件图标
-            CommonIconType::Download => "download",
-            CommonIconType::Upload => "upload",
-
-            // 自定义图标
-            CommonIconType::Custom(name) => name,
-        }
     }
 }

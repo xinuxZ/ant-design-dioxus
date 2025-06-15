@@ -62,6 +62,16 @@ impl Default for ButtonSize {
     }
 }
 
+impl std::fmt::Display for ButtonSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ButtonSize::Large => write!(f, "large"),
+            ButtonSize::Middle => write!(f, "middle"),
+            ButtonSize::Small => write!(f, "small"),
+        }
+    }
+}
+
 /// 按钮形状
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ButtonShape {
@@ -73,6 +83,26 @@ pub enum ButtonShape {
 impl Default for ButtonShape {
     fn default() -> Self {
         Self::Default
+    }
+}
+
+impl std::fmt::Display for ButtonShape {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ButtonShape::Default => write!(f, "default"),
+            ButtonShape::Circle => write!(f, "circle"),
+            ButtonShape::Round => write!(f, "round"),
+        }
+    }
+}
+
+impl From<&str> for ButtonShape {
+    fn from(value: &str) -> Self {
+        match value {
+            "circle" => ButtonShape::Circle,
+            "round" => ButtonShape::Round,
+            _ => ButtonShape::Default,
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::components::button::components::wave::Wave;
 use crate::components::button::styles::button_styles;
 use crate::components::button::types::*;
-use crate::components::icon::{CommonIconType, Icon};
+use crate::components::icon::{Icon, IconType};
 use dioxus::html::input_data::keyboard_types::Key;
 use dioxus::prelude::*;
 
@@ -291,7 +291,7 @@ fn render_button_content(props: &ButtonProps, is_loading: bool) -> Element {
                 class: "ant-btn-loading-icon",
                 "aria-hidden": "true",
                 Icon {
-                    icon_type: Some(CommonIconType::Loading),
+                    icon_type: Some(IconType::Loading),
                     spin: true,
                 }
             }

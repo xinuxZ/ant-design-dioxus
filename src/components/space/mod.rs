@@ -21,6 +21,7 @@
 //! ```rust
 //! use dioxus::prelude::*;
 //! use ant_design_dioxus::Space;
+//! use ant_design_dioxus::Button;
 //!
 //! #[component]
 //! fn App() -> Element {
@@ -34,63 +35,6 @@
 //! }
 //! ```
 //!
-//! ### 垂直布局
-//!
-//! ```rust
-//! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Space, SpaceDirection};
-//!
-//! #[component]
-//! fn App() -> Element {
-//!     rsx! {
-//!         Space {
-//!             direction: SpaceDirection::Vertical,
-//!             size: "large",
-//!             Card { "卡片1" }
-//!             Card { "卡片2" }
-//!             Card { "卡片3" }
-//!         }
-//!     }
-//! }
-//! ```
-//!
-//! ### 紧凑模式
-//!
-//! ```rust
-//! use dioxus::prelude::*;
-//! use ant_design_dioxus::SpaceCompact;
-//!
-//! #[component]
-//! fn App() -> Element {
-//!     rsx! {
-//!         SpaceCompact {
-//!             Button { "按钮1" }
-//!             Button { "按钮2" }
-//!             Input { placeholder: "输入框" }
-//!         }
-//!     }
-//! }
-//! ```
-//!
-//! ### 响应式间距
-//!
-//! ```rust
-//! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Space, SpaceSizeConfig};
-//!
-//! #[component]
-//! fn App() -> Element {
-//!     rsx! {
-//!         Space {
-//!             size: SpaceSizeConfig::Array([16, 24]),
-//!             wrap: true,
-//!             Tag { "标签1" }
-//!             Tag { "标签2" }
-//!             Tag { "标签3" }
-//!         }
-//!     }
-//! }
-//! ```
 
 pub mod component;
 pub mod styles;

@@ -194,7 +194,7 @@ pub fn SkeletonButton(props: SkeletonButtonProps) -> Element {
     let active = props.active.unwrap_or(false);
     let block = props.block.unwrap_or(false);
     let shape = props.shape.unwrap_or(ButtonShape::Default);
-    let size = props.size.unwrap_or(ButtonSize::Middle);
+    let size = props.size.unwrap_or(ButtonSize::Default);
     let theme = SkeletonTheme::default();
 
     let style = generate_skeleton_button_style(&shape, &size, block, active, &theme);

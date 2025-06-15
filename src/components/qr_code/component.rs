@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlCanvasElement, HtmlImageElement};
 
-use crate::components::icon::{CommonIconType, Icon};
+use crate::components::icon::{Icon, IconType};
 
 use super::{
     styles::{
@@ -332,7 +332,7 @@ fn render_status_mask(status_info: StatusRenderInfo) -> Element {
         QRCodeStatus::Expired => {
             rsx! {
                 Icon {
-                    icon_type: Some(CommonIconType::Close),
+                    icon_type: Some(IconType::Close),
                     class_name: Some(status_icon_class),
                     theme: None,
                     rotate: Some(0),
@@ -349,7 +349,7 @@ fn render_status_mask(status_info: StatusRenderInfo) -> Element {
         QRCodeStatus::Scanned => {
             rsx! {
                 Icon {
-                    icon_type: Some(CommonIconType::Check),
+                    icon_type: Some(IconType::Check),
                     class_name: Some(status_icon_class),
                     theme: None,
                     rotate: Some(0),

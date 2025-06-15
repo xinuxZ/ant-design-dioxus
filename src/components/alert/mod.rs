@@ -145,7 +145,7 @@
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Alert, AlertType, Button};
+//! use ant_design_dioxus::{Alert, AlertType, Button, ButtonType, ButtonSize};
 //!
 //! fn app() -> Element {
 //!     rsx! {
@@ -156,8 +156,8 @@
 //!             closable: true,
 //!             action: rsx! {
 //!                 Button {
-//!                     size: "small",
-//!                     button_type: "text",
+//!                     size: ButtonSize::Small,
+//!                     button_type: Some(ButtonType::Text),
 //!                     "UNDO"
 //!                 }
 //!             },

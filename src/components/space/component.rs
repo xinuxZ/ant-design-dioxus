@@ -23,7 +23,7 @@ use dioxus::prelude::*;
 ///
 /// ```rust
 /// use dioxus::prelude::*;
-/// use ant_design_dioxus::Space;
+/// use ant_design_dioxus::{Button, SpaceSizeConfig, SpaceDirection, SpaceSize, Space};
 ///
 /// fn app() -> Element {
 ///     rsx! {
@@ -95,7 +95,8 @@ pub fn Space(props: SpaceProps) -> Element {
     };
 
     // 渲染子元素
-    let children_elements = render_space_children(children, direction.unwrap(), &split, &merged_theme);
+    let children_elements =
+        render_space_children(children, direction.unwrap(), &split, &merged_theme);
 
     rsx! {
         div {
@@ -121,7 +122,7 @@ pub fn Space(props: SpaceProps) -> Element {
 ///
 /// ```rust
 /// use dioxus::prelude::*;
-/// use ant_design_dioxus::{SpaceCompact, CompactSize};
+/// use ant_design_dioxus::{Button, SpaceCompact, CompactSize};
 ///
 /// fn app() -> Element {
 ///     rsx! {
@@ -129,7 +130,6 @@ pub fn Space(props: SpaceProps) -> Element {
 ///             size: CompactSize::Middle,
 ///             Button { "按钮1" }
 ///             Button { "按钮2" }
-///             Input { placeholder: "输入框" }
 ///         }
 ///     }
 /// }
@@ -172,12 +172,8 @@ pub fn SpaceCompact(props: SpaceCompactProps) -> Element {
     };
 
     // 渲染子元素
-    let children_elements = render_space_compact_children(
-        children,
-        direction.unwrap(),
-        size.unwrap(),
-        &merged_theme,
-    );
+    let children_elements =
+        render_space_compact_children(children, direction.unwrap(), size.unwrap(), &merged_theme);
 
     rsx! {
         div {

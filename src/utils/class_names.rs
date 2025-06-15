@@ -166,9 +166,8 @@ impl From<Vec<String>> for ClassNames {
 ///
 /// let classes = class_names![
 ///     "btn",
-///     "btn-primary" => true,
-///     "btn-disabled" => false,
-///     Some("btn-large")
+///     "btn-primary",
+///     "btn-disabled",
 /// ];
 /// ```
 #[macro_export]

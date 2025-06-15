@@ -24,7 +24,7 @@ use wasm_bindgen::JsCast;
 ///
 /// ```rust
 /// use dioxus::prelude::*;
-/// use ant_design_dioxus::Divider;
+/// use ant_design_dioxus::{DividerType,Divider,DividerVariant,DividerOrientation};
 ///
 /// fn app() -> Element {
 ///     rsx! {

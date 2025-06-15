@@ -16,26 +16,26 @@
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Icon, IconTheme, IconSize, CommonIconType};
+//! use ant_design_dioxus::{Icon, IconTheme, IconSize, IconType};
 //!
 //! fn app() -> Element {
 //!     rsx! {
 //!         // 基础图标
 //!         Icon {
-//!             icon_type: CommonIconType::Home,
+//!             icon_type: IconType::Home,
 //!             theme: IconTheme::Outlined,
 //!         }
 //!
 //!         // 大尺寸填充图标
 //!         Icon {
-//!             icon_type: CommonIconType::User,
+//!             icon_type: IconType::User,
 //!             theme: IconTheme::Filled,
 //!             size: IconSize::Large,
 //!         }
 //!
 //!         // 可点击的旋转图标
 //!         Icon {
-//!             icon_type: CommonIconType::Setting,
+//!             icon_type: IconType::Setting,
 //!             spin: true,
 //!             on_click: |_| {
 //!                 // 处理点击事件
@@ -44,7 +44,7 @@
 //!
 //!         // 双色图标
 //!         Icon {
-//!             icon_type: CommonIconType::Heart,
+//!             icon_type: IconType::Heart,
 //!             theme: IconTheme::TwoTone,
 //!             two_tone_color: "#ff4d4f",
 //!         }

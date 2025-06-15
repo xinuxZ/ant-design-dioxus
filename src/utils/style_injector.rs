@@ -45,7 +45,7 @@ fn create_style_element(id: &str, css: &str) -> Option<Element> {
 /// # 示例
 ///
 /// ```rust
-/// use crate::utils::style_injector::inject_style;
+/// use ant_design_dioxus::utils::style_injector::inject_style;
 ///
 /// let success = inject_style("my-component-styles", ".my-class { color: red; }");
 /// if success {

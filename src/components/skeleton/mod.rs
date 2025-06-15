@@ -38,7 +38,7 @@
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::{Skeleton, SkeletonAvatarConfig, SkeletonAvatarProps, AvatarShape, AvatarSize};
+//! use ant_design_dioxus::{Skeleton, SkeletonAvatarConfig, SkeletonAvatarProps, SkeletonAvatarShape, SkeletonAvatarSize, SkeletonParagraphConfig, SkeletonParagraphProps};
 //!
 //! #[component]
 //! fn App() -> Element {
@@ -46,8 +46,8 @@
 //!         Skeleton {
 //!             loading: true,
 //!             avatar: SkeletonAvatarConfig::Config(SkeletonAvatarProps {
-//!                 shape: Some(AvatarShape::Circle),
-//!                 size: Some(AvatarSize::Large),
+//!                 shape: Some(SkeletonAvatarShape::Circle),
+//!                 size: Some(SkeletonAvatarSize::Large),
 //!                 active: Some(true),
 //!             }),
 //!             paragraph: SkeletonParagraphConfig::Config(SkeletonParagraphProps {
@@ -63,7 +63,7 @@
 //!
 //! ```rust
 //! use dioxus::prelude::*;
-//! use ant_design_dioxus::{SkeletonButton, SkeletonInput, SkeletonImage};
+//! use ant_design_dioxus::{SkeletonButton, SkeletonInput, SkeletonImage, SkeletonButtonShape, SkeletonInputSize,SkeletonButtonSize};
 //!
 //! #[component]
 //! fn App() -> Element {
@@ -71,11 +71,11 @@
 //!         div {
 //!             SkeletonButton {
 //!                 active: true,
-//!                 size: Some(ButtonSize::Large),
+//!                 size: Some(SkeletonButtonSize::Large),
 //!             }
 //!             SkeletonInput {
 //!                 active: true,
-//!                 size: Some(InputSize::Default),
+//!                 size: Some(SkeletonInputSize::Default),
 //!             }
 //!             SkeletonImage {
 //!                 active: true,
