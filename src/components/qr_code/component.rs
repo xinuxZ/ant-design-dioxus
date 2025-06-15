@@ -198,7 +198,7 @@ fn render_svg_qrcode(
     };
     let color = props.color.as_deref().unwrap_or("#000000");
     let bg_color = props.bg_color.as_deref().unwrap_or("transparent");
-    
+
     match generate_qrcode_svg(
         &props.value,
         size,
@@ -262,13 +262,7 @@ fn render_canvas_qrcode(
     context.fill_rect(0.0, 0.0, size as f64, size as f64);
 
     // 生成二维码数据URL
-    match generate_qrcode_data_url(
-        &props.value,
-        size,
-        color,
-        bg_color,
-        props.error_level,
-    ) {
+    match generate_qrcode_data_url(&props.value, size, color, bg_color, props.error_level) {
         Ok(data_url) => {
             // 创建图片元素
             let img = HtmlImageElement::new().unwrap();
