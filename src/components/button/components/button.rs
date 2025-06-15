@@ -81,9 +81,8 @@ pub fn Button(props: ButtonProps) -> Element {
 
             if let Some(handler) = &props.on_click {
                 // 创建一个模拟的点击事件
-                // 使用默认构造函数
-                let event = MouseEvent::default();
-                handler.call(event);
+                // 直接调用处理函数，使用默认的MouseEvent
+                handler.call(MouseEvent::default());
             }
         }
     };

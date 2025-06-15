@@ -123,10 +123,9 @@ pub fn Wave(props: WaveProps) -> Element {
 
     // 在波纹元素挂载时保存引用
     let on_ripple_mount = move |event: Event<MountedData>| {
-        // 直接使用MountedData中的element字段
-        let element = &event.data.element;
-        if let Some(html_element) = element.dyn_ref::<HtmlElement>() {
-            ripple_ref.set(Some(html_element.clone()));
+        // 获取挂载的元素
+        if let Some(element) = event.target().and_then(|el| el.dyn_ref::<HtmlElement>()) {
+            ripple_ref.set(Some(element.clone()));
         }
     };
 
