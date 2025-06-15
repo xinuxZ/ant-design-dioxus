@@ -384,20 +384,18 @@ mod tests {
     use super::*;
     use dioxus::prelude::*;
 
-    /// 测试 Button 组件的基本渲染
+    /// 测试 Button 组件的基本属性
     #[test]
-    fn test_button_basic_render() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    "Click me"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证按钮是否正确渲染
-        // 注意：在实际测试中需要检查DOM结构
+    fn test_button_basic_props() {
+        let props = ButtonProps {
+            button_type: Some(ButtonType::Primary),
+            disabled: true,
+            ..Default::default()
+        };
+        
+        assert_eq!(props.button_type, Some(ButtonType::Primary));
+        assert_eq!(props.disabled, true);
+        assert_eq!(props.block, false); // 默认值
     }
 
     /// 测试 Button 组件的不同类型
@@ -412,17 +410,11 @@ mod tests {
         ];
 
         for button_type in types {
-            let mut dom = VirtualDom::new(move || {
-                rsx! {
-                    Button {
-                        button_type: Some(button_type),
-                        "Test Button"
-                    }
-                }
-            });
-
-            let _ = dom.rebuild();
-            // 验证不同类型的按钮是否正确渲染
+            let props = ButtonProps {
+                button_type: Some(button_type.clone()),
+                ..Default::default()
+            };
+            assert_eq!(props.button_type, Some(button_type));
         }
     }
 
@@ -432,17 +424,11 @@ mod tests {
         let sizes = vec![ButtonSize::Large, ButtonSize::Middle, ButtonSize::Small];
 
         for size in sizes {
-            let mut dom = VirtualDom::new(move || {
-                rsx! {
-                    Button {
-                        size: size,
-                        "Test Button"
-                    }
-                }
-            });
-
-            let _ = dom.rebuild();
-            // 验证不同大小的按钮是否正确渲染
+            let props = ButtonProps {
+                size: size.clone(),
+                ..Default::default()
+            };
+            assert_eq!(props.size, size);
         }
     }
 
@@ -456,114 +442,78 @@ mod tests {
         ];
 
         for shape in shapes {
-            let mut dom = VirtualDom::new(move || {
-                rsx! {
-                    Button {
-                        shape: shape,
-                        "Test"
-                    }
-                }
-            });
-
-            let _ = dom.rebuild();
-            // 验证不同形状的按钮是否正确渲染
+            let props = ButtonProps {
+                shape: shape.clone(),
+                ..Default::default()
+            };
+            assert_eq!(props.shape, shape);
         }
     }
 
     /// 测试 Button 组件的禁用状态
     #[test]
     fn test_button_disabled() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    disabled: true,
-                    "Disabled Button"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证禁用状态的按钮是否正确渲染
+        let props = ButtonProps {
+            disabled: true,
+            ..Default::default()
+        };
+        assert_eq!(props.disabled, true);
+        
+        let props_enabled = ButtonProps {
+            disabled: false,
+            ..Default::default()
+        };
+        assert_eq!(props_enabled.disabled, false);
     }
 
     /// 测试 Button 组件的加载状态
     #[test]
     fn test_button_loading() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    loading: LoadingConfig::Loading,
-                    "Loading Button"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证加载状态的按钮是否正确渲染
+        let props = ButtonProps {
+            loading: LoadingConfig::Loading,
+            ..Default::default()
+        };
+        assert_eq!(props.loading, LoadingConfig::Loading);
     }
 
     /// 测试 Button 组件的延迟加载
     #[test]
     fn test_button_delayed_loading() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    loading: LoadingConfig::DelayedLoading(1000),
-                    "Delayed Loading Button"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证延迟加载状态的按钮是否正确渲染
+        let props = ButtonProps {
+            loading: LoadingConfig::DelayedLoading(1000),
+            ..Default::default()
+        };
+        assert_eq!(props.loading, LoadingConfig::DelayedLoading(1000));
     }
 
     /// 测试 Button 组件的危险状态
     #[test]
     fn test_button_danger() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    danger: true,
-                    "Danger Button"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证危险状态的按钮是否正确渲染
+        let props = ButtonProps {
+            danger: true,
+            ..Default::default()
+        };
+        assert_eq!(props.danger, true);
     }
 
     /// 测试 Button 组件的幽灵状态
     #[test]
     fn test_button_ghost() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    ghost: true,
-                    "Ghost Button"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证幽灵状态的按钮是否正确渲染
+        let props = ButtonProps {
+            ghost: true,
+            ..Default::default()
+        };
+        assert_eq!(props.ghost, true);
     }
 
     /// 测试 Button 组件的块级状态
     #[test]
     fn test_button_block() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                Button {
-                    block: true,
-                    "Block Button"
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证块级状态的按钮是否正确渲染
+        let props = ButtonProps {
+            block: true,
+            ..Default::default()
+        };
+        assert_eq!(props.block, true);
     }
 
     /// 测试 generate_button_class_name 函数

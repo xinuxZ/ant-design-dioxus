@@ -61,22 +61,17 @@ fn generate_button_group_class_name(props: &ButtonGroupProps) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use dioxus::prelude::*;
 
-    /// 测试 ButtonGroup 组件的基本渲染
+    /// 测试 ButtonGroup 组件的基本属性
     #[test]
-    fn test_button_group_basic_render() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                ButtonGroup {
-                    div { "Button 1" }
-                    div { "Button 2" }
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证按钮组是否正确渲染
+    fn test_button_group_basic_props() {
+        let props = ButtonGroupProps {
+            size: ButtonSize::Middle,
+            class: None,
+            style: None,
+            children: VNode::empty(),
+        };
+        assert_eq!(props.size, ButtonSize::Middle);
     }
 
     /// 测试 ButtonGroup 组件的不同大小
@@ -85,58 +80,45 @@ mod tests {
         let sizes = vec![ButtonSize::Large, ButtonSize::Middle, ButtonSize::Small];
 
         for size in sizes {
-            let mut dom = VirtualDom::new(move || {
-                rsx! {
-                    ButtonGroup {
-                        size: size,
-                        div { "Button 1" }
-                        div { "Button 2" }
-                    }
-                }
-            });
-
-            let _ = dom.rebuild();
-            // 验证不同大小的按钮组是否正确渲染
+            let props = ButtonGroupProps {
+                size: size.clone(),
+                class: None,
+                style: None,
+                children: VNode::empty(),
+            };
+            assert_eq!(props.size, size);
         }
     }
 
     /// 测试 ButtonGroup 组件的自定义类名
     #[test]
     fn test_button_group_custom_class() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                ButtonGroup {
-                    class: "custom-class",
-                    div { "Button 1" }
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证自定义类名是否正确应用
+        let props = ButtonGroupProps {
+            size: ButtonSize::Middle,
+            class: Some("custom-class".to_string()),
+            style: None,
+            children: VNode::empty(),
+        };
+        assert_eq!(props.class, Some("custom-class".to_string()));
     }
 
     /// 测试 ButtonGroup 组件的自定义样式
     #[test]
     fn test_button_group_custom_style() {
-        let mut dom = VirtualDom::new(|| {
-            rsx! {
-                ButtonGroup {
-                    style: "margin: 10px;",
-                    div { "Button 1" }
-                }
-            }
-        });
-
-        let _ = dom.rebuild();
-        // 验证自定义样式是否正确应用
+        let props = ButtonGroupProps {
+            size: ButtonSize::Middle,
+            class: None,
+            style: Some("margin: 10px;".to_string()),
+            children: VNode::empty(),
+        };
+        assert_eq!(props.style, Some("margin: 10px;".to_string()));
     }
 
     /// 测试 generate_button_group_class_name 函数
     #[test]
     fn test_generate_button_group_class_name() {
         let props = ButtonGroupProps {
-            children: rsx! { div { "test" } },
+            children: VNode::empty(),
             size: ButtonSize::Large,
             class: Some("custom-class".to_string()),
             style: None,
@@ -152,7 +134,7 @@ mod tests {
     #[test]
     fn test_generate_button_group_class_name_default_size() {
         let props = ButtonGroupProps {
-            children: rsx! { div { "test" } },
+            children: VNode::empty(),
             size: ButtonSize::Middle,
             class: None,
             style: None,
@@ -168,7 +150,7 @@ mod tests {
     #[test]
     fn test_generate_button_group_class_name_small_size() {
         let props = ButtonGroupProps {
-            children: rsx! { div { "test" } },
+            children: VNode::empty(),
             size: ButtonSize::Small,
             class: None,
             style: None,

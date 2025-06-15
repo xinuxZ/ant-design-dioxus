@@ -205,6 +205,35 @@ pub struct ButtonProps {
     pub children: Element,
 }
 
+/// impl Default for ButtonProps
+impl Default for ButtonProps {
+    fn default() -> Self {
+        Self {
+            button_type: None,
+            color: None,
+            variant: None,
+            block: false,
+            danger: false,
+            disabled: false,
+            ghost: false,
+            href: None,
+            html_type: HtmlType::Button,
+            icon: None,
+            icon_position: IconPosition::Start,
+            loading: LoadingConfig::NotLoading,
+            shape: ButtonShape::Default,
+            size: ButtonSize::Middle,
+            target: None,
+            class: None,
+            style: None,
+            on_click: None,
+            auto_insert_space: true,
+            aria_label: None,
+            children: Ok(VNode::default()),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
