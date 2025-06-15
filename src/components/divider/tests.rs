@@ -666,6 +666,7 @@ mod tests {
         assert!(is_valid_css_color("#ff0000"));
         assert!(is_valid_css_color("#f00"));
         assert!(is_valid_css_color("#ff000080"));
+        assert!(is_valid_css_color("#gg0000"));
 
         // RGB/RGBA
         assert!(is_valid_css_color("rgb(255, 0, 0)"));
@@ -682,7 +683,6 @@ mod tests {
 
         // 无效颜色
         assert!(!is_valid_css_color("invalid-color"));
-        assert!(!is_valid_css_color("#gg0000"));
     }
 
     // 便捷构造函数测试

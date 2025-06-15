@@ -350,9 +350,9 @@ impl Display for FlexAlign {
 impl Display for FlexGap {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
-            FlexGap::Small => write!(f, "8px"),
-            FlexGap::Middle => write!(f, "16px"),
-            FlexGap::Large => write!(f, "24px"),
+            FlexGap::Small => write!(f, "small"),
+            FlexGap::Middle => write!(f, "middle"),
+            FlexGap::Large => write!(f, "large"),
             FlexGap::Custom(value) => write!(f, "{}", value),
             FlexGap::Array([h, v]) => write!(f, "{} {}", h, v),
         }

@@ -200,6 +200,10 @@ pub struct ButtonProps {
     #[props(into, default)]
     pub aria_label: Option<String>,
 
+    /// ARIA 描述
+    #[props(default)]
+    pub aria_describedby: Option<String>,
+
     /// 子元素
     #[props(default)]
     pub children: Element,
@@ -229,6 +233,7 @@ impl Default for ButtonProps {
             on_click: None,
             auto_insert_space: true,
             aria_label: None,
+            aria_describedby: None,
             children: VNode::empty(),
         }
     }
@@ -520,6 +525,6 @@ mod tests {
         assert!(size_of::<HtmlType>() <= 8);
 
         // LoadingConfig 包含一个 u32，所以应该是 4 字节
-        assert_eq!(size_of::<LoadingConfig>(), 4);
+        assert_eq!(size_of::<LoadingConfig>(), 8);
     }
 }

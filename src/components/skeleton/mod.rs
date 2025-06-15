@@ -94,10 +94,12 @@ mod utils;
 pub use component::{Skeleton, SkeletonButton, SkeletonImage, SkeletonInput};
 
 pub use types::{
-    AvatarShape, AvatarSize, ButtonShape, ButtonSize, InputSize, SkeletonAvatarConfig,
-    SkeletonAvatarProps, SkeletonButtonProps, SkeletonImageProps, SkeletonInputProps,
-    SkeletonParagraphConfig, SkeletonParagraphProps, SkeletonProps, SkeletonTheme,
-    SkeletonTitleConfig, SkeletonTitleProps, SkeletonWidth, SkeletonWidthConfig,
+    AvatarShape as SkeletonAvatarShape, AvatarSize as SkeletonAvatarSize,
+    ButtonShape as SkeletonButtonShape, ButtonSize as SkeletonButtonSize,
+    InputSize as SkeletonInputSize, SkeletonAvatarConfig, SkeletonAvatarProps, SkeletonButtonProps,
+    SkeletonImageProps, SkeletonInputProps, SkeletonParagraphConfig, SkeletonParagraphProps,
+    SkeletonProps, SkeletonTheme, SkeletonTitleConfig, SkeletonTitleProps, SkeletonWidth,
+    SkeletonWidthConfig,
 };
 
 pub use styles::{

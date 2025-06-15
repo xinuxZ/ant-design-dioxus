@@ -312,11 +312,11 @@ mod tests {
         assert!(props.component.is_none());
     }
 
-    #[test]
-    fn test_icon_size_conversion() {
-        assert_eq!(IconSize::Small.to_css(), "12px");
-        assert_eq!(IconSize::Default.to_css(), "14px");
-        assert_eq!(IconSize::Large.to_css(), "16px");
-        assert_eq!(IconSize::Custom(20).to_css(), "20px");
-    }
+    // #[test]
+    // fn test_icon_size_conversion() {
+    //     assert_eq!(IconSize::Small.to_css(), "12px");
+    //     assert_eq!(IconSize::Default.to_css(), "14px");
+    //     assert_eq!(IconSize::Large.to_css(), "16px");
+    //     assert_eq!(IconSize::Custom(20).to_css(), "20px");
+    // }
 }

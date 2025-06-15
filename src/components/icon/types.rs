@@ -157,7 +157,7 @@ impl fmt::Display for IconSize {
             IconSize::Default => write!(f, "default"),
             IconSize::Medium => write!(f, "medium"),
             IconSize::Large => write!(f, "large"),
-            IconSize::Custom(size) => write!(f, "{}px", size),
+            IconSize::Custom(size) => write!(f, "{}", size),
         }
     }
 }

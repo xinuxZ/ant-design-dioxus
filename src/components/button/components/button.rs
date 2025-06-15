@@ -392,7 +392,7 @@ mod tests {
             disabled: true,
             ..Default::default()
         };
-        
+
         assert_eq!(props.button_type, Some(ButtonType::Primary));
         assert_eq!(props.disabled, true);
         assert_eq!(props.block, false); // 默认值
@@ -458,7 +458,7 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(props.disabled, true);
-        
+
         let props_enabled = ButtonProps {
             disabled: false,
             ..Default::default()

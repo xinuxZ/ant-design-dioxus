@@ -307,6 +307,38 @@ pub fn use_translate() -> impl Fn(&str) -> String {
     }
 }
 
+fn get_number_format(locale: &Locale) -> NumberFormat {
+    match locale {
+        Locale::ZhCN => NumberFormat {
+            decimal_places: 2,
+            thousands_separator: "".to_string(),
+            decimal_separator: ".".to_string(),
+        },
+        Locale::En => NumberFormat {
+            decimal_places: 2,
+            thousands_separator: ",".to_string(),
+            decimal_separator: ".".to_string(),
+        },
+        _ => NumberFormat::default(),
+    }
+}
+
+fn get_currency_format(locale: &Locale) -> CurrencyFormat {
+    match locale {
+        Locale::ZhCN => CurrencyFormat {
+            symbol: "¥".to_string(),
+            symbol_position: CurrencySymbolPosition::Prefix,
+            number_format: get_number_format(locale),
+        },
+        Locale::En => CurrencyFormat {
+            symbol: "$".to_string(),
+            symbol_position: CurrencySymbolPosition::Prefix,
+            number_format: get_number_format(locale),
+        },
+        _ => CurrencyFormat::default(),
+    }
+}
+
 /// 获取翻译文本
 ///
 /// 根据语言类型获取对应的翻译文本
@@ -361,8 +393,8 @@ fn zh_cn_translations() -> HashMap<String, String> {
     // 分页
     translations.insert("pagination.prev".to_string(), "上一页".to_string());
     translations.insert("pagination.next".to_string(), "下一页".to_string());
-    translations.insert("pagination.total".to_string(), "共 {0} 条".to_string());
-    translations.insert("pagination.page".to_string(), "第 {0} 页".to_string());
+    translations.insert("pagination.total".to_string(), "共 {total} 条".to_string());
+    translations.insert("pagination.page".to_string(), "第 {page} 页".to_string());
     translations.insert("pagination.itemsPerPage".to_string(), "条/页".to_string());
     translations.insert("pagination.jump".to_string(), "跳至".to_string());
     translations.insert("pagination.page.jump".to_string(), "页".to_string());
@@ -470,9 +502,9 @@ fn en_translations() -> HashMap<String, String> {
     translations.insert("pagination.next".to_string(), "Next".to_string());
     translations.insert(
         "pagination.total".to_string(),
-        "Total {0} items".to_string(),
+        "Total {total} items".to_string(),
     );
-    translations.insert("pagination.page".to_string(), "Page {0}".to_string());
+    translations.insert("pagination.page".to_string(), "Page {page}".to_string());
     translations.insert("pagination.itemsPerPage".to_string(), "/ page".to_string());
     translations.insert("pagination.jump".to_string(), "Go to".to_string());
     translations.insert("pagination.page.jump".to_string(), "".to_string());
@@ -559,13 +591,16 @@ impl LocaleConfig {
     /// 创建新的国际化配置
     pub fn new(locale: Locale) -> Self {
         let messages = get_translations(&locale);
+        let currency_format = get_currency_format(&locale);
+        let number_format = get_number_format(&locale);
+
         Self {
             locale,
             messages,
             date_format: "%Y-%m-%d".to_string(),
             time_format: "%H:%M:%S".to_string(),
-            number_format: NumberFormat::default(),
-            currency_format: CurrencyFormat::default(),
+            number_format,
+            currency_format,
         }
     }
 
@@ -979,7 +1014,7 @@ mod tests {
     #[test]
     fn test_locale_config_translate_with_args() {
         let config = LocaleConfig::new(Locale::ZhCN);
-        let result = config.translate_with_args("total", &[("total", "100")]);
+        let result = config.translate_with_args("pagination.total", &[("total", "100")]);
         assert_eq!(result, "共 100 条");
     }
 
@@ -993,7 +1028,7 @@ mod tests {
     #[test]
     fn test_format_currency() {
         let config = LocaleConfig::new(Locale::ZhCN);
-        assert_eq!(config.format_currency(1234.56), "¥1,234.56");
+        assert_eq!(config.format_currency(1234.56), "¥1234.56");
 
         let config_en = LocaleConfig::new(Locale::En);
         assert_eq!(config_en.format_currency(1234.56), "$1,234.56");
