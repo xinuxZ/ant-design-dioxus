@@ -655,49 +655,53 @@ impl LocaleConfig {
     pub fn format_datetime(&self, datetime: &DateTime<Local>) -> String {
         #[cfg(target_arch = "wasm32")]
         {
-            use js_sys::{Date, Object, Reflect};
-            use wasm_bindgen::JsValue;
-
-            let js_date = Date::new_with_year_month_day_hr_min_sec_milli(
-                datetime.year() as u32,
-                (datetime.month() - 1) as i32, // JS months are 0-indexed
-                datetime.day() as i32,
-                datetime.hour() as i32,
-                datetime.minute() as i32,
-                datetime.second() as i32,
-                (datetime.nanosecond() / 1_000_000) as i32,
-            );
-
-            let options = Object::new();
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("year"),
-                &JsValue::from_str("numeric"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("month"),
-                &JsValue::from_str("2-digit"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("day"),
-                &JsValue::from_str("2-digit"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("hour"),
-                &JsValue::from_str("2-digit"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("minute"),
-                &JsValue::from_str("2-digit"),
-            );
-
-            let formatter = DateTimeFormat::new(&self.locale.to_string(), &options);
-            formatter.format(&js_date.into())
+            String::from(&self.time_format)
         }
+        // #[cfg(target_arch = "wasm32")]
+        // {
+        //     use js_sys::{Date, Object, Reflect};
+        //     use wasm_bindgen::JsValue;
+
+        //     let js_date = Date::new_with_year_month_day_hr_min_sec_milli(
+        //         datetime.year() as u32,
+        //         (datetime.month() - 1) as i32, // JS months are 0-indexed
+        //         datetime.day() as i32,
+        //         datetime.hour() as i32,
+        //         datetime.minute() as i32,
+        //         datetime.second() as i32,
+        //         (datetime.nanosecond() / 1_000_000) as i32,
+        //     );
+
+        //     let options = Object::new();
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("year"),
+        //         &JsValue::from_str("numeric"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("month"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("day"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("hour"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("minute"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+
+        //     let formatter = DateTimeFormat::new(&self.locale.to_string(), &options);
+        //     formatter.format(&js_date.into())
+        // }
         #[cfg(not(target_arch = "wasm32"))]
         {
             datetime.format(&self.date_format).to_string()
@@ -708,35 +712,39 @@ impl LocaleConfig {
     pub fn format_date(&self, datetime: &DateTime<Local>) -> String {
         #[cfg(target_arch = "wasm32")]
         {
-            use js_sys::{Date, Object, Reflect};
-            use wasm_bindgen::JsValue;
-
-            let js_date = Date::new_with_year_month_day(
-                datetime.year() as u32,
-                (datetime.month() - 1) as i32,
-                datetime.day() as i32,
-            );
-
-            let options = Object::new();
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("year"),
-                &JsValue::from_str("numeric"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("month"),
-                &JsValue::from_str("2-digit"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("day"),
-                &JsValue::from_str("2-digit"),
-            );
-
-            let formatter = DateTimeFormat::new(&self.locale.to_string(), &options);
-            formatter.format(&js_date.into())
+            String::from(&self.time_format)
         }
+        // #[cfg(target_arch = "wasm32")]
+        // {
+        //     use js_sys::{Date, Object, Reflect};
+        //     use wasm_bindgen::JsValue;
+
+        //     let js_date = Date::new_with_year_month_day(
+        //         datetime.year() as u32,
+        //         (datetime.month() - 1) as i32,
+        //         datetime.day() as i32,
+        //     );
+
+        //     let options = Object::new();
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("year"),
+        //         &JsValue::from_str("numeric"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("month"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("day"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+
+        //     let formatter = DateTimeFormat::new(&self.locale.to_string(), &options);
+        //     formatter.format(&js_date.into())
+        // }
         #[cfg(not(target_arch = "wasm32"))]
         {
             datetime.format("%Y-%m-%d").to_string()
@@ -747,38 +755,42 @@ impl LocaleConfig {
     pub fn format_time(&self, datetime: &DateTime<Local>) -> String {
         #[cfg(target_arch = "wasm32")]
         {
-            use js_sys::{Date, Object, Reflect};
-            use wasm_bindgen::JsValue;
-
-            let js_date = Date::new_with_year_month_day_hr_min_sec(
-                datetime.year() as u32,
-                (datetime.month() - 1) as i32,
-                datetime.day() as i32,
-                datetime.hour() as i32,
-                datetime.minute() as i32,
-                datetime.second() as i32,
-            );
-
-            let options = Object::new();
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("hour"),
-                &JsValue::from_str("2-digit"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("minute"),
-                &JsValue::from_str("2-digit"),
-            );
-            let _ = Reflect::set(
-                &options,
-                &JsValue::from_str("second"),
-                &JsValue::from_str("2-digit"),
-            );
-
-            let formatter = DateTimeFormat::new(&self.locale.to_string(), &options);
-            formatter.format(&js_date.into())
+            String::from(&self.time_format)
         }
+        // #[cfg(target_arch = "wasm32")]
+        // {
+        //     use js_sys::{Date, Object, Reflect};
+        //     use wasm_bindgen::JsValue;
+
+        //     let js_date = Date::new_with_year_month_day_hr_min_sec(
+        //         datetime.year() as u32,
+        //         (datetime.month() - 1) as i32,
+        //         datetime.day() as i32,
+        //         datetime.hour() as i32,
+        //         datetime.minute() as i32,
+        //         datetime.second() as i32,
+        //     );
+
+        //     let options = Object::new();
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("hour"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("minute"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+        //     let _ = Reflect::set(
+        //         &options,
+        //         &JsValue::from_str("second"),
+        //         &JsValue::from_str("2-digit"),
+        //     );
+
+        //     let formatter = DateTimeFormat::new(&self.locale.to_string(), &options);
+        //     formatter.format(&js_date.into())
+        // }
         #[cfg(not(target_arch = "wasm32"))]
         {
             datetime.format(&self.time_format).to_string()
