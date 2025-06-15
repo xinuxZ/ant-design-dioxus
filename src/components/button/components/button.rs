@@ -2,14 +2,22 @@ use crate::components::button::components::wave::Wave;
 use crate::components::button::styles::button_styles;
 use crate::components::button::types::*;
 use crate::components::icon::{Icon, IconType};
+use crate::utils::style_injector::inject_style;
 use dioxus::html::input_data::keyboard_types::Key;
 use dioxus::prelude::*;
 
 /// Button 组件
 #[component]
 pub fn Button(props: ButtonProps) -> Element {
-    // 注入样式
-    provide_context(button_styles());
+    // 生成并注入样式
+    let styles = button_styles();
+    provide_context(styles.clone());
+    
+    // 注入样式到 DOM
+    #[cfg(target_arch = "wasm32")]
+    {
+        inject_style("ant-button-styles", &styles);
+    }
 
     // 状态管理
     let mut is_loading = use_signal(|| match props.loading {
@@ -21,13 +29,22 @@ pub fn Button(props: ButtonProps) -> Element {
     // 处理延迟加载
     if let LoadingConfig::DelayedLoading(delay) = props.loading {
         use_effect(move || {
-            let timeout = gloo_timers::callback::Timeout::new(delay as u32, move || {
-                is_loading.set(true);
-            });
+            #[cfg(target_arch = "wasm32")]
+            {
+                let timeout = gloo_timers::callback::Timeout::new(delay as u32, move || {
+                    is_loading.set(true);
+                });
 
-            (move || {
-                drop(timeout);
-            })()
+                (move || {
+                    drop(timeout);
+                })()
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                // 在非 WASM 环境下直接设置加载状态
+                is_loading.set(true);
+                (move || {})()
+            }
         });
     }
 
@@ -55,7 +72,18 @@ pub fn Button(props: ButtonProps) -> Element {
     // 使用 memo 优化类名生成，避免不必要的重新计算
     let props_clone = props.clone();
     let class_name = use_memo(move || {
-        generate_button_class_name(&props_clone, has_two_cn_chars(), is_loading())
+        let mut classes = vec![];
+        
+        // 添加 CSS-in-Rust 生成的样式类名
+        if let Some(css_class) = try_consume_context::<String>() {
+            classes.push(css_class);
+        }
+        
+        // 添加传统的 Ant Design 类名以保持兼容性
+        let traditional_classes = generate_button_class_name(&props_clone, has_two_cn_chars(), is_loading());
+        classes.push(traditional_classes);
+        
+        classes.join(" ")
     });
 
     // 处理点击事件
