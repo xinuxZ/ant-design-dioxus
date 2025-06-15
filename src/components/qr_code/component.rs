@@ -66,16 +66,17 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     });
 
     // 创建图标设置
+    let icon_size_value = props.clone().icon_size.unwrap_or(40);
     let icon_settings = props.clone().icon.as_ref().map(|src| QRCodeIconSettings {
         src: src.clone(),
-        width: props.clone().icon_size,
-        height: props.clone().icon_size,
+        width: icon_size_value,
+        height: icon_size_value,
         ..Default::default()
     });
 
     // 容器样式
     let container_class = generate_container_style();
-    let bordered_class = if props.clone().bordered {
+    let bordered_class = if props.clone().bordered.unwrap_or(true) {
         generate_bordered_style()
     } else {
         String::new()
@@ -112,7 +113,7 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     };
 
     let props_icon = props.clone().icon;
-    let props_icon_size = props.clone().icon_size;
+    let props_icon_size = props.clone().icon_size.unwrap_or(40);
 
     // 渲染图标
     let icon_element = if let Some(icon_src) = props_icon {
@@ -180,19 +181,29 @@ fn render_svg_qrcode(
     error: &mut Signal<Option<String>>,
 ) {
     // 创建图标设置
+    let icon_size = props.icon_size.unwrap_or(40);
     let icon_settings = props.icon.as_ref().map(|src| QRCodeIconSettings {
         src: src.clone(),
-        width: props.icon_size,
-        height: props.icon_size,
+        width: icon_size,
+        height: icon_size,
         ..Default::default()
     });
 
     // 生成SVG
+    let size = match props.size {
+        crate::components::qr_code::types::QRCodeSize::Small => 120,
+        crate::components::qr_code::types::QRCodeSize::Medium => 160,
+        crate::components::qr_code::types::QRCodeSize::Large => 200,
+        crate::components::qr_code::types::QRCodeSize::Custom(s) => s,
+    };
+    let color = props.color.as_deref().unwrap_or("#000000");
+    let bg_color = props.bg_color.as_deref().unwrap_or("transparent");
+    
     match generate_qrcode_svg(
         &props.value,
-        props.size,
-        &props.color,
-        &props.bg_color,
+        size,
+        color,
+        bg_color,
         props.error_level,
         icon_settings.as_ref(),
     ) {
@@ -221,9 +232,19 @@ fn render_canvas_qrcode(
     let canvas = document.create_element("canvas").unwrap();
     let canvas = canvas.dyn_into::<HtmlCanvasElement>().unwrap();
 
+    // 获取尺寸和颜色
+    let size = match props.size {
+        crate::components::qr_code::types::QRCodeSize::Small => 120,
+        crate::components::qr_code::types::QRCodeSize::Medium => 160,
+        crate::components::qr_code::types::QRCodeSize::Large => 200,
+        crate::components::qr_code::types::QRCodeSize::Custom(s) => s,
+    };
+    let color = props.color.as_deref().unwrap_or("#000000");
+    let bg_color = props.bg_color.as_deref().unwrap_or("transparent");
+
     // 设置Canvas大小
-    canvas.set_width(props.size);
-    canvas.set_height(props.size);
+    canvas.set_width(size);
+    canvas.set_height(size);
 
     // 添加Canvas到容器
     element.append_child(&canvas).unwrap();
@@ -237,15 +258,15 @@ fn render_canvas_qrcode(
         .unwrap();
 
     // 绘制背景
-    context.set_fill_style(&wasm_bindgen::JsValue::from_str(&props.bg_color));
-    context.fill_rect(0.0, 0.0, props.size as f64, props.size as f64);
+    context.set_fill_style(&wasm_bindgen::JsValue::from_str(bg_color));
+    context.fill_rect(0.0, 0.0, size as f64, size as f64);
 
     // 生成二维码数据URL
     match generate_qrcode_data_url(
         &props.value,
-        props.size,
-        &props.color,
-        &props.bg_color,
+        size,
+        color,
+        bg_color,
         props.error_level,
     ) {
         Ok(data_url) => {
@@ -254,8 +275,8 @@ fn render_canvas_qrcode(
 
             // 设置图片加载完成后的回调
             let context_clone = context.clone();
-            let canvas_width = props.size as f64;
-            let canvas_height = props.size as f64;
+            let canvas_width = size as f64;
+            let canvas_height = size as f64;
             let mut error_clone = error.clone();
 
             let img_clone = img.clone();
