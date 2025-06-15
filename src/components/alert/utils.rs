@@ -512,6 +512,45 @@ impl AlertEventHandler {
             html_element.blur().ok();
         }
     }
+
+    /// 判断是否应该处理键盘事件
+    pub fn should_handle_keyboard(closable: bool) -> bool {
+        closable
+    }
+
+    /// 获取图标类型
+    pub fn get_icon_type(alert_type: &AlertType) -> String {
+        match alert_type {
+            AlertType::Success => "check-circle".to_string(),
+            AlertType::Info => "info-circle".to_string(),
+            AlertType::Warning => "exclamation-circle".to_string(),
+            AlertType::Error => "close-circle".to_string(),
+        }
+    }
+
+    /// 判断是否应该显示关闭按钮
+    pub fn should_show_close_button(closable: bool, banner: bool) -> bool {
+        closable && !banner
+    }
+
+    /// 判断是否应该显示图标
+    pub fn should_show_icon(show_icon: bool, alert_type: &AlertType) -> bool {
+        show_icon || matches!(alert_type, AlertType::Success | AlertType::Error)
+    }
+
+    /// 获取动画持续时间
+    pub fn get_animation_duration(enable_animation: bool, duration: u32) -> u32 {
+        if enable_animation {
+            duration
+        } else {
+            0
+        }
+    }
+
+    /// 判断是否启用动画
+    pub fn is_animation_enabled(enable_animation: bool) -> bool {
+        enable_animation
+    }
 }
 
 /// Alert动画管理器
@@ -546,6 +585,22 @@ impl AlertAnimationManager {
             let style = html_element.style();
             let _ = style.remove_property("animation");
         }
+    }
+
+    /// 获取动画类名
+    pub fn get_animation_class(state: &AnimationState) -> String {
+        match state {
+            AnimationState::Idle => "".to_string(),
+            AnimationState::Entering => "ant-alert-motion-enter".to_string(),
+            AnimationState::Entered => "ant-alert-entered".to_string(),
+            AnimationState::Exiting => "ant-alert-motion-leave".to_string(),
+            AnimationState::Exited => "ant-alert-exited".to_string(),
+        }
+    }
+
+    /// 判断是否应该应用动画
+    pub fn should_apply_animation(enable_animation: bool) -> bool {
+        enable_animation
     }
 }
 

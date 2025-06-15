@@ -231,38 +231,35 @@ impl AlertStyles {
     /// 获取动画样式
     pub fn animation_styles() -> String {
         css! {
-            "@keyframes ant-alert-slide-up-enter": {
+            "@keyframes ant-alert-motion-in": {
                 "0%": {
                     "opacity": "0",
-                    "transform-origin": "0% 0%",
-                    "transform": "scaleY(0)"
+                    "transform": "scaleY(0)",
+                    "transform-origin": "0 0"
                 },
                 "100%": {
                     "opacity": "1",
-                    "transform-origin": "0% 0%",
-                    "transform": "scaleY(1)"
+                    "transform": "scaleY(1)",
+                    "transform-origin": "0 0"
                 }
             },
-            "@keyframes ant-alert-slide-up-leave": {
+            "@keyframes ant-alert-motion-out": {
                 "0%": {
                     "opacity": "1",
-                    "transform-origin": "0% 0%",
-                    "transform": "scaleY(1)"
+                    "transform": "scaleY(1)",
+                    "transform-origin": "0 0"
                 },
                 "100%": {
                     "opacity": "0",
-                    "transform-origin": "0% 0%",
-                    "transform": "scaleY(0)"
+                    "transform": "scaleY(0)",
+                    "transform-origin": "0 0"
                 }
             },
-            ".ant-alert-entering": {
-                "animation": "ant-alert-slide-up-enter 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)"
+            ".ant-alert-motion-enter": {
+                "animation": "ant-alert-motion-in 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)"
             },
-            ".ant-alert-exiting": {
-                "animation": "ant-alert-slide-up-leave 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)"
-            },
-            ".ant-alert-hidden": {
-                "display": "none"
+            ".ant-alert-motion-leave": {
+                "animation": "ant-alert-motion-out 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)"
             }
         }
         .to_string()

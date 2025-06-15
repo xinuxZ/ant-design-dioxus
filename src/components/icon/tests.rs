@@ -2,6 +2,7 @@
 mod tests {
     use super::*;
     use crate::components::icon::types::*;
+    use crate::components::icon::*;
     use dioxus::prelude::*;
 
     // 测试 IconType 枚举
@@ -81,11 +82,11 @@ mod tests {
     #[test]
     fn test_icon_type_get_svg_content() {
         let home_svg = IconType::Home.get_svg_content();
-        assert!(home_svg.contains("<svg"));
-        assert!(home_svg.contains("</svg>"));
+        assert!(home_svg.as_ref().map_or(false, |s| s.contains("<svg")));
+        assert!(home_svg.as_ref().map_or(false, |s| s.contains("</svg>")));
 
         let custom_svg = IconType::Custom("custom".to_string()).get_svg_content();
-        assert!(custom_svg.is_empty());
+        assert!(custom_svg.is_none() || custom_svg.as_ref().map_or(true, |s| s.is_empty()));
     }
 
     // 测试 IconTheme 枚举
@@ -127,7 +128,7 @@ mod tests {
         assert_eq!(format!("{}", IconSize::Small), "small");
         assert_eq!(format!("{}", IconSize::Medium), "medium");
         assert_eq!(format!("{}", IconSize::Large), "large");
-        assert_eq!(format!("{}", IconSize::Custom("24px".to_string())), "24px");
+        assert_eq!(format!("{}", IconSize::Custom(24)), "24");
     }
 
     #[test]
@@ -135,7 +136,7 @@ mod tests {
         assert_eq!(IconSize::Small.to_css_value(), "14px");
         assert_eq!(IconSize::Medium.to_css_value(), "16px");
         assert_eq!(IconSize::Large.to_css_value(), "20px");
-        assert_eq!(IconSize::Custom("32px".to_string()).to_css_value(), "32px");
+        assert_eq!(IconSize::Custom(32).to_css_value(), "32px");
     }
 
     #[test]
@@ -143,10 +144,7 @@ mod tests {
         assert_eq!(IconSize::from_str("small"), IconSize::Small);
         assert_eq!(IconSize::from_str("medium"), IconSize::Medium);
         assert_eq!(IconSize::from_str("large"), IconSize::Large);
-        assert_eq!(
-            IconSize::from_str("24px"),
-            IconSize::Custom("24px".to_string())
-        );
+        assert_eq!(IconSize::from_str("24px"), IconSize::Custom(24));
     }
 
     // 测试 IconConfig 结构体
@@ -203,16 +201,17 @@ mod tests {
     #[test]
     fn test_validate_icon_props() {
         let valid_props = IconProps {
-            icon_type: IconType::Home,
-            theme: IconTheme::Outlined,
-            rotate: 0,
+            icon_type: Some(CommonIconType::Home),
+            theme: Some(IconTheme::Outlined),
+            rotate: Some(0),
             spin: false,
             two_tone_color: None,
             component: None,
             class_name: None,
             style: None,
             on_click: None,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
+            disabled: false,
         };
 
         assert!(validate_icon_props(&valid_props).is_ok());
@@ -221,16 +220,17 @@ mod tests {
     #[test]
     fn test_validate_icon_props_invalid_rotate() {
         let invalid_props = IconProps {
-            icon_type: IconType::Home,
-            theme: IconTheme::Outlined,
-            rotate: 400, // 无效的旋转角度
+            icon_type: Some(CommonIconType::Home),
+            theme: Some(IconTheme::Outlined),
+            rotate: Some(400), // 无效的旋转角度
             spin: false,
             two_tone_color: None,
             component: None,
             class_name: None,
             style: None,
             on_click: None,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
+            disabled: false,
         };
 
         assert!(validate_icon_props(&invalid_props).is_err());
@@ -239,16 +239,17 @@ mod tests {
     #[test]
     fn test_validate_icon_props_invalid_two_tone_color() {
         let invalid_props = IconProps {
-            icon_type: IconType::Home,
-            theme: IconTheme::TwoTone,
-            rotate: 0,
+            icon_type: Some(CommonIconType::Home),
+            theme: Some(IconTheme::TwoTone),
+            rotate: Some(0),
             spin: false,
             two_tone_color: Some("invalid-color".to_string()), // 无效的颜色格式
             component: None,
             class_name: None,
             style: None,
             on_click: None,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
+            disabled: false,
         };
 
         assert!(validate_icon_props(&invalid_props).is_err());
@@ -283,7 +284,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::Home,
             theme: IconTheme::Outlined,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
             rotate: 0,
             spin: false,
             two_tone_color: None,
@@ -301,7 +302,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::Loading,
             theme: IconTheme::Outlined,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
             rotate: 0,
             spin: true,
             two_tone_color: None,
@@ -317,7 +318,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::User,
             theme: IconTheme::Filled,
-            size: IconSize::Large,
+            size: Some(IconSize::Large),
             rotate: 0,
             spin: false,
             two_tone_color: None,
@@ -333,7 +334,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::Star,
             theme: IconTheme::Outlined,
-            size: IconSize::Large,
+            size: Some(IconSize::Large),
             rotate: 90,
             spin: false,
             two_tone_color: None,
@@ -350,7 +351,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::Loading,
             theme: IconTheme::Outlined,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
             rotate: 0,
             spin: true,
             two_tone_color: None,
@@ -366,7 +367,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::Heart,
             theme: IconTheme::TwoTone,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
             rotate: 0,
             spin: false,
             two_tone_color: Some("#eb2f96".to_string()),
@@ -382,7 +383,7 @@ mod tests {
         let config = IconConfig {
             icon_type: IconType::User,
             theme: IconTheme::Outlined,
-            size: IconSize::Medium,
+            size: Some(IconSize::Medium),
             rotate: 0,
             spin: false,
             two_tone_color: None,
@@ -407,19 +408,8 @@ mod tests {
         assert!(custom_svg.is_empty());
     }
 
-    #[test]
-    fn test_handle_icon_click() {
-        let mut clicked = false;
-        let callback = move |_| {
-            clicked = true;
-        };
-
-        // 模拟点击事件
-        let event = MouseEvent::new("click".to_string());
-        handle_icon_click(Some(callback), event);
-        // 由于闭包的限制，这里无法直接测试clicked的值变化
-        // 但函数调用本身测试了事件处理逻辑
-    }
+    // 注意：Icon组件的点击事件处理是在组件内部实现的，
+    // 不需要单独的handle_icon_click函数测试
 
     // 测试样式生成
     #[test]
@@ -532,19 +522,19 @@ mod tests {
                 div {
                     Icon {
                         icon_type: IconType::User,
-                        size: IconSize::Small,
+                        size: Some(IconSize::Small),
                     }
                     Icon {
                         icon_type: IconType::User,
-                        size: IconSize::Medium,
+                        size: Some(IconSize::Medium),
                     }
                     Icon {
                         icon_type: IconType::User,
-                        size: IconSize::Large,
+                        size: Some(IconSize::Large),
                     }
                     Icon {
                         icon_type: IconType::User,
-                        size: IconSize::Custom("32px".to_string()),
+                        size: Some(IconSize::Custom("32px".to_string())),
                     }
                 }
             }

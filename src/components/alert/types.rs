@@ -123,6 +123,10 @@ pub struct AlertProps {
     #[props(default)]
     pub aria_label: Option<String>,
 
+    /// ARIA 描述
+    #[props(default)]
+    pub aria_describedby: Option<String>,
+
     /// 角色
     #[props(default = "alert".to_string())]
     pub role: String,
@@ -172,6 +176,7 @@ impl Default for AlertProps {
             on_mouse_leave: None,
             on_key_down: None,
             aria_label: None,
+            aria_describedby: None,
             role: "alert".to_string(),
             auto_focus: false,
             tab_index: None,
@@ -557,6 +562,12 @@ impl AlertBuilder {
     /// 设置内联样式
     pub fn style<S: Into<String>>(mut self, style: S) -> Self {
         self.props.style = Some(style.into());
+        self
+    }
+
+    /// 设置 ARIA 描述
+    pub fn aria_describedby<S: Into<String>>(mut self, aria_describedby: S) -> Self {
+        self.props.aria_describedby = Some(aria_describedby.into());
         self
     }
 

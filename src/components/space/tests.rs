@@ -4,6 +4,7 @@ mod tests {
     use crate::components::space::styles::*;
     use crate::components::space::types::*;
     use crate::components::space::utils::*;
+    use crate::components::space::*;
     use dioxus::prelude::*;
 
     // 测试 SpaceDirection 枚举

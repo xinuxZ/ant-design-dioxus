@@ -3,6 +3,7 @@ mod tests {
     use crate::components::flex::styles::*;
     use crate::components::flex::types::*;
     use crate::components::flex::utils::*;
+    use crate::components::flex::*;
     use dioxus::prelude::*;
 
     // 测试 FlexWrap 枚举

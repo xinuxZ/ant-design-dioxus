@@ -4,6 +4,7 @@ mod tests {
     use crate::components::alert::styles::*;
     use crate::components::alert::types::*;
     use crate::components::alert::utils::*;
+    use crate::components::alert::*;
     use dioxus::prelude::*;
     use std::time::Duration;
 

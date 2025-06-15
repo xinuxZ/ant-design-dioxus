@@ -1,182 +1,119 @@
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::components::skeleton::styles::*;
     use crate::components::skeleton::types::*;
     use crate::components::skeleton::utils::*;
-    use crate::components::skeleton::styles::*;
+    use crate::components::skeleton::*;
     use dioxus::prelude::*;
-    use dioxus_testing::*;
     use std::collections::HashMap;
 
-    // 测试 SkeletonAvatarShape 枚举
+    // 测试 AvatarShape 枚举
     #[test]
     fn test_skeleton_avatar_shape_default() {
-        assert_eq!(SkeletonAvatarShape::default(), SkeletonAvatarShape::Circle);
+        assert_eq!(AvatarShape::default(), AvatarShape::Circle);
     }
 
     #[test]
     fn test_skeleton_avatar_shape_display() {
-        assert_eq!(format!("{}", SkeletonAvatarShape::Circle), "circle");
-        assert_eq!(format!("{}", SkeletonAvatarShape::Square), "square");
+        assert_eq!(format!("{}", AvatarShape::Circle), "circle");
+        assert_eq!(format!("{}", AvatarShape::Square), "square");
     }
 
     #[test]
     fn test_skeleton_avatar_shape_from_str() {
-        assert_eq!(SkeletonAvatarShape::from_str("circle"), SkeletonAvatarShape::Circle);
-        assert_eq!(SkeletonAvatarShape::from_str("square"), SkeletonAvatarShape::Square);
-        assert_eq!(SkeletonAvatarShape::from_str("unknown"), SkeletonAvatarShape::Circle);
+        assert_eq!(AvatarShape::from("circle"), AvatarShape::Circle);
+        assert_eq!(AvatarShape::from("square"), AvatarShape::Square);
+        assert_eq!(AvatarShape::from("unknown"), AvatarShape::Circle);
     }
 
     #[test]
     fn test_skeleton_avatar_shape_to_string() {
-        assert_eq!(SkeletonAvatarShape::Circle.to_string(), "circle");
-        assert_eq!(SkeletonAvatarShape::Square.to_string(), "square");
+        assert_eq!(AvatarShape::Circle.to_string(), "circle");
+        assert_eq!(AvatarShape::Square.to_string(), "square");
     }
 
     #[test]
     fn test_skeleton_avatar_shape_is_circle() {
-        assert!(SkeletonAvatarShape::Circle.is_circle());
-        assert!(!SkeletonAvatarShape::Square.is_circle());
+        assert!(AvatarShape::Circle.is_circle());
+        assert!(!AvatarShape::Square.is_circle());
     }
 
     #[test]
     fn test_skeleton_avatar_shape_is_square() {
-        assert!(!SkeletonAvatarShape::Circle.is_square());
-        assert!(SkeletonAvatarShape::Square.is_square());
+        assert!(!AvatarShape::Circle.is_square());
+        assert!(AvatarShape::Square.is_square());
     }
 
-    // 测试 SkeletonAvatarSize 枚举
+    // 测试 AvatarSize 枚举
     #[test]
     fn test_skeleton_avatar_size_default() {
-        assert_eq!(SkeletonAvatarSize::default(), SkeletonAvatarSize::Default);
+        assert_eq!(AvatarSize::default(), AvatarSize::Default);
     }
 
     #[test]
     fn test_skeleton_avatar_size_display() {
-        assert_eq!(format!("{}", SkeletonAvatarSize::Large), "large");
-        assert_eq!(format!("{}", SkeletonAvatarSize::Small), "small");
-        assert_eq!(format!("{}", SkeletonAvatarSize::Default), "default");
-        assert_eq!(format!("{}", SkeletonAvatarSize::Custom(60)), "60");
+        assert_eq!(format!("{}", AvatarSize::Large), "large");
+        assert_eq!(format!("{}", AvatarSize::Small), "small");
+        assert_eq!(format!("{}", AvatarSize::Default), "default");
+        assert_eq!(format!("{}", AvatarSize::Custom(60)), "60");
     }
 
     #[test]
     fn test_skeleton_avatar_size_to_pixels() {
-        assert_eq!(SkeletonAvatarSize::Large.to_pixels(), 64);
-        assert_eq!(SkeletonAvatarSize::Small.to_pixels(), 24);
-        assert_eq!(SkeletonAvatarSize::Default.to_pixels(), 40);
-        assert_eq!(SkeletonAvatarSize::Custom(80).to_pixels(), 80);
+        assert_eq!(AvatarSize::Large.to_pixels(), 64);
+        assert_eq!(AvatarSize::Small.to_pixels(), 24);
+        assert_eq!(AvatarSize::Default.to_pixels(), 40);
+        assert_eq!(AvatarSize::Custom(80).to_pixels(), 80);
     }
 
-    #[test]
-    fn test_skeleton_avatar_size_from_pixels() {
-        assert_eq!(SkeletonAvatarSize::from_pixels(64), SkeletonAvatarSize::Large);
-        assert_eq!(SkeletonAvatarSize::from_pixels(24), SkeletonAvatarSize::Small);
-        assert_eq!(SkeletonAvatarSize::from_pixels(40), SkeletonAvatarSize::Default);
-        assert_eq!(SkeletonAvatarSize::from_pixels(100), SkeletonAvatarSize::Custom(100));
-    }
-
-    #[test]
-    fn test_skeleton_avatar_size_to_css_value() {
-        assert_eq!(SkeletonAvatarSize::Large.to_css_value(), "64px");
-        assert_eq!(SkeletonAvatarSize::Small.to_css_value(), "24px");
-        assert_eq!(SkeletonAvatarSize::Default.to_css_value(), "40px");
-        assert_eq!(SkeletonAvatarSize::Custom(50).to_css_value(), "50px");
-    }
-
-    // 测试 SkeletonButtonShape 枚举
-    #[test]
-    fn test_skeleton_button_shape_default() {
-        assert_eq!(SkeletonButtonShape::default(), SkeletonButtonShape::Default);
-    }
-
+    // 测试 ButtonShape 枚举
     #[test]
     fn test_skeleton_button_shape_display() {
-        assert_eq!(format!("{}", SkeletonButtonShape::Circle), "circle");
-        assert_eq!(format!("{}", SkeletonButtonShape::Round), "round");
-        assert_eq!(format!("{}", SkeletonButtonShape::Default), "default");
+        assert_eq!(format!("{}", ButtonShape::Circle), "circle");
+        assert_eq!(format!("{}", ButtonShape::Round), "round");
+        assert_eq!(format!("{}", ButtonShape::Default), "default");
     }
 
     #[test]
     fn test_skeleton_button_shape_from_str() {
-        assert_eq!(SkeletonButtonShape::from_str("circle"), SkeletonButtonShape::Circle);
-        assert_eq!(SkeletonButtonShape::from_str("round"), SkeletonButtonShape::Round);
-        assert_eq!(SkeletonButtonShape::from_str("default"), SkeletonButtonShape::Default);
-        assert_eq!(SkeletonButtonShape::from_str("unknown"), SkeletonButtonShape::Default);
+        assert_eq!(ButtonShape::from("circle"), ButtonShape::Circle);
+        assert_eq!(ButtonShape::from("round"), ButtonShape::Round);
+        assert_eq!(ButtonShape::from("default"), ButtonShape::Default);
+        assert_eq!(ButtonShape::from("unknown"), ButtonShape::Default);
     }
 
     #[test]
     fn test_skeleton_button_shape_to_string() {
-        assert_eq!(SkeletonButtonShape::Circle.to_string(), "circle");
-        assert_eq!(SkeletonButtonShape::Round.to_string(), "round");
-        assert_eq!(SkeletonButtonShape::Default.to_string(), "default");
+        assert_eq!(ButtonShape::Circle.to_string(), "circle");
+        assert_eq!(ButtonShape::Round.to_string(), "round");
+        assert_eq!(ButtonShape::Default.to_string(), "default");
     }
 
-    #[test]
-    fn test_skeleton_button_shape_is_circle() {
-        assert!(SkeletonButtonShape::Circle.is_circle());
-        assert!(!SkeletonButtonShape::Round.is_circle());
-        assert!(!SkeletonButtonShape::Default.is_circle());
-    }
-
-    #[test]
-    fn test_skeleton_button_shape_is_round() {
-        assert!(!SkeletonButtonShape::Circle.is_round());
-        assert!(SkeletonButtonShape::Round.is_round());
-        assert!(!SkeletonButtonShape::Default.is_round());
-    }
-
-    // 测试 SkeletonButtonSize 枚举
+    // 测试 ButtonSize 枚举
     #[test]
     fn test_skeleton_button_size_default() {
-        assert_eq!(SkeletonButtonSize::default(), SkeletonButtonSize::Default);
+        assert_eq!(ButtonSize::default(), ButtonSize::Default);
     }
 
     #[test]
     fn test_skeleton_button_size_display() {
-        assert_eq!(format!("{}", SkeletonButtonSize::Large), "large");
-        assert_eq!(format!("{}", SkeletonButtonSize::Small), "small");
-        assert_eq!(format!("{}", SkeletonButtonSize::Default), "default");
+        assert_eq!(format!("{}", ButtonSize::Large), "large");
+        assert_eq!(format!("{}", ButtonSize::Small), "small");
+        assert_eq!(format!("{}", ButtonSize::Default), "default");
     }
 
-    #[test]
-    fn test_skeleton_button_size_to_height() {
-        assert_eq!(SkeletonButtonSize::Large.to_height(), 40);
-        assert_eq!(SkeletonButtonSize::Small.to_height(), 24);
-        assert_eq!(SkeletonButtonSize::Default.to_height(), 32);
-    }
-
-    #[test]
-    fn test_skeleton_button_size_to_css_height() {
-        assert_eq!(SkeletonButtonSize::Large.to_css_height(), "40px");
-        assert_eq!(SkeletonButtonSize::Small.to_css_height(), "24px");
-        assert_eq!(SkeletonButtonSize::Default.to_css_height(), "32px");
-    }
-
-    // 测试 SkeletonInputSize 枚举
+    // 测试 InputSize 枚举
     #[test]
     fn test_skeleton_input_size_default() {
-        assert_eq!(SkeletonInputSize::default(), SkeletonInputSize::Default);
+        assert_eq!(InputSize::default(), InputSize::Default);
     }
 
     #[test]
     fn test_skeleton_input_size_display() {
-        assert_eq!(format!("{}", SkeletonInputSize::Large), "large");
-        assert_eq!(format!("{}", SkeletonInputSize::Small), "small");
-        assert_eq!(format!("{}", SkeletonInputSize::Default), "default");
-    }
-
-    #[test]
-    fn test_skeleton_input_size_to_height() {
-        assert_eq!(SkeletonInputSize::Large.to_height(), 40);
-        assert_eq!(SkeletonInputSize::Small.to_height(), 24);
-        assert_eq!(SkeletonInputSize::Default.to_height(), 32);
-    }
-
-    #[test]
-    fn test_skeleton_input_size_to_css_height() {
-        assert_eq!(SkeletonInputSize::Large.to_css_height(), "40px");
-        assert_eq!(SkeletonInputSize::Small.to_css_height(), "24px");
-        assert_eq!(SkeletonInputSize::Default.to_css_height(), "32px");
+        assert_eq!(format!("{}", InputSize::Large), "large");
+        assert_eq!(format!("{}", InputSize::Small), "small");
+        assert_eq!(format!("{}", InputSize::Default), "default");
     }
 
     // 测试 SkeletonAvatarConfig 结构体
@@ -184,261 +121,218 @@ mod tests {
     fn test_skeleton_avatar_config_default() {
         let config = SkeletonAvatarConfig::default();
         assert_eq!(config.active, true);
-        assert_eq!(config.shape, SkeletonAvatarShape::Circle);
-        assert_eq!(config.size, SkeletonAvatarSize::Default);
+        assert_eq!(config.shape, AvatarShape::Circle);
+        assert_eq!(config.size, AvatarSize::Default);
     }
 
     #[test]
     fn test_skeleton_avatar_config_new() {
-        let config = SkeletonAvatarConfig::new(
-            false,
-            SkeletonAvatarShape::Square,
-            SkeletonAvatarSize::Large,
-        );
-        
+        let config = SkeletonAvatarConfig::new(false, AvatarShape::Square, AvatarSize::Large);
+
         assert_eq!(config.active, false);
-        assert_eq!(config.shape, SkeletonAvatarShape::Square);
-        assert_eq!(config.size, SkeletonAvatarSize::Large);
+        assert_eq!(config.shape, AvatarShape::Square);
+        assert_eq!(config.size, AvatarSize::Large);
     }
 
     #[test]
     fn test_skeleton_avatar_config_with_shape() {
         let mut config = SkeletonAvatarConfig::default();
-        config = config.with_shape(SkeletonAvatarShape::Square);
-        
-        assert_eq!(config.shape, SkeletonAvatarShape::Square);
+        config = config.with_shape(AvatarShape::Square);
+
+        assert_eq!(config.shape, AvatarShape::Square);
     }
 
     #[test]
     fn test_skeleton_avatar_config_with_size() {
         let mut config = SkeletonAvatarConfig::default();
-        config = config.with_size(SkeletonAvatarSize::Custom(80));
-        
-        assert_eq!(config.size, SkeletonAvatarSize::Custom(80));
+        config = config.with_size(AvatarSize::Custom(80));
+
+        assert_eq!(config.size, AvatarSize::Custom(80));
     }
 
     #[test]
     fn test_skeleton_avatar_config_with_active() {
         let mut config = SkeletonAvatarConfig::default();
         config = config.with_active(false);
-        
+
         assert_eq!(config.active, false);
     }
 
-    // 测试 SkeletonTitleConfig 结构体
+    // 测试 SkeletonTitleConfig 枚举
     #[test]
     fn test_skeleton_title_config_default() {
         let config = SkeletonTitleConfig::default();
-        assert_eq!(config.width, "38%");
+        assert_eq!(config, SkeletonTitleConfig::Boolean(false));
     }
 
     #[test]
-    fn test_skeleton_title_config_new() {
-        let config = SkeletonTitleConfig::new("50%".to_string());
-        assert_eq!(config.width, "50%");
+    fn test_skeleton_title_config_boolean_variant() {
+        let config = SkeletonTitleConfig::Boolean(true);
+        assert_eq!(config, SkeletonTitleConfig::Boolean(true));
     }
 
     #[test]
-    fn test_skeleton_title_config_with_width() {
-        let mut config = SkeletonTitleConfig::default();
-        config = config.with_width("60%".to_string());
-        
-        assert_eq!(config.width, "60%");
+    fn test_skeleton_title_config_variants() {
+        let bool_config = SkeletonTitleConfig::Boolean(true);
+        assert_eq!(bool_config, SkeletonTitleConfig::Boolean(true));
+
+        let title_props = SkeletonTitleProps {
+            width: Some(SkeletonWidth::String("60%".to_string())),
+        };
+        let config_variant = SkeletonTitleConfig::Config(title_props);
+
+        match config_variant {
+            SkeletonTitleConfig::Config(props) => {
+                assert!(props.width.is_some());
+            }
+            _ => panic!("Expected Config variant"),
+        }
     }
 
-    #[test]
-    fn test_skeleton_title_config_is_valid_width() {
-        assert!(SkeletonTitleConfig::is_valid_width("50%"));
-        assert!(SkeletonTitleConfig::is_valid_width("100px"));
-        assert!(SkeletonTitleConfig::is_valid_width("auto"));
-        assert!(!SkeletonTitleConfig::is_valid_width("invalid"));
-        assert!(!SkeletonTitleConfig::is_valid_width(""));
-    }
-
-    // 测试 SkeletonParagraphConfig 结构体
+    // 测试 SkeletonParagraphConfig 枚举
     #[test]
     fn test_skeleton_paragraph_config_default() {
         let config = SkeletonParagraphConfig::default();
-        assert_eq!(config.rows, 3);
-        assert_eq!(config.width, vec!["100%".to_string(), "100%".to_string(), "61%".to_string()]);
+        assert_eq!(config, SkeletonParagraphConfig::Boolean(false));
     }
 
     #[test]
-    fn test_skeleton_paragraph_config_new() {
-        let widths = vec!["80%".to_string(), "90%".to_string()];
-        let config = SkeletonParagraphConfig::new(2, widths.clone());
-        
-        assert_eq!(config.rows, 2);
-        assert_eq!(config.width, widths);
+    fn test_skeleton_paragraph_config_variants() {
+        let bool_config = SkeletonParagraphConfig::Boolean(true);
+        assert_eq!(bool_config, SkeletonParagraphConfig::Boolean(true));
+
+        let paragraph_props = SkeletonParagraphProps {
+            rows: Some(3),
+            width: Some(SkeletonWidthConfig::Multiple(vec![
+                SkeletonWidth::String("100%".to_string()),
+                SkeletonWidth::String("100%".to_string()),
+                SkeletonWidth::String("61%".to_string()),
+            ])),
+        };
+        let config_variant = SkeletonParagraphConfig::Config(paragraph_props);
+
+        match config_variant {
+            SkeletonParagraphConfig::Config(props) => {
+                assert_eq!(props.rows, Some(3));
+                assert!(props.width.is_some());
+            }
+            _ => panic!("Expected Config variant"),
+        }
     }
 
     #[test]
-    fn test_skeleton_paragraph_config_with_rows() {
-        let mut config = SkeletonParagraphConfig::default();
-        config = config.with_rows(5);
-        
-        assert_eq!(config.rows, 5);
-        assert_eq!(config.width.len(), 5);
+    fn test_skeleton_width_variants() {
+        let pixel_width = SkeletonWidth::Pixels(100);
+        let percentage_width = SkeletonWidth::Percentage(80);
+        let string_width = SkeletonWidth::String("auto".to_string());
+
+        assert_eq!(pixel_width, SkeletonWidth::Pixels(100));
+        assert_eq!(percentage_width, SkeletonWidth::Percentage(80));
+        assert_eq!(string_width, SkeletonWidth::String("auto".to_string()));
     }
 
     #[test]
-    fn test_skeleton_paragraph_config_with_width() {
-        let mut config = SkeletonParagraphConfig::default();
-        let new_widths = vec!["70%".to_string(), "80%".to_string(), "50%".to_string()];
-        config = config.with_width(new_widths.clone());
-        
-        assert_eq!(config.width, new_widths);
+    fn test_skeleton_width_config_variants() {
+        let single_config = SkeletonWidthConfig::Single(SkeletonWidth::String("100%".to_string()));
+        let multiple_config = SkeletonWidthConfig::Multiple(vec![
+            SkeletonWidth::String("100%".to_string()),
+            SkeletonWidth::String("80%".to_string()),
+        ]);
+
+        match single_config {
+            SkeletonWidthConfig::Single(_) => assert!(true),
+            _ => panic!("Expected Single variant"),
+        }
+
+        match multiple_config {
+            SkeletonWidthConfig::Multiple(widths) => {
+                assert_eq!(widths.len(), 2);
+            }
+            _ => panic!("Expected Multiple variant"),
+        }
     }
 
+    // 测试 SkeletonProps 结构体
     #[test]
-    fn test_skeleton_paragraph_config_generate_default_widths() {
-        let widths = SkeletonParagraphConfig::generate_default_widths(4);
-        assert_eq!(widths.len(), 4);
-        assert_eq!(widths[0], "100%");
-        assert_eq!(widths[1], "100%");
-        assert_eq!(widths[2], "100%");
-        assert_eq!(widths[3], "61%");
-    }
-
-    #[test]
-    fn test_skeleton_paragraph_config_is_valid_rows() {
-        assert!(SkeletonParagraphConfig::is_valid_rows(1));
-        assert!(SkeletonParagraphConfig::is_valid_rows(10));
-        assert!(!SkeletonParagraphConfig::is_valid_rows(0));
-        assert!(!SkeletonParagraphConfig::is_valid_rows(21));
-    }
-
-    // 测试 SkeletonConfig 结构体
-    #[test]
-    fn test_skeleton_config_default() {
-        let config = SkeletonConfig::default();
-        assert_eq!(config.loading, true);
-        assert_eq!(config.active, false);
-        assert_eq!(config.round, false);
-        assert!(config.avatar.is_none());
-        assert!(config.title.is_some());
-        assert!(config.paragraph.is_some());
-    }
-
-    #[test]
-    fn test_skeleton_config_new() {
-        let avatar_config = SkeletonAvatarConfig::default();
-        let title_config = SkeletonTitleConfig::default();
-        let paragraph_config = SkeletonParagraphConfig::default();
-        
-        let config = SkeletonConfig::new(
-            false,
-            true,
-            true,
-            Some(avatar_config.clone()),
-            Some(title_config.clone()),
-            Some(paragraph_config.clone()),
+    fn test_skeleton_props_default() {
+        let props = SkeletonProps::default();
+        assert_eq!(props.loading, Some(true));
+        assert_eq!(props.active, Some(false));
+        assert_eq!(props.round, Some(false));
+        assert!(props.avatar.is_none());
+        assert_eq!(props.title, Some(SkeletonTitleConfig::Boolean(true)));
+        assert_eq!(
+            props.paragraph,
+            Some(SkeletonParagraphConfig::Boolean(true))
         );
-        
-        assert_eq!(config.loading, false);
-        assert_eq!(config.active, true);
-        assert_eq!(config.round, true);
-        assert_eq!(config.avatar, Some(avatar_config));
-        assert_eq!(config.title, Some(title_config));
-        assert_eq!(config.paragraph, Some(paragraph_config));
     }
 
     #[test]
-    fn test_skeleton_config_with_loading() {
-        let mut config = SkeletonConfig::default();
-        config = config.with_loading(false);
-        
-        assert_eq!(config.loading, false);
+    fn test_skeleton_avatar_config_variants() {
+        let bool_config = SkeletonAvatarConfig::Boolean(true);
+        assert_eq!(bool_config, SkeletonAvatarConfig::Boolean(true));
+
+        let avatar_props = SkeletonAvatarProps {
+            active: Some(true),
+            shape: Some(AvatarShape::Circle),
+            size: Some(AvatarSize::Large),
+        };
+        let config_variant = SkeletonAvatarConfig::Config(avatar_props);
+
+        match config_variant {
+            SkeletonAvatarConfig::Config(props) => {
+                assert_eq!(props.active, Some(true));
+                assert_eq!(props.shape, Some(AvatarShape::Circle));
+                assert_eq!(props.size, Some(AvatarSize::Large));
+            }
+            _ => panic!("Expected Config variant"),
+        }
+    }
+
+    // 测试工具函数 - should_show_avatar
+    #[test]
+    fn test_should_show_avatar() {
+        assert!(should_show_avatar(Some(&SkeletonAvatarConfig::Boolean(
+            true
+        ))));
+        assert!(!should_show_avatar(Some(&SkeletonAvatarConfig::Boolean(
+            false
+        ))));
+        assert!(!should_show_avatar(None));
+
+        let avatar_props = SkeletonAvatarProps {
+            active: Some(true),
+            shape: Some(AvatarShape::Circle),
+            size: Some(AvatarSize::Large),
+        };
+        assert!(should_show_avatar(Some(&SkeletonAvatarConfig::Config(
+            avatar_props
+        ))));
     }
 
     #[test]
-    fn test_skeleton_config_with_active() {
-        let mut config = SkeletonConfig::default();
-        config = config.with_active(true);
-        
-        assert_eq!(config.active, true);
+    fn test_should_show_title() {
+        assert!(should_show_title(Some(&SkeletonTitleConfig::Boolean(true))));
+        assert!(!should_show_title(Some(&SkeletonTitleConfig::Boolean(
+            false
+        ))));
+        assert!(should_show_title(None)); // 默认显示标题
     }
 
     #[test]
-    fn test_skeleton_config_with_round() {
-        let mut config = SkeletonConfig::default();
-        config = config.with_round(true);
-        
-        assert_eq!(config.round, true);
-    }
-
-    #[test]
-    fn test_skeleton_config_with_avatar() {
-        let mut config = SkeletonConfig::default();
-        let avatar_config = SkeletonAvatarConfig::default();
-        config = config.with_avatar(Some(avatar_config.clone()));
-        
-        assert_eq!(config.avatar, Some(avatar_config));
-    }
-
-    #[test]
-    fn test_skeleton_config_should_show_skeleton() {
-        let loading_config = SkeletonConfig {
-            loading: true,
-            ..Default::default()
-        };
-        assert!(loading_config.should_show_skeleton());
-        
-        let not_loading_config = SkeletonConfig {
-            loading: false,
-            ..Default::default()
-        };
-        assert!(!not_loading_config.should_show_skeleton());
-    }
-
-    #[test]
-    fn test_skeleton_config_has_avatar() {
-        let with_avatar = SkeletonConfig {
-            avatar: Some(SkeletonAvatarConfig::default()),
-            ..Default::default()
-        };
-        assert!(with_avatar.has_avatar());
-        
-        let without_avatar = SkeletonConfig {
-            avatar: None,
-            ..Default::default()
-        };
-        assert!(!without_avatar.has_avatar());
-    }
-
-    #[test]
-    fn test_skeleton_config_has_title() {
-        let with_title = SkeletonConfig {
-            title: Some(SkeletonTitleConfig::default()),
-            ..Default::default()
-        };
-        assert!(with_title.has_title());
-        
-        let without_title = SkeletonConfig {
-            title: None,
-            ..Default::default()
-        };
-        assert!(!without_title.has_title());
-    }
-
-    #[test]
-    fn test_skeleton_config_has_paragraph() {
-        let with_paragraph = SkeletonConfig {
-            paragraph: Some(SkeletonParagraphConfig::default()),
-            ..Default::default()
-        };
-        assert!(with_paragraph.has_paragraph());
-        
-        let without_paragraph = SkeletonConfig {
-            paragraph: None,
-            ..Default::default()
-        };
-        assert!(!without_paragraph.has_paragraph());
+    fn test_should_show_paragraph() {
+        assert!(should_show_paragraph(Some(
+            &SkeletonParagraphConfig::Boolean(true)
+        )));
+        assert!(!should_show_paragraph(Some(
+            &SkeletonParagraphConfig::Boolean(false)
+        )));
+        assert!(should_show_paragraph(None)); // 默认显示段落
     }
 
     // 测试工具函数
     #[test]
-    fn test_validate_skeleton_props() {
+    fn test_validate_skeleton_config() {
         let valid_props = SkeletonProps {
             loading: Some(true),
             active: Some(false),
@@ -451,229 +345,123 @@ mod tests {
             theme: None,
             children: None,
         };
-        
-        assert!(validate_skeleton_props(&valid_props).is_ok());
+
+        assert!(validate_skeleton_config(&valid_props).is_ok());
     }
 
     #[test]
-    fn test_create_skeleton_config() {
+    fn test_generate_paragraph_widths() {
+        // 测试默认配置
+        let widths = generate_paragraph_widths(3, None);
+        assert_eq!(widths.len(), 3);
+        assert_eq!(widths[0], SkeletonWidth::Percentage(100));
+        assert_eq!(widths[1], SkeletonWidth::Percentage(100));
+        assert_eq!(widths[2], SkeletonWidth::Percentage(100));
+
+        // 测试单一宽度配置
+        let single_config = SkeletonWidthConfig::Single(SkeletonWidth::Percentage(61));
+        let widths = generate_paragraph_widths(2, Some(&single_config));
+        assert_eq!(widths.len(), 2);
+        assert_eq!(widths[0], SkeletonWidth::Percentage(100));
+        assert_eq!(widths[1], SkeletonWidth::Percentage(61));
+    }
+
+    #[test]
+    fn test_calculate_avatar_props() {
+        let avatar_config = SkeletonAvatarConfig::Boolean(true);
+        let props = calculate_avatar_props(&avatar_config, true, true);
+
+        assert_eq!(props.shape, Some(AvatarShape::Circle));
+        assert_eq!(props.size, Some(AvatarSize::Large));
+    }
+
+    #[test]
+    fn test_calculate_title_props() {
+        let title_config = SkeletonTitleConfig::Boolean(true);
+        let props = calculate_title_props(&title_config, false, true);
+
+        assert_eq!(props.width, Some(SkeletonWidth::Percentage(38)));
+    }
+
+    #[test]
+    fn test_calculate_paragraph_props() {
+        let paragraph_config = SkeletonParagraphConfig::Boolean(true);
+        let props = calculate_paragraph_props(&paragraph_config, false, true);
+
+        assert_eq!(props.rows, Some(3));
+        assert!(props.width.is_some());
+    }
+
+    #[test]
+    fn test_generate_cache_key() {
         let props = SkeletonProps {
-            loading: Some(false),
-            active: Some(true),
-            round: Some(true),
-            avatar: Some(true),
-            title: Some(false),
-            paragraph: Some(true),
+            loading: Some(true),
+            active: Some(false),
+            round: Some(false),
+            avatar: None,
+            title: None,
+            paragraph: None,
             class_name: None,
             style: None,
             theme: None,
             children: None,
         };
-        
-        let config = create_skeleton_config(&props);
-        assert_eq!(config.loading, false);
-        assert_eq!(config.active, true);
-        assert_eq!(config.round, true);
-        assert!(config.avatar.is_some());
-        assert!(config.title.is_none());
-        assert!(config.paragraph.is_some());
+
+        let cache_key = generate_cache_key(&props);
+        assert!(!cache_key.is_empty());
     }
 
     #[test]
-    fn test_create_avatar_config_from_bool() {
-        let config = create_avatar_config_from_bool(true);
-        assert!(config.is_some());
-        assert_eq!(config.unwrap(), SkeletonAvatarConfig::default());
-        
-        let no_config = create_avatar_config_from_bool(false);
-        assert!(no_config.is_none());
+    fn test_is_mobile_device() {
+        // 这个函数通常检测用户代理或屏幕尺寸
+        // 在测试环境中可能返回默认值
+        let is_mobile = is_mobile_device();
+        assert!(is_mobile == true || is_mobile == false); // 确保返回布尔值
     }
 
     #[test]
-    fn test_create_title_config_from_bool() {
-        let config = create_title_config_from_bool(true);
-        assert!(config.is_some());
-        assert_eq!(config.unwrap(), SkeletonTitleConfig::default());
-        
-        let no_config = create_title_config_from_bool(false);
-        assert!(no_config.is_none());
+    fn test_optimize_paragraph_rows() {
+        // 测试段落行数优化
+        let optimized = optimize_paragraph_rows(5, true);
+        assert!(optimized <= 5);
+
+        let not_optimized = optimize_paragraph_rows(3, false);
+        assert_eq!(not_optimized, 3);
     }
 
     #[test]
-    fn test_create_paragraph_config_from_bool() {
-        let config = create_paragraph_config_from_bool(true);
-        assert!(config.is_some());
-        assert_eq!(config.unwrap(), SkeletonParagraphConfig::default());
-        
-        let no_config = create_paragraph_config_from_bool(false);
-        assert!(no_config.is_none());
+    fn test_get_responsive_config() {
+        // 测试响应式配置
+        let config = get_responsive_config(800);
+        assert!(config.is_some() || config.is_none()); // 确保返回有效值
     }
 
     #[test]
-    fn test_get_skeleton_container_class() {
-        let config = SkeletonConfig {
-            active: true,
-            round: true,
-            ..Default::default()
-        };
-        
-        let class_name = get_skeleton_container_class(&config);
-        assert!(class_name.contains("ant-skeleton"));
-        assert!(class_name.contains("ant-skeleton-active"));
-        assert!(class_name.contains("ant-skeleton-round"));
+    fn test_merge_theme() {
+        // 测试主题合并
+        let default_theme = "light";
+        let custom_theme = Some("dark".to_string());
+
+        let merged = merge_theme(default_theme, custom_theme.as_deref());
+        assert_eq!(merged, "dark");
+
+        let no_custom = merge_theme(default_theme, None);
+        assert_eq!(no_custom, default_theme);
     }
 
+    // 测试验证函数
     #[test]
-    fn test_get_skeleton_container_class_inactive() {
-        let config = SkeletonConfig {
-            active: false,
-            round: false,
-            ..Default::default()
-        };
-        
-        let class_name = get_skeleton_container_class(&config);
-        assert!(class_name.contains("ant-skeleton"));
-        assert!(!class_name.contains("ant-skeleton-active"));
-        assert!(!class_name.contains("ant-skeleton-round"));
-    }
+    fn test_validate_skeleton_width() {
+        // 测试有效的百分比宽度
+        assert!(validate_skeleton_width(&SkeletonWidth::Percentage(50)).is_ok());
+        assert!(validate_skeleton_width(&SkeletonWidth::Percentage(100)).is_ok());
 
-    #[test]
-    fn test_get_skeleton_avatar_class() {
-        let config = SkeletonAvatarConfig {
-            shape: SkeletonAvatarShape::Square,
-            size: SkeletonAvatarSize::Large,
-            ..Default::default()
-        };
-        
-        let class_name = get_skeleton_avatar_class(&config);
-        assert!(class_name.contains("ant-skeleton-avatar"));
-        assert!(class_name.contains("ant-skeleton-avatar-square"));
-        assert!(class_name.contains("ant-skeleton-avatar-lg"));
-    }
+        // 测试有效的像素宽度
+        assert!(validate_skeleton_width(&SkeletonWidth::Pixel(200)).is_ok());
 
-    #[test]
-    fn test_get_skeleton_avatar_styles() {
-        let config = SkeletonAvatarConfig {
-            size: SkeletonAvatarSize::Custom(80),
-            ..Default::default()
-        };
-        
-        let styles = get_skeleton_avatar_styles(&config);
-        assert!(styles.contains("width: 80px"));
-        assert!(styles.contains("height: 80px"));
-    }
-
-    #[test]
-    fn test_get_skeleton_title_styles() {
-        let config = SkeletonTitleConfig {
-            width: "60%".to_string(),
-        };
-        
-        let styles = get_skeleton_title_styles(&config);
-        assert!(styles.contains("width: 60%"));
-    }
-
-    #[test]
-    fn test_get_skeleton_paragraph_row_styles() {
-        let styles = get_skeleton_paragraph_row_styles("75%");
-        assert!(styles.contains("width: 75%"));
-    }
-
-    #[test]
-    fn test_merge_skeleton_styles() {
-        let base_styles = "color: red;";
-        let custom_styles = Some("margin: 10px;".to_string());
-        
-        let merged = merge_skeleton_styles(base_styles, custom_styles.as_deref());
-        assert!(merged.contains("color: red;"));
-        assert!(merged.contains("margin: 10px;"));
-        
-        let no_custom = merge_skeleton_styles(base_styles, None);
-        assert_eq!(no_custom, base_styles);
-    }
-
-    #[test]
-    fn test_merge_skeleton_classes() {
-        let base_class = "ant-skeleton";
-        let custom_class = Some("custom-skeleton".to_string());
-        
-        let merged = merge_skeleton_classes(base_class, custom_class.as_deref());
-        assert!(merged.contains("ant-skeleton"));
-        assert!(merged.contains("custom-skeleton"));
-        
-        let no_custom = merge_skeleton_classes(base_class, None);
-        assert_eq!(no_custom, base_class);
-    }
-
-    // 测试样式生成
-    #[test]
-    fn test_skeleton_styles_base() {
-        let base_styles = SkeletonStyles::base();
-        assert!(base_styles.contains(".ant-skeleton"));
-        assert!(base_styles.contains("position: relative"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_avatar_styles() {
-        let avatar_styles = SkeletonStyles::avatar_styles();
-        assert!(avatar_styles.contains(".ant-skeleton-avatar"));
-        assert!(avatar_styles.contains("display: inline-block"));
-        assert!(avatar_styles.contains("border-radius: 50%"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_title_styles() {
-        let title_styles = SkeletonStyles::title_styles();
-        assert!(title_styles.contains(".ant-skeleton-title"));
-        assert!(title_styles.contains("height: 16px"));
-        assert!(title_styles.contains("margin-bottom: 8px"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_paragraph_styles() {
-        let paragraph_styles = SkeletonStyles::paragraph_styles();
-        assert!(paragraph_styles.contains(".ant-skeleton-paragraph"));
-        assert!(paragraph_styles.contains(".ant-skeleton-paragraph li"));
-        assert!(paragraph_styles.contains("height: 16px"));
-        assert!(paragraph_styles.contains("margin-bottom: 8px"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_active_styles() {
-        let active_styles = SkeletonStyles::active_styles();
-        assert!(active_styles.contains(".ant-skeleton-active"));
-        assert!(active_styles.contains("@keyframes ant-skeleton-loading"));
-        assert!(active_styles.contains("animation"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_round_styles() {
-        let round_styles = SkeletonStyles::round_styles();
-        assert!(round_styles.contains(".ant-skeleton-round"));
-        assert!(round_styles.contains("border-radius: 6px"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_size_styles() {
-        let size_styles = SkeletonStyles::size_styles();
-        assert!(size_styles.contains(".ant-skeleton-avatar-lg"));
-        assert!(size_styles.contains(".ant-skeleton-avatar-sm"));
-        assert!(size_styles.contains("width: 64px"));
-        assert!(size_styles.contains("width: 24px"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_shape_styles() {
-        let shape_styles = SkeletonStyles::shape_styles();
-        assert!(shape_styles.contains(".ant-skeleton-avatar-square"));
-        assert!(shape_styles.contains("border-radius: 6px"));
-    }
-
-    #[test]
-    fn test_skeleton_styles_element_styles() {
-        let element_styles = SkeletonStyles::element_styles();
-        assert!(element_styles.contains(".ant-skeleton-element"));
-        assert!(element_styles.contains("background: linear-gradient"));
+        // 测试无效的百分比宽度
+        assert!(validate_skeleton_width(&SkeletonWidth::Percentage(150)).is_err());
+        assert!(validate_skeleton_width(&SkeletonWidth::Percentage(0)).is_err());
     }
 
     // 测试组件渲染

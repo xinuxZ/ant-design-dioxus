@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::components::qr_code::types::*;
+    use crate::components::qr_code::*;
     use dioxus::prelude::*;
 
     // 测试 QRCodeType 枚举
