@@ -6,7 +6,7 @@
 pub use crate::components::*;
 pub use crate::config_provider::ConfigProvider;
 pub use crate::hooks::*;
-pub use crate::theme::Theme;
+pub use crate::theme::{Theme, ThemeConfig, ThemeProvider};
 pub use crate::utils::*;
 
 // Re-export css-in-rust for convenient use
