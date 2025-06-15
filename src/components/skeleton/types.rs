@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::Display;
 
 /// Skeleton 主组件属性
 #[derive(Props, Clone, PartialEq)]
@@ -91,7 +92,7 @@ pub struct SkeletonTitleProps {
 }
 
 /// Skeleton Paragraph 组件属性
-#[derive(Props, Clone, PartialEq)]
+#[derive(Props, Clone, Debug, PartialEq)]
 pub struct SkeletonParagraphProps {
     /// 段落行数
     pub rows: Option<u32>,
@@ -130,7 +131,7 @@ impl Default for SkeletonTitleConfig {
 }
 
 /// 段落配置枚举
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum SkeletonParagraphConfig {
     /// 布尔值配置
     Boolean(bool),
@@ -155,7 +156,7 @@ pub enum SkeletonWidth {
 }
 
 /// 段落宽度配置
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum SkeletonWidthConfig {
     /// 单一宽度（应用于最后一行）
     Single(SkeletonWidth),
@@ -185,6 +186,18 @@ pub enum AvatarSize {
     Custom(u32),
 }
 
+/// impl Display for AvatarSize
+impl Display for AvatarSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AvatarSize::Large => write!(f, "large"),
+            AvatarSize::Default => write!(f, "default"),
+            AvatarSize::Small => write!(f, "small"),
+            AvatarSize::Custom(p) => write!(f, "{}px", p),
+        }
+    }
+}
+
 /// 按钮形状
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum ButtonShape {
@@ -208,6 +221,23 @@ pub enum ButtonSize {
     /// 小号
     Small,
 }
+/// Default impl for ButtonSize
+impl Default for ButtonSize {
+    fn default() -> Self {
+        ButtonSize::Default
+    }
+}
+
+/// impl Display for ButtonSize
+impl Display for ButtonSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ButtonSize::Large => write!(f, "large"),
+            ButtonSize::Default => write!(f, "default"),
+            ButtonSize::Small => write!(f, "small"),
+        }
+    }
+}
 
 /// 输入框大小
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
@@ -218,6 +248,23 @@ pub enum InputSize {
     Default,
     /// 小号
     Small,
+}
+
+impl Default for InputSize {
+    fn default() -> Self {
+        InputSize::Default
+    }
+}
+
+/// impl Display for InputSize
+impl Display for InputSize {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InputSize::Large => write!(f, "large"),
+            InputSize::Default => write!(f, "default"),
+            InputSize::Small => write!(f, "small"),
+        }
+    }
 }
 
 /// Skeleton 主题配置
@@ -401,6 +448,22 @@ impl std::fmt::Display for AvatarShape {
     }
 }
 
+impl Default for AvatarShape {
+    fn default() -> Self {
+        AvatarShape::Circle
+    }
+}
+
+impl From<&str> for AvatarShape {
+    fn from(value: &str) -> Self {
+        match value {
+            "circle" => AvatarShape::Circle,
+            "square" => AvatarShape::Square,
+            _ => AvatarShape::Circle,
+        }
+    }
+}
+
 impl std::fmt::Display for ButtonShape {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -408,6 +471,18 @@ impl std::fmt::Display for ButtonShape {
             ButtonShape::Round => write!(f, "round"),
             ButtonShape::Square => write!(f, "square"),
             ButtonShape::Default => write!(f, "default"),
+        }
+    }
+}
+
+/// impl from str for ButtonShape
+impl From<&str> for ButtonShape {
+    fn from(value: &str) -> Self {
+        match value {
+            "circle" => ButtonShape::Circle,
+            "round" => ButtonShape::Round,
+            "square" => ButtonShape::Square,
+            _ => ButtonShape::Default,
         }
     }
 }
