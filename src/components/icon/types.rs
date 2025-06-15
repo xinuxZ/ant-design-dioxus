@@ -53,6 +53,25 @@ pub struct IconProps {
     // pub children: Element,
 }
 
+/// 图标组件的默认实现
+impl Default for IconProps {
+    fn default() -> Self {
+        Self {
+            icon_type: None,
+            theme: Some(IconTheme::Outlined),
+            rotate: None,
+            spin: false,
+            two_tone_color: None,
+            component: None,
+            class_name: None,
+            style: None,
+            on_click: None,
+            size: None,
+            disabled: false,
+        }
+    }
+}
+
 /// 图标主题类型
 #[derive(Clone, PartialEq, Default, Debug)]
 pub enum IconTheme {
