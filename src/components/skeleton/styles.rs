@@ -175,10 +175,7 @@ pub fn generate_skeleton_button_style(
             border-radius: {height};
         }
         .to_string(),
-        ButtonShape::Square => css! {
-            border-radius: 0;
-        }
-        .to_string(),
+        // ButtonShape::Square 在 button 模块中不存在，移除此分支
         ButtonShape::Default => css! {
             border-radius: {theme.block_radius.unwrap_or(4)}px;
         }
@@ -357,7 +354,7 @@ pub fn get_skeleton_button_class_name(
     match size {
         ButtonSize::Large => classes.push("ant-skeleton-button-lg"),
         ButtonSize::Small => classes.push("ant-skeleton-button-sm"),
-        ButtonSize::Default => {}
+        ButtonSize::Middle => {}
     }
 
     if block {

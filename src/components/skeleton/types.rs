@@ -198,35 +198,8 @@ impl Display for AvatarSize {
     }
 }
 
-/// 按钮形状
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
-pub enum ButtonShape {
-    /// 圆形
-    Circle,
-    /// 圆角
-    Round,
-    /// 方形
-    Square,
-    /// 默认
-    Default,
-}
-
-/// 按钮大小
-#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
-pub enum ButtonSize {
-    /// 大号
-    Large,
-    /// 默认
-    Default,
-    /// 小号
-    Small,
-}
-/// Default impl for ButtonSize
-impl Default for ButtonSize {
-    fn default() -> Self {
-        ButtonSize::Default
-    }
-}
+// 重新导出 button 模块的类型，避免重复定义
+pub use crate::components::button::types::{ButtonShape, ButtonSize};
 
 /// impl Display for ButtonSize
 impl Display for ButtonSize {

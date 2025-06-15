@@ -87,6 +87,7 @@ pub mod button; // 按钮 - 依赖 icon, spin
 
 // 重新导出组件
 pub use alert::*;
+pub use button::*;
 pub use divider::*;
 pub use flex::*;
 pub use icon::*;
@@ -97,7 +98,6 @@ pub use spin::*;
 
 // 重新导出组件，方便使用
 pub use alert::Alert;
-pub use button::{Button, ButtonGroup};
 pub use divider::Divider;
 pub use flex::Flex;
 pub use icon::Icon;

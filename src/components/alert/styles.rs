@@ -10,7 +10,7 @@ pub struct AlertStyles;
 impl AlertStyles {
     /// 获取基础样式
     pub fn base() -> String {
-        css! {
+        css! (
             ".ant-alert": {
                 "box-sizing": "border-box",
                 "margin": "0",
@@ -76,7 +76,7 @@ impl AlertStyles {
                 "outline": "2px solid #1890ff",
                 "outline-offset": "2px"
             }
-        }
+        )
         .to_string()
     }
 

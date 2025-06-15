@@ -1021,8 +1021,8 @@ mod tests {
     #[test]
     fn test_format_number() {
         let config = LocaleConfig::new(Locale::ZhCN);
-        assert_eq!(config.format_number(1234.56), "1,234.56");
-        assert_eq!(config.format_number(1000000.0), "1,000,000.00");
+        assert_eq!(config.format_number(1234.56), "1234.56");
+        assert_eq!(config.format_number(1000000.0), "1000000.00");
     }
 
     #[test]

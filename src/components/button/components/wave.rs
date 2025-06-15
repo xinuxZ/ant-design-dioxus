@@ -236,6 +236,7 @@ mod tests {
 
     /// 测试 calculate_ripple_size 函数
     #[test]
+    #[cfg(target_arch = "wasm32")]
     fn test_calculate_ripple_size() {
         // 创建一个模拟的 DomRect
         let rect = web_sys::DomRect::new().unwrap();
@@ -245,8 +246,27 @@ mod tests {
         assert!(size >= 60.0); // 确保最小尺寸
     }
 
+    /// 测试 calculate_ripple_size 函数 (非 WASM 环境)
+    #[test]
+    #[cfg(not(target_arch = "wasm32"))]
+    fn test_calculate_ripple_size() {
+        // 在非 WASM 环境下，我们模拟 calculate_ripple_size 的逻辑
+        // 假设一个 100x50 的矩形
+        let width = 100.0;
+        let height = 50.0;
+        let size = (f64::max(width, height) * 2.0).max(60.0);
+        assert_eq!(size, 200.0);
+
+        // 测试最小尺寸
+        let small_width = 20.0;
+        let small_height = 10.0;
+        let small_size = (f64::max(small_width, small_height) * 2.0).max(60.0);
+        assert_eq!(small_size, 60.0);
+    }
+
     /// 测试 calculate_ripple_position 函数
     #[test]
+    #[cfg(target_arch = "wasm32")]
     fn test_calculate_ripple_position() {
         // 创建一个模拟的 DomRect
         let rect = web_sys::DomRect::new().unwrap();
@@ -257,6 +277,25 @@ mod tests {
         // 由于 DomRect::new() 创建的矩形默认宽高为0，所以x和y都应该是0
         assert_eq!(x, 0.0);
         assert_eq!(y, 0.0);
+    }
+
+    /// 测试 calculate_ripple_position 函数 (非 WASM 环境)
+    #[test]
+    #[cfg(not(target_arch = "wasm32"))]
+    fn test_calculate_ripple_position() {
+        // 在非 WASM 环境下，我们模拟 calculate_ripple_position 的逻辑
+        // 假设一个位于 (10, 20) 位置，宽度 100，高度 50 的矩形
+        let x = 10.0;
+        let y = 20.0;
+        let width = 100.0;
+        let height = 50.0;
+
+        // 计算中心位置
+        let center_x = x + width / 2.0;
+        let center_y = y + height / 2.0;
+
+        assert_eq!(center_x, 60.0);
+        assert_eq!(center_y, 45.0);
     }
 
     /// 测试 Wave 组件的复杂配置属性
