@@ -301,3 +301,8 @@ pub fn generate_variant_class(variant: &ButtonVariant) -> String {
         ),
     }
 }
+
+/// 生成按钮样式
+pub fn button_styles() -> String {
+    button_base_styles()
+}

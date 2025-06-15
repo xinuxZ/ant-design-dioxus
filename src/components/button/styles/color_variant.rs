@@ -1,4 +1,4 @@
-use crate::components::button::types::*;
+use crate::components::button::types::{ButtonColor, ButtonType, ButtonVariant};
 use crate::theme::provider::use_component_token;
 use crate::theme::provider::use_css_var_name;
 use crate::theme::provider::use_theme;
@@ -60,6 +60,29 @@ pub fn generate_button_color_style(
                 generate_text_style(disabled, is_dark)
             }
         }
+    }
+}
+
+/// 生成按钮颜色样式
+pub fn generate_button_color_styles(color: &ButtonColor) -> String {
+    match color {
+        ButtonColor::Primary => generate_primary_color_style(),
+        ButtonColor::Default => generate_default_color_style(),
+        ButtonColor::Danger => generate_danger_color_style(),
+        ButtonColor::Custom(custom_color) => {
+            generate_custom_color_style(custom_color, &ButtonType::Default, false, false)
+        }
+    }
+}
+
+/// 生成按钮变体样式
+pub fn generate_button_variant_styles(variant: &ButtonVariant) -> String {
+    match variant {
+        ButtonVariant::Outlined => generate_outlined_variant_style(),
+        ButtonVariant::Solid => generate_solid_variant_style(),
+        ButtonVariant::Dashed => generate_dashed_variant_style(),
+        ButtonVariant::Text => generate_text_variant_style(),
+        ButtonVariant::Link => generate_link_variant_style(),
     }
 }
 
@@ -586,4 +609,171 @@ fn generate_danger_text_style(disabled: bool, is_dark: bool) -> String {
             "
         )
     }
+}
+
+/// 生成主色调样式
+fn generate_primary_color_style() -> String {
+    let primary_color = use_component_token("button", "colorPrimary");
+    let hover_color = use_component_token("button", "colorPrimaryHover");
+    let active_color = use_component_token("button", "colorPrimaryActive");
+    let text_color = use_component_token("button", "colorTextLightSolid");
+
+    format!(
+        "background-color: {}; border-color: {}; color: {};
+        &:hover {{ background-color: {}; border-color: {}; }}
+        &:active {{ background-color: {}; border-color: {}; }}",
+        primary_color,
+        primary_color,
+        text_color,
+        hover_color,
+        hover_color,
+        active_color,
+        active_color
+    )
+}
+
+/// 生成默认颜色样式
+fn generate_default_color_style() -> String {
+    let border_color = use_component_token("button", "colorBorder");
+    let text_color = use_component_token("button", "colorText");
+    let bg_color = use_component_token("button", "colorBgContainer");
+    let hover_color = use_component_token("button", "colorPrimaryHover");
+    let active_color = use_component_token("button", "colorPrimaryActive");
+
+    format!(
+        "background-color: {}; border-color: {}; color: {};
+        &:hover {{ border-color: {}; color: {}; }}
+        &:active {{ border-color: {}; color: {}; }}",
+        bg_color, border_color, text_color, hover_color, hover_color, active_color, active_color
+    )
+}
+
+/// 生成危险颜色样式
+fn generate_danger_color_style() -> String {
+    let danger_color = use_component_token("button", "colorError");
+    let hover_color = use_component_token("button", "colorErrorHover");
+    let active_color = use_component_token("button", "colorErrorActive");
+    let text_color = use_component_token("button", "colorTextLightSolid");
+
+    format!(
+        "background-color: {}; border-color: {}; color: {};
+        &:hover {{ background-color: {}; border-color: {}; }}
+        &:active {{ background-color: {}; border-color: {}; }}",
+        danger_color,
+        danger_color,
+        text_color,
+        hover_color,
+        hover_color,
+        active_color,
+        active_color
+    )
+}
+
+/// 生成轮廓变体样式
+fn generate_outlined_variant_style() -> String {
+    let primary_color = use_component_token("button", "colorPrimary");
+    let hover_color = use_component_token("button", "colorPrimaryHover");
+    let active_color = use_component_token("button", "colorPrimaryActive");
+    let bg_color = use_component_token("button", "colorBgContainer");
+
+    format!(
+        "background-color: {}; border-color: {}; color: {};
+        &:hover {{ border-color: {}; color: {}; }}
+        &:active {{ border-color: {}; color: {}; }}",
+        bg_color,
+        primary_color,
+        primary_color,
+        hover_color,
+        hover_color,
+        active_color,
+        active_color
+    )
+}
+
+/// 生成实心变体样式
+fn generate_solid_variant_style() -> String {
+    let primary_color = use_component_token("button", "colorPrimary");
+    let hover_color = use_component_token("button", "colorPrimaryHover");
+    let active_color = use_component_token("button", "colorPrimaryActive");
+    let text_color = use_component_token("button", "colorTextLightSolid");
+
+    format!(
+        "background-color: {}; border-color: {}; color: {};
+        &:hover {{ background-color: {}; border-color: {}; }}
+        &:active {{ background-color: {}; border-color: {}; }}",
+        primary_color,
+        primary_color,
+        text_color,
+        hover_color,
+        hover_color,
+        active_color,
+        active_color
+    )
+}
+
+/// 生成虚线变体样式
+fn generate_dashed_variant_style() -> String {
+    let primary_color = use_component_token("button", "colorPrimary");
+    let hover_color = use_component_token("button", "colorPrimaryHover");
+    let active_color = use_component_token("button", "colorPrimaryActive");
+    let bg_color = use_component_token("button", "colorBgContainer");
+
+    format!(
+        "background-color: {}; border-color: {}; border-style: dashed; color: {};
+        &:hover {{ border-color: {}; color: {}; }}
+        &:active {{ border-color: {}; color: {}; }}",
+        bg_color,
+        primary_color,
+        primary_color,
+        hover_color,
+        hover_color,
+        active_color,
+        active_color
+    )
+}
+
+/// 生成文本变体样式
+fn generate_text_variant_style() -> String {
+    let text_color = use_component_token("button", "colorText");
+    let hover_bg = use_component_token("button", "colorBgTextHover");
+    let active_bg = use_component_token("button", "colorBgTextActive");
+
+    format!(
+        "background-color: transparent; border-color: transparent; color: {};
+        &:hover {{ background-color: {}; color: {}; }}
+        &:active {{ background-color: {}; color: {}; }}",
+        text_color, hover_bg, text_color, active_bg, text_color
+    )
+}
+
+/// 生成链接变体样式
+fn generate_link_variant_style() -> String {
+    let primary_color = use_component_token("button", "colorPrimary");
+    let hover_color = use_component_token("button", "colorPrimaryHover");
+    let active_color = use_component_token("button", "colorPrimaryActive");
+
+    format!(
+        "background-color: transparent; border-color: transparent; color: {};
+        &:hover {{ color: {}; }}
+        &:active {{ color: {}; }}",
+        primary_color, hover_color, active_color
+    )
+}
+
+// 辅助函数：使颜色变亮
+fn lighten_color(color: &str, percent: i32) -> String {
+    // 简化实现，实际应该解析颜色并调整亮度
+    color.to_string()
+}
+
+// 辅助函数：使颜色变暗
+fn darken_color(color: &str, percent: i32) -> String {
+    // 简化实现，实际应该解析颜色并调整亮度
+    color.to_string()
+}
+
+// 辅助函数：获取对比文本颜色
+fn get_contrast_text_color(background: &str) -> String {
+    // 简化实现，实际应该计算颜色亮度并返回黑色或白色
+    "#ffffff".to_string()
 }
