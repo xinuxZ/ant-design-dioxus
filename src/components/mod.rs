@@ -86,22 +86,12 @@ pub mod button; // 按钮 - 依赖 icon, spin
 // pub mod tour;
 
 // 重新导出组件
-pub use alert::*;
-pub use button::*;
-pub use divider::*;
-pub use flex::*;
-pub use icon::*;
-pub use qr_code::*;
-pub use skeleton::*;
-pub use space::*;
-pub use spin::*;
-
-// 重新导出组件，方便使用
-pub use alert::Alert;
-pub use divider::Divider;
-pub use flex::Flex;
-pub use icon::Icon;
-pub use qr_code::QRCode;
-pub use skeleton::Skeleton;
-pub use space::Space;
-pub use spin::Spin;
+pub use alert::{Alert, AlertProps};
+pub use button::{Button, ButtonShape, ButtonSize, ButtonType, LoadingConfig};
+pub use divider::{Divider, DividerProps};
+pub use flex::{Flex, FlexProps};
+pub use icon::{Icon, IconProps, IconType};
+pub use qr_code::{QRCode, QRCodeProps};
+pub use skeleton::{Skeleton, SkeletonProps};
+pub use space::{Space, SpaceProps};
+pub use spin::{Spin, SpinProps};
