@@ -1,10 +1,10 @@
-use dioxus::html::input_data::keyboard_types::Key;
-use dioxus::prelude::*;
-
 use crate::components::button::components::wave::Wave;
 use crate::components::button::styles::button_styles;
 use crate::components::button::types::*;
 use crate::components::icon::{CommonIconType, Icon};
+use dioxus::html::input_data::keyboard_types::Key;
+use dioxus::prelude::*;
+use std::rc::Rc;
 
 /// Button 组件
 #[component]
@@ -13,7 +13,7 @@ pub fn Button(props: ButtonProps) -> Element {
     provide_context(button_styles());
 
     // 状态管理
-    let is_loading = use_signal(|| match props.loading {
+    let mut is_loading = use_signal(|| match props.loading {
         LoadingConfig::Loading => true,
         LoadingConfig::NotLoading => false,
         LoadingConfig::DelayedLoading(_) => false,
@@ -33,15 +33,16 @@ pub fn Button(props: ButtonProps) -> Element {
     }
 
     // 处理两个中文字符之间的空格
-    let has_two_cn_chars = use_signal(|| false);
-    let inner_content = use_signal(|| String::new());
+    let mut has_two_cn_chars = use_signal(|| false);
+    let mut inner_content = use_signal(|| String::new());
 
     // 提取文本内容
+    let props_clone = props.clone();
     if props.auto_insert_space {
         use_effect(move || {
             // Convert Result<VNode, RenderError> to Option<Element>
             // Just check if children is Ok and then extract text directly
-            if props.children.is_ok() {
+            if props_clone.children.is_ok() {
                 // In a real implementation, we would extract text from the children
                 // For now, use a placeholder
                 let text = "Button".to_string();
@@ -53,24 +54,28 @@ pub fn Button(props: ButtonProps) -> Element {
     }
 
     // 使用 memo 优化类名生成，避免不必要的重新计算
-    let class_name =
-        use_memo(move || generate_button_class_name(&props, has_two_cn_chars(), is_loading()));
+    let props_clone = props.clone();
+    let class_name = use_memo(move || {
+        generate_button_class_name(&props_clone, has_two_cn_chars(), is_loading())
+    });
 
     // 处理点击事件
+    let props_clone = props.clone();
     let handle_click = move |e: MouseEvent| {
-        if props.disabled || is_loading() {
+        if props_clone.disabled || is_loading() {
             e.stop_propagation();
             return;
         }
 
-        if let Some(handler) = &props.on_click {
+        if let Some(handler) = &props_clone.on_click {
             handler.call(e);
         }
     };
 
     // 处理键盘事件
+    let props_clone = props.clone();
     let handle_key_down = move |e: KeyboardEvent| {
-        if props.disabled || is_loading() {
+        if props_clone.disabled || is_loading() {
             return;
         }
 
@@ -82,53 +87,61 @@ pub fn Button(props: ButtonProps) -> Element {
             if let Some(handler) = &props.on_click {
                 // 创建一个模拟的点击事件
                 // 直接调用处理函数，使用默认的MouseEvent
-                handler.call(MouseEvent::default());
+                // handler.call(MouseEvent::new(
+                //     Rc::new(*e.clone().downcast::<MouseData>().unwrap()),
+                //     false,
+                // ));
             }
         }
     };
 
+    let props_clone = props.clone();
     // 使用 memo 优化按钮内容渲染，避免不必要的重新渲染
-    let button_children = use_memo(move || render_button_content(&props, is_loading()));
+    let button_children = use_memo(move || render_button_content(&props_clone, is_loading()));
 
     // 获取 ARIA 标签
-    let aria_label = props.aria_label.clone().unwrap_or_default();
-    let aria_disabled = props.disabled.to_string();
+    let props_clone = props.clone();
+    let aria_label = props_clone.aria_label.clone().unwrap_or_default();
+    let aria_disabled = props_clone.disabled.to_string();
     let aria_busy = is_loading().to_string();
 
+    // HTML a 标签不支持 disabled 属性，需要通过 aria-disabled 和样式来实现
     // 按钮内容
-    let button_content = if let Some(href) = &props.href {
+    let props_clone = props.clone();
+    let button_content = if let Some(href) = &props_clone.href {
         rsx! {
             a {
                 class: "{class_name}",
                 href: "{href}",
-                target: props.target.as_deref().unwrap_or(""),
-                style: props.style.as_deref().unwrap_or(""),
-                disabled: props.disabled,
+                target: props_clone.target.as_deref().unwrap_or(""),
+                style: props_clone.style.as_deref().unwrap_or(""),
+                "data-disabled": props_clone.disabled.to_string(),
                 "aria-label": aria_label,
                 "aria-disabled": aria_disabled,
                 "aria-busy": aria_busy,
                 role: "button",
-                tabindex: if props.disabled { "-1" } else { "0" },
+                tabindex: if props_clone.disabled { "-1" } else { "0" },
                 onclick: handle_click,
                 onkeydown: handle_key_down,
                 {button_children}
             }
         }
     } else {
+        let props_clone = props.clone();
         rsx! {
             button {
                 class: "{class_name}",
-                r#type: match props.html_type {
+                r#type: match props_clone.html_type {
                     HtmlType::Button => "button",
                     HtmlType::Submit => "submit",
                     HtmlType::Reset => "reset",
                 },
-                style: props.style.as_deref().unwrap_or(""),
-                disabled: props.disabled || is_loading(),
+                style: props_clone.style.as_deref().unwrap_or(""),
+                disabled: props_clone.disabled || is_loading(),
                 "aria-label": aria_label,
                 "aria-disabled": aria_disabled,
                 "aria-busy": aria_busy,
-                tabindex: if props.disabled { "-1" } else { "0" },
+                tabindex: if props_clone.disabled { "-1" } else { "0" },
                 onclick: handle_click,
                 onkeydown: handle_key_down,
                 {button_children}
@@ -137,10 +150,11 @@ pub fn Button(props: ButtonProps) -> Element {
     };
 
     // 使用 Wave 组件包装按钮内容，添加波纹效果
+    let props_clone = props.clone();
     rsx! {
         Wave {
-            disabled: props.disabled || is_loading(),
-            color: Some(get_ripple_color(&props)),
+            disabled: props_clone.disabled || is_loading(),
+            color: Some(get_ripple_color(&props_clone)),
             {button_content}
         }
     }
