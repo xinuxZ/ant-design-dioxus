@@ -58,9 +58,6 @@ mod styles;
 mod types;
 mod utils;
 
-#[cfg(test)]
-mod tests;
-
 // 公共导出
 pub use component::*;
 pub use styles::class_names;

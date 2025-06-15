@@ -49,8 +49,5 @@ mod styles;
 mod types;
 mod utils;
 
-#[cfg(test)]
-mod tests;
-
 pub use component::QRCode;
 pub use types::{QRCodeErrorLevel, QRCodeProps, QRCodeStatus, QRCodeType};

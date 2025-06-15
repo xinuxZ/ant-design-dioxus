@@ -66,9 +66,9 @@ dioxus-ssr = "0.6.2"
 # web = ["dioxus-web"]
 # desktop = ["dioxus-desktop"]
 
-[[example]]
-name = "main"
-path = "examples/main.rs"
+# [[example]]
+# name = "main"
+# path = "examples/main.rs"
 
 [profile]
 

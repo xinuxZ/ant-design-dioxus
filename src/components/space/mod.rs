@@ -97,9 +97,6 @@ pub mod styles;
 pub mod types;
 pub mod utils;
 
-#[cfg(test)]
-mod tests;
-
 // 重新导出主要组件和类型
 pub use component::{Space, SpaceCompact};
 

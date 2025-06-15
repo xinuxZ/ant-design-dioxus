@@ -1,7 +1,8 @@
 mod base;
 mod color_variant;
 
-pub use base::button_base_styles;
+pub use base::*;
+pub use color_variant::*;
 
 use css_in_rust::css;
 

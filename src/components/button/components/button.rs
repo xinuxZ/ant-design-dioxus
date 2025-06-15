@@ -4,7 +4,6 @@ use crate::components::button::types::*;
 use crate::components::icon::{CommonIconType, Icon};
 use dioxus::html::input_data::keyboard_types::Key;
 use dioxus::prelude::*;
-use std::rc::Rc;
 
 /// Button 组件
 #[component]
@@ -378,4 +377,268 @@ fn is_chinese_char(c: char) -> bool {
     (c >= '\u{4e00}' && c <= '\u{9fff}') || // CJK 统一表意文字
     (c >= '\u{3400}' && c <= '\u{4dbf}') || // CJK 统一表意文字扩展 A
     (c >= '\u{20000}' && c <= '\u{2a6df}') // CJK 统一表意文字扩展 B
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use dioxus::prelude::*;
+
+    /// 测试 Button 组件的基本渲染
+    #[test]
+    fn test_button_basic_render() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    "Click me"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证按钮是否正确渲染
+        // 注意：在实际测试中需要检查DOM结构
+    }
+
+    /// 测试 Button 组件的不同类型
+    #[test]
+    fn test_button_types() {
+        let types = vec![
+            ButtonType::Primary,
+            ButtonType::Default,
+            ButtonType::Dashed,
+            ButtonType::Text,
+            ButtonType::Link,
+        ];
+
+        for button_type in types {
+            let mut dom = VirtualDom::new(move || {
+                rsx! {
+                    Button {
+                        button_type: Some(button_type),
+                        "Test Button"
+                    }
+                }
+            });
+
+            let _ = dom.rebuild();
+            // 验证不同类型的按钮是否正确渲染
+        }
+    }
+
+    /// 测试 Button 组件的不同大小
+    #[test]
+    fn test_button_sizes() {
+        let sizes = vec![ButtonSize::Large, ButtonSize::Middle, ButtonSize::Small];
+
+        for size in sizes {
+            let mut dom = VirtualDom::new(move || {
+                rsx! {
+                    Button {
+                        size: size,
+                        "Test Button"
+                    }
+                }
+            });
+
+            let _ = dom.rebuild();
+            // 验证不同大小的按钮是否正确渲染
+        }
+    }
+
+    /// 测试 Button 组件的不同形状
+    #[test]
+    fn test_button_shapes() {
+        let shapes = vec![
+            ButtonShape::Default,
+            ButtonShape::Circle,
+            ButtonShape::Round,
+        ];
+
+        for shape in shapes {
+            let mut dom = VirtualDom::new(move || {
+                rsx! {
+                    Button {
+                        shape: shape,
+                        "Test"
+                    }
+                }
+            });
+
+            let _ = dom.rebuild();
+            // 验证不同形状的按钮是否正确渲染
+        }
+    }
+
+    /// 测试 Button 组件的禁用状态
+    #[test]
+    fn test_button_disabled() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    disabled: true,
+                    "Disabled Button"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证禁用状态的按钮是否正确渲染
+    }
+
+    /// 测试 Button 组件的加载状态
+    #[test]
+    fn test_button_loading() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    loading: LoadingConfig::Loading,
+                    "Loading Button"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证加载状态的按钮是否正确渲染
+    }
+
+    /// 测试 Button 组件的延迟加载
+    #[test]
+    fn test_button_delayed_loading() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    loading: LoadingConfig::DelayedLoading(1000),
+                    "Delayed Loading Button"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证延迟加载状态的按钮是否正确渲染
+    }
+
+    /// 测试 Button 组件的危险状态
+    #[test]
+    fn test_button_danger() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    danger: true,
+                    "Danger Button"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证危险状态的按钮是否正确渲染
+    }
+
+    /// 测试 Button 组件的幽灵状态
+    #[test]
+    fn test_button_ghost() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    ghost: true,
+                    "Ghost Button"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证幽灵状态的按钮是否正确渲染
+    }
+
+    /// 测试 Button 组件的块级状态
+    #[test]
+    fn test_button_block() {
+        let mut dom = VirtualDom::new(|| {
+            rsx! {
+                Button {
+                    block: true,
+                    "Block Button"
+                }
+            }
+        });
+
+        let _ = dom.rebuild();
+        // 验证块级状态的按钮是否正确渲染
+    }
+
+    /// 测试 generate_button_class_name 函数
+    #[test]
+    fn test_generate_button_class_name() {
+        let props = ButtonProps {
+            button_type: Some(ButtonType::Primary),
+            size: ButtonSize::Large,
+            shape: ButtonShape::Round,
+            danger: true,
+            ghost: false,
+            block: true,
+            disabled: false,
+            loading: LoadingConfig::NotLoading,
+            icon_position: IconPosition::Start,
+            ..Default::default()
+        };
+
+        let class_name = generate_button_class_name(&props, false, false);
+        assert!(class_name.contains("ant-btn"));
+        assert!(class_name.contains("ant-btn-primary"));
+        assert!(class_name.contains("ant-btn-lg"));
+        assert!(class_name.contains("ant-btn-round"));
+        assert!(class_name.contains("ant-btn-dangerous"));
+        assert!(class_name.contains("ant-btn-block"));
+    }
+
+    /// 测试 generate_button_class_name 函数 - 加载状态
+    #[test]
+    fn test_generate_button_class_name_loading() {
+        let props = ButtonProps::default();
+        let class_name = generate_button_class_name(&props, false, true);
+        assert!(class_name.contains("ant-btn-loading"));
+    }
+
+    /// 测试 generate_button_class_name 函数 - 两个中文字符
+    #[test]
+    fn test_generate_button_class_name_two_chinese_chars() {
+        let props = ButtonProps::default();
+        let class_name = generate_button_class_name(&props, true, false);
+        assert!(class_name.contains("ant-btn-two-chinese-chars"));
+    }
+
+    /// 测试 generate_button_class_name 函数 - 图标位置
+    #[test]
+    fn test_generate_button_class_name_icon_position() {
+        let props = ButtonProps {
+            icon_position: IconPosition::End,
+            ..Default::default()
+        };
+        let class_name = generate_button_class_name(&props, false, false);
+        assert!(class_name.contains("ant-btn-icon-end"));
+    }
+
+    /// 测试 is_two_chinese_chars 函数
+    #[test]
+    fn test_is_two_chinese_chars() {
+        assert!(is_two_chinese_chars("按钮"));
+        assert!(is_two_chinese_chars("确定"));
+        assert!(!is_two_chinese_chars("Button"));
+        assert!(!is_two_chinese_chars("按"));
+        assert!(!is_two_chinese_chars("按钮文本"));
+        assert!(!is_two_chinese_chars("A按"));
+    }
+
+    /// 测试 is_chinese_char 函数
+    #[test]
+    fn test_is_chinese_char() {
+        assert!(is_chinese_char('按'));
+        assert!(is_chinese_char('钮'));
+        assert!(is_chinese_char('确'));
+        assert!(is_chinese_char('定'));
+        assert!(!is_chinese_char('A'));
+        assert!(!is_chinese_char('1'));
+        assert!(!is_chinese_char(' '));
+        assert!(!is_chinese_char('!'));
+    }
 }

@@ -366,11 +366,43 @@ pub struct StatusRenderInfo {
 
 /// QRCode 组件的便捷构造函数
 impl QRCodeProps {
-    /// 创建一个默认的 QRCode 组件
-    pub fn new(value: impl Into<String>) -> Self {
+    /// 创建一个 QRCode 组件
+    pub fn new(
+        value: impl Into<String>,
+        qr_type: QRCodeType,
+        icon: Option<String>,
+        size: QRCodeSize,
+        error_level: QRCodeErrorLevel,
+        status: QRCodeStatus,
+        status_render: Option<Element>,
+        on_refresh: Option<EventHandler<()>>,
+        color: Option<String>,
+        bg_color: Option<String>,
+        icon_size: Option<u32>,
+        bordered: Option<bool>,
+        border_color: Option<String>,
+        class: Option<String>,
+        style: Option<String>,
+        children: Option<Element>,
+    ) -> Self {
         Self {
             value: value.into(),
-            ..Default::default()
+            qr_type,
+            r#type: qr_type,
+            icon,
+            size,
+            error_level,
+            status,
+            status_render,
+            on_refresh,
+            color,
+            bg_color,
+            icon_size,
+            bordered,
+            border_color,
+            class,
+            style,
+            children,
         }
     }
 

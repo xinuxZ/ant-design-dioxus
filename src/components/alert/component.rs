@@ -288,19 +288,19 @@ pub fn Alert(props: AlertProps) -> Element {
 }
 
 /// 处理关闭动画
-fn handle_close_animation(
-    props: &AlertProps,
-    alert_state: &mut Signal<AlertState>,
-    animation_timer: &mut Signal<Option<Timeout>>,
-) {
-    handle_close_animation_internal(
-        props.enable_animation,
-        props.animation_duration,
-        props.after_close.clone(),
-        alert_state,
-        animation_timer,
-    );
-}
+// fn handle_close_animation(
+//     props: &AlertProps,
+//     alert_state: &mut Signal<AlertState>,
+//     animation_timer: &mut Signal<Option<Timeout>>,
+// ) {
+//     handle_close_animation_internal(
+//         props.enable_animation,
+//         props.animation_duration,
+//         props.after_close.clone(),
+//         alert_state,
+//         animation_timer,
+//     );
+// }
 
 /// 内部关闭动画处理函数
 fn handle_close_animation_internal(
@@ -601,30 +601,30 @@ impl Default for AlertItem {
 }
 
 /// 全局Alert函数
-pub mod global {
-    use super::*;
+// pub mod global {
+//     use super::*;
 
-    /// 全局成功提示
-    pub fn success(message: &str) {
-        // 这里需要实现全局Alert显示逻辑
-        // 可以通过事件系统或全局状态管理来实现
-    }
+//     /// 全局成功提示
+//     pub fn success(message: &str) {
+//         // 这里需要实现全局Alert显示逻辑
+//         // 可以通过事件系统或全局状态管理来实现
+//     }
 
-    /// 全局信息提示
-    pub fn info(message: &str) {
-        // 实现全局信息提示
-    }
+//     /// 全局信息提示
+//     pub fn info(message: &str) {
+//         // 实现全局信息提示
+//     }
 
-    /// 全局警告提示
-    pub fn warning(message: &str) {
-        // 实现全局警告提示
-    }
+//     /// 全局警告提示
+//     pub fn warning(message: &str) {
+//         // 实现全局警告提示
+//     }
 
-    /// 全局错误提示
-    pub fn error(message: &str) {
-        // 实现全局错误提示
-    }
-}
+//     /// 全局错误提示
+//     pub fn error(message: &str) {
+//         // 实现全局错误提示
+//     }
+// }
 
 /// 创建成功类型的Alert
 pub fn success_alert(message: String) -> Element {
