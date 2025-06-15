@@ -397,8 +397,9 @@ pub fn group_style() -> String {
 }
 
 /// 按钮样式
-pub fn button_styles() -> &'static str {
-    r#"
+pub fn button_styles() -> String {
+    css!(
+        r#"
     .ant-btn {
         position: relative;
         display: inline-flex;
@@ -732,12 +733,13 @@ pub fn button_styles() -> &'static str {
         margin-right: -0.3em;
         letter-spacing: 0.3em;
     }
-    "#
+    "#).to_string()
 }
 
 /// 按钮组样式
-pub fn button_group_styles() -> &'static str {
-    r#"
+pub fn button_group_styles() -> String {
+    css!(
+        r#"
     .ant-btn-group {
         display: inline-flex;
         position: relative;
@@ -805,4 +807,6 @@ pub fn button_group_styles() -> &'static str {
         border-bottom-right-radius: 2px;
     }
     "#
+    )
+    .to_string()
 }
