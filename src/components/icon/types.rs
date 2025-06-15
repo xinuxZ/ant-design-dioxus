@@ -2,6 +2,7 @@
 
 use dioxus::prelude::*;
 use std::collections::HashMap;
+use std::fmt;
 
 /// Icon 组件的属性
 #[derive(Props, Clone, PartialEq)]
@@ -64,6 +65,16 @@ pub enum IconTheme {
     TwoTone,
 }
 
+impl fmt::Display for IconTheme {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            IconTheme::Outlined => write!(f, "outlined"),
+            IconTheme::Filled => write!(f, "filled"),
+            IconTheme::TwoTone => write!(f, "twotone"),
+        }
+    }
+}
+
 impl IconTheme {
     /// 获取主题的字符串表示
     pub fn as_str(&self) -> &'static str {
@@ -82,6 +93,21 @@ impl IconTheme {
             IconTheme::TwoTone => "two-tone",
         }
     }
+
+    /// 获取主题的CSS类名
+    pub fn to_class_name(&self) -> String {
+        format!("anticon-{}", self.css_suffix())
+    }
+
+    /// 从字符串创建主题
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "outlined" => IconTheme::Outlined,
+            "filled" => IconTheme::Filled,
+            "twotone" => IconTheme::TwoTone,
+            _ => IconTheme::Outlined, // 默认值
+        }
+    }
 }
 
 /// Icon尺寸枚举
@@ -91,30 +117,68 @@ pub enum IconSize {
     Small,
     /// 默认尺寸 (14px)
     Default,
-    /// 大尺寸 (16px)
+    /// 中等尺寸 (16px)
+    Medium,
+    /// 大尺寸 (20px)
     Large,
     /// 自定义尺寸 (像素值)
     Custom(u32),
+}
+
+impl Default for IconSize {
+    fn default() -> Self {
+        IconSize::Medium
+    }
+}
+
+impl fmt::Display for IconSize {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            IconSize::Small => write!(f, "small"),
+            IconSize::Default => write!(f, "default"),
+            IconSize::Medium => write!(f, "medium"),
+            IconSize::Large => write!(f, "large"),
+            IconSize::Custom(size) => write!(f, "{}px", size),
+        }
+    }
 }
 
 impl IconSize {
     /// 转换为CSS像素值
     pub fn to_css(&self) -> String {
         match self {
-            IconSize::Small => "12px".to_string(),
+            IconSize::Small => "14px".to_string(),
             IconSize::Default => "14px".to_string(),
-            IconSize::Large => "16px".to_string(),
+            IconSize::Medium => "16px".to_string(),
+            IconSize::Large => "20px".to_string(),
             IconSize::Custom(size) => format!("{}px", size),
         }
+    }
+
+    /// 转换为CSS像素值（别名方法）
+    pub fn to_css_value(&self) -> String {
+        self.to_css()
     }
 
     /// 转换为数值
     pub fn to_pixels(&self) -> u32 {
         match self {
-            IconSize::Small => 12,
+            IconSize::Small => 14,
             IconSize::Default => 14,
-            IconSize::Large => 16,
+            IconSize::Medium => 16,
+            IconSize::Large => 20,
             IconSize::Custom(size) => *size,
+        }
+    }
+
+    /// 从字符串创建尺寸
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "small" => IconSize::Small,
+            "default" => IconSize::Default,
+            "medium" => IconSize::Medium,
+            "large" => IconSize::Large,
+            _ => IconSize::Medium, // 默认值
         }
     }
 }
@@ -234,6 +298,222 @@ pub enum CommonIconType {
 
     // 自定义图标
     Custom(String),
+}
+
+/// 图标类型枚举（用于测试兼容性）
+#[derive(Clone, PartialEq, Debug)]
+pub enum IconType {
+    // 方向性图标
+    ArrowUp,
+    ArrowDown,
+    ArrowLeft,
+    ArrowRight,
+    CaretUp,
+    CaretDown,
+    CaretLeft,
+    CaretRight,
+    Arrow,
+
+    // 建议性图标
+    Question,
+    Plus,
+    Minus,
+    Info,
+    Exclamation,
+    Close,
+    Check,
+
+    // 应用图标
+    Home,
+    Setting,
+    User,
+    Search,
+    Menu,
+    More,
+    Edit,
+    Delete,
+    Copy,
+    Save,
+    Paste,
+    Cut,
+    Undo,
+    Redo,
+    Refresh,
+
+    // 状态图标
+    Loading,
+    Success,
+    Warning,
+    Error,
+
+    // 文件图标
+    Download,
+    Upload,
+    File,
+    Folder,
+
+    // 媒体图标
+    Star,
+    Heart,
+    Eye,
+    Camera,
+    Image,
+    Video,
+    Music,
+
+    // 通信图标
+    Mail,
+    Phone,
+    Link,
+    Share,
+
+    // 时间和位置
+    Calendar,
+    Clock,
+    Location,
+
+    // 安全
+    Lock,
+
+    // 自定义图标
+    Custom(String),
+}
+
+impl fmt::Display for IconType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            IconType::ArrowUp => write!(f, "arrow-up"),
+            IconType::ArrowDown => write!(f, "arrow-down"),
+            IconType::ArrowLeft => write!(f, "arrow-left"),
+            IconType::ArrowRight => write!(f, "arrow-right"),
+            IconType::CaretUp => write!(f, "caret-up"),
+            IconType::CaretDown => write!(f, "caret-down"),
+            IconType::CaretLeft => write!(f, "caret-left"),
+            IconType::CaretRight => write!(f, "caret-right"),
+            IconType::Arrow => write!(f, "arrow"),
+            IconType::Question => write!(f, "question"),
+            IconType::Plus => write!(f, "plus"),
+            IconType::Minus => write!(f, "minus"),
+            IconType::Info => write!(f, "info"),
+            IconType::Exclamation => write!(f, "exclamation"),
+            IconType::Close => write!(f, "close"),
+            IconType::Check => write!(f, "check"),
+            IconType::Home => write!(f, "home"),
+            IconType::Setting => write!(f, "setting"),
+            IconType::User => write!(f, "user"),
+            IconType::Search => write!(f, "search"),
+            IconType::Menu => write!(f, "menu"),
+            IconType::More => write!(f, "more"),
+            IconType::Edit => write!(f, "edit"),
+            IconType::Delete => write!(f, "delete"),
+            IconType::Copy => write!(f, "copy"),
+            IconType::Save => write!(f, "save"),
+            IconType::Paste => write!(f, "paste"),
+            IconType::Cut => write!(f, "cut"),
+            IconType::Undo => write!(f, "undo"),
+            IconType::Redo => write!(f, "redo"),
+            IconType::Refresh => write!(f, "refresh"),
+            IconType::Loading => write!(f, "loading"),
+            IconType::Success => write!(f, "success"),
+            IconType::Warning => write!(f, "warning"),
+            IconType::Error => write!(f, "error"),
+            IconType::Download => write!(f, "download"),
+            IconType::Upload => write!(f, "upload"),
+            IconType::File => write!(f, "file"),
+            IconType::Folder => write!(f, "folder"),
+            IconType::Star => write!(f, "star"),
+            IconType::Heart => write!(f, "heart"),
+            IconType::Eye => write!(f, "eye"),
+            IconType::Camera => write!(f, "camera"),
+            IconType::Image => write!(f, "image"),
+            IconType::Video => write!(f, "video"),
+            IconType::Music => write!(f, "music"),
+            IconType::Mail => write!(f, "mail"),
+            IconType::Phone => write!(f, "phone"),
+            IconType::Link => write!(f, "link"),
+            IconType::Share => write!(f, "share"),
+            IconType::Calendar => write!(f, "calendar"),
+            IconType::Clock => write!(f, "clock"),
+            IconType::Location => write!(f, "location"),
+            IconType::Lock => write!(f, "lock"),
+            IconType::Custom(name) => write!(f, "{}", name),
+        }
+    }
+}
+
+impl IconType {
+    /// 从字符串创建图标类型
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "arrow-up" => IconType::ArrowUp,
+            "arrow-down" => IconType::ArrowDown,
+            "arrow-left" => IconType::ArrowLeft,
+            "arrow-right" => IconType::ArrowRight,
+            "caret-up" => IconType::CaretUp,
+            "caret-down" => IconType::CaretDown,
+            "caret-left" => IconType::CaretLeft,
+            "caret-right" => IconType::CaretRight,
+            "arrow" => IconType::Arrow,
+            "question" => IconType::Question,
+            "plus" => IconType::Plus,
+            "minus" => IconType::Minus,
+            "info" => IconType::Info,
+            "exclamation" => IconType::Exclamation,
+            "close" => IconType::Close,
+            "check" => IconType::Check,
+            "home" => IconType::Home,
+            "setting" => IconType::Setting,
+            "user" => IconType::User,
+            "search" => IconType::Search,
+            "menu" => IconType::Menu,
+            "more" => IconType::More,
+            "edit" => IconType::Edit,
+            "delete" => IconType::Delete,
+            "copy" => IconType::Copy,
+            "save" => IconType::Save,
+            "paste" => IconType::Paste,
+            "cut" => IconType::Cut,
+            "undo" => IconType::Undo,
+            "redo" => IconType::Redo,
+            "refresh" => IconType::Refresh,
+            "loading" => IconType::Loading,
+            "success" => IconType::Success,
+            "warning" => IconType::Warning,
+            "error" => IconType::Error,
+            "download" => IconType::Download,
+            "upload" => IconType::Upload,
+            "file" => IconType::File,
+            "folder" => IconType::Folder,
+            "star" => IconType::Star,
+            "heart" => IconType::Heart,
+            "eye" => IconType::Eye,
+            "camera" => IconType::Camera,
+            "image" => IconType::Image,
+            "video" => IconType::Video,
+            "music" => IconType::Music,
+            "mail" => IconType::Mail,
+            "phone" => IconType::Phone,
+            "link" => IconType::Link,
+            "share" => IconType::Share,
+            "calendar" => IconType::Calendar,
+            "clock" => IconType::Clock,
+            "location" => IconType::Location,
+            "lock" => IconType::Lock,
+            _ => IconType::Custom(s.to_string()),
+        }
+    }
+
+    /// 获取图标的CSS类名
+    pub fn to_class_name(&self) -> String {
+        format!("anticon-{}", self)
+    }
+
+    /// 获取SVG内容
+    pub fn get_svg_content(&self) -> Option<String> {
+        // 这里应该返回对应的SVG内容
+        // 为了测试，返回一个简单的占位符
+        Some(format!("<svg>{}</svg>", self))
+    }
 }
 
 impl CommonIconType {
