@@ -413,6 +413,7 @@ dependencies = [
  "chrono",
  "css-in-rust-macros",
  "hex",
+ "js-sys",
  "lazy_static",
  "log",
  "num_cpus",
