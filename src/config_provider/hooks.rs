@@ -48,7 +48,7 @@ impl std::fmt::Debug for GlobalConfigContext {
 }
 
 /// 配置提供者属性
-#[derive(Props, Clone, PartialEq)]
+#[derive(Props, Clone)]
 pub struct ConfigProviderProps {
     /// 子组件
     pub children: Element,
@@ -76,6 +76,20 @@ pub struct ConfigProviderProps {
     /// 配置变更回调
     #[props(optional)]
     pub on_config_change: Option<Rc<dyn Fn(&str, &serde_json::Value)>>,
+}
+
+/// 手动实现 PartialEq，忽略函数指针字段
+impl PartialEq for ConfigProviderProps {
+    fn eq(&self, other: &Self) -> bool {
+        self.theme_config == other.theme_config
+            && self.locale_config == other.locale_config
+            && self.component_config == other.component_config
+            && self.security_config == other.security_config
+            && self.popup_config == other.popup_config
+            && self.virtual_scroll_config == other.virtual_scroll_config
+            && self.merge_strategy == other.merge_strategy
+        // 忽略 on_config_change 和 children 字段的比较
+    }
 }
 
 impl std::fmt::Debug for ConfigProviderProps {
@@ -131,13 +145,13 @@ pub fn use_config() -> GlobalConfigContext {
 
 /// 使用主题配置
 pub fn use_theme_config() -> Signal<Option<ThemeConfig>> {
-    let mut config = use_config();
+    let config = use_config();
     config.theme_config
 }
 
 /// 使用语言配置
 pub fn use_locale_config() -> Signal<Option<LocaleConfig>> {
-    let mut config = use_config();
+    let config = use_config();
     config.locale_config
 }
 
@@ -418,24 +432,6 @@ pub fn use_config_export() -> impl Fn() -> Result<serde_json::Value, ConfigError
     }
 }
 
-// /// 配置导入Hook
-// pub fn use_config_import() -> impl Fn(serde_json::Value) -> Result<(), ConfigError> {
-//     let config_updater = use_config_updater();
-
-//     move |config_data: serde_json::Value| {
-//         if let Some(config_obj) = config_data.as_object() {
-//             for (key, value) in config_obj {
-//                 config_updater(key, value.clone())?;
-//             }
-//             Ok(())
-//         } else {
-//             Err(ConfigError::ValidationError(
-//                 "配置数据必须是对象类型".to_string(),
-//             ))
-//         }
-//     }
-// }
-
 /// 配置监听Hook
 pub fn use_config_watcher<T: Clone + 'static>(
     config_type: &str,
@@ -454,21 +450,21 @@ pub fn use_config_watcher<T: Clone + 'static>(
 /// 配置缓存Hook
 pub fn use_config_cache() -> (
     impl Fn() -> Option<serde_json::Value>,
-    impl Fn(serde_json::Value),
+    Box<dyn FnMut(serde_json::Value)>,
 ) {
-    let cached_config = use_signal(|| None::<serde_json::Value>);
+    let mut cached_config = use_signal(|| None::<serde_json::Value>);
 
     let get_cache = {
-        let cached_config = cached_config.clone();
+        // let cached_config = cached_config.clone();
         move || cached_config.read().clone()
     };
 
-    let set_cache = {
-        let cached_config = cached_config.clone();
+    let set_cache = Box::new({
+        // let mut cached_config = cached_config.clone();
         move |config: serde_json::Value| {
             cached_config.set(Some(config));
         }
-    };
+    });
 
     (get_cache, set_cache)
 }
@@ -481,21 +477,78 @@ pub fn use_config_sync() -> impl Fn() -> Result<(), ConfigError> {
     move || {
         let exported_config = config_export()?;
 
-        // 这里可以添加同步到外部存储的逻辑
-        // 例如：localStorage、sessionStorage、服务器等
-
-        // 示例：同步到localStorage
+        // 同步到localStorage
         if let Ok(config_str) = serde_json::to_string(&exported_config) {
-            // 在实际应用中，这里需要使用web-sys来操作localStorage
-            // web_sys::window()
-            //     .unwrap()
-            //     .local_storage()
-            //     .unwrap()
-            //     .unwrap()
-            //     .set_item("ant_design_config", &config_str)
-            //     .map_err(|_| ConfigError::SerializationError("无法保存到localStorage".to_string()))?;
+            #[cfg(target_arch = "wasm32")]
+            {
+                use web_sys::window;
+                
+                if let Some(window) = window() {
+                    if let Ok(Some(storage)) = window.local_storage() {
+                        storage.set_item("ant_design_config", &config_str)
+                            .map_err(|_| ConfigError::SerializationError("无法保存到localStorage".to_string()))?;
+                    } else {
+                        return Err(ConfigError::SerializationError("localStorage不可用".to_string()));
+                    }
+                } else {
+                    return Err(ConfigError::SerializationError("window对象不可用".to_string()));
+                }
+            }
+            
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                // 非WASM环境下的处理
+                println!("配置已准备同步: {}", config_str);
+            }
         }
 
+        Ok(())
+    }
+}
+
+/// 从localStorage加载配置
+pub fn use_config_load() -> impl Fn() -> Result<Option<serde_json::Value>, ConfigError> {
+    move || {
+        #[cfg(target_arch = "wasm32")]
+        {
+            use web_sys::window;
+            
+            if let Some(window) = window() {
+                if let Ok(Some(storage)) = window.local_storage() {
+                    if let Ok(Some(config_json)) = storage.get_item("ant_design_config") {
+                        match serde_json::from_str::<serde_json::Value>(&config_json) {
+                            Ok(config) => return Ok(Some(config)),
+                            Err(e) => return Err(ConfigError::TransformError(format!("解析localStorage配置失败: {}", e))),
+                        }
+                    }
+                }
+            }
+        }
+        
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            // 非WASM环境下返回None
+        }
+        
+        Ok(None)
+    }
+}
+
+/// 清除localStorage中的配置
+pub fn use_config_clear() -> impl Fn() -> Result<(), ConfigError> {
+    move || {
+        #[cfg(target_arch = "wasm32")]
+        {
+            use web_sys::window;
+            
+            if let Some(window) = window() {
+                if let Ok(Some(storage)) = window.local_storage() {
+                    storage.remove_item("ant_design_config")
+                        .map_err(|_| ConfigError::SerializationError("清除localStorage配置失败".to_string()))?;
+                }
+            }
+        }
+        
         Ok(())
     }
 }

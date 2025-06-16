@@ -341,8 +341,8 @@ pub fn PresetConfigExample() -> Element {
                             h2 { "选择预设配置" }
                             select {
                                 onchange: move |evt| {
-                                    let val = evt.valid();
-                                    preset_type.set(val);
+                                    let val = evt.value();
+                                    preset_type.set(&val);
                                 },
                                 option { value: "development", "开发环境" }
                                 option { value: "production", "生产环境" }
@@ -468,7 +468,7 @@ pub fn DynamicConfigExample() -> Element {
 
     rsx! {
         ConfigProvider {
-            component_config: component_config.read().clone(),
+            component_size: component_config.read().clone().map(|c| c.component_size).flatten(),
 
             div { class: "app",
                 h1 { "动态配置更新示例" }

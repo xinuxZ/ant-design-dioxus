@@ -2,10 +2,13 @@
 //!
 //! 提供全局配置上下文和组件，用于管理应用级别的配置
 
-use css_in_rust::theme::ThemeVariant;
+use std::collections::HashMap;
+use std::rc::Rc;
+
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
+use css_in_rust::theme::ThemeVariant;
 
 use crate::locale::Locale;
 use crate::theme::ThemeConfig;
@@ -204,7 +207,7 @@ pub struct ConfigContext {
 }
 
 /// 配置提供者属性
-#[derive(Props, Clone, PartialEq)]
+#[derive(Props, Clone)]
 pub struct ConfigProviderProps {
     /// 子组件
     pub children: Element,
@@ -217,6 +220,9 @@ pub struct ConfigProviderProps {
     /// 语言配置
     #[props(default)]
     pub locale: Option<Locale>,
+    /// 组件配置
+    #[props(default)]
+    pub component_config: Option<ComponentConfig>,
     /// 组件尺寸
     #[props(default)]
     pub component_size: Option<ComponentSize>,
@@ -229,6 +235,33 @@ pub struct ConfigProviderProps {
     /// 按钮中是否自动插入空格
     #[props(default)]
     pub auto_insert_space_in_button: Option<bool>,
+    /// 紧凑模式
+    #[props(default)]
+    pub theme_compact: Option<bool>,
+    /// 安全配置
+    #[props(default)]
+    pub security_config: Option<SecurityConfig>,
+    /// 弹出层配置
+    #[props(default)]
+    pub popup_config: Option<PopupConfig>,
+    /// 虚拟滚动配置
+    #[props(default)]
+    pub virtual_scroll_config: Option<VirtualScrollConfig>,
+    /// 合并策略
+    #[props(default = MergeStrategy::DeepMerge)]
+    pub merge_strategy: MergeStrategy,
+    /// 配置变更回调
+    #[props(default)]
+    pub on_config_change: Option<Rc<dyn Fn(&str, &serde_json::Value)>>,
+    /// 是否启用配置验证
+    #[props(default = true)]
+    pub enable_validation: bool,
+    /// 是否启用配置缓存
+    #[props(default = false)]
+    pub enable_cache: bool,
+    /// 是否启用配置同步
+    #[props(default = false)]
+    pub enable_sync: bool,
     /// 表单配置
     #[props(default)]
     pub form: Option<FormConfig>,
@@ -238,6 +271,34 @@ pub struct ConfigProviderProps {
     /// 获取目标容器的函数
     #[props(default)]
     pub get_target_container: Option<fn() -> Element>,
+    /// 自定义配置
+    #[props(default)]
+    pub custom_configs: std::collections::HashMap<String, serde_json::Value>,
+}
+
+/// 手动实现 PartialEq，忽略函数指针字段
+impl PartialEq for ConfigProviderProps {
+    fn eq(&self, other: &Self) -> bool {
+        self.config == other.config
+            && self.theme == other.theme
+            && self.locale == other.locale
+            && self.component_config == other.component_config
+            && self.component_size == other.component_size
+            && self.direction == other.direction
+            && self.prefix_cls == other.prefix_cls
+            && self.auto_insert_space_in_button == other.auto_insert_space_in_button
+            && self.theme_compact == other.theme_compact
+            && self.security_config == other.security_config
+            && self.popup_config == other.popup_config
+            && self.virtual_scroll_config == other.virtual_scroll_config
+            && self.merge_strategy == other.merge_strategy
+            && self.enable_validation == other.enable_validation
+            && self.enable_cache == other.enable_cache
+            && self.enable_sync == other.enable_sync
+            && self.form == other.form
+            && self.custom_configs == other.custom_configs
+        // 忽略 on_config_change、get_popup_container、get_target_container 和 children 字段的比较
+    }
 }
 
 /// 配置提供者组件

@@ -710,10 +710,7 @@ pub mod utils {
             let entry = current
                 .entry(part.to_string())
                 .or_insert_with(|| serde_json::Value::Object(serde_json::Map::new()));
-
-            if let serde_json::Value::Object(ref mut nested) = entry {
-                current = nested;
-            }
+            current = entry.as_object_mut().unwrap();
         }
     }
 }
