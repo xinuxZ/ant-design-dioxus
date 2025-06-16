@@ -249,7 +249,7 @@ impl ThemeConfig {
                 mode: ThemeVariant::Dark,
                 token_system: TokenSystem {
                     variant: ThemeVariant::Dark,
-                    variables: create_dark_variables(),
+                    variables: HashMap::new(), //create_dark_variables(),
                 },
                 custom_variables: HashMap::new(),
             },
@@ -271,7 +271,7 @@ impl ThemeConfig {
                 mode: ThemeVariant::Dark,
                 token_system: TokenSystem {
                     variant: ThemeVariant::Dark,
-                    variables: create_dark_variables(),
+                    variables: HashMap::new(), //create_dark_variables(),
                 },
                 custom_variables: HashMap::new(),
             },
