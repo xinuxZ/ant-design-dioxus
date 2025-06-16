@@ -17,7 +17,7 @@ use crate::theme::ThemeConfig;
 pub mod builder;
 pub mod component_config;
 pub mod config_utils;
-pub mod examples;
+// pub mod examples;
 pub mod hooks;
 pub mod popup_config;
 pub mod security_config;
@@ -353,7 +353,8 @@ pub fn ConfigProvider(props: ConfigProviderProps) -> Element {
     rsx! {
         // 使用主题提供者
         crate::theme::provider::ThemeProvider {
-            config: theme_config,
+            config: Some(theme_config.read().clone()),
+
             // 使用语言提供者
             crate::locale::LocaleProvider {
                 locale: locale_config,
