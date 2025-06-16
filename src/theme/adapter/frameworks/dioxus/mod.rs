@@ -296,9 +296,10 @@ impl DioxusAdapter {
     ///
     /// adapter.apply_theme(&config);
     /// ```
-    pub fn apply_theme(&mut self, _config: &crate::ThemeConfig) {
+    pub fn apply_theme(&self, _config: &crate::ThemeConfig) {
         // TODO: 实现主题应用逻辑
         // 这里可以根据配置更新样式、CSS变量等
+        // 使用内部可变性来修改状态
     }
 
     /// 设置主题
