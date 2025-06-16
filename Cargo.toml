@@ -51,6 +51,7 @@ qrcode = "0.14.1"
 base64 = "0.22.1"
 
 css-in-rust = { path = "../css-in-rust/css-in-rust" }
+rand = "0.9.1"
 # css-in-rust-macros = { path = "../css-in-rust/css-in-rust-macros" }
 
 [dev-dependencies]
@@ -65,10 +66,6 @@ tokio = { version = "1.0", features = ["full"] }
 # default = []
 # web = ["dioxus-web"]
 # desktop = ["dioxus-desktop"]
-
-# [[example]]
-# name = "main"
-# path = "examples/main.rs"
 
 [profile]
 
