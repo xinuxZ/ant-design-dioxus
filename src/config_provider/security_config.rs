@@ -299,15 +299,33 @@ impl NonceGenerator {
     }
 
     /// 生成nonce值
+    /// 
+    /// 使用基于时间戳和哈希的伪随机数生成器，避免依赖rand库
     pub fn generate(&self) -> String {
-        use rand::Rng;
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        use std::time::{SystemTime, UNIX_EPOCH};
 
         let charset: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        let mut rng = rand::rng();
-
+        
+        // 使用时间戳和哈希作为种子
+        let mut hasher = DefaultHasher::new();
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos()
+            .hash(&mut hasher);
+        
+        // 添加额外的随机性
+        std::ptr::addr_of!(self).hash(&mut hasher);
+        
+        let mut seed = hasher.finish();
+        
         (0..self.length)
             .map(|_| {
-                let idx = rng.random_range(0..charset.len());
+                // 线性同余生成器
+                seed = seed.wrapping_mul(1103515245).wrapping_add(12345);
+                let idx = (seed as usize) % charset.len();
                 charset[idx] as char
             })
             .collect()
