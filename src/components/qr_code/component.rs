@@ -36,12 +36,8 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         }
 
         match props_type {
-            QRCodeType::Svg => {
-                render_svg_qrcode(&props_clone, qr_element.unwrap(), &mut error.clone())
-            }
-            QRCodeType::Canvas => {
-                render_canvas_qrcode(&props_clone, qr_element.unwrap(), &mut error.clone())
-            }
+            QRCodeType::Svg => render_svg_qrcode(&props_clone, qr_element.unwrap(), error),
+            QRCodeType::Canvas => render_canvas_qrcode(&props_clone, qr_element.unwrap(), error),
         }
     };
 
@@ -178,7 +174,7 @@ pub fn QRCode(props: QRCodeProps) -> Element {
 fn render_svg_qrcode(
     props: &QRCodeProps,
     element: web_sys::Element,
-    error: &mut Signal<Option<String>>,
+    mut error: Signal<Option<String>>,
 ) {
     // 创建图标设置
     let icon_size = props.icon_size.unwrap_or(40);
@@ -222,7 +218,7 @@ fn render_svg_qrcode(
 fn render_canvas_qrcode(
     props: &QRCodeProps,
     element: web_sys::Element,
-    error: &mut Signal<Option<String>>,
+    mut error: Signal<Option<String>>,
 ) {
     // 清空容器
     element.set_inner_html("");
