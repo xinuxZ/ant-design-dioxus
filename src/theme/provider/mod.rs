@@ -58,40 +58,40 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 
     // 主题桥接器
     // TODO: 重新启用 css-in-rust 依赖后取消注释
-    // let theme_bridge = use_signal(|| {
-    //     ThemeBridge::new(
-    //         theme_config.read().theme.clone(),
-    //         css_in_rust::theme::core::css::variables::InjectionStrategy::Replace,
-    //         true,
-    //     )
-    // });
+    let mut theme_bridge = use_signal(|| {
+        ThemeBridge::new(
+            theme_config.read().theme.clone(),
+            css_in_rust::theme::core::css::variables::InjectionStrategy::Replace,
+            true,
+        )
+    });
 
     // CSS变量支持
     let css_vars_enabled = props.enable_css_vars;
     let mut css_vars_style = use_signal(|| String::new());
+
+    // 生成种子、映射和别名令牌
+    let seed = SeedToken::default();
+    let mut map = MapToken::default();
 
     // 如果启用了CSS变量，生成并注入CSS变量
     if css_vars_enabled {
         let mut config = theme_config.read().clone();
         config.css_vars.enabled = true;
 
-        // 生成种子、映射和别名令牌
-        let seed = SeedToken::default();
-        let mut map = MapToken::default();
-
         // 根据主题类型应用不同的算法
         // TODO: 重新启用 css-in-rust 依赖后取消注释
-        // match config.theme.mode {
-        //     css_in_rust::theme::theme_types::ThemeMode::Light => {
-        //         map = super::algorithm::light_algorithm(&seed);
-        //     }
-        //     css_in_rust::theme::theme_types::ThemeMode::Dark => {
-        //         map = super::algorithm::dark_algorithm(&seed);
-        //     }
-        //     _ => {
-        //         map = super::algorithm::light_algorithm(&seed);
-        //     }
-        // }
+        match config.theme.mode {
+            css_in_rust::theme::theme_types::ThemeMode::Light => {
+                map = super::algorithm::light_algorithm(&seed);
+            }
+            css_in_rust::theme::theme_types::ThemeMode::Dark => {
+                map = super::algorithm::dark_algorithm(&seed);
+            }
+            _ => {
+                map = super::algorithm::light_algorithm(&seed);
+            }
+        }
 
         // 如果是紧凑模式，应用紧凑算法
         if config.compact {
@@ -109,39 +109,40 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     let switch_theme = {
         let mut theme_config = theme_config.clone();
         // TODO: 重新启用 css-in-rust 依赖后取消注释
-        // let mut bridge = bridge.clone();
+        let mut bridge = theme_bridge.clone();
         let mut css_vars_style = css_vars_style.clone();
 
+        // let theme_config_clone = theme_config.clone();
         move |new_config: ThemeConfig| {
             // 更新主题配置
             theme_config.set(new_config.clone());
 
             // TODO: 重新启用 css-in-rust 依赖后取消注释
             // 更新主题桥接器
-            // bridge.write().set_theme(new_config.theme.clone());
+            let _ = bridge.write().set_theme(new_config.theme.clone());
 
             // 如果启用了CSS变量，重新生成CSS变量
             if css_vars_enabled {
                 let mut config = new_config.clone();
                 config.css_vars.enabled = true;
 
-                // 生成种子、映射和别名令牌
-                let seed = SeedToken::default();
-                let mut map = MapToken::default();
+                // // 生成种子、映射和别名令牌
+                // let seed = SeedToken::default();
+                // let mut map = MapToken::default();
 
                 // 根据主题类型应用不同的算法
                 // TODO: 重新启用 css-in-rust 依赖后取消注释
-                // match config.theme.mode {
-                //     css_in_rust::theme::theme_types::ThemeMode::Light => {
-                //         map = super::algorithm::light_algorithm(&seed);
-                //     }
-                //     css_in_rust::theme::theme_types::ThemeMode::Dark => {
-                //         map = super::algorithm::dark_algorithm(&seed);
-                //     }
-                //     _ => {
-                //         map = super::algorithm::light_algorithm(&seed);
-                //     }
-                // }
+                match config.theme.mode {
+                    css_in_rust::theme::theme_types::ThemeMode::Light => {
+                        map = super::algorithm::light_algorithm(&seed);
+                    }
+                    css_in_rust::theme::theme_types::ThemeMode::Dark => {
+                        map = super::algorithm::dark_algorithm(&seed);
+                    }
+                    _ => {
+                        map = super::algorithm::light_algorithm(&seed);
+                    }
+                }
 
                 // 如果是紧凑模式，应用紧凑算法
                 if config.compact {
@@ -162,9 +163,9 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
 
     // TODO: 重新启用 css-in-rust 依赖后取消注释
     // 注入主题变量
-    // use_effect(move || {
-    //     bridge.write().sync_theme_variables();
-    // });
+    use_effect(move || {
+        let _ = theme_bridge.write().sync_theme_variables();
+    });
 
     // 提供主题上下文
     use_context_provider(|| theme_context);
@@ -172,7 +173,7 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
     rsx! {
         div {
             class: "ant-theme-provider",
-            "data-theme": format!("{:?}", theme_config.read().theme.mode),
+            "data-theme": format!("{:?}", theme_config.read().theme.name),
             "data-compact": theme_config.read().compact.to_string(),
             dangerous_inner_html: css_vars_style.read().clone(),
             {props.children}
