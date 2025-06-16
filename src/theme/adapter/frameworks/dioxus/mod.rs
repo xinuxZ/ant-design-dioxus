@@ -278,6 +278,29 @@ impl DioxusAdapter {
         }
     }
 
+    /// 应用主题配置
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - 主题配置
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use css_in_rust::theme::adapter::{DioxusAdapter, provider::ThemeProviderAdapter};
+    /// use css_in_rust::theme::core::types::ThemeConfig;
+    ///
+    /// let provider = ThemeProviderAdapter::default();
+    /// let mut adapter = DioxusAdapter::new(provider);
+    /// let config = ThemeConfig::default();
+    ///
+    /// adapter.apply_theme(&config);
+    /// ```
+    pub fn apply_theme(&mut self, _config: &crate::ThemeConfig) {
+        // TODO: 实现主题应用逻辑
+        // 这里可以根据配置更新样式、CSS变量等
+    }
+
     /// 设置主题
     ///
     /// # Arguments

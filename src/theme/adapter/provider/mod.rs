@@ -20,6 +20,8 @@ pub struct ThemeProviderAdapter {
     performance_metrics: PerformanceMetrics,
 }
 
+/// impl Defaul
+
 /// 主题切换结果
 pub struct ThemeSwitchResult {
     /// 是否成功
@@ -79,6 +81,18 @@ impl Default for ThemeProviderConfig {
             auto_detect_system_theme: true,
             enable_persistence: true,
             storage_key: "theme-preference".to_string(),
+        }
+    }
+}
+
+impl Default for ThemeProviderAdapter {
+    fn default() -> Self {
+        Self {
+            manager: Arc::new(ThemeManager::default()),
+            style_injector: StyleInjector::new(":root"),
+            config: ThemeProviderConfig::default(),
+            cache: HashMap::new(),
+            performance_metrics: PerformanceMetrics::default(),
         }
     }
 }

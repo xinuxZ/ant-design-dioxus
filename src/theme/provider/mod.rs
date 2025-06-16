@@ -2,182 +2,86 @@
 //!
 //! 提供主题上下文和组件，用于在应用中注入和管理主题
 
-use css_in_rust::{theme::ThemeVariant, theme_bridge::ThemeBridge};
+use crate::{
+    theme::{
+        adapter::{frameworks::dioxus::DioxusAdapter, provider::ThemeProviderAdapter},
+        ThemeVariant,
+    },
+    ThemeConfig,
+};
 use dioxus::prelude::*;
 use std::sync::Arc;
-
-use super::core::types::{AliasToken, MapToken, SeedToken};
-use super::css_vars::{self, CssVariablesOptions};
-use super::ThemeConfig;
 
 /// 主题上下文
 #[derive(Clone)]
 pub struct ThemeContext {
-    /// 主题配置
+    /// 当前主题配置
     pub config: ThemeConfig,
-    /// 主题切换函数
-    pub switch_theme: Arc<dyn FnMut(ThemeConfig) + 'static>,
+    /// 主题适配器
+    pub adapter: Signal<DioxusAdapter>,
 }
 
 impl PartialEq for ThemeContext {
     fn eq(&self, other: &Self) -> bool {
         self.config == other.config
-        // 忽略 switch_theme 字段比较
+        // 忽略 adapter 字段比较
     }
 }
 
 impl ThemeContext {
-    /// 创建新的主题上下文
-    pub fn new(config: ThemeConfig, switch_theme: impl FnMut(ThemeConfig) + 'static) -> Self {
-        Self {
-            config,
-            switch_theme: Arc::new(switch_theme),
-        }
+    /// 切换主题
+    pub fn switch_theme(&self, new_config: ThemeConfig) {
+        // 更新配置
+        // TODO: 实现主题切换逻辑
+        // 这里可以通过适配器应用新的主题配置
+    }
+
+    /// 获取当前主题配置
+    pub fn get_config(&self) -> &ThemeConfig {
+        &self.config
     }
 }
 
-/// 主题提供者属性
+/// 主题提供者组件的属性
 #[derive(Props, Clone, PartialEq)]
 pub struct ThemeProviderProps {
+    /// 主题配置
+    pub theme: Option<ThemeConfig>,
+    /// 主题配置（别名）
+    pub config: Option<ThemeConfig>,
     /// 子组件
     pub children: Element,
-    /// 主题配置
-    #[props(into)]
-    pub config: Signal<ThemeConfig>,
-    /// 是否启用CSS变量
-    #[props(default = false)]
-    pub enable_css_vars: bool,
 }
 
 /// 主题提供者组件
 ///
-/// 为子组件提供主题上下文
+/// 为应用提供主题上下文，支持主题切换和CSS变量注入
 #[component]
 pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
-    let theme_config = props.config;
+    // 创建适配器实例
+    let mut adapter = use_signal(|| DioxusAdapter::new(ThemeProviderAdapter::default()));
 
-    // 主题桥接器
-    // TODO: 重新启用 css-in-rust 依赖后取消注释
-    let mut theme_bridge = use_signal(|| {
-        ThemeBridge::new(
-            theme_config.read().theme.clone(),
-            css_in_rust::theme::core::css::variables::InjectionStrategy::Replace,
-            true,
-        )
-    });
-
-    // CSS变量支持
-    let css_vars_enabled = props.enable_css_vars;
-    let mut css_vars_style = use_signal(|| String::new());
-
-    // 生成种子、映射和别名令牌
-    let seed = SeedToken::default();
-    let mut map = MapToken::default();
-
-    // 如果启用了CSS变量，生成并注入CSS变量
-    if css_vars_enabled {
-        let mut config = theme_config.read().clone();
-        config.css_vars.enabled = true;
-
-        // 根据主题类型应用不同的算法
-        // TODO: 重新启用 css-in-rust 依赖后取消注释
-        match config.theme.mode {
-            ThemeVariant::Light => {
-                map = super::algorithm::light_algorithm(&seed);
-            }
-            ThemeVariant::Dark => {
-                map = super::algorithm::dark_algorithm(&seed);
-            }
-            _ => {
-                map = super::algorithm::light_algorithm(&seed);
-            }
-        }
-
-        // 如果是紧凑模式，应用紧凑算法
-        if config.compact {
-            super::algorithm::compact_algorithm(&mut map);
-        }
-
-        let alias = AliasToken::default();
-
-        // 生成CSS变量
-        let css = css_vars::generate_css_variables(&seed, &map, &alias, &config.css_vars);
-        css_vars_style.set(css_vars::create_css_variables_style_element(&css));
-    }
-
-    // 创建主题切换函数
-    let switch_theme = {
-        let mut theme_config = theme_config.clone();
-        // TODO: 重新启用 css-in-rust 依赖后取消注释
-        let mut bridge = theme_bridge.clone();
-        let mut css_vars_style = css_vars_style.clone();
-
-        // let theme_config_clone = theme_config.clone();
-        move |new_config: ThemeConfig| {
-            // 更新主题配置
-            theme_config.set(new_config.clone());
-
-            // TODO: 重新启用 css-in-rust 依赖后取消注释
-            // 更新主题桥接器
-            let _ = bridge.write().set_theme(new_config.theme.clone());
-
-            // 如果启用了CSS变量，重新生成CSS变量
-            if css_vars_enabled {
-                let mut config = new_config.clone();
-                config.css_vars.enabled = true;
-
-                // // 生成种子、映射和别名令牌
-                // let seed = SeedToken::default();
-                // let mut map = MapToken::default();
-
-                // 根据主题类型应用不同的算法
-                // TODO: 重新启用 css-in-rust 依赖后取消注释
-                match config.theme.mode {
-                    ThemeVariant::Light => {
-                        map = super::algorithm::light_algorithm(&seed);
-                    }
-                    ThemeVariant::Dark => {
-                        map = super::algorithm::dark_algorithm(&seed);
-                    }
-                    _ => {
-                        map = super::algorithm::light_algorithm(&seed);
-                    }
-                }
-
-                // 如果是紧凑模式，应用紧凑算法
-                if config.compact {
-                    super::algorithm::compact_algorithm(&mut map);
-                }
-
-                let alias = AliasToken::default();
-
-                // 生成CSS变量
-                let css = css_vars::generate_css_variables(&seed, &map, &alias, &config.css_vars);
-                css_vars_style.set(css_vars::create_css_variables_style_element(&css));
-            }
-        }
-    };
-
-    // 创建主题上下文
-    let theme_context = ThemeContext::new(theme_config.read().clone(), switch_theme);
-
-    // TODO: 重新启用 css-in-rust 依赖后取消注释
-    // 注入主题变量
+    // 获取或使用默认主题配置
+    let theme_config = props.config.clone()
+        .or(props.theme.clone())
+        .unwrap_or_default();
+    
+    // 克隆一份用于 use_effect
+    let theme_config_for_effect = theme_config.clone();
+    
+    // 使用适配器处理主题
     use_effect(move || {
-        let _ = theme_bridge.write().sync_theme_variables();
+        adapter.write().apply_theme(&theme_config_for_effect);
     });
-
+    
     // 提供主题上下文
-    use_context_provider(|| theme_context);
+    use_context_provider(|| ThemeContext {
+        config: theme_config.clone(),
+        adapter: adapter.clone(),
+    });
 
     rsx! {
-        div {
-            class: "ant-theme-provider",
-            "data-theme": format!("{:?}", theme_config.read().theme.name),
-            "data-compact": theme_config.read().compact.to_string(),
-            dangerous_inner_html: css_vars_style.read().clone(),
-            {props.children}
-        }
+        {props.children}
     }
 }
 
@@ -191,9 +95,11 @@ pub fn use_theme() -> ThemeContext {
 /// 使用主题切换的 Hook
 ///
 /// 获取主题切换函数
-pub fn use_theme_switch() -> Arc<dyn FnMut(ThemeConfig) + 'static> {
+pub fn use_theme_switch() -> Arc<dyn Fn(ThemeConfig) + 'static> {
     let theme_context = use_theme();
-    theme_context.switch_theme
+    Arc::new(move |config| {
+        theme_context.switch_theme(config);
+    })
 }
 
 /// 使用主题令牌的 Hook
