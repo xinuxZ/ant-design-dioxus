@@ -2,7 +2,7 @@
 //!
 //! 提供全局配置上下文和组件，用于在应用中注入和管理全局配置
 
-use css_in_rust::theme::theme_types::ThemeMode;
+use css_in_rust::theme::ThemeVariant;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -427,24 +427,24 @@ impl ConfigProviderBuilder {
     }
 
     /// 设置主题
-    pub fn theme(mut self, theme: super::theme::Theme) -> Self {
+    pub fn theme(mut self, theme: super::theme::AntThemeType) -> Self {
         // 将项目内部的Theme转换为css_in_rust的Theme
         let mut css_theme = self.config.theme.theme.theme.clone();
         match theme {
-            super::theme::Theme::Light => {
-                css_theme.mode = ThemeMode::Light;
+            super::theme::AntThemeType::Light => {
+                css_theme.mode = ThemeVariant::Light;
                 self.config.theme.theme.theme = css_theme;
             }
-            super::theme::Theme::Dark => {
-                css_theme.mode = ThemeMode::Dark;
+            super::theme::AntThemeType::Dark => {
+                css_theme.mode = ThemeVariant::Dark;
                 self.config.theme.theme.theme = css_theme;
             }
-            super::theme::Theme::Compact => {
-                css_theme.mode = ThemeMode::Light;
+            super::theme::AntThemeType::Compact => {
+                css_theme.mode = ThemeVariant::Light;
                 self.config.theme.theme.theme = css_theme;
                 self.config.theme.compact = true;
             }
-            super::theme::Theme::Custom => {
+            super::theme::AntThemeType::Custom => {
                 // 自定义主题不做特殊处理，保持当前设置
             }
         }
