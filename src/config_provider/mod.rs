@@ -1,23 +1,49 @@
-//! 配置提供者模块
+//! 全局配置提供者模块
 //!
-//! 提供全局配置上下文和组件，用于在应用中注入和管理全局配置
+//! 提供全局配置上下文和组件，用于管理应用级别的配置
 
 use css_in_rust::theme::ThemeVariant;
 use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::locale::{Locale, LocaleConfig};
-use crate::theme::core::types::Size;
+use crate::locale::Locale;
 use crate::theme::ThemeConfig;
 
-/// 方向类型
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+// 导出子模块
+pub mod builder;
+pub mod component_config;
+pub mod config_utils;
+pub mod examples;
+pub mod hooks;
+pub mod popup_config;
+pub mod security_config;
+#[cfg(test)]
+mod tests;
+pub mod virtual_scroll_config;
+
+// 重新导出主要类型
+pub use builder::*;
+pub use component_config::*;
+pub use config_utils::*;
+pub use hooks::*;
+pub use popup_config::*;
+pub use security_config::*;
+pub use virtual_scroll_config::*;
+
+/// 文本方向
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Direction {
     /// 从左到右
     Ltr,
     /// 从右到左
     Rtl,
+}
+
+impl Default for Direction {
+    fn default() -> Self {
+        Self::Ltr
+    }
 }
 
 impl std::fmt::Display for Direction {
@@ -30,14 +56,20 @@ impl std::fmt::Display for Direction {
 }
 
 /// 组件尺寸
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ComponentSize {
-    /// 小号
+    /// 小尺寸
     Small,
-    /// 中号（默认）
+    /// 中等尺寸
     Middle,
-    /// 大号
+    /// 大尺寸
     Large,
+}
+
+impl Default for ComponentSize {
+    fn default() -> Self {
+        Self::Middle
+    }
 }
 
 impl std::fmt::Display for ComponentSize {
@@ -142,8 +174,6 @@ pub struct GlobalConfig {
     pub auto_insert_space_in_button: bool,
     /// 表单配置
     pub form: FormConfig,
-    /// 表格配置
-    pub table: TableConfig,
     /// 获取弹出容器的函数
     pub get_popup_container: Option<fn() -> Element>,
     /// 获取目标容器的函数
@@ -160,7 +190,6 @@ impl Default for GlobalConfig {
             prefix_cls: "ant".to_string(),
             auto_insert_space_in_button: true,
             form: FormConfig::default(),
-            table: TableConfig::default(),
             get_popup_container: None,
             get_target_container: None,
         }
@@ -361,231 +390,4 @@ pub fn use_popup_container() -> Option<fn() -> Element> {
 pub fn use_target_container() -> Option<fn() -> Element> {
     let config = use_config();
     config.config.get_target_container
-}
-
-/// 表格配置
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct TableConfig {
-    /// 默认分页大小
-    pub page_size: usize,
-    /// 显示分页大小选择器
-    pub show_size_changer: bool,
-    /// 显示快速跳转
-    pub show_quick_jumper: bool,
-    /// 显示总数
-    pub show_total: bool,
-    /// 表格尺寸
-    pub size: Size,
-}
-
-impl Default for TableConfig {
-    fn default() -> Self {
-        Self {
-            page_size: 10,
-            show_size_changer: true,
-            show_quick_jumper: false,
-            show_total: true,
-            size: Size::Middle,
-        }
-    }
-}
-
-/// 空状态配置
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct EmptyConfig {
-    /// 默认描述文本
-    pub description: Option<String>,
-    /// 默认图片
-    pub image: Option<String>,
-    /// 图片样式
-    pub image_style: HashMap<String, String>,
-}
-
-impl Default for EmptyConfig {
-    fn default() -> Self {
-        Self {
-            description: None,
-            image: None,
-            image_style: HashMap::new(),
-        }
-    }
-}
-
-/// 配置提供者构建器
-///
-/// 用于方便地构建配置提供者
-pub struct ConfigProviderBuilder {
-    config: GlobalConfig,
-}
-
-impl ConfigProviderBuilder {
-    /// 创建新的构建器
-    pub fn new() -> Self {
-        Self {
-            config: GlobalConfig::default(),
-        }
-    }
-
-    /// 设置主题
-    pub fn theme(mut self, theme: super::theme::AntThemeType) -> Self {
-        // 将项目内部的Theme转换为css_in_rust的Theme
-        let mut css_theme = self.config.theme.theme.theme.clone();
-        match theme {
-            super::theme::AntThemeType::Light => {
-                css_theme.mode = ThemeVariant::Light;
-                self.config.theme.theme.theme = css_theme;
-            }
-            super::theme::AntThemeType::Dark => {
-                css_theme.mode = ThemeVariant::Dark;
-                self.config.theme.theme.theme = css_theme;
-            }
-            super::theme::AntThemeType::Compact => {
-                css_theme.mode = ThemeVariant::Light;
-                self.config.theme.theme.theme = css_theme;
-                self.config.theme.compact = true;
-            }
-            super::theme::AntThemeType::Custom => {
-                // 自定义主题不做特殊处理，保持当前设置
-            }
-        }
-        self
-    }
-
-    /// 设置CSS主题
-    pub fn css_theme(mut self, theme: css_in_rust::Theme) -> Self {
-        self.config.theme.theme.theme = theme;
-        self
-    }
-
-    /// 设置国际化
-    pub fn locale(mut self, locale: Locale) -> Self {
-        self.config.locale.locale = locale;
-        self
-    }
-
-    /// 设置组件尺寸
-    pub fn component_size(mut self, size: ComponentSize) -> Self {
-        self.config.component_size.default_size = size;
-        self
-    }
-
-    /// 设置紧凑模式
-    pub fn compact(mut self, compact: bool) -> Self {
-        self.config.theme.compact = compact;
-        self
-    }
-
-    /// 设置方向
-    pub fn direction(mut self, direction: Direction) -> Self {
-        self.config.direction = direction;
-        self
-    }
-
-    /// 设置前缀类名
-    pub fn prefix_cls(mut self, prefix_cls: impl Into<String>) -> Self {
-        self.config.prefix_cls = prefix_cls.into();
-        self
-    }
-
-    /// 设置自动插入空格
-    pub fn auto_insert_space_in_button(mut self, auto_insert: bool) -> Self {
-        self.config.auto_insert_space_in_button = auto_insert;
-        self
-    }
-
-    /// 设置表单配置
-    pub fn form_config(mut self, form_config: FormConfig) -> Self {
-        self.config.form = form_config;
-        self
-    }
-
-    /// 设置表格配置
-    pub fn table_config(mut self, table_config: TableConfig) -> Self {
-        self.config.table = table_config;
-        self
-    }
-
-    /// 构建配置
-    pub fn build(self) -> GlobalConfig {
-        self.config
-    }
-}
-
-impl Default for ConfigProviderBuilder {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_global_config_default() {
-        let config = GlobalConfig::default();
-        assert_eq!(config.prefix_cls, "ant");
-        assert_eq!(config.direction, Direction::Ltr);
-        assert!(config.auto_insert_space_in_button);
-        assert_eq!(config.component_size.default_size, ComponentSize::Middle);
-    }
-
-    #[test]
-    fn test_form_config_default() {
-        let form_config = FormConfig::default();
-        assert_eq!(form_config.validate_messages.len(), 0);
-        assert!(form_config.required_mark);
-        assert!(form_config.colon);
-        assert_eq!(form_config.label_align, "right");
-        assert!(form_config.label_width.is_none());
-    }
-
-    #[test]
-    fn test_table_config_default() {
-        let table_config = TableConfig::default();
-        assert_eq!(table_config.page_size, 10);
-        assert!(table_config.show_size_changer);
-        assert!(!table_config.show_quick_jumper);
-        assert!(table_config.show_total);
-    }
-
-    #[test]
-    fn test_config_provider_builder() {
-        let config = ConfigProviderBuilder::new()
-            .prefix_cls("my-ant")
-            .component_size(ComponentSize::Large)
-            .direction(Direction::Rtl)
-            .compact(true)
-            .auto_insert_space_in_button(false)
-            .build();
-
-        assert_eq!(config.prefix_cls, "my-ant");
-        assert_eq!(config.component_size.default_size, ComponentSize::Large);
-        assert_eq!(config.direction, Direction::Rtl);
-        assert!(config.theme.compact);
-        assert!(!config.auto_insert_space_in_button);
-    }
-
-    // #[test]
-    // fn test_direction() {
-    //     assert_eq!(Direction::default(), Direction::Ltr);
-    // }
-
-    // #[test]
-    // fn test_validate_trigger() {
-    //     let trigger = ValidateTrigger::OnChange;
-    //     assert_eq!(trigger, ValidateTrigger::OnChange);
-    // }
-
-    // #[test]
-    // fn test_required_mark() {
-    //     let mark = RequiredMark::Optional;
-    //     assert_eq!(mark, RequiredMark::Optional);
-    // }
-
-    // #[test]
-    // fn test_label_align() {
-    //     let align = LabelAlign::Left;
-    //     assert_eq!(align, LabelAlign::Left);
-    // }
 }
