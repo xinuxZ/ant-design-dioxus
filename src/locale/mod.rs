@@ -128,7 +128,7 @@ pub type TranslationValue = String;
 pub type LanguagePack = HashMap<TranslationKey, TranslationValue>;
 
 /// 国际化配置
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LocaleConfig {
     /// 语言
     pub locale: Locale,
