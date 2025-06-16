@@ -25,7 +25,7 @@ use crate::theme::adapter::provider::ThemeProviderAdapter;
 /// println!("生成的类名: {}", style.class_name);
 /// println!("生成的CSS: {}", style.css);
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DioxusAdapter {
     /// 主题提供者
     provider: ThemeProviderAdapter,

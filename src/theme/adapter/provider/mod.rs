@@ -63,7 +63,7 @@ pub struct ThemePreset {
     pub builtin: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ThemeProviderConfig {
     /// 是否自动检测系统主题
     pub auto_detect_system_theme: bool,
