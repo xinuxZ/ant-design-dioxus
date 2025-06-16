@@ -22,4 +22,3 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub use components::*;
 pub use config_provider::ConfigProvider;
 pub use prelude::*;
-pub use theme::Theme;
