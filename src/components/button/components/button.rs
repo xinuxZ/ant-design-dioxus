@@ -1,5 +1,5 @@
 use crate::components::button::components::wave::Wave;
-use crate::components::button::styles::button_styles;
+use crate::components::button::styles::{ButtonStyleGenerator, button_ripple_styles, button_loading_icon_style, button_content_style};
 use crate::components::button::types::*;
 use crate::components::icon::{Icon, IconType};
 use crate::utils::style_injector::inject_style;
@@ -9,14 +9,12 @@ use dioxus::prelude::*;
 /// Button 组件
 #[component]
 pub fn Button(props: ButtonProps) -> Element {
-    // 生成并注入样式
-    let styles = button_styles();
-    provide_context(styles.clone());
-    
-    // 注入样式到 DOM
+    // 注入全局样式到 DOM
     #[cfg(target_arch = "wasm32")]
     {
-        inject_style("ant-button-styles", &styles);
+        inject_style("ant-button-ripple-styles", &button_ripple_styles());
+        inject_style("ant-button-loading-icon-styles", &button_loading_icon_style());
+        inject_style("ant-button-content-styles", &button_content_style());
     }
 
     // 状态管理
@@ -69,19 +67,31 @@ pub fn Button(props: ButtonProps) -> Element {
         });
     }
 
-    // 使用 memo 优化类名生成，避免不必要的重新计算
+    // 使用样式生成器生成按钮样式类名
     let props_clone = props.clone();
     let class_name = use_memo(move || {
-        let mut classes = vec![];
+        // 使用样式生成器
+        let button_class = ButtonStyleGenerator::new()
+            .with_type(props_clone.button_type.unwrap_or_default())
+            .with_size(props_clone.size.clone())
+            .with_shape(props_clone.shape.clone())
+            .with_danger(props_clone.danger)
+            .with_ghost(props_clone.ghost)
+            .with_disabled(props_clone.disabled || is_loading())
+            .with_loading(is_loading())
+            .with_block(props_clone.block)
+            .generate();
         
-        // 添加 CSS-in-Rust 生成的样式类名
-        if let Some(css_class) = try_consume_context::<String>() {
-            classes.push(css_class);
+        // 添加自定义类名
+        let mut classes = vec![button_class];
+        if let Some(custom_class) = &props_clone.class {
+            classes.push(custom_class.clone());
         }
         
-        // 添加传统的 Ant Design 类名以保持兼容性
-        let traditional_classes = generate_button_class_name(&props_clone, has_two_cn_chars(), is_loading());
-        classes.push(traditional_classes);
+        // 添加两个中文字符的类名
+        if has_two_cn_chars() {
+            classes.push("ant-btn-two-chinese-chars".to_string());
+        }
         
         classes.join(" ")
     });
@@ -209,102 +219,9 @@ fn get_ripple_color(props: &ButtonProps) -> String {
     }
 }
 
-/// 生成按钮类名
-fn generate_button_class_name(
-    props: &ButtonProps,
-    has_two_cn_chars: bool,
-    is_loading: bool,
-) -> String {
-    let mut classes = vec!["ant-btn".to_string()];
 
-    // 添加用户自定义类名
-    if let Some(class) = &props.class {
-        classes.push(class.clone());
-    }
 
-    // 处理按钮类型
-    if let Some(button_type) = &props.button_type {
-        match button_type {
-            ButtonType::Primary => classes.push("ant-btn-primary".to_string()),
-            ButtonType::Default => classes.push("ant-btn-default".to_string()),
-            ButtonType::Dashed => classes.push("ant-btn-dashed".to_string()),
-            ButtonType::Text => classes.push("ant-btn-text".to_string()),
-            ButtonType::Link => classes.push("ant-btn-link".to_string()),
-        }
-    } else {
-        // 默认类型
-        classes.push("ant-btn-default".to_string());
-    }
 
-    // 处理按钮颜色
-    if let Some(color) = &props.color {
-        match color {
-            ButtonColor::Primary => classes.push("ant-btn-primary".to_string()),
-            ButtonColor::Default => classes.push("ant-btn-default".to_string()),
-            ButtonColor::Danger => classes.push("ant-btn-dangerous".to_string()),
-            ButtonColor::Custom(custom_color) => {
-                classes.push(format!("ant-btn-custom-{}", custom_color.replace("#", "")));
-            }
-        }
-    }
-
-    // 处理按钮变体
-    if let Some(variant) = &props.variant {
-        match variant {
-            ButtonVariant::Outlined => classes.push("ant-btn-outlined".to_string()),
-            ButtonVariant::Solid => classes.push("ant-btn-solid".to_string()),
-            ButtonVariant::Dashed => classes.push("ant-btn-dashed".to_string()),
-            ButtonVariant::Text => classes.push("ant-btn-text".to_string()),
-            ButtonVariant::Link => classes.push("ant-btn-link".to_string()),
-        }
-    }
-
-    // 处理按钮大小
-    match props.size {
-        ButtonSize::Large => classes.push("ant-btn-lg".to_string()),
-        ButtonSize::Middle => {} // 默认大小，不添加类名
-        ButtonSize::Small => classes.push("ant-btn-sm".to_string()),
-    }
-
-    // 处理按钮形状
-    match props.shape {
-        ButtonShape::Default => {} // 默认形状，不添加类名
-        ButtonShape::Circle => classes.push("ant-btn-circle".to_string()),
-        ButtonShape::Round => classes.push("ant-btn-round".to_string()),
-    }
-
-    // 处理危险按钮
-    if props.danger {
-        classes.push("ant-btn-dangerous".to_string());
-    }
-
-    // 处理块级按钮
-    if props.block {
-        classes.push("ant-btn-block".to_string());
-    }
-
-    // 处理幽灵按钮
-    if props.ghost {
-        classes.push("ant-btn-background-ghost".to_string());
-    }
-
-    // 处理加载状态
-    if is_loading {
-        classes.push("ant-btn-loading".to_string());
-    }
-
-    // 处理图标位置
-    if props.icon_position == IconPosition::End {
-        classes.push("ant-btn-icon-end".to_string());
-    }
-
-    // 处理两个中文字符之间的空格
-    if has_two_cn_chars {
-        classes.push("ant-btn-two-chinese-chars".to_string());
-    }
-
-    classes.join(" ")
-}
 
 /// 渲染按钮内容
 fn render_button_content(props: &ButtonProps, is_loading: bool) -> Element {

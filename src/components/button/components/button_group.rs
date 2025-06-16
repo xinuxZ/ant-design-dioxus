@@ -1,4 +1,6 @@
+use crate::components::button::styles::button_group_style;
 use crate::components::button::types::*;
+use crate::utils::style_injector::inject_style;
 use dioxus::prelude::*;
 
 /// ButtonGroup 组件属性
@@ -24,6 +26,11 @@ pub struct ButtonGroupProps {
 /// ButtonGroup 组件
 #[component]
 pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
+    // 注入样式到 DOM
+    #[cfg(target_arch = "wasm32")]
+    {
+        inject_style("ant-button-group-styles", &button_group_style());
+    }
     // 使用clone避免所有权移动问题
     let props_clone = props.clone();
 

@@ -1,22 +1,22 @@
+//! 按钮组件样式模块
+//!
+//! 本模块包含Button组件的所有样式定义，从组件逻辑中分离出来，
+//! 提高代码的可维护性和复用性。
+
 mod base;
 mod color_variant;
+mod generator;
 
 pub use base::*;
 pub use color_variant::*;
+pub use generator::*;
 
 use css_in_rust::css;
 
-/// 按钮样式
-pub fn button_styles() -> String {
-    // 基础样式
-    let base_styles = button_base_styles();
-
-    // 合并样式
+/// 按钮波纹效果样式
+pub fn button_ripple_styles() -> String {
     css!(
         r#"
-        {base_styles}
-
-        /* 按钮波纹效果样式 */
         .ant-btn-ripple {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.15);
@@ -36,14 +36,45 @@ pub fn button_styles() -> String {
     .to_string()
 }
 
-/// 组合所有按钮组样式
-pub fn button_group_styles() -> String {
-    // TODO: 实现按钮组样式
+/// 按钮加载图标样式
+pub fn button_loading_icon_style() -> String {
+    css!(
+        r#"
+        .ant-btn-loading-icon {
+            display: inline-block;
+            margin-right: 8px;
+            animation: loadingCircle 1s infinite linear;
+        }
+
+        @keyframes loadingCircle {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        "#
+    )
+    .to_string()
+}
+
+/// 按钮内容样式
+pub fn button_content_style() -> String {
+    css!(
+        r#"
+        .ant-btn-content {
+            display: inline-block;
+        }
+        "#
+    )
+    .to_string()
+}
+
+/// 按钮组样式
+pub fn button_group_style() -> String {
     css!(
         r#"
         .ant-btn-group {
             position: relative;
-            display: inline-flex;
+            display: inline-block;
         }
 
         .ant-btn-group > .ant-btn {
@@ -71,7 +102,7 @@ pub fn button_group_styles() -> String {
             border-bottom-left-radius: 0;
         }
 
-        .ant-btn-group > .ant-btn + .ant-btn {
+        .ant-btn-group > .ant-btn:not(:first-child) {
             margin-left: -1px;
         }
         "#
