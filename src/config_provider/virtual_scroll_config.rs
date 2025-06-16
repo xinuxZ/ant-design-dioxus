@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// 虚拟滚动配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VirtualScrollConfig {
     /// 是否启用虚拟滚动
     pub enabled: bool,
@@ -23,10 +23,12 @@ pub struct VirtualScrollConfig {
     pub preload_config: PreloadConfig,
     /// 回收配置
     pub recycling_config: RecyclingConfig,
+    /// 滚动配置
+    pub scroll_config: Option<ScrollConfig>,
 }
 
 /// 缓冲区配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BufferConfig {
     /// 上方缓冲区大小（项目数量）
     pub buffer_size_before: usize,
@@ -41,7 +43,7 @@ pub struct BufferConfig {
 }
 
 /// 项目大小配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ItemSizeConfig {
     /// 固定项目高度
     pub fixed_height: Option<f64>,
@@ -53,6 +55,18 @@ pub struct ItemSizeConfig {
     pub estimated_width: f64,
     /// 是否支持动态大小
     pub dynamic_size: bool,
+    /// 动态高度
+    pub dynamic_height: Option<bool>,
+    /// 动态宽度
+    pub dynamic_width: Option<bool>,
+    /// 最小高度
+    pub min_height: Option<f64>,
+    /// 最大高度
+    pub max_height: Option<f64>,
+    /// 最小宽度
+    pub min_width: Option<f64>,
+    /// 最大宽度
+    pub max_width: Option<f64>,
     /// 大小缓存策略
     pub size_cache_strategy: SizeCacheStrategy,
 }
@@ -71,7 +85,7 @@ pub enum SizeCacheStrategy {
 }
 
 /// 滚动行为配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScrollBehavior {
     /// 滚动方向
     pub direction: ScrollDirection,
@@ -96,6 +110,48 @@ pub enum ScrollDirection {
     Both,
 }
 
+/// 滚动对齐方式
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScrollAlignment {
+    /// 自动对齐
+    Auto,
+    /// 顶部对齐
+    Start,
+    /// 中心对齐
+    Center,
+    /// 底部对齐
+    End,
+    /// 最近对齐
+    Nearest,
+}
+
+/// 滚动配置
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScrollConfig {
+    /// 滚动方向
+    pub direction: ScrollDirection,
+    /// 滚动对齐方式
+    pub scroll_to_alignment: ScrollAlignment,
+    /// 是否启用平滑滚动
+    pub smooth_scroll: bool,
+    /// 滚动偏移量
+    pub offset: f64,
+    /// 超扫描数量
+    pub overscan_count: Option<usize>,
+}
+
+impl Default for ScrollConfig {
+    fn default() -> Self {
+        Self {
+            direction: ScrollDirection::Vertical,
+            scroll_to_alignment: ScrollAlignment::Auto,
+            smooth_scroll: true,
+            offset: 0.0,
+            overscan_count: None,
+        }
+    }
+}
+
 /// 滚动模式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ScrollMode {
@@ -108,7 +164,7 @@ pub enum ScrollMode {
 }
 
 /// 平滑滚动配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SmoothScrollConfig {
     /// 是否启用平滑滚动
     pub enabled: bool,
@@ -134,7 +190,7 @@ pub enum BoundaryBehavior {
 }
 
 /// 滚动惯性配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct InertiaConfig {
     /// 是否启用惯性滚动
     pub enabled: bool,
@@ -147,7 +203,7 @@ pub struct InertiaConfig {
 }
 
 /// 性能优化配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PerformanceConfig {
     /// 渲染节流间隔（毫秒）
     pub render_throttle: u32,
@@ -164,7 +220,7 @@ pub struct PerformanceConfig {
 }
 
 /// 内存管理配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MemoryManagement {
     /// 最大缓存项目数量
     pub max_cached_items: usize,
@@ -177,7 +233,7 @@ pub struct MemoryManagement {
 }
 
 /// 批量更新配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BatchUpdateConfig {
     /// 批量大小
     pub batch_size: usize,
@@ -188,7 +244,7 @@ pub struct BatchUpdateConfig {
 }
 
 /// 预加载配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PreloadConfig {
     /// 是否启用预加载
     pub enabled: bool,
@@ -229,7 +285,7 @@ pub enum PreloadPriority {
 }
 
 /// 预加载缓存配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PreloadCacheConfig {
     /// 缓存大小限制
     pub cache_size_limit: usize,
@@ -253,7 +309,7 @@ pub enum CacheCleanupStrategy {
 }
 
 /// 回收配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RecyclingConfig {
     /// 是否启用DOM回收
     pub dom_recycling: bool,
@@ -316,6 +372,7 @@ impl Default for VirtualScrollConfig {
             performance_config: PerformanceConfig::default(),
             preload_config: PreloadConfig::default(),
             recycling_config: RecyclingConfig::default(),
+            scroll_config: Some(ScrollConfig::default()),
         }
     }
 }
@@ -341,6 +398,12 @@ impl Default for ItemSizeConfig {
             estimated_width: 200.0,
             dynamic_size: true,
             size_cache_strategy: SizeCacheStrategy::Lru,
+            max_height: None,
+            max_width: None,
+            min_height: None,
+            min_width: None,
+            dynamic_height: Some(true),
+            dynamic_width: Some(true),
         }
     }
 }
@@ -553,7 +616,7 @@ impl VirtualScrollManager {
     /// 设置项目大小
     pub fn set_item_size(&mut self, index: usize, width: f64, height: f64) {
         self.state.item_sizes.insert(index, (width, height));
-        
+
         // 如果缓存策略不是全部缓存，则需要清理旧缓存
         if self.config.item_size_config.size_cache_strategy != SizeCacheStrategy::All {
             self.cleanup_size_cache();
@@ -647,16 +710,24 @@ impl VirtualScrollManager {
             }
             SizeCacheStrategy::VisibleOnly => {
                 let visible_range = self.state.visible_start..=self.state.visible_end;
-                self.state.item_sizes.retain(|&index, _| visible_range.contains(&index));
+                self.state
+                    .item_sizes
+                    .retain(|&index, _| visible_range.contains(&index));
             }
             SizeCacheStrategy::Lru => {
                 // 简单的LRU实现：保留最近使用的项目
-                let max_cache_size = self.config.performance_config.memory_management.max_cached_items;
+                let max_cache_size = self
+                    .config
+                    .performance_config
+                    .memory_management
+                    .max_cached_items;
                 if self.state.item_sizes.len() > max_cache_size {
                     // 保留可见区域和附近的项目
                     let keep_range = (self.state.render_start.saturating_sub(50))
                         ..=(self.state.render_end + 50).min(self.state.total_count);
-                    self.state.item_sizes.retain(|&index, _| keep_range.contains(&index));
+                    self.state
+                        .item_sizes
+                        .retain(|&index, _| keep_range.contains(&index));
                 }
             }
             SizeCacheStrategy::All => {

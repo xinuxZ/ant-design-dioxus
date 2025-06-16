@@ -12,7 +12,7 @@ use dioxus::prelude::*;
 use std::rc::Rc;
 
 /// 全局配置上下文
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy)]
 pub struct GlobalConfigContext {
     /// 主题配置
     pub theme_config: Signal<Option<ThemeConfig>>,
@@ -30,6 +30,21 @@ pub struct GlobalConfigContext {
     pub config_manager: Signal<Rc<ConfigManager>>,
     /// 配置更新回调
     pub on_config_change: Signal<Option<Rc<dyn Fn(&str, &serde_json::Value)>>>,
+}
+
+impl std::fmt::Debug for GlobalConfigContext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GlobalConfigContext")
+            .field("theme_config", &self.theme_config)
+            .field("locale_config", &self.locale_config)
+            .field("component_config", &self.component_config)
+            .field("security_config", &self.security_config)
+            .field("popup_config", &self.popup_config)
+            .field("virtual_scroll_config", &self.virtual_scroll_config)
+            .field("config_manager", &self.config_manager)
+            .field("on_config_change", &"<function>")
+            .finish()
+    }
 }
 
 /// 配置提供者属性
@@ -61,6 +76,22 @@ pub struct ConfigProviderProps {
     /// 配置变更回调
     #[props(optional)]
     pub on_config_change: Option<Rc<dyn Fn(&str, &serde_json::Value)>>,
+}
+
+impl std::fmt::Debug for ConfigProviderProps {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ConfigProviderProps")
+            .field("children", &"<Element>")
+            .field("theme_config", &self.theme_config)
+            .field("locale_config", &self.locale_config)
+            .field("component_config", &self.component_config)
+            .field("security_config", &self.security_config)
+            .field("popup_config", &self.popup_config)
+            .field("virtual_scroll_config", &self.virtual_scroll_config)
+            .field("merge_strategy", &self.merge_strategy)
+            .field("on_config_change", &"<function>")
+            .finish()
+    }
 }
 
 /// 配置提供者组件
@@ -100,13 +131,13 @@ pub fn use_config() -> GlobalConfigContext {
 
 /// 使用主题配置
 pub fn use_theme_config() -> Signal<Option<ThemeConfig>> {
-    let config = use_config();
+    let mut config = use_config();
     config.theme_config
 }
 
 /// 使用语言配置
 pub fn use_locale_config() -> Signal<Option<LocaleConfig>> {
-    let config = use_config();
+    let mut config = use_config();
     config.locale_config
 }
 
@@ -140,11 +171,66 @@ pub fn use_config_manager() -> Signal<Rc<ConfigManager>> {
     config.config_manager
 }
 
+/// 配置导入Hook
+pub fn use_config_import() -> impl Fn(&str) -> Result<(), ConfigError> {
+    move |json_str: &str| {
+        let mut config = use_config();
+
+        let import_data: serde_json::Value = serde_json::from_str(json_str)
+            .map_err(|e| ConfigError::TransformError(format!("解析配置失败: {}", e)))?;
+
+        if let Some(theme) = import_data.get("theme") {
+            if let Ok(theme_config) = serde_json::from_value::<ThemeConfig>(theme.clone()) {
+                config.theme_config.set(Some(theme_config));
+            }
+        }
+
+        if let Some(locale) = import_data.get("locale") {
+            if let Ok(locale_config) = serde_json::from_value::<LocaleConfig>(locale.clone()) {
+                config.locale_config.set(Some(locale_config));
+            }
+        }
+
+        if let Some(component) = import_data.get("component") {
+            if let Ok(component_config) =
+                serde_json::from_value::<ComponentConfig>(component.clone())
+            {
+                config.component_config.set(Some(component_config));
+            }
+        }
+
+        if let Some(security) = import_data.get("security") {
+            if let Ok(security_config) = serde_json::from_value::<SecurityConfig>(security.clone())
+            {
+                config.security_config.set(Some(security_config));
+            }
+        }
+
+        if let Some(popup) = import_data.get("popup") {
+            if let Ok(popup_config) = serde_json::from_value::<PopupConfig>(popup.clone()) {
+                config.popup_config.set(Some(popup_config));
+            }
+        }
+
+        if let Some(virtual_scroll) = import_data.get("virtualScroll") {
+            if let Ok(virtual_scroll_config) =
+                serde_json::from_value::<VirtualScrollConfig>(virtual_scroll.clone())
+            {
+                config
+                    .virtual_scroll_config
+                    .set(Some(virtual_scroll_config));
+            }
+        }
+
+        Ok(())
+    }
+}
+
 /// 配置更新Hook
 pub fn use_config_updater() -> impl Fn(&str, serde_json::Value) -> Result<(), ConfigError> {
-    let config = use_config();
-
     move |config_type: &str, new_config: serde_json::Value| {
+        let mut config = use_config();
+
         match config_type {
             "theme" => {
                 if let Ok(theme_config) = serde_json::from_value::<ThemeConfig>(new_config.clone())
@@ -222,10 +308,10 @@ pub fn use_config_updater() -> impl Fn(&str, serde_json::Value) -> Result<(), Co
 }
 
 /// 配置重置Hook
-pub fn use_config_reset() -> impl Fn() {
-    let config = use_config();
-
+pub fn use_config_reset() -> impl FnMut() {
     move || {
+        let mut config = use_config();
+
         config.theme_config.set(None);
         config.locale_config.set(None);
         config.component_config.set(None);
@@ -332,23 +418,23 @@ pub fn use_config_export() -> impl Fn() -> Result<serde_json::Value, ConfigError
     }
 }
 
-/// 配置导入Hook
-pub fn use_config_import() -> impl Fn(serde_json::Value) -> Result<(), ConfigError> {
-    let config_updater = use_config_updater();
+// /// 配置导入Hook
+// pub fn use_config_import() -> impl Fn(serde_json::Value) -> Result<(), ConfigError> {
+//     let config_updater = use_config_updater();
 
-    move |config_data: serde_json::Value| {
-        if let Some(config_obj) = config_data.as_object() {
-            for (key, value) in config_obj {
-                config_updater(key, value.clone())?;
-            }
-            Ok(())
-        } else {
-            Err(ConfigError::ValidationError(
-                "配置数据必须是对象类型".to_string(),
-            ))
-        }
-    }
-}
+//     move |config_data: serde_json::Value| {
+//         if let Some(config_obj) = config_data.as_object() {
+//             for (key, value) in config_obj {
+//                 config_updater(key, value.clone())?;
+//             }
+//             Ok(())
+//         } else {
+//             Err(ConfigError::ValidationError(
+//                 "配置数据必须是对象类型".to_string(),
+//             ))
+//         }
+//     }
+// }
 
 /// 配置监听Hook
 pub fn use_config_watcher<T: Clone + 'static>(

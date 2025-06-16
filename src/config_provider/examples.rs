@@ -2,29 +2,26 @@
 //!
 //! 展示如何使用ConfigProvider的各种功能和配置选项
 
-use dioxus::prelude::*;
 use crate::config_provider::{
-    ConfigProvider, ConfigProviderBuilder, PresetConfigBuilder,
-    ComponentConfig, SecurityConfig, PopupConfig, VirtualScrollConfig,
-    use_config, use_theme_config, use_component_config,
-    use_config_updater, use_config_validator,
-    ButtonConfig, InputConfig, TableConfig, FormConfig,
-    CspConfig, PopupPlacement, VirtualScrollDirection,
-    MergeStrategy, ComponentSize, Direction,
+    use_component_config, use_config, use_config_export, use_config_import, use_config_updater,
+    use_config_validator, use_popup_config, use_security_config, use_theme_config,
+    use_virtual_scroll_config, ButtonConfig, ComponentConfig, ComponentSize, ComponentSizeConfig,
+    ConfigProvider, ConfigProviderBuilder, CspConfig, Direction, GlobalConfig, InputConfig,
+    MergeStrategy, PopupConfig, PopupPlacement, PresetConfigBuilder, ScrollDirection,
+    SecurityConfig, VirtualScrollConfig,
 };
 use crate::theme::ThemeConfig;
-use crate::locale::LocaleConfig;
-use std::rc::Rc;
+use dioxus::prelude::*;
 
 /// 基础ConfigProvider使用示例
 #[component]
 pub fn BasicConfigProviderExample() -> Element {
     rsx! {
         ConfigProvider {
-            theme_config: ThemeConfig::default(),
-            locale_config: LocaleConfig::default(),
-            component_config: ComponentConfig::default(),
-            
+            theme: Some(ThemeConfig::default()),
+            locale: Some(crate::locale::Locale::ZhCN),
+            config: GlobalConfig::default(),
+
             div { class: "app",
                 h1 { "基础ConfigProvider示例" }
                 BasicConfigConsumer {}
@@ -39,11 +36,11 @@ fn BasicConfigConsumer() -> Element {
     let config = use_config();
     let theme_config = use_theme_config();
     let component_config = use_component_config();
-    
+
     rsx! {
         div { class: "config-consumer",
             h2 { "当前配置信息" }
-            
+
             div { class: "config-info",
                 p { "主题配置: {theme_config.read().is_some()}" }
                 p { "组件配置: {component_config.read().is_some()}" }
@@ -59,34 +56,44 @@ pub fn BuilderConfigProviderExample() -> Element {
         .theme_config(ThemeConfig::default())
         .component_config(ComponentConfig {
             button: Some(ButtonConfig {
-                default_size: ComponentSize::Middle,
-                default_type: crate::config_provider::component_config::ButtonType::Default,
-                loading_delay: 200,
-                auto_focus: false,
-                block: false,
-                danger: false,
-                disabled: false,
-                ghost: false,
+                auto_insert_space: Some(true),
+                default_size: Some(crate::config_provider::component_config::ButtonSize::Middle),
+                default_type: Some(crate::config_provider::component_config::ButtonType::Default),
+                default_shape: Some(crate::config_provider::component_config::ButtonShape::Default),
+                loading_delay: Some(200),
+                auto_focus: Some(false),
+                block: Some(false),
+                danger: Some(false),
+                disabled: Some(false),
+                ghost: Some(false),
                 href: None,
-                html_type: crate::config_provider::component_config::ButtonHtmlType::Button,
+                html_type: Some("button".to_string()),
                 icon: None,
-                loading: false,
-                shape: crate::config_provider::component_config::ButtonShape::Default,
+                loading: Some(false),
+                shape: Some(crate::config_provider::component_config::ButtonShape::Default),
                 target: None,
+                class_name: None,
+                style: None,
             }),
             input: Some(InputConfig {
-                default_size: ComponentSize::Middle,
+                default_size: Some(crate::config_provider::component_config::InputSize::Middle),
+                default_variant: Some(
+                    crate::config_provider::component_config::InputVariant::Outlined,
+                ),
+                auto_complete: None,
                 placeholder: Some("请输入内容".to_string()),
-                allow_clear: false,
-                bordered: true,
-                disabled: false,
+                allow_clear: Some(false),
+                bordered: Some(true),
+                disabled: Some(false),
                 max_length: None,
-                show_count: false,
+                show_count: Some(false),
                 status: None,
                 prefix: None,
                 suffix: None,
                 addon_before: None,
                 addon_after: None,
+                class_name: None,
+                style: None,
             }),
             ..ComponentConfig::default()
         })
@@ -102,9 +109,9 @@ pub fn BuilderConfigProviderExample() -> Element {
         })
         .popup_config(PopupConfig {
             get_popup_container: None,
-            auto_adjust_overflow: true,
-            placement: PopupPlacement::BottomLeft,
-            trigger: vec!["click".to_string()],
+            auto_adjust_overflow: Some(true),
+            placement: Some(PopupPlacement::BottomLeft),
+            trigger: Some("click".to_string()),
             z_index_base: 1000,
             ..PopupConfig::new()
         })
@@ -112,25 +119,35 @@ pub fn BuilderConfigProviderExample() -> Element {
             buffer_config: crate::config_provider::virtual_scroll_config::BufferConfig {
                 buffer_size_before: 5,
                 buffer_size_after: 5,
+                min_buffer_size: 2,
                 max_buffer_size: 50,
                 dynamic_buffer: true,
             },
             item_size_config: crate::config_provider::virtual_scroll_config::ItemSizeConfig {
+                fixed_height: None,
+                fixed_width: None,
                 estimated_height: 32.0,
                 estimated_width: 200.0,
-                dynamic_height: true,
-                dynamic_width: false,
-                min_height: 20.0,
-                max_height: 100.0,
-                min_width: 100.0,
-                max_width: 500.0,
+                dynamic_size: true,
+                dynamic_height: Some(true),
+                dynamic_width: Some(false),
+                min_height: Some(20.0),
+                max_height: Some(100.0),
+                min_width: Some(100.0),
+                max_width: Some(500.0),
+                size_cache_strategy:
+                    crate::config_provider::virtual_scroll_config::SizeCacheStrategy::Lru,
             },
-            scroll_config: crate::config_provider::virtual_scroll_config::ScrollConfig {
-                direction: VirtualScrollDirection::Vertical,
-                smooth_scroll: true,
-                scroll_to_alignment: crate::config_provider::virtual_scroll_config::ScrollAlignment::Auto,
-                overscan_count: 3,
-            },
+            scroll_config: Some(
+                crate::config_provider::virtual_scroll_config::ScrollConfig {
+                    direction: ScrollDirection::Vertical,
+                    smooth_scroll: true,
+                    scroll_to_alignment:
+                        crate::config_provider::virtual_scroll_config::ScrollAlignment::Auto,
+                    overscan_count: Some(3),
+                    offset: 0.0,
+                },
+            ),
             ..VirtualScrollConfig::new()
         })
         .merge_strategy(MergeStrategy::DeepMerge)
@@ -140,20 +157,18 @@ pub fn BuilderConfigProviderExample() -> Element {
             println!("配置变更: {} = {:?}", config_type, new_value);
         })
         .build();
-    
+
     match config_result {
         Ok(config) => {
             rsx! {
                 ConfigProvider {
-                    theme_config: config.theme_config,
-                    locale_config: config.locale_config,
-                    component_config: config.component_config,
-                    security_config: config.security_config,
-                    popup_config: config.popup_config,
-                    virtual_scroll_config: config.virtual_scroll_config,
-                    merge_strategy: config.merge_strategy,
-                    on_config_change: config.on_config_change,
-                    
+                    theme: config.theme_config,
+                    locale: config.locale_config.map(|lc| lc.locale),
+                    config: GlobalConfig {
+                        component_size: ComponentSizeConfig::default(),
+                        ..GlobalConfig::default()
+                    },
+
                     div { class: "app",
                         h1 { "构建器模式ConfigProvider示例" }
                         BuilderConfigConsumer {}
@@ -182,7 +197,7 @@ fn BuilderConfigConsumer() -> Element {
     let config = use_config();
     let config_updater = use_config_updater();
     let config_validator = use_config_validator();
-    
+
     let update_theme = move |_| {
         let new_theme = ThemeConfig::default(); // 这里应该是新的主题配置
         let theme_value = serde_json::to_value(&new_theme).unwrap();
@@ -190,28 +205,26 @@ fn BuilderConfigConsumer() -> Element {
             println!("更新主题配置失败: {:?}", e);
         }
     };
-    
-    let validate_config = move |_| {
-        match config_validator() {
-            Ok(_) => println!("配置验证通过"),
-            Err(errors) => {
-                println!("配置验证失败:");
-                for error in errors {
-                    println!("  - {:?}", error);
-                }
+
+    let validate_config = move |_| match config_validator() {
+        Ok(_) => println!("配置验证通过"),
+        Err(errors) => {
+            println!("配置验证失败:");
+            for error in errors {
+                println!("  - {:?}", error);
             }
         }
     };
-    
+
     rsx! {
         div { class: "builder-config-consumer",
             h2 { "构建器配置消费者" }
-            
+
             div { class: "config-actions",
                 button { onclick: update_theme, "更新主题配置" }
                 button { onclick: validate_config, "验证配置" }
             }
-            
+
             div { class: "config-display",
                 ConfigDisplay {}
             }
@@ -227,16 +240,16 @@ fn ConfigDisplay() -> Element {
     let security_config = use_security_config();
     let popup_config = use_popup_config();
     let virtual_scroll_config = use_virtual_scroll_config();
-    
+
     rsx! {
         div { class: "config-display",
             h3 { "当前配置状态" }
-            
+
             div { class: "config-section",
                 h4 { "主题配置" }
                 p { "已配置: {theme_config.read().is_some()}" }
             }
-            
+
             div { class: "config-section",
                 h4 { "组件配置" }
                 if let Some(comp_config) = component_config.read().as_ref() {
@@ -250,7 +263,7 @@ fn ConfigDisplay() -> Element {
                     p { "未配置" }
                 }
             }
-            
+
             div { class: "config-section",
                 h4 { "安全配置" }
                 if let Some(sec_config) = security_config.read().as_ref() {
@@ -263,12 +276,12 @@ fn ConfigDisplay() -> Element {
                     p { "未配置" }
                 }
             }
-            
+
             div { class: "config-section",
                 h4 { "弹出层配置" }
                 if let Some(popup_conf) = popup_config.read().as_ref() {
                     div {
-                        p { "自动调整溢出: {popup_conf.auto_adjust_overflow}" }
+                        p { "自动调整溢出: {popup_conf.auto_adjust_overflow:?}" }
                         p { "z-index基础值: {popup_conf.z_index_base}" }
                         p { "放置位置: {popup_conf.placement:?}" }
                     }
@@ -276,7 +289,7 @@ fn ConfigDisplay() -> Element {
                     p { "未配置" }
                 }
             }
-            
+
             div { class: "config-section",
                 h4 { "虚拟滚动配置" }
                 if let Some(vs_config) = virtual_scroll_config.read().as_ref() {
@@ -284,7 +297,7 @@ fn ConfigDisplay() -> Element {
                         p { "前置缓冲区: {vs_config.buffer_config.buffer_size_before}" }
                         p { "后置缓冲区: {vs_config.buffer_config.buffer_size_after}" }
                         p { "估算高度: {vs_config.item_size_config.estimated_height}" }
-                        p { "滚动方向: {vs_config.scroll_config.direction:?}" }
+                        p { "滚动方向: {vs_config.scroll_behavior.direction:?}" }
                     }
                 } else {
                     p { "未配置" }
@@ -297,9 +310,11 @@ fn ConfigDisplay() -> Element {
 /// 预设配置示例
 #[component]
 pub fn PresetConfigExample() -> Element {
-    let preset_type = use_signal(|| "development");
-    
-    let config_result = match preset_type.read().as_str() {
+    let mut preset_type = use_signal(|| "development");
+
+    let preset_val = &*preset_type.clone().to_string();
+
+    let config_result = match preset_val {
         "development" => PresetConfigBuilder::development().build(),
         "production" => PresetConfigBuilder::production().build(),
         "testing" => PresetConfigBuilder::testing().build(),
@@ -307,27 +322,28 @@ pub fn PresetConfigExample() -> Element {
         "secure" => PresetConfigBuilder::secure().build(),
         _ => PresetConfigBuilder::default().build(),
     };
-    
+
     match config_result {
         Ok(config) => {
             rsx! {
                 ConfigProvider {
-                    theme_config: config.theme_config,
-                    locale_config: config.locale_config,
-                    component_config: config.component_config,
-                    security_config: config.security_config,
-                    popup_config: config.popup_config,
-                    virtual_scroll_config: config.virtual_scroll_config,
-                    merge_strategy: config.merge_strategy,
-                    on_config_change: config.on_config_change,
-                    
+                    theme: config.theme_config,
+                    locale: config.locale_config.map(|lc| lc.locale),
+                    config: GlobalConfig {
+                        component_size: ComponentSizeConfig::default(),
+                        ..GlobalConfig::default()
+                    },
+
                     div { class: "app",
                         h1 { "预设配置示例" }
-                        
+
                         div { class: "preset-selector",
                             h2 { "选择预设配置" }
                             select {
-                                onchange: move |evt| preset_type.set(evt.value()),
+                                onchange: move |evt| {
+                                    let val = evt.valid();
+                                    preset_type.set(val);
+                                },
                                 option { value: "development", "开发环境" }
                                 option { value: "production", "生产环境" }
                                 option { value: "testing", "测试环境" }
@@ -335,7 +351,7 @@ pub fn PresetConfigExample() -> Element {
                                 option { value: "secure", "安全模式" }
                             }
                         }
-                        
+
                         PresetConfigDisplay { preset_type: preset_type.read().clone() }
                     }
                 }
@@ -360,11 +376,11 @@ pub fn PresetConfigExample() -> Element {
 #[component]
 fn PresetConfigDisplay(preset_type: String) -> Element {
     let config = use_config();
-    
+
     rsx! {
         div { class: "preset-config-display",
             h3 { "当前预设: {preset_type}" }
-            
+
             div { class: "preset-info",
                 match preset_type.as_str() {
                     "development" => rsx! {
@@ -424,29 +440,39 @@ fn PresetConfigDisplay(preset_type: String) -> Element {
 pub fn DynamicConfigExample() -> Element {
     let current_size = use_signal(|| ComponentSize::Middle);
     let current_direction = use_signal(|| Direction::Ltr);
-    
+
     // 动态创建组件配置
-    let component_config = use_memo(move || {
-        ComponentConfig {
-            button: Some(ButtonConfig {
-                default_size: current_size.read().clone(),
-                ..ButtonConfig::default()
+    let component_config = use_memo(move || ComponentConfig {
+        button: Some(ButtonConfig {
+            default_size: Some(match current_size.read().clone() {
+                ComponentSize::Small => crate::config_provider::component_config::ButtonSize::Small,
+                ComponentSize::Middle => {
+                    crate::config_provider::component_config::ButtonSize::Middle
+                }
+                ComponentSize::Large => crate::config_provider::component_config::ButtonSize::Large,
             }),
-            input: Some(InputConfig {
-                default_size: current_size.read().clone(),
-                ..InputConfig::default()
+            ..ButtonConfig::default()
+        }),
+        input: Some(InputConfig {
+            default_size: Some(match current_size.read().clone() {
+                ComponentSize::Small => crate::config_provider::component_config::InputSize::Small,
+                ComponentSize::Middle => {
+                    crate::config_provider::component_config::InputSize::Middle
+                }
+                ComponentSize::Large => crate::config_provider::component_config::InputSize::Large,
             }),
-            ..ComponentConfig::default()
-        }
+            ..InputConfig::default()
+        }),
+        ..ComponentConfig::default()
     });
-    
+
     rsx! {
         ConfigProvider {
             component_config: component_config.read().clone(),
-            
+
             div { class: "app",
                 h1 { "动态配置更新示例" }
-                
+
                 div { class: "controls",
                     div { class: "control-group",
                         label { "组件尺寸:" }
@@ -464,7 +490,7 @@ pub fn DynamicConfigExample() -> Element {
                             option { value: "Large", "大" }
                         }
                     }
-                    
+
                     div { class: "control-group",
                         label { "文本方向:" }
                         select {
@@ -480,7 +506,7 @@ pub fn DynamicConfigExample() -> Element {
                         }
                     }
                 }
-                
+
                 DynamicConfigDisplay {
                     size: current_size.read().clone(),
                     direction: current_direction.read().clone(),
@@ -494,37 +520,37 @@ pub fn DynamicConfigExample() -> Element {
 #[component]
 fn DynamicConfigDisplay(size: ComponentSize, direction: Direction) -> Element {
     let component_config = use_component_config();
-    
+
     rsx! {
-        div { 
+        div {
             class: "dynamic-config-display",
             dir: match direction {
                 Direction::Ltr => "ltr",
                 Direction::Rtl => "rtl",
             },
-            
+
             h3 { "当前配置效果" }
-            
+
             div { class: "config-preview",
                 p { "当前尺寸: {size:?}" }
                 p { "当前方向: {direction:?}" }
-                
+
                 if let Some(comp_config) = component_config.read().as_ref() {
                     div { class: "component-examples",
                         if let Some(button_config) = &comp_config.button {
                             div { class: "example-section",
                                 h4 { "按钮示例" }
-                                div { 
+                                div {
                                     class: format!("button button-{:?}", button_config.default_size).to_lowercase(),
                                     "示例按钮 ({button_config.default_size:?})"
                                 }
                             }
                         }
-                        
+
                         if let Some(input_config) = &comp_config.input {
                             div { class: "example-section",
                                 h4 { "输入框示例" }
-                                input { 
+                                input {
                                     class: format!("input input-{:?}", input_config.default_size).to_lowercase(),
                                     placeholder: input_config.placeholder.as_deref().unwrap_or("请输入内容"),
                                 }
@@ -543,15 +569,18 @@ pub fn ConfigImportExportExample() -> Element {
     let exported_config = use_signal(|| String::new());
     let import_config = use_signal(|| String::new());
     let import_status = use_signal(|| String::new());
-    
+
     rsx! {
         ConfigProvider {
-            theme_config: ThemeConfig::default(),
-            component_config: ComponentConfig::default(),
-            
+            theme: Some(ThemeConfig::default()),
+            config: GlobalConfig {
+                component_size: ComponentSizeConfig::default(),
+                ..GlobalConfig::default()
+            },
+
             div { class: "app",
                 h1 { "配置导入导出示例" }
-                
+
                 ConfigImportExportControls {
                     exported_config,
                     import_config,
@@ -571,43 +600,39 @@ fn ConfigImportExportControls(
 ) -> Element {
     let config_export = use_config_export();
     let config_import = use_config_import();
-    
-    let export_config = move |_| {
-        match config_export() {
-            Ok(config_json) => {
-                let config_str = serde_json::to_string_pretty(&config_json).unwrap_or_default();
-                exported_config.set(config_str);
-            }
-            Err(e) => {
-                exported_config.set(format!("导出失败: {:?}", e));
-            }
+
+    let export_config = move |_| match config_export() {
+        Ok(config_json) => {
+            let config_str = serde_json::to_string_pretty(&config_json).unwrap_or_default();
+            exported_config.set(config_str);
+        }
+        Err(e) => {
+            exported_config.set(format!("导出失败: {:?}", e));
         }
     };
-    
+
     let import_config_fn = move |_| {
         let config_str = import_config.read();
         if config_str.is_empty() {
             import_status.set("请输入配置JSON".to_string());
             return;
         }
-        
+
         match serde_json::from_str::<serde_json::Value>(&config_str) {
-            Ok(config_json) => {
-                match config_import(config_json) {
-                    Ok(_) => {
-                        import_status.set("配置导入成功".to_string());
-                    }
-                    Err(e) => {
-                        import_status.set(format!("配置导入失败: {:?}", e));
-                    }
+            Ok(config_json) => match config_import(config_json.as_str().unwrap()) {
+                Ok(_) => {
+                    import_status.set("配置导入成功".to_string());
                 }
-            }
+                Err(e) => {
+                    import_status.set(format!("配置导入失败: {:?}", e));
+                }
+            },
             Err(e) => {
                 import_status.set(format!("JSON解析失败: {:?}", e));
             }
         }
     };
-    
+
     rsx! {
         div { class: "import-export-controls",
             div { class: "export-section",
@@ -621,7 +646,7 @@ fn ConfigImportExportControls(
                     placeholder: "导出的配置将显示在这里",
                 }
             }
-            
+
             div { class: "import-section",
                 h3 { "导入配置" }
                 textarea {
@@ -643,44 +668,46 @@ fn ConfigImportExportControls(
 /// 完整功能演示应用
 #[component]
 pub fn FullFeatureDemo() -> Element {
-    let demo_type = use_signal(|| "basic");
-    
+    let mut demo_type = use_signal(|| "basic");
+
+    let demo_val = &*demo_type.clone().read().to_string();
+
     rsx! {
         div { class: "full-demo",
             nav { class: "demo-nav",
                 h1 { "ConfigProvider完整功能演示" }
-                
+
                 div { class: "nav-buttons",
                     button {
-                        class: if demo_type.read() == "basic" { "active" } else { "" },
+                        class: if demo_val == "basic" { "active" } else { "" },
                         onclick: move |_| demo_type.set("basic"),
                         "基础示例"
                     }
                     button {
-                        class: if demo_type.read() == "builder" { "active" } else { "" },
+                        class: if demo_val == "builder" { "active" } else { "" },
                         onclick: move |_| demo_type.set("builder"),
                         "构建器模式"
                     }
                     button {
-                        class: if demo_type.read() == "preset" { "active" } else { "" },
+                        class: if demo_val == "preset" { "active" } else { "" },
                         onclick: move |_| demo_type.set("preset"),
                         "预设配置"
                     }
                     button {
-                        class: if demo_type.read() == "dynamic" { "active" } else { "" },
+                        class: if demo_val == "dynamic" { "active" } else { "" },
                         onclick: move |_| demo_type.set("dynamic"),
                         "动态配置"
                     }
                     button {
-                        class: if demo_type.read() == "import_export" { "active" } else { "" },
+                        class: if demo_val == "import_export" { "active" } else { "" },
                         onclick: move |_| demo_type.set("import_export"),
                         "导入导出"
                     }
                 }
             }
-            
+
             main { class: "demo-content",
-                match demo_type.read().as_str() {
+                match demo_val {
                     "basic" => rsx! { BasicConfigProviderExample {} },
                     "builder" => rsx! { BuilderConfigProviderExample {} },
                     "preset" => rsx! { PresetConfigExample {} },

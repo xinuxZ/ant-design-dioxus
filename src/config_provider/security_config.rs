@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// CSP配置
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CspConfig {
     /// CSP nonce值，用于内联样式的安全验证
     pub nonce: Option<String>,
@@ -20,11 +20,25 @@ pub struct CspConfig {
     pub custom_directives: HashMap<String, Vec<String>>,
 }
 
+impl Default for CspConfig {
+    fn default() -> Self {
+        Self {
+            nonce: None,
+            strict_mode: false,
+            style_src: vec!["'self'".to_string()],
+            script_src: vec!["'self'".to_string()],
+            custom_directives: HashMap::new(),
+        }
+    }
+}
+
 /// 安全配置
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SecurityConfig {
     /// CSP配置
     pub csp: CspConfig,
+    /// CSP配置（别名，向后兼容）
+    pub csp_config: Option<CspConfig>,
     /// 是否启用样式隔离
     pub style_isolation: bool,
     /// 是否启用XSS防护
@@ -35,6 +49,24 @@ pub struct SecurityConfig {
     pub allowed_css_properties: Option<Vec<String>>,
     /// 禁止的CSS属性黑名单
     pub blocked_css_properties: Vec<String>,
+}
+
+impl Default for SecurityConfig {
+    fn default() -> Self {
+        Self {
+            csp: CspConfig::default(),
+            csp_config: None,
+            style_isolation: false,
+            xss_protection: true,
+            validate_dynamic_styles: true,
+            allowed_css_properties: None,
+            blocked_css_properties: vec![
+                "javascript:".to_string(),
+                "expression(".to_string(),
+                "@import".to_string(),
+            ],
+        }
+    }
 }
 
 /// 样式安全验证器
@@ -109,12 +141,12 @@ impl CspConfig {
         if !self.style_src.is_empty() {
             let mut style_directive = vec!["style-src".to_string()];
             style_directive.extend(self.style_src.clone());
-            
+
             // 如果有nonce，添加到样式源
             if let Some(ref nonce) = self.nonce {
                 style_directive.push(format!("'nonce-{}'", nonce));
             }
-            
+
             directives.push(style_directive.join(" "));
         }
 
@@ -122,12 +154,12 @@ impl CspConfig {
         if !self.script_src.is_empty() {
             let mut script_directive = vec!["script-src".to_string()];
             script_directive.extend(self.script_src.clone());
-            
+
             // 如果有nonce，添加到脚本源
             if let Some(ref nonce) = self.nonce {
                 script_directive.push(format!("'nonce-{}'", nonce));
             }
-            
+
             directives.push(script_directive.join(" "));
         }
 
@@ -147,6 +179,7 @@ impl SecurityConfig {
     pub fn new() -> Self {
         Self {
             csp: CspConfig::default(),
+            csp_config: Some(CspConfig::default()),
             style_isolation: true,
             xss_protection: true,
             validate_dynamic_styles: true,
@@ -268,13 +301,13 @@ impl NonceGenerator {
     /// 生成nonce值
     pub fn generate(&self) -> String {
         use rand::Rng;
-        
+
         let charset: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        let mut rng = rand::thread_rng();
-        
+        let mut rng = rand::rng();
+
         (0..self.length)
             .map(|_| {
-                let idx = rng.gen_range(0..charset.len());
+                let idx = rng.random_range(0..charset.len());
                 charset[idx] as char
             })
             .collect()
@@ -306,7 +339,7 @@ impl SecureStyleInjector {
     /// 安全地注入样式
     pub fn inject_style(&self, style_content: &str, target_id: &str) -> Result<String, String> {
         let validation_result = self.validator.validate(style_content);
-        
+
         if !validation_result.is_valid {
             return Err(format!("样式验证失败: {:?}", validation_result.errors));
         }
@@ -314,9 +347,7 @@ impl SecureStyleInjector {
         let nonce = self.nonce_generator.generate();
         let style_tag = format!(
             r#"<style id="{}" nonce="{}">{}</style>"#,
-            target_id,
-            nonce,
-            validation_result.sanitized_style
+            target_id, nonce, validation_result.sanitized_style
         );
 
         Ok(style_tag)
@@ -325,7 +356,7 @@ impl SecureStyleInjector {
     /// 生成安全的内联样式属性
     pub fn create_inline_style(&self, style_content: &str) -> Result<String, String> {
         let validation_result = self.validator.validate(style_content);
-        
+
         if !validation_result.is_valid {
             return Err(format!("样式验证失败: {:?}", validation_result.errors));
         }
@@ -356,10 +387,10 @@ mod tests {
     fn test_style_validation() {
         let config = SecurityConfig::new();
         let validator = StyleSecurityValidator::new(config);
-        
+
         let malicious_style = "color: red; javascript:alert('xss');";
         let result = validator.validate(malicious_style);
-        
+
         assert!(!result.is_valid);
         assert!(!result.errors.is_empty());
     }
@@ -368,7 +399,7 @@ mod tests {
     fn test_nonce_generation() {
         let generator = NonceGenerator::new().with_length(12);
         let nonce = generator.generate();
-        
+
         assert_eq!(nonce.len(), 12);
         assert!(nonce.chars().all(|c| c.is_alphanumeric()));
     }

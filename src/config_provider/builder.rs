@@ -13,7 +13,7 @@ use crate::locale::LocaleConfig;
 use crate::theme::ThemeConfig;
 
 /// ConfigProvider构建器
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ConfigProviderBuilder {
     /// 主题配置
     theme_config: Option<ThemeConfig>,
@@ -547,7 +547,7 @@ impl ConfigProviderBuilder {
 }
 
 /// 构建器结果
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ConfigProviderBuilderResult {
     /// 主题配置
     pub theme_config: Option<ThemeConfig>,

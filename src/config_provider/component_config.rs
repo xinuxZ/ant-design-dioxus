@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// 组件配置集合
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ComponentConfig {
     /// 按钮组件配置
     pub button: Option<ButtonConfig>,
@@ -31,7 +31,7 @@ pub struct ComponentConfig {
 }
 
 /// 按钮组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ButtonConfig {
     /// 自动在中文字符间插入空格
     pub auto_insert_space: Option<bool>,
@@ -41,14 +41,63 @@ pub struct ButtonConfig {
     pub default_size: Option<ButtonSize>,
     /// 默认形状
     pub default_shape: Option<ButtonShape>,
+    /// 加载延迟时间（毫秒）
+    pub loading_delay: Option<u32>,
+    /// 自动获取焦点
+    pub auto_focus: Option<bool>,
+    /// 将按钮宽度调整为其父宽度
+    pub block: Option<bool>,
+    /// 设置危险按钮
+    pub danger: Option<bool>,
+    /// 按钮失效状态
+    pub disabled: Option<bool>,
+    /// 幽灵属性，使按钮背景透明
+    pub ghost: Option<bool>,
+    /// 点击跳转的地址
+    pub href: Option<String>,
+    /// 设置button原生的type值
+    pub html_type: Option<String>,
+    /// 设置按钮的图标组件
+    pub icon: Option<String>,
+    /// 设置按钮载入状态
+    pub loading: Option<bool>,
+    /// 设置按钮形状
+    pub shape: Option<ButtonShape>,
+    /// 相当于a链接的target属性
+    pub target: Option<String>,
     /// 自定义类名
     pub class_name: Option<String>,
     /// 自定义样式
     pub style: Option<HashMap<String, String>>,
 }
 
+impl Default for ButtonConfig {
+    fn default() -> Self {
+        Self {
+            auto_insert_space: Some(true),
+            default_type: Some(ButtonType::Default),
+            default_size: Some(ButtonSize::Middle),
+            default_shape: Some(ButtonShape::Default),
+            loading_delay: None,
+            auto_focus: None,
+            block: None,
+            danger: None,
+            disabled: None,
+            ghost: None,
+            href: None,
+            html_type: None,
+            icon: None,
+            loading: None,
+            shape: None,
+            target: None,
+            class_name: None,
+            style: None,
+        }
+    }
+}
+
 /// 输入框组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct InputConfig {
     /// 默认尺寸
     pub default_size: Option<InputSize>,
@@ -56,14 +105,59 @@ pub struct InputConfig {
     pub default_variant: Option<InputVariant>,
     /// 自动完成
     pub auto_complete: Option<String>,
+    /// 占位符文本
+    pub placeholder: Option<String>,
+    /// 可以点击清除图标删除内容
+    pub allow_clear: Option<bool>,
+    /// 是否有边框
+    pub bordered: Option<bool>,
+    /// 是否禁用
+    pub disabled: Option<bool>,
+    /// 最大长度
+    pub max_length: Option<usize>,
+    /// 是否展示字符数
+    pub show_count: Option<bool>,
+    /// 设置校验状态
+    pub status: Option<String>,
+    /// 带有前缀图标的input
+    pub prefix: Option<String>,
+    /// 带有后缀图标的input
+    pub suffix: Option<String>,
+    /// 带标签的input，设置前置标签
+    pub addon_before: Option<String>,
+    /// 带标签的input，设置后置标签
+    pub addon_after: Option<String>,
     /// 自定义类名
     pub class_name: Option<String>,
     /// 自定义样式
     pub style: Option<HashMap<String, String>>,
 }
 
+impl Default for InputConfig {
+    fn default() -> Self {
+        Self {
+            default_size: Some(InputSize::Middle),
+            default_variant: Some(InputVariant::Outlined),
+            auto_complete: None,
+            placeholder: None,
+            allow_clear: None,
+            bordered: Some(true),
+            disabled: None,
+            max_length: None,
+            show_count: None,
+            status: None,
+            prefix: None,
+            suffix: None,
+            addon_before: None,
+            addon_after: None,
+            class_name: None,
+            style: None,
+        }
+    }
+}
+
 /// 表格组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TableConfig {
     /// 默认分页大小
     pub default_page_size: Option<usize>,
@@ -82,7 +176,7 @@ pub struct TableConfig {
 }
 
 /// 表单组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FormConfig {
     /// 验证消息
     pub validate_messages: Option<HashMap<String, String>>,
@@ -103,7 +197,7 @@ pub struct FormConfig {
 }
 
 /// 模态框组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ModalConfig {
     /// 默认宽度
     pub default_width: Option<String>,
@@ -120,7 +214,7 @@ pub struct ModalConfig {
 }
 
 /// 消息组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MessageConfig {
     /// 默认持续时间（秒）
     pub default_duration: Option<f64>,
@@ -135,7 +229,7 @@ pub struct MessageConfig {
 }
 
 /// 通知组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NotificationConfig {
     /// 默认持续时间（秒）
     pub default_duration: Option<f64>,
@@ -150,7 +244,7 @@ pub struct NotificationConfig {
 }
 
 /// 选择器组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SelectConfig {
     /// 默认尺寸
     pub default_size: Option<SelectSize>,
@@ -165,7 +259,7 @@ pub struct SelectConfig {
 }
 
 /// 日期选择器组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DatePickerConfig {
     /// 默认尺寸
     pub default_size: Option<DatePickerSize>,
@@ -180,7 +274,7 @@ pub struct DatePickerConfig {
 }
 
 /// 上传组件配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UploadConfig {
     /// 默认上传类型
     pub default_type: Option<UploadType>,
@@ -241,6 +335,14 @@ pub enum ButtonShape {
     Default,
     Circle,
     Round,
+}
+
+/// 按钮HTML类型
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ButtonHtmlType {
+    Button,
+    Submit,
+    Reset,
 }
 
 /// 输入框尺寸

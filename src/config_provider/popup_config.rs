@@ -2,12 +2,11 @@
 //!
 //! 提供统一的弹出层行为配置，包括定位、溢出处理、容器管理等
 
-use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// 弹出层配置
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct PopupConfig {
     /// 弹出层是否匹配选择器宽度
     pub match_select_width: Option<bool>,
@@ -25,6 +24,14 @@ pub struct PopupConfig {
     pub virtual_positioning: bool,
     /// 弹出层边距
     pub margin: PopupMargin,
+    /// 获取弹出容器的函数
+    pub get_popup_container: Option<String>,
+    /// 自动调整溢出
+    pub auto_adjust_overflow: Option<bool>,
+    /// 弹出位置
+    pub placement: Option<PopupPlacement>,
+    /// 触发方式
+    pub trigger: Option<String>,
 }
 
 /// 弹出层溢出处理方式
@@ -43,7 +50,7 @@ pub enum PopupOverflow {
 }
 
 /// 弹出层放置策略
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PlacementStrategy {
     /// 首选放置位置
     pub preferred_placement: PopupPlacement,
@@ -64,6 +71,7 @@ pub enum PopupPlacement {
     Bottom,
     BottomStart,
     BottomEnd,
+    BottomLeft,
     Left,
     LeftStart,
     LeftEnd,
@@ -73,7 +81,7 @@ pub enum PopupPlacement {
 }
 
 /// 边界检测配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BoundaryDetection {
     /// 检测边界元素选择器
     pub boundary_selector: Option<String>,
@@ -86,7 +94,7 @@ pub struct BoundaryDetection {
 }
 
 /// 边界偏移量
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BoundaryOffset {
     pub top: i32,
     pub right: i32,
@@ -95,7 +103,7 @@ pub struct BoundaryOffset {
 }
 
 /// 容器配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContainerConfig {
     /// 获取弹出容器的函数
     pub get_popup_container: Option<String>, // 函数名或选择器
@@ -112,7 +120,7 @@ pub struct ContainerConfig {
 }
 
 /// 动画配置
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnimationConfig {
     /// 进入动画名称
     pub enter_animation: Option<String>,
@@ -127,7 +135,7 @@ pub struct AnimationConfig {
 }
 
 /// 弹出层边距
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PopupMargin {
     pub top: i32,
     pub right: i32,
@@ -273,6 +281,10 @@ impl PopupConfig {
             z_index_base: 1000,
             virtual_positioning: false,
             margin: PopupMargin::default(),
+            get_popup_container: None,
+            auto_adjust_overflow: None,
+            placement: None,
+            trigger: None,
         }
     }
 
@@ -320,7 +332,7 @@ impl PopupManager {
     /// 注册新的弹出层
     pub fn register_popup(&mut self, id: String, trigger_element: Option<String>) -> PopupInstance {
         self.z_index_counter += 1;
-        
+
         let instance = PopupInstance {
             id: id.clone(),
             placement: self.config.placement_strategy.preferred_placement,
@@ -380,10 +392,9 @@ impl PopupManager {
                 trigger_x + (trigger_width - popup_width) / 2.0,
                 trigger_y - popup_height - margin.bottom as f64,
             ),
-            PopupPlacement::TopStart => (
-                trigger_x,
-                trigger_y - popup_height - margin.bottom as f64,
-            ),
+            PopupPlacement::TopStart => {
+                (trigger_x, trigger_y - popup_height - margin.bottom as f64)
+            }
             PopupPlacement::TopEnd => (
                 trigger_x + trigger_width - popup_width,
                 trigger_y - popup_height - margin.bottom as f64,
@@ -392,22 +403,22 @@ impl PopupManager {
                 trigger_x + (trigger_width - popup_width) / 2.0,
                 trigger_y + trigger_height + margin.top as f64,
             ),
-            PopupPlacement::BottomStart => (
-                trigger_x,
-                trigger_y + trigger_height + margin.top as f64,
-            ),
+            PopupPlacement::BottomStart => {
+                (trigger_x, trigger_y + trigger_height + margin.top as f64)
+            }
             PopupPlacement::BottomEnd => (
                 trigger_x + trigger_width - popup_width,
+                trigger_y + trigger_height + margin.top as f64,
+            ),
+            PopupPlacement::BottomLeft => (
+                trigger_x - popup_width - margin.right as f64,
                 trigger_y + trigger_height + margin.top as f64,
             ),
             PopupPlacement::Left => (
                 trigger_x - popup_width - margin.right as f64,
                 trigger_y + (trigger_height - popup_height) / 2.0,
             ),
-            PopupPlacement::LeftStart => (
-                trigger_x - popup_width - margin.right as f64,
-                trigger_y,
-            ),
+            PopupPlacement::LeftStart => (trigger_x - popup_width - margin.right as f64, trigger_y),
             PopupPlacement::LeftEnd => (
                 trigger_x - popup_width - margin.right as f64,
                 trigger_y + trigger_height - popup_height,
@@ -416,10 +427,9 @@ impl PopupManager {
                 trigger_x + trigger_width + margin.left as f64,
                 trigger_y + (trigger_height - popup_height) / 2.0,
             ),
-            PopupPlacement::RightStart => (
-                trigger_x + trigger_width + margin.left as f64,
-                trigger_y,
-            ),
+            PopupPlacement::RightStart => {
+                (trigger_x + trigger_width + margin.left as f64, trigger_y)
+            }
             PopupPlacement::RightEnd => (
                 trigger_x + trigger_width + margin.left as f64,
                 trigger_y + trigger_height - popup_height,
@@ -474,6 +484,13 @@ impl PopupManager {
                     rotation: -90.0,
                 })
             }
+            PopupPlacement::BottomLeft => {
+                Some(ArrowPosition {
+                    x: 0.0, // 箭头在弹出层右侧
+                    y: trigger_y + trigger_height / 2.0 - popup_y,
+                    rotation: 90.0,
+                })
+            }
         }
     }
 }
@@ -517,7 +534,7 @@ mod tests {
         let popup_size = (150.0, 100.0); // width, height
 
         let result = manager.calculate_position(trigger_rect, popup_size, PopupPlacement::Bottom);
-        
+
         // 弹出层应该在触发器下方居中
         assert_eq!(result.x, 125.0); // 100 + (200 - 150) / 2
         assert_eq!(result.y, 154.0); // 100 + 50 + 4 (margin)

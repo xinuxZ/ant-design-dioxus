@@ -5,7 +5,6 @@
 use crate::config_provider::{ComponentConfig, PopupConfig, SecurityConfig, VirtualScrollConfig};
 use crate::locale::LocaleConfig;
 use crate::theme::ThemeConfig;
-use dioxus::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -712,7 +711,7 @@ pub mod utils {
                 .entry(part.to_string())
                 .or_insert_with(|| serde_json::Value::Object(serde_json::Map::new()));
 
-            if let serde_json::Value::Object(mut nested) = entry {
+            if let serde_json::Value::Object(ref mut nested) = entry {
                 current = nested;
             }
         }
