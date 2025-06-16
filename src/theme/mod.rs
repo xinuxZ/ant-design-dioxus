@@ -24,6 +24,13 @@ pub use css_in_rust::theme::{
 // 导出桥接器
 pub use css_in_rust::theme_bridge::ThemeBridge as CssThemeBridge;
 
+// 导出适配器模块
+pub mod adapter;
+pub use adapter::{
+    DioxusAdapter, StyleInjector, ThemeProviderAdapter, SsrSupport,
+    frameworks::DioxusAdapter as FrameworkDioxusAdapter,
+};
+
 // 统一主题类型定义 - 直接使用 css-in-rust 中的类型
 // pub use css_in_rust::theme::ThemeVariant as Theme;
 
