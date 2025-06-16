@@ -1,5 +1,5 @@
+//! Wave component for button ripple effect
 use dioxus::prelude::*;
-use std::rc::Rc;
 use wasm_bindgen::{closure::Closure, JsCast};
 use web_sys::{window, HtmlElement};
 
@@ -185,7 +185,7 @@ mod tests {
     fn test_wave_basic_props() {
         let props = WaveProps {
             disabled: false,
-            children: VNode::empty(),
+            children: rsx! {},
             color: None,
             duration: 500,
             opacity: 0.2,
@@ -200,7 +200,7 @@ mod tests {
     fn test_wave_disabled() {
         let props = WaveProps {
             disabled: true,
-            children: VNode::empty(),
+            children: rsx! {},
             color: None,
             duration: 500,
             opacity: 0.2,
@@ -213,7 +213,7 @@ mod tests {
     fn test_wave_enabled() {
         let props = WaveProps {
             disabled: false,
-            children: VNode::empty(),
+            children: rsx! {},
             color: None,
             duration: 500,
             opacity: 0.2,
@@ -226,7 +226,7 @@ mod tests {
     fn test_wave_custom_color() {
         let props = WaveProps {
             disabled: false,
-            children: VNode::empty(),
+            children: rsx! {},
             color: Some("rgba(255, 0, 0, 0.3)".to_string()),
             duration: 500,
             opacity: 0.2,
@@ -303,7 +303,7 @@ mod tests {
     fn test_wave_complex_configuration() {
         let props = WaveProps {
             disabled: false,
-            children: VNode::empty(),
+            children: rsx! {},
             color: Some("rgba(0, 255, 0, 0.4)".to_string()),
             duration: 800,
             opacity: 0.3,

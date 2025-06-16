@@ -1,6 +1,4 @@
-use crate::components::button::styles::color_variant::{
-    generate_button_color_styles, generate_button_variant_styles,
-};
+// 移除了对color_variant模块的依赖，现在使用ButtonStyleGenerator
 use crate::components::button::types::{ButtonColor, ButtonShape, ButtonSize, ButtonVariant};
 use crate::theme::provider::use_css_var_name;
 use css_in_rust::css;

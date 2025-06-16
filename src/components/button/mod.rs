@@ -1,3 +1,4 @@
+//! Button component module
 mod components;
 mod styles;
 mod types;

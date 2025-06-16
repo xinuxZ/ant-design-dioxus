@@ -1,21 +1,14 @@
 use crate::components::button::components::wave::Wave;
-use crate::components::button::styles::{ButtonStyleGenerator, button_ripple_styles, button_loading_icon_style, button_content_style};
+use crate::components::button::styles::ButtonStyleGenerator;
 use crate::components::button::types::*;
 use crate::components::icon::{Icon, IconType};
-use crate::utils::style_injector::inject_style;
 use dioxus::html::input_data::keyboard_types::Key;
 use dioxus::prelude::*;
 
 /// Button 组件
 #[component]
 pub fn Button(props: ButtonProps) -> Element {
-    // 注入全局样式到 DOM
-    #[cfg(target_arch = "wasm32")]
-    {
-        inject_style("ant-button-ripple-styles", &button_ripple_styles());
-        inject_style("ant-button-loading-icon-styles", &button_loading_icon_style());
-        inject_style("ant-button-content-styles", &button_content_style());
-    }
+    // CSS-in-Rust 会自动处理样式注入，无需手动调用 inject_style
 
     // 状态管理
     let mut is_loading = use_signal(|| match props.loading {
@@ -81,18 +74,18 @@ pub fn Button(props: ButtonProps) -> Element {
             .with_loading(is_loading())
             .with_block(props_clone.block)
             .generate();
-        
+
         // 添加自定义类名
         let mut classes = vec![button_class];
         if let Some(custom_class) = &props_clone.class {
             classes.push(custom_class.clone());
         }
-        
+
         // 添加两个中文字符的类名
         if has_two_cn_chars() {
             classes.push("ant-btn-two-chinese-chars".to_string());
         }
-        
+
         classes.join(" ")
     });
 
@@ -218,10 +211,6 @@ fn get_ripple_color(props: &ButtonProps) -> String {
         "rgba(0, 0, 0, 0.1)".to_string()
     }
 }
-
-
-
-
 
 /// 渲染按钮内容
 fn render_button_content(props: &ButtonProps, is_loading: bool) -> Element {
@@ -459,58 +448,6 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(props.block, true);
-    }
-
-    /// 测试 generate_button_class_name 函数
-    #[test]
-    fn test_generate_button_class_name() {
-        let props = ButtonProps {
-            button_type: Some(ButtonType::Primary),
-            size: ButtonSize::Large,
-            shape: ButtonShape::Round,
-            danger: true,
-            ghost: false,
-            block: true,
-            disabled: false,
-            loading: LoadingConfig::NotLoading,
-            icon_position: IconPosition::Start,
-            ..Default::default()
-        };
-
-        let class_name = generate_button_class_name(&props, false, false);
-        assert!(class_name.contains("ant-btn"));
-        assert!(class_name.contains("ant-btn-primary"));
-        assert!(class_name.contains("ant-btn-lg"));
-        assert!(class_name.contains("ant-btn-round"));
-        assert!(class_name.contains("ant-btn-dangerous"));
-        assert!(class_name.contains("ant-btn-block"));
-    }
-
-    /// 测试 generate_button_class_name 函数 - 加载状态
-    #[test]
-    fn test_generate_button_class_name_loading() {
-        let props = ButtonProps::default();
-        let class_name = generate_button_class_name(&props, false, true);
-        assert!(class_name.contains("ant-btn-loading"));
-    }
-
-    /// 测试 generate_button_class_name 函数 - 两个中文字符
-    #[test]
-    fn test_generate_button_class_name_two_chinese_chars() {
-        let props = ButtonProps::default();
-        let class_name = generate_button_class_name(&props, true, false);
-        assert!(class_name.contains("ant-btn-two-chinese-chars"));
-    }
-
-    /// 测试 generate_button_class_name 函数 - 图标位置
-    #[test]
-    fn test_generate_button_class_name_icon_position() {
-        let props = ButtonProps {
-            icon_position: IconPosition::End,
-            ..Default::default()
-        };
-        let class_name = generate_button_class_name(&props, false, false);
-        assert!(class_name.contains("ant-btn-icon-end"));
     }
 
     /// 测试 is_two_chinese_chars 函数

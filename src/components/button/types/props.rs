@@ -1,3 +1,4 @@
+//! Button component props and types
 use dioxus::prelude::*;
 use std::borrow::Cow;
 
@@ -264,7 +265,7 @@ impl Default for ButtonProps {
             auto_insert_space: true,
             aria_label: None,
             aria_describedby: None,
-            children: VNode::empty(),
+            children: rsx! {},
         }
     }
 }

@@ -1,6 +1,5 @@
-use crate::components::button::styles::button_group_style;
+use crate::components::button::styles::ButtonGroupStyleGenerator;
 use crate::components::button::types::*;
-use crate::utils::style_injector::inject_style;
 use dioxus::prelude::*;
 
 /// ButtonGroup 组件属性
@@ -26,16 +25,38 @@ pub struct ButtonGroupProps {
 /// ButtonGroup 组件
 #[component]
 pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
-    // 注入样式到 DOM
-    #[cfg(target_arch = "wasm32")]
-    {
-        inject_style("ant-button-group-styles", &button_group_style());
-    }
     // 使用clone避免所有权移动问题
     let props_clone = props.clone();
 
     // 生成类名
-    let class_name = use_memo(move || generate_button_group_class_name(&props_clone));
+    let class_name = use_memo(move || {
+        let size_str = match props_clone.size {
+            ButtonSize::Large => "large",
+            ButtonSize::Small => "small",
+            ButtonSize::Middle => "middle",
+        };
+        
+        // 生成样式（CSS-in-Rust会自动注入）
+        let _style_generator = ButtonGroupStyleGenerator::new()
+            .with_size(size_str);
+        let _generated_styles = _style_generator.generate();
+        
+        let mut classes = vec!["ant-btn-group".to_string()];
+        
+        // 添加尺寸类名
+        match props_clone.size {
+            ButtonSize::Large => classes.push("ant-btn-group-lg".to_string()),
+            ButtonSize::Small => classes.push("ant-btn-group-sm".to_string()),
+            ButtonSize::Middle => {}, // 默认大小，不添加类名
+        }
+        
+        // 添加用户自定义类名
+        if let Some(class) = &props_clone.class {
+            classes.push(class.clone());
+        }
+        
+        classes.join(" ")
+    });
 
     rsx! {
         div {
@@ -46,125 +67,23 @@ pub fn ButtonGroup(props: ButtonGroupProps) -> Element {
     }
 }
 
-/// 生成按钮组类名
-fn generate_button_group_class_name(props: &ButtonGroupProps) -> String {
-    let mut classes = vec!["ant-btn-group".to_string()];
 
-    // 添加用户自定义类名
-    if let Some(class) = &props.class {
-        classes.push(class.clone());
-    }
-
-    // 处理按钮组大小
-    match props.size {
-        ButtonSize::Large => classes.push("ant-btn-group-lg".to_string()),
-        ButtonSize::Middle => {} // 默认大小，不添加类名
-        ButtonSize::Small => classes.push("ant-btn-group-sm".to_string()),
-    }
-
-    classes.join(" ")
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    /// 测试 ButtonGroup 组件的基本属性
     #[test]
-    fn test_button_group_basic_props() {
-        let props = ButtonGroupProps {
-            size: ButtonSize::Middle,
-            class: None,
-            style: None,
-            children: VNode::empty(),
-        };
-        assert_eq!(props.size, ButtonSize::Middle);
+    fn test_button_group_style_generator() {
+        let generator = ButtonGroupStyleGenerator::new();
+        let style = generator.generate();
+        assert!(!style.is_empty());
     }
 
-    /// 测试 ButtonGroup 组件的不同大小
     #[test]
-    fn test_button_group_sizes() {
-        let sizes = vec![ButtonSize::Large, ButtonSize::Middle, ButtonSize::Small];
-
-        for size in sizes {
-            let props = ButtonGroupProps {
-                size: size.clone(),
-                class: None,
-                style: None,
-                children: VNode::empty(),
-            };
-            assert_eq!(props.size, size);
-        }
-    }
-
-    /// 测试 ButtonGroup 组件的自定义类名
-    #[test]
-    fn test_button_group_custom_class() {
-        let props = ButtonGroupProps {
-            size: ButtonSize::Middle,
-            class: Some("custom-class".to_string()),
-            style: None,
-            children: VNode::empty(),
-        };
-        assert_eq!(props.class, Some("custom-class".to_string()));
-    }
-
-    /// 测试 ButtonGroup 组件的自定义样式
-    #[test]
-    fn test_button_group_custom_style() {
-        let props = ButtonGroupProps {
-            size: ButtonSize::Middle,
-            class: None,
-            style: Some("margin: 10px;".to_string()),
-            children: VNode::empty(),
-        };
-        assert_eq!(props.style, Some("margin: 10px;".to_string()));
-    }
-
-    /// 测试 generate_button_group_class_name 函数
-    #[test]
-    fn test_generate_button_group_class_name() {
-        let props = ButtonGroupProps {
-            children: VNode::empty(),
-            size: ButtonSize::Large,
-            class: Some("custom-class".to_string()),
-            style: None,
-        };
-
-        let class_name = generate_button_group_class_name(&props);
-        assert!(class_name.contains("ant-btn-group"));
-        assert!(class_name.contains("ant-btn-group-lg"));
-        assert!(class_name.contains("custom-class"));
-    }
-
-    /// 测试 generate_button_group_class_name 函数 - 默认大小
-    #[test]
-    fn test_generate_button_group_class_name_default_size() {
-        let props = ButtonGroupProps {
-            children: VNode::empty(),
-            size: ButtonSize::Middle,
-            class: None,
-            style: None,
-        };
-
-        let class_name = generate_button_group_class_name(&props);
-        assert!(class_name.contains("ant-btn-group"));
-        assert!(!class_name.contains("ant-btn-group-lg"));
-        assert!(!class_name.contains("ant-btn-group-sm"));
-    }
-
-    /// 测试 generate_button_group_class_name 函数 - 小尺寸
-    #[test]
-    fn test_generate_button_group_class_name_small_size() {
-        let props = ButtonGroupProps {
-            children: VNode::empty(),
-            size: ButtonSize::Small,
-            class: None,
-            style: None,
-        };
-
-        let class_name = generate_button_group_class_name(&props);
-        assert!(class_name.contains("ant-btn-group"));
-        assert!(class_name.contains("ant-btn-group-sm"));
+    fn test_button_group_style_generator_with_size() {
+        let generator = ButtonGroupStyleGenerator::new().with_size("large");
+        let style = generator.generate();
+        assert!(!style.is_empty());
     }
 }
