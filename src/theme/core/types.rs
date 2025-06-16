@@ -31,32 +31,8 @@ impl std::fmt::Display for Size {
     }
 }
 
-/// 颜色类型
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ColorType {
-    /// 主色
-    Primary,
-    /// 成功色
-    Success,
-    /// 警告色
-    Warning,
-    /// 错误色
-    Error,
-    /// 信息色
-    Info,
-}
-
-impl std::fmt::Display for ColorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ColorType::Primary => write!(f, "primary"),
-            ColorType::Success => write!(f, "success"),
-            ColorType::Warning => write!(f, "warning"),
-            ColorType::Error => write!(f, "error"),
-            ColorType::Info => write!(f, "info"),
-        }
-    }
-}
+// ColorType 已移至 color.rs 模块，此处重新导出
+pub use super::color::ColorType;
 
 /// 种子令牌
 ///

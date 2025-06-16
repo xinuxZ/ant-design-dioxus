@@ -29,6 +29,9 @@ pub fn generate_color_palette(base_color: &str, color_type: ColorType) -> Vec<St
         ColorType::Error => color_utils::generate_ant_palette(base_color)
             .unwrap_or_else(|_| fallback_palette(base_color, color_type)),
         ColorType::Info => generate_color_palette(base_color, ColorType::Primary),
+        ColorType::Default => color_utils::generate_ant_palette(base_color)
+            .unwrap_or_else(|_| fallback_palette(base_color, color_type)),
+        ColorType::Link => generate_color_palette(base_color, ColorType::Primary),
     }
 }
 
@@ -84,6 +87,19 @@ fn fallback_palette(base_color: &str, color_type: ColorType) -> Vec<String> {
             "#5c0011".to_string(),
         ],
         ColorType::Info => generate_color_palette(base_color, ColorType::Primary),
+        ColorType::Default => vec![
+            "#f5f5f5".to_string(),
+            "#e8e8e8".to_string(),
+            "#d9d9d9".to_string(),
+            "#bfbfbf".to_string(),
+            "#8c8c8c".to_string(),
+            base_color.to_string(),
+            "#595959".to_string(),
+            "#434343".to_string(),
+            "#262626".to_string(),
+            "#1f1f1f".to_string(),
+        ],
+        ColorType::Link => generate_color_palette(base_color, ColorType::Primary),
     }
 }
 

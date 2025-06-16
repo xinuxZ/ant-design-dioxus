@@ -3,11 +3,10 @@
 //! 提供基于泛型的主题引擎实现，支持不同的颜色配置系统
 
 use super::{
-    config::{DesignTokens, ThemeConfigInterface},
-    motion::{AnimationConfig, Duration},
-    types::{Size, SpaceSize},
-    ColorConfig, ColorPalette, ColorType, Easing, RgbColor,
+    color::{ColorConfig, ColorPalette, ColorType, RgbColor},
+    types::Size,
 };
+use crate::components::space::types::SpaceSize;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::marker::PhantomData;
@@ -162,61 +161,31 @@ where
     }
 }
 
-impl<C> DesignTokens for GenericThemeEngine<C>
+impl<C> GenericThemeEngine<C>
 where
     C: ColorConfig + Clone + PartialEq,
 {
-    fn get_color(&self, color_type: ColorType) -> Option<RgbColor> {
-        self.colors.get_color(color_type)
-    }
-
-    fn get_size(&self, _size: Size) -> Option<u32> {
+    /// 获取尺寸值
+    pub fn get_size(&self, _size: Size) -> Option<u32> {
         // 这里需要实现尺寸获取逻辑
         // 由于我们没有实现通用的尺寸系统，暂时返回默认值
         Some(8)
     }
 
-    fn get_space(&self, space: SpaceSize) -> Option<u32> {
+    /// 获取间距值
+    pub fn get_space(&self, space: SpaceSize) -> Option<u32> {
         // 这里需要实现间距获取逻辑
         // 由于我们没有实现通用的间距系统，暂时返回默认值
         match space {
-            SpaceSize::XSmall => Some(4),
             SpaceSize::Small => Some(8),
-            SpaceSize::Medium => Some(16),
+            SpaceSize::Middle => Some(16),
             SpaceSize::Large => Some(24),
-            SpaceSize::XLarge => Some(32),
-            SpaceSize::XXLarge => Some(48),
+            SpaceSize::Custom(value) => Some(value),
         }
     }
 
-    fn get_duration(&self, duration: Duration) -> Option<u32> {
-        // 这里需要实现动画持续时间获取逻辑
-        // 由于我们没有实现通用的动画系统，暂时返回默认值
-        match duration {
-            Duration::Shortest => Some(100),
-            Duration::Shorter => Some(200),
-            Duration::Short => Some(300),
-            Duration::Standard => Some(400),
-            Duration::Long => Some(500),
-            Duration::Longer => Some(600),
-            Duration::Longest => Some(800),
-        }
-    }
-
-    fn get_easing(&self, easing: &Easing) -> Option<String> {
-        // 这里需要实现缓动函数获取逻辑
-        // 由于我们没有实现通用的动画系统，暂时返回默认值
-        match easing {
-            Easing::Linear => Some("linear".to_string()),
-            Easing::EaseIn => Some("cubic-bezier(0.4, 0, 1, 1)".to_string()),
-            Easing::EaseOut => Some("cubic-bezier(0, 0, 0.2, 1)".to_string()),
-            Easing::EaseInOut => Some("cubic-bezier(0.4, 0, 0.2, 1)".to_string()),
-            Easing::Sharp => Some("cubic-bezier(0.4, 0, 0.6, 1)".to_string()),
-            Easing::Custom(_) => Some("cubic-bezier(0.4, 0, 0.2, 1)".to_string()),
-        }
-    }
-
-    fn to_css_variables(&self) -> HashMap<String, String> {
+    /// 生成 CSS 变量
+    pub fn to_css_variables(&self) -> HashMap<String, String> {
         // 合并各个子模块的 CSS 变量
         let mut variables = HashMap::new();
 
@@ -243,15 +212,17 @@ where
     }
 }
 
-impl<C> ThemeConfigInterface for GenericThemeEngine<C>
+impl<C> GenericThemeEngine<C>
 where
     C: ColorConfig + Clone + PartialEq,
 {
-    fn name(&self) -> &str {
+    /// 获取主题名称
+    pub fn name(&self) -> &str {
         &self.name
     }
 
-    fn variant(&self) -> &str {
+    /// 获取主题变体
+    pub fn variant(&self) -> &str {
         if self.dark {
             "dark"
         } else {
@@ -259,15 +230,18 @@ where
         }
     }
 
-    fn is_dark(&self) -> bool {
+    /// 是否为暗色主题
+    pub fn is_dark(&self) -> bool {
         self.dark
     }
 
-    fn generate_css_variables(&self) -> HashMap<String, String> {
+    /// 生成CSS变量
+    pub fn generate_css_variables(&self) -> HashMap<String, String> {
         self.to_css_variables()
     }
 
-    fn generate_css(&self) -> String {
+    /// 生成CSS
+    pub fn generate_css(&self) -> String {
         let mut css = String::new();
 
         // 生成 CSS 变量
@@ -288,7 +262,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::theme::ant_design::AntDesignColors;
+    use crate::theme::ant_design::colors::AntDesignColors;
 
     #[test]
     fn test_generic_theme_with_ant_design_colors() {

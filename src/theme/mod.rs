@@ -27,8 +27,8 @@ pub use css_in_rust::theme_bridge::ThemeBridge as CssThemeBridge;
 // 导出适配器模块
 pub mod adapter;
 pub use adapter::{
-    DioxusAdapter, StyleInjector, ThemeProviderAdapter, SsrSupport,
-    frameworks::DioxusAdapter as FrameworkDioxusAdapter,
+    frameworks::DioxusAdapter as FrameworkDioxusAdapter, DioxusAdapter, SsrSupport, StyleInjector,
+    ThemeProviderAdapter,
 };
 
 // 统一主题类型定义 - 直接使用 css-in-rust 中的类型
@@ -78,6 +78,7 @@ impl From<AntThemeType> for ThemeVariant {
 
 // 主题模块
 pub mod algorithm;
+pub mod ant_design;
 pub mod color_utils;
 pub mod core;
 pub mod css_vars;
