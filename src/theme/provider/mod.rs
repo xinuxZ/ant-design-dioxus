@@ -2,7 +2,7 @@
 //!
 //! 提供主题上下文和组件，用于在应用中注入和管理主题
 
-use css_in_rust::theme_bridge::ThemeBridge;
+use css_in_rust::{theme::ThemeVariant, theme_bridge::ThemeBridge};
 use dioxus::prelude::*;
 use std::sync::Arc;
 
@@ -82,10 +82,10 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
         // 根据主题类型应用不同的算法
         // TODO: 重新启用 css-in-rust 依赖后取消注释
         match config.theme.mode {
-            css_in_rust::theme::theme_types::ThemeMode::Light => {
+            ThemeVariant::Light => {
                 map = super::algorithm::light_algorithm(&seed);
             }
-            css_in_rust::theme::theme_types::ThemeMode::Dark => {
+            ThemeVariant::Dark => {
                 map = super::algorithm::dark_algorithm(&seed);
             }
             _ => {
@@ -133,10 +133,10 @@ pub fn ThemeProvider(props: ThemeProviderProps) -> Element {
                 // 根据主题类型应用不同的算法
                 // TODO: 重新启用 css-in-rust 依赖后取消注释
                 match config.theme.mode {
-                    css_in_rust::theme::theme_types::ThemeMode::Light => {
+                    ThemeVariant::Light => {
                         map = super::algorithm::light_algorithm(&seed);
                     }
-                    css_in_rust::theme::theme_types::ThemeMode::Dark => {
+                    ThemeVariant::Dark => {
                         map = super::algorithm::dark_algorithm(&seed);
                     }
                     _ => {

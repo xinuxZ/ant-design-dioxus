@@ -12,20 +12,24 @@ pub use css_in_rust::theme::{
         css::{variables::CssVariableManager, CssGenerator},
         manager::ThemeManager,
         token::{
-            definitions::{ColorValue, DimensionValue, ThemeVariant, TokenValue},
+            definitions::{ColorValue, DimensionValue, TokenValue},
             resolver::TokenResolver,
             simple_system::TokenSystem,
         },
     },
-    theme_types::{Theme as CssTheme, ThemeMode},
+    theme_types::Theme as CssTheme,
+    ThemeVariant,
 };
 
 // 导出桥接器
 pub use css_in_rust::theme_bridge::ThemeBridge as CssThemeBridge;
 
-/// 主题类型
+// 统一主题类型定义 - 直接使用 css-in-rust 中的类型
+// pub use css_in_rust::theme::ThemeVariant as Theme;
+
+/// Ant Design 特有的主题算法类型
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
-pub enum Theme {
+pub enum AntThemeType {
     /// 亮色主题
     Light,
     /// 暗色主题
@@ -36,9 +40,32 @@ pub enum Theme {
     Custom,
 }
 
-impl Default for Theme {
+impl Default for AntThemeType {
     fn default() -> Self {
         Self::Light
+    }
+}
+
+/// 从 ThemeVariant 转换为 AntThemeType
+impl From<ThemeVariant> for AntThemeType {
+    fn from(variant: ThemeVariant) -> Self {
+        match variant {
+            ThemeVariant::Light => AntThemeType::Light,
+            ThemeVariant::Dark => AntThemeType::Dark,
+            ThemeVariant::Auto => AntThemeType::Light, // Auto 默认为 Light
+        }
+    }
+}
+
+/// 从 AntThemeType 转换为 ThemeVariant
+impl From<AntThemeType> for ThemeVariant {
+    fn from(ant_type: AntThemeType) -> Self {
+        match ant_type {
+            AntThemeType::Light => ThemeVariant::Light,
+            AntThemeType::Dark => ThemeVariant::Dark,
+            AntThemeType::Compact => ThemeVariant::Light, // Compact 映射为 Light
+            AntThemeType::Custom => ThemeVariant::Auto,   // Custom 映射为 Auto
+        }
     }
 }
 
@@ -70,7 +97,7 @@ pub struct ThemeConfig {
     /// 主题对象
     pub theme: CssTheme,
     /// 当前主题类型
-    pub theme_type: Theme,
+    pub theme_type: AntThemeType,
     /// 是否启用紧凑模式
     pub compact: bool,
     /// 主题令牌
@@ -98,7 +125,7 @@ impl Default for ThemeConfig {
     fn default() -> Self {
         Self {
             theme: CssTheme::default(),
-            theme_type: Theme::Light,
+            theme_type: AntThemeType::Light,
             compact: false,
             token: HashMap::new(),
             components: HashMap::new(),
@@ -129,21 +156,25 @@ impl ThemeConfig {
     }
 
     /// 设置主题
-    pub fn theme(mut self, theme: Theme) -> Self {
+    pub fn theme(mut self, theme: AntThemeType) -> Self {
         match theme {
-            Theme::Light => {
-                self.theme.mode = ThemeMode::Light;
+            AntThemeType::Light => {
+                self.theme.mode = ThemeVariant::Light;
+                self.theme_type = AntThemeType::Light;
                 self.compact = false;
             }
-            Theme::Dark => {
-                self.theme.mode = ThemeMode::Dark;
+            AntThemeType::Dark => {
+                self.theme.mode = ThemeVariant::Dark;
+                self.theme_type = AntThemeType::Dark;
                 self.compact = false;
             }
-            Theme::Compact => {
-                self.theme.mode = ThemeMode::Light;
+            AntThemeType::Compact => {
+                self.theme.mode = ThemeVariant::Light;
+                self.theme_type = AntThemeType::Compact;
                 self.compact = true;
             }
-            Theme::Custom => {
+            AntThemeType::Custom => {
+                self.theme_type = AntThemeType::Custom;
                 // 不做特殊处理，保持当前设置
             }
         }
@@ -211,10 +242,18 @@ impl ThemeConfig {
     /// 创建亮色主题配置
     pub fn light() -> Self {
         let mut theme = CssTheme::default();
-        theme.mode = ThemeMode::Light;
+        theme.mode = ThemeVariant::Light;
         Self {
-            theme,
-            theme_type: Theme::Light,
+            theme: CssTheme {
+                name: "dark".to_string(),
+                mode: ThemeVariant::Dark,
+                token_system: TokenSystem {
+                    variant: ThemeVariant::Dark,
+                    variables: create_dark_variables(),
+                },
+                custom_variables: HashMap::new(),
+            },
+            theme_type: AntThemeType::Light,
             compact: false,
             token: HashMap::new(),
             components: HashMap::new(),
@@ -225,10 +264,18 @@ impl ThemeConfig {
     /// 创建暗色主题配置
     pub fn dark() -> Self {
         let mut theme = CssTheme::default();
-        theme.mode = ThemeMode::Dark;
+        theme.mode = ThemeVariant::Dark;
         Self {
-            theme,
-            theme_type: Theme::Dark,
+            theme: CssTheme {
+                name: "dark".to_string(),
+                mode: ThemeVariant::Dark,
+                token_system: TokenSystem {
+                    variant: ThemeVariant::Dark,
+                    variables: create_dark_variables(),
+                },
+                custom_variables: HashMap::new(),
+            },
+            theme_type: AntThemeType::Dark,
             compact: false,
             token: HashMap::new(),
             components: HashMap::new(),
