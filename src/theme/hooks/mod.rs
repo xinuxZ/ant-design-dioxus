@@ -66,8 +66,8 @@ pub fn use_current_theme() -> Option<Theme> {
 /// // 切换暗色模式
 /// toggle_dark();
 /// ```
-pub fn use_dark_mode() -> (bool, Rc<dyn Fn()>) {
-    let adapter = use_theme_adapter();
+pub fn use_dark_mode() -> (bool, impl Fn()) {
+    let mut adapter = use_theme_adapter();
 
     let is_dark = {
         let adapter_ref = adapter.read();
@@ -77,17 +77,13 @@ pub fn use_dark_mode() -> (bool, Rc<dyn Fn()>) {
             .unwrap_or(false)
     };
 
-    let toggle = {
-        let adapter_clone = adapter.clone();
-        Rc::new(move || {
-            // 使用 spawn 来异步执行可变操作
-            let mut adapter = adapter_clone.clone();
-            spawn(async move {
-                adapter.with_mut(|adapter_ref| {
-                    adapter_ref.toggle_theme();
-                });
+    let toggle = move || {
+        // 使用 spawn 来异步执行可变操作
+        spawn(async move {
+            adapter.with_mut(|adapter_ref| {
+                adapter_ref.toggle_theme();
             });
-        }) as Rc<dyn Fn()>
+        });
     };
 
     (is_dark, toggle)
@@ -107,15 +103,15 @@ pub fn use_dark_mode() -> (bool, Rc<dyn Fn()>) {
 /// // 切换紧凑模式
 /// toggle_compact();
 /// ```
-pub fn use_compact_mode() -> (bool, Rc<dyn Fn()>) {
+pub fn use_compact_mode() -> (bool, impl Fn()) {
     let theme_context = use_theme();
 
     let is_compact = theme_context.config.theme_type == crate::theme::AntThemeType::Compact;
 
-    let toggle = Rc::new(move || {
+    let toggle = move || {
         // TODO: 实现紧凑模式切换逻辑
         // 这里需要通过 theme_context 来切换紧凑模式
-    }) as Rc<dyn Fn()>;
+    };
 
     (is_compact, toggle)
 }
@@ -134,18 +130,17 @@ pub fn use_compact_mode() -> (bool, Rc<dyn Fn()>) {
 /// // 切换主题
 /// toggle_theme();
 /// ```
-pub fn use_theme_toggle() -> Rc<dyn Fn()> {
-    let adapter = use_theme_adapter();
+pub fn use_theme_toggle() -> impl Fn() {
+    let mut adapter = use_theme_adapter();
 
-    Rc::new(move || {
+    move || {
         // 使用 spawn 来异步执行可变操作
-        let mut adapter = adapter.clone();
         spawn(async move {
             adapter.with_mut(|adapter_ref| {
                 adapter_ref.toggle_theme();
             });
         });
-    }) as Rc<dyn Fn()>
+    }
 }
 
 /// 组件样式的 Hook
