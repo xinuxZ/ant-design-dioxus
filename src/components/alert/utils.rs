@@ -12,106 +12,6 @@ use crate::components::alert::types::*;
 pub struct AlertUtils;
 
 impl AlertUtils {
-    /// 生成Alert的CSS类名
-    pub fn generate_class_names(props: &AlertProps, state: &AlertState) -> String {
-        let mut classes = vec!["ant-alert"];
-
-        // 添加类型相关的类名
-        classes.push(props.alert_type.get_css_class());
-
-        // 添加尺寸相关的类名
-        match props.size {
-            AlertSize::Small => classes.push("ant-alert-small"),
-            AlertSize::Default => {} // 默认尺寸不需要额外类名
-            AlertSize::Large => classes.push("ant-alert-large"),
-        }
-
-        // 添加状态相关的类名
-        if props.closable {
-            classes.push("ant-alert-closable");
-        }
-
-        if props.show_icon {
-            classes.push("ant-alert-with-icon");
-        }
-
-        if props.description.is_some() {
-            classes.push("ant-alert-with-description");
-        }
-
-        if props.banner {
-            classes.push("ant-alert-banner");
-        }
-
-        if !props.show_border {
-            classes.push("ant-alert-no-border");
-        }
-
-        if !state.visible {
-            classes.push("ant-alert-hidden");
-        }
-
-        if state.closing {
-            classes.push("ant-alert-closing");
-        }
-
-        // 添加动画状态类名
-        match state.animation_state {
-            AnimationState::Entering => classes.push("ant-alert-entering"),
-            AnimationState::Entered => classes.push("ant-alert-entered"),
-            AnimationState::Exiting => classes.push("ant-alert-exiting"),
-            AnimationState::Exited => classes.push("ant-alert-exited"),
-            _ => {}
-        }
-
-        // 添加自定义类名
-        if let Some(ref custom_class) = props.class_name {
-            classes.push(custom_class);
-        }
-
-        classes.join(" ")
-    }
-
-    /// 生成Alert的内联样式
-    pub fn generate_inline_styles(props: &AlertProps) -> String {
-        let mut styles = Vec::new();
-
-        // 添加自定义颜色
-        if let Some(ref color) = props.color {
-            styles.push(format!("color: {}", color));
-        }
-
-        // 添加自定义背景色
-        if let Some(ref bg_color) = props.background_color {
-            styles.push(format!("background-color: {}", bg_color));
-        }
-
-        // 添加自定义边框颜色
-        if let Some(ref border_color) = props.border_color {
-            styles.push(format!("border-color: {}", border_color));
-        }
-
-        // 添加自定义圆角
-        if let Some(ref border_radius) = props.border_radius {
-            styles.push(format!("border-radius: {}", border_radius));
-        }
-
-        // 添加动画持续时间
-        if props.enable_animation {
-            styles.push(format!(
-                "transition-duration: {}ms",
-                props.animation_duration
-            ));
-        }
-
-        // 添加自定义样式
-        if let Some(ref custom_style) = props.style {
-            styles.push(custom_style.clone());
-        }
-
-        styles.join("; ")
-    }
-
     /// 获取Alert的默认图标
     pub fn get_default_icon(alert_type: &AlertType) -> &'static str {
         alert_type.get_icon_name()
@@ -205,229 +105,248 @@ impl AlertUtils {
         }
     }
 
-    /// 验证颜色格式
+    /// 检查颜色格式是否有效
     fn is_valid_color(color: &str) -> bool {
-        // 简单的颜色格式验证
-        color.starts_with('#') && color.len() >= 4
-            || color.starts_with("rgb")
-            || color.starts_with("rgba")
-            || color.starts_with("hsl")
-            || color.starts_with("hsla")
-            || Self::is_named_color(color)
-    }
-
-    /// 检查是否为命名颜色
-    fn is_named_color(color: &str) -> bool {
-        matches!(
-            color.to_lowercase().as_str(),
-            "red"
-                | "green"
-                | "blue"
-                | "yellow"
-                | "orange"
-                | "purple"
-                | "pink"
-                | "brown"
-                | "black"
-                | "white"
-                | "gray"
-                | "grey"
-                | "transparent"
-                | "inherit"
-                | "initial"
-                | "unset"
-                | "currentcolor"
-        )
-    }
-
-    /// 创建关闭动画
-    pub fn create_close_animation(duration: u32) -> String {
-        format!(
-            "@keyframes ant-alert-close {{
-                0% {{
-                    opacity: 1;
-                    transform: scaleY(1);
-                    max-height: 200px;
-                }}
-                100% {{
-                    opacity: 0;
-                    transform: scaleY(0);
-                    max-height: 0;
-                    padding: 0;
-                    margin: 0;
-                }}
-            }}
-            .ant-alert-closing {{
-                animation: ant-alert-close {}ms ease-out forwards;
-            }}",
-            duration
-        )
-    }
-
-    /// 创建进入动画
-    pub fn create_enter_animation(duration: u32) -> String {
-        format!(
-            "@keyframes ant-alert-enter {{
-                0% {{
-                    opacity: 0;
-                    transform: scaleY(0);
-                    max-height: 0;
-                }}
-                100% {{
-                    opacity: 1;
-                    transform: scaleY(1);
-                    max-height: 200px;
-                }}
-            }}
-            .ant-alert-entering {{
-                animation: ant-alert-enter {}ms ease-out forwards;
-            }}",
-            duration
-        )
-    }
-
-    /// 获取响应式断点
-    pub fn get_responsive_breakpoints() -> HashMap<&'static str, u32> {
-        let mut breakpoints = HashMap::new();
-        breakpoints.insert("xs", 480);
-        breakpoints.insert("sm", 576);
-        breakpoints.insert("md", 768);
-        breakpoints.insert("lg", 992);
-        breakpoints.insert("xl", 1200);
-        breakpoints.insert("xxl", 1600);
-        breakpoints
-    }
-
-    /// 检查是否为移动设备
-    pub fn is_mobile_device() -> bool {
-        if let Some(window) = window() {
-            if let Ok(width) = window.inner_width() {
-                if let Some(width_num) = width.as_f64() {
-                    return width_num < 768.0;
-                }
-            }
+        // 检查是否是命名颜色
+        if Self::is_named_color(color) {
+            return true;
         }
+
+        // 检查是否是十六进制颜色
+        if color.starts_with('#') && (color.len() == 4 || color.len() == 7 || color.len() == 9) {
+            return true;
+        }
+
+        // 检查是否是RGB/RGBA颜色
+        if color.starts_with("rgb(") || color.starts_with("rgba(") {
+            return true;
+        }
+
+        // 检查是否是HSL/HSLA颜色
+        if color.starts_with("hsl(") || color.starts_with("hsla(") {
+            return true;
+        }
+
         false
     }
 
-    /// 获取设备类型
-    pub fn get_device_type() -> DeviceType {
-        if let Some(window) = window() {
-            if let Ok(width) = window.inner_width() {
-                if let Some(width_num) = width.as_f64() {
-                    return match width_num as u32 {
-                        0..=575 => DeviceType::Mobile,
-                        576..=767 => DeviceType::Tablet,
-                        768..=991 => DeviceType::Desktop,
-                        _ => DeviceType::LargeDesktop,
-                    };
-                }
-            }
-        }
-        DeviceType::Desktop
+    /// 检查是否是命名颜色
+    fn is_named_color(color: &str) -> bool {
+        let named_colors = [
+            "black",
+            "silver",
+            "gray",
+            "white",
+            "maroon",
+            "red",
+            "purple",
+            "fuchsia",
+            "green",
+            "lime",
+            "olive",
+            "yellow",
+            "navy",
+            "blue",
+            "teal",
+            "aqua",
+            "orange",
+            "aliceblue",
+            "antiquewhite",
+            "aquamarine",
+            "azure",
+            "beige",
+            "bisque",
+            "blanchedalmond",
+            "blueviolet",
+            "brown",
+            "burlywood",
+            "cadetblue",
+            "chartreuse",
+            "chocolate",
+            "coral",
+            "cornflowerblue",
+            "cornsilk",
+            "crimson",
+            "cyan",
+            "darkblue",
+            "darkcyan",
+            "darkgoldenrod",
+            "darkgray",
+            "darkgreen",
+            "darkgrey",
+            "darkkhaki",
+            "darkmagenta",
+            "darkolivegreen",
+            "darkorange",
+            "darkorchid",
+            "darkred",
+            "darksalmon",
+            "darkseagreen",
+            "darkslateblue",
+            "darkslategray",
+            "darkslategrey",
+            "darkturquoise",
+            "darkviolet",
+            "deeppink",
+            "deepskyblue",
+            "dimgray",
+            "dimgrey",
+            "dodgerblue",
+            "firebrick",
+            "floralwhite",
+            "forestgreen",
+            "gainsboro",
+            "ghostwhite",
+            "gold",
+            "goldenrod",
+            "greenyellow",
+            "grey",
+            "honeydew",
+            "hotpink",
+            "indianred",
+            "indigo",
+            "ivory",
+            "khaki",
+            "lavender",
+            "lavenderblush",
+            "lawngreen",
+            "lemonchiffon",
+            "lightblue",
+            "lightcoral",
+            "lightcyan",
+            "lightgoldenrodyellow",
+            "lightgray",
+            "lightgreen",
+            "lightgrey",
+            "lightpink",
+            "lightsalmon",
+            "lightseagreen",
+            "lightskyblue",
+            "lightslategray",
+            "lightslategrey",
+            "lightsteelblue",
+            "lightyellow",
+            "limegreen",
+            "linen",
+            "magenta",
+            "mediumaquamarine",
+            "mediumblue",
+            "mediumorchid",
+            "mediumpurple",
+            "mediumseagreen",
+            "mediumslateblue",
+            "mediumspringgreen",
+            "mediumturquoise",
+            "mediumvioletred",
+            "midnightblue",
+            "mintcream",
+            "mistyrose",
+            "moccasin",
+            "navajowhite",
+            "oldlace",
+            "olivedrab",
+            "orangered",
+            "orchid",
+            "palegoldenrod",
+            "palegreen",
+            "paleturquoise",
+            "palevioletred",
+            "papayawhip",
+            "peachpuff",
+            "peru",
+            "pink",
+            "plum",
+            "powderblue",
+            "rosybrown",
+            "royalblue",
+            "saddlebrown",
+            "salmon",
+            "sandybrown",
+            "seagreen",
+            "seashell",
+            "sienna",
+            "skyblue",
+            "slateblue",
+            "slategray",
+            "slategrey",
+            "snow",
+            "springgreen",
+            "steelblue",
+            "tan",
+            "thistle",
+            "tomato",
+            "turquoise",
+            "violet",
+            "wheat",
+            "whitesmoke",
+            "yellowgreen",
+            "rebeccapurple",
+        ];
+
+        named_colors.contains(&color.to_lowercase().as_str())
     }
 
     /// 生成唯一ID
     pub fn generate_unique_id() -> String {
+        // 使用时间戳和简单的伪随机数生成唯一ID
         use std::time::{SystemTime, UNIX_EPOCH};
+
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .unwrap_or_default()
             .as_millis();
-        format!("ant-alert-{}", timestamp)
+
+        // 简单的伪随机数生成
+        let random_chars = Self::simple_random_chars(8);
+
+        format!("alert-{}-{}", timestamp, random_chars)
     }
 
-    /// 防抖函数
-    pub fn debounce<F>(func: F, delay: u32) -> impl Fn()
-    where
-        F: Fn() + 'static,
-    {
-        use std::sync::{Arc, Mutex};
-        use std::time::{Duration, Instant};
+    /// 生成简单的随机字符串
+    fn simple_random_chars(len: usize) -> String {
+        let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_nanos();
 
-        let last_call = Arc::new(Mutex::new(None::<Instant>));
-        let func = Arc::new(func);
+        let mut result = String::with_capacity(len);
+        let mut seed = timestamp;
 
-        move || {
-            let now = Instant::now();
-            let mut last = last_call.lock().unwrap();
-
-            if let Some(last_time) = *last {
-                if now.duration_since(last_time) < Duration::from_millis(delay as u64) {
-                    return;
-                }
-            }
-
-            *last = Some(now);
-            func();
+        for _ in 0..len {
+            // 简单的线性同余伪随机数生成
+            seed = (seed * 6364136223846793005 + 1) % u128::MAX;
+            let index = (seed % chars.len() as u128) as usize;
+            result.push(chars.chars().nth(index).unwrap_or('a'));
         }
-    }
 
-    /// 节流函数
-    pub fn throttle<F>(func: F, delay: u32) -> impl Fn()
-    where
-        F: Fn() + 'static,
-    {
-        use std::sync::{Arc, Mutex};
-        use std::time::{Duration, Instant};
-
-        let last_call = Arc::new(Mutex::new(None::<Instant>));
-        let func = Arc::new(func);
-
-        move || {
-            let now = Instant::now();
-            let mut last = last_call.lock().unwrap();
-
-            if let Some(last_time) = *last {
-                if now.duration_since(last_time) < Duration::from_millis(delay as u64) {
-                    return;
-                }
-            }
-
-            *last = Some(now);
-            func();
-        }
-    }
-
-    /// 深度合并配置
-    pub fn deep_merge_config(base: AlertConfig, override_config: AlertConfig) -> AlertConfig {
-        AlertConfig {
-            enable_animation: override_config.enable_animation,
-            animation_duration: override_config.animation_duration,
-            default_show_icon: override_config.default_show_icon,
-            default_closable: override_config.default_closable,
-            default_theme: merge_alert_theme(&base.default_theme, &override_config.default_theme),
-            default_size: override_config.default_size,
-            enable_keyboard_navigation: override_config.enable_keyboard_navigation,
-            enable_accessibility: override_config.enable_accessibility,
-            css_prefix: if override_config.css_prefix.is_empty() {
-                base.css_prefix
-            } else {
-                override_config.css_prefix
-            },
-            enable_rtl: override_config.enable_rtl,
-        }
+        result
     }
 
     /// 格式化错误消息
     pub fn format_error_message(errors: &[String]) -> String {
         if errors.is_empty() {
-            return String::new();
+            return "Unknown error".to_string();
         }
 
         if errors.len() == 1 {
             return errors[0].clone();
         }
 
-        format!("Multiple errors: {}", errors.join(", "))
+        let mut message = String::from("Multiple errors:\n");
+        for (i, error) in errors.iter().enumerate() {
+            message.push_str(&format!("{}. {}\n", i + 1, error));
+        }
+
+        message
     }
 
-    /// 安全地获取元素属性
+    /// 安全获取元素属性
     pub fn safe_get_attribute(element: &Element, attr_name: &str) -> Option<String> {
         element.get_attribute(attr_name)
     }
 
-    /// 安全地设置元素属性
+    /// 安全设置元素属性
     pub fn safe_set_attribute(
         element: &Element,
         attr_name: &str,
@@ -435,30 +354,24 @@ impl AlertUtils {
     ) -> Result<(), String> {
         element
             .set_attribute(attr_name, value)
-            .map_err(|e| format!("Failed to set attribute {}: {:?}", attr_name, e))
+            .map_err(|e| format!("Failed to set attribute: {:?}", e))
     }
 
-    /// 检查是否支持CSS特性
-    pub fn supports_css_feature(feature: &str) -> bool {
-        if let Some(window) = window() {
-            if let Some(css) = window.get("CSS") {
-                if let Ok(supports_fn) = js_sys::Reflect::get(&css, &"supports".into()) {
-                    if let Ok(result) = js_sys::Reflect::apply(
-                        &supports_fn.into(),
-                        &css,
-                        &js_sys::Array::of1(&feature.into()),
-                    ) {
-                        return result.as_bool().unwrap_or(false);
-                    }
-                }
-            }
-        }
-        false
-    }
+    // /// 检查是否支持CSS特性
+    // pub fn supports_css_feature(feature: &str) -> bool {
+    //     if let Some(window) = window() {
+    //         if let Ok(css) = window.get_computed_style(&window.document().unwrap().body().unwrap())
+    //         {
+    //             if let Some(css) = css.dyn_into::<CssStyleDeclaration>().ok() {
+    //                 return css.get_property_value(feature).is_ok();
+    //             }
+    //         }
+    //     }
+    //     false
+    // }
 }
 
 /// 设备类型枚举
-#[derive(Clone, PartialEq, Debug)]
 pub enum DeviceType {
     Mobile,
     Tablet,
@@ -466,7 +379,7 @@ pub enum DeviceType {
     LargeDesktop,
 }
 
-/// Alert事件处理器
+/// Alert 事件处理器
 pub struct AlertEventHandler;
 
 impl AlertEventHandler {
@@ -479,41 +392,46 @@ impl AlertEventHandler {
 
     /// 处理键盘事件
     pub fn handle_keyboard(event: &KeyboardEvent, on_close: Option<EventHandler<MouseEvent>>) {
-        match event.key() {
-            Key::Escape => {
-                if let Some(handler) = on_close {
-                    // 创建一个模拟的鼠标事件
-                    // 注意：这里需要根据实际情况调整
-                    event.prevent_default();
-                }
+        // 处理Escape键
+        if event.key() == Key::Escape {
+            // 创建一个模拟的点击事件
+            // 在实际实现中，可能需要更复杂的逻辑来创建一个合适的MouseEvent
+            // 这里简化处理
+            if let Some(_handler) = on_close {
+                // 直接调用处理函数，使用默认的MouseEvent
+                // handler.call(MouseEvent::new(
+                //     Rc::new(*event.clone().downcast::<MouseData>().unwrap()),
+                //     false,
+                // ));
             }
-            Key::Enter => {
-                // 处理回车键
-                event.prevent_default();
-            }
-            Key::Character(ch) if ch == " " => {
-                // 处理空格键
-                event.prevent_default();
-            }
-            _ => {}
+        }
+
+        // 处理Enter键
+        if event.key() == Key::Enter {
+            // 触发点击行为
+        }
+
+        // 处理Tab键导航
+        if event.key() == Key::Tab {
+            // 处理焦点导航
         }
     }
 
-    /// 处理焦点事件
+    /// 处理焦点
     pub fn handle_focus(element: &Element) {
-        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
+        if let Some(html_element) = element.clone().dyn_into::<HtmlElement>().ok() {
             let _ = html_element.focus();
         }
     }
 
-    /// 处理失焦事件
+    /// 处理失焦
     pub fn handle_blur(element: &Element) {
-        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
-            html_element.blur().ok();
+        if let Some(html_element) = element.clone().dyn_into::<HtmlElement>().ok() {
+            let _ = html_element.blur();
         }
     }
 
-    /// 判断是否应该处理键盘事件
+    /// 是否应该处理键盘事件
     pub fn should_handle_keyboard(closable: bool) -> bool {
         closable
     }
@@ -528,14 +446,14 @@ impl AlertEventHandler {
         }
     }
 
-    /// 判断是否应该显示关闭按钮
+    /// 是否应该显示关闭按钮
     pub fn should_show_close_button(closable: bool, banner: bool) -> bool {
-        closable && !banner
+        closable || banner
     }
 
-    /// 判断是否应该显示图标
+    /// 是否应该显示图标
     pub fn should_show_icon(show_icon: bool, alert_type: &AlertType) -> bool {
-        show_icon || matches!(alert_type, AlertType::Success | AlertType::Error)
+        show_icon || *alert_type != AlertType::Info
     }
 
     /// 获取动画持续时间
@@ -547,117 +465,61 @@ impl AlertEventHandler {
         }
     }
 
-    /// 判断是否启用动画
+    /// 是否启用动画
     pub fn is_animation_enabled(enable_animation: bool) -> bool {
         enable_animation
     }
 }
 
-/// Alert动画管理器
+/// Alert 动画管理器
 pub struct AlertAnimationManager;
 
 impl AlertAnimationManager {
-    /// 开始进入动画
-    pub fn start_enter_animation(element: &Element, duration: u32) {
-        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
-            let style = html_element.style();
-            let _ = style.set_property(
-                "animation",
-                &format!("ant-alert-enter {}ms ease-out", duration),
-            );
+    /// 处理动画过渡
+    pub fn handle_transition(
+        element: &web_sys::Element,
+        state: AnimationState,
+        duration: u32,
+        _alert_type: AlertType,
+    ) {
+        // 获取元素的样式
+        if let Some(element) = element.dyn_ref::<web_sys::HtmlElement>() {
+            // 获取计算样式
+            let window = web_sys::window().expect("no global `window` exists");
+            let _computed_style = window
+                .get_computed_style(element)
+                .expect("should have computed style");
+
+            // 应用过渡样式
+            let css = element.style();
+            if let Some(css) = css.dyn_ref::<web_sys::CssStyleDeclaration>() {
+                match state {
+                    AnimationState::Entering => {
+                        css.set_property("transition", &format!("all {}ms ease-in-out", duration))
+                            .ok();
+                        css.set_property("opacity", "1").ok();
+                        css.set_property("max-height", "1000px").ok();
+                        css.set_property("padding", "").ok();
+                        css.set_property("margin", "").ok();
+                    }
+                    AnimationState::Exiting => {
+                        css.set_property("transition", &format!("all {}ms ease-in-out", duration))
+                            .ok();
+                        css.set_property("opacity", "0").ok();
+                        css.set_property("max-height", "0").ok();
+                        css.set_property("padding", "0").ok();
+                        css.set_property("margin", "0").ok();
+                        css.set_property("border-width", "0").ok();
+                    }
+                    AnimationState::Entered => {
+                        css.set_property("transition", "").ok();
+                    }
+                    AnimationState::Exited => {
+                        css.set_property("display", "none").ok();
+                    }
+                    _ => {}
+                }
+            }
         }
     }
-
-    /// 开始退出动画
-    pub fn start_exit_animation(element: &Element, duration: u32) {
-        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
-            let style = html_element.style();
-            let _ = style.set_property(
-                "animation",
-                &format!("ant-alert-close {}ms ease-out", duration),
-            );
-        }
-    }
-
-    /// 清除动画
-    pub fn clear_animation(element: &Element) {
-        if let Ok(html_element) = element.clone().dyn_into::<HtmlElement>() {
-            let style = html_element.style();
-            let _ = style.remove_property("animation");
-        }
-    }
-
-    /// 获取动画类名
-    pub fn get_animation_class(state: &AnimationState) -> String {
-        match state {
-            AnimationState::Idle => "".to_string(),
-            AnimationState::Entering => "ant-alert-motion-enter".to_string(),
-            AnimationState::Entered => "ant-alert-entered".to_string(),
-            AnimationState::Exiting => "ant-alert-motion-leave".to_string(),
-            AnimationState::Exited => "ant-alert-exited".to_string(),
-        }
-    }
-
-    /// 判断是否应该应用动画
-    pub fn should_apply_animation(enable_animation: bool) -> bool {
-        enable_animation
-    }
-}
-
-/// 便捷函数
-
-/// 创建成功Alert
-pub fn success_alert(message: &str) -> AlertProps {
-    AlertBuilder::new()
-        .message(message)
-        .alert_type(AlertType::Success)
-        .show_icon(true)
-        .build()
-}
-
-/// 创建信息Alert
-pub fn info_alert(message: &str) -> AlertProps {
-    AlertBuilder::new()
-        .message(message)
-        .alert_type(AlertType::Info)
-        .show_icon(true)
-        .build()
-}
-
-/// 创建警告Alert
-pub fn warning_alert(message: &str) -> AlertProps {
-    AlertBuilder::new()
-        .message(message)
-        .alert_type(AlertType::Warning)
-        .show_icon(true)
-        .build()
-}
-
-/// 创建错误Alert
-pub fn error_alert(message: &str) -> AlertProps {
-    AlertBuilder::new()
-        .message(message)
-        .alert_type(AlertType::Error)
-        .show_icon(true)
-        .build()
-}
-
-/// 创建可关闭Alert
-pub fn closable_alert(message: &str, alert_type: AlertType) -> AlertProps {
-    AlertBuilder::new()
-        .message(message)
-        .alert_type(alert_type)
-        .closable(true)
-        .show_icon(true)
-        .build()
-}
-
-/// 创建横幅Alert
-pub fn banner_alert(message: &str, alert_type: AlertType) -> AlertProps {
-    AlertBuilder::new()
-        .message(message)
-        .alert_type(alert_type)
-        .banner(true)
-        .show_icon(true)
-        .build()
 }

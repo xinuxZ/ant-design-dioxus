@@ -82,54 +82,6 @@ mod tests {
     }
 
     // 测试 AlertUtils
-    #[test]
-    fn test_alert_utils_generate_class_names() {
-        let props = AlertProps {
-            message: "Test message".to_string(),
-            alert_type: AlertType::Success,
-            closable: true,
-            show_icon: true,
-            description: Some("Test description".to_string()),
-            banner: true,
-            show_border: false,
-            size: AlertSize::Large,
-            ..Default::default()
-        };
-
-        let state = AlertState {
-            visible: true,
-            closing: false,
-            mounted: true,
-            animation_state: AnimationState::Entered,
-        };
-
-        let class_names = AlertUtils::generate_class_names(&props, &state);
-
-        assert!(class_names.contains("ant-alert"));
-        assert!(class_names.contains("ant-alert-success"));
-        assert!(class_names.contains("ant-alert-closable"));
-        assert!(class_names.contains("ant-alert-with-icon"));
-        assert!(class_names.contains("ant-alert-with-description"));
-        assert!(class_names.contains("ant-alert-banner"));
-        assert!(class_names.contains("ant-alert-no-border"));
-        assert!(class_names.contains("ant-alert-large"));
-    }
-
-    #[test]
-    fn test_alert_utils_generate_class_names_minimal() {
-        let props = AlertProps {
-            message: "Test message".to_string(),
-            ..Default::default()
-        };
-
-        let state = AlertState::default();
-        let class_names = AlertUtils::generate_class_names(&props, &state);
-
-        assert!(class_names.contains("ant-alert"));
-        assert!(class_names.contains("ant-alert-info")); // default type
-        assert!(!class_names.contains("ant-alert-closable"));
-        assert!(!class_names.contains("ant-alert-with-icon"));
-    }
 
     // #[test]
     // fn test_alert_utils_get_icon_type() {
@@ -207,50 +159,6 @@ mod tests {
     // }
 
     // 测试 AlertAnimationManager
-    #[test]
-    fn test_alert_animation_manager_get_animation_class() {
-        assert_eq!(
-            AlertAnimationManager::get_animation_class(&AnimationState::Idle),
-            ""
-        );
-        assert_eq!(
-            AlertAnimationManager::get_animation_class(&AnimationState::Entering),
-            "ant-alert-motion-enter"
-        );
-        assert_eq!(
-            AlertAnimationManager::get_animation_class(&AnimationState::Entered),
-            "ant-alert-entered"
-        );
-        assert_eq!(
-            AlertAnimationManager::get_animation_class(&AnimationState::Exiting),
-            "ant-alert-motion-leave"
-        );
-        assert_eq!(
-            AlertAnimationManager::get_animation_class(&AnimationState::Exited),
-            "ant-alert-exited"
-        );
-    }
-
-    #[test]
-    fn test_alert_animation_manager_should_apply_animation() {
-        let props_enabled = AlertProps {
-            message: "Test".to_string(),
-            enable_animation: true,
-            ..Default::default()
-        };
-        assert!(AlertAnimationManager::should_apply_animation(
-            props_enabled.enable_animation
-        ));
-
-        let props_disabled = AlertProps {
-            message: "Test".to_string(),
-            enable_animation: false,
-            ..Default::default()
-        };
-        assert!(!AlertAnimationManager::should_apply_animation(
-            props_disabled.enable_animation
-        ));
-    }
 
     // 测试 AlertEventHandler
     #[test]

@@ -4,14 +4,94 @@ use dioxus::prelude::*;
 use gloo_timers::callback::Timeout;
 
 use crate::components::alert::{
-    styles::AlertStyles,
+    styles::AlertStyleGenerator,
     types::*,
-    utils::{AlertAnimationManager, AlertEventHandler, AlertUtils},
+    utils::{AlertEventHandler, AlertUtils},
 };
+use crate::config_provider::hooks::use_component_config;
 
 /// Alert 组件
 #[component]
 pub fn Alert(props: AlertProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    let alert_config = read_config.as_ref().and_then(|config| config.get_alert_config());
+
+    // 应用全局配置
+    let props = AlertProps {
+        alert_type: match alert_config {
+            Some(config) if props.alert_type == AlertType::Info => match &config.default_type {
+                Some(config_type) => match config_type {
+                    crate::config_provider::component_config::AlertType::Success => {
+                        AlertType::Success
+                    }
+                    crate::config_provider::component_config::AlertType::Info => AlertType::Info,
+                    crate::config_provider::component_config::AlertType::Warning => {
+                        AlertType::Warning
+                    }
+                    crate::config_provider::component_config::AlertType::Error => AlertType::Error,
+                },
+                None => AlertType::Info,
+            },
+            _ => props.alert_type,
+        },
+        size: match alert_config {
+            Some(config) if props.size == AlertSize::Default => match &config.default_size {
+                Some(config_size) => match config_size {
+                    crate::config_provider::component_config::AlertSize::Small => AlertSize::Small,
+                    crate::config_provider::component_config::AlertSize::Default => {
+                        AlertSize::Default
+                    }
+                    crate::config_provider::component_config::AlertSize::Large => AlertSize::Large,
+                },
+                None => AlertSize::Default,
+            },
+            _ => props.size,
+        },
+        closable: if let Some(config) = alert_config {
+            config.closable.unwrap_or(props.closable)
+        } else {
+            props.closable
+        },
+        show_icon: if let Some(config) = alert_config {
+            config.show_icon.unwrap_or(props.show_icon)
+        } else {
+            props.show_icon
+        },
+        banner: if let Some(config) = alert_config {
+            config.banner.unwrap_or(props.banner)
+        } else {
+            props.banner
+        },
+        enable_animation: if let Some(config) = alert_config {
+            config.enable_animation.unwrap_or(props.enable_animation)
+        } else {
+            props.enable_animation
+        },
+        animation_duration: if let Some(config) = alert_config {
+            config
+                .animation_duration
+                .unwrap_or(props.animation_duration)
+        } else {
+            props.animation_duration
+        },
+        class_name: props
+            .class_name
+            .or_else(|| alert_config.and_then(|c| c.class_name.clone())),
+        style: props.style.or_else(|| {
+            alert_config.and_then(|c| {
+                c.style.clone().map(|s| {
+                    s.iter()
+                        .map(|(k, v)| format!("{}: {}", k, v))
+                        .collect::<Vec<_>>()
+                        .join("; ")
+                })
+            })
+        }),
+        ..props
+    };
+
     // 状态管理
     let mut alert_state = use_signal(|| AlertState {
         visible: props.visible,
@@ -167,9 +247,41 @@ pub fn Alert(props: AlertProps) -> Element {
         return rsx! {};
     }
 
-    // 生成样式和类名
-    let class_names = AlertUtils::generate_class_names(&props, &alert_state.read());
-    let inline_styles = AlertUtils::generate_inline_styles(&props);
+    // 使用样式生成器生成样式
+    let props_clone = props.clone();
+    let has_description = props.description.is_some();
+    let class_name = use_memo(move || {
+        // 使用样式生成器
+        let alert_class = AlertStyleGenerator::new()
+            .with_type(props_clone.alert_type.clone())
+            .with_size(props_clone.size.clone())
+            .with_closable(props_clone.closable)
+            .with_show_icon(props_clone.show_icon)
+            .with_banner(props_clone.banner)
+            .with_action(props_clone.action.is_some())
+            .with_description(has_description)
+            .generate();
+
+        // 添加自定义类名
+        let mut classes = vec![alert_class];
+        if let Some(custom_class) = &props_clone.class_name {
+            classes.push(custom_class.clone());
+        }
+
+        // 添加动画状态类名
+        match alert_state.read().animation_state {
+            AnimationState::Entering => classes.push("ant-alert-entering".to_string()),
+            AnimationState::Entered => classes.push("ant-alert-entered".to_string()),
+            AnimationState::Exiting => classes.push("ant-alert-exiting".to_string()),
+            AnimationState::Exited => classes.push("ant-alert-exited".to_string()),
+            _ => {}
+        }
+
+        classes.join(" ")
+    });
+
+    // 生成内联样式
+    let inline_style = props.style.clone().unwrap_or_default();
     let aria_attributes = AlertUtils::generate_aria_attributes(&props);
 
     // 克隆渲染相关的 props
@@ -204,14 +316,13 @@ pub fn Alert(props: AlertProps) -> Element {
 
     // 渲染关闭按钮
     let render_close_button = move || {
-        if closable_clone {
+        if props.closable {
             if let Some(ref custom_close_icon) = close_icon_clone {
                 rsx! {
                     button {
                         class: "ant-alert-close-icon",
-                        r#type: "button",
-                        onclick: handle_close,
                         "aria-label": "Close",
+                        onclick: handle_close,
                         {custom_close_icon}
                     }
                 }
@@ -219,10 +330,9 @@ pub fn Alert(props: AlertProps) -> Element {
                 rsx! {
                     button {
                         class: "ant-alert-close-icon",
-                        r#type: "button",
-                        onclick: handle_close,
                         "aria-label": "Close",
-                        i { class: "anticon anticon-close" }
+                        onclick: handle_close,
+                        span { class: "anticon anticon-close" }
                     }
                 }
             }
@@ -231,57 +341,72 @@ pub fn Alert(props: AlertProps) -> Element {
         }
     };
 
-    // 渲染消息内容
-    let render_content = move || {
-        rsx! {
-            div { class: "ant-alert-content",
-                div { class: "ant-alert-message", "{message_clone}" }
-                if let Some(ref description) = description_clone {
-                    div { class: "ant-alert-description", "{description}" }
-                }
-            }
-        }
-    };
-
-    // 渲染操作区域
+    // 渲染操作项
     let render_action = move || {
-        if let Some(ref action) = action_clone {
+        if let Some(action) = &action_clone {
             rsx! {
-                div { class: "ant-alert-action", {action} }
+                span { class: "ant-alert-action", {action} }
             }
         } else {
             rsx! {}
         }
     };
 
-    let data_testid_clone = props.data_testid.clone();
-    let tab_index_clone = props.tab_index.clone();
-    let role_clone = props.role.clone();
-
-    // 主要渲染
+    // 渲染Alert内容
     rsx! {
         div {
-            class: "{class_names}",
-            style: "{inline_styles}",
-            role: "{role_clone}",
-            "aria-label": aria_attributes.get("aria-label").cloned().unwrap_or_default(),
-            "aria-live": aria_attributes.get("aria-live").cloned().unwrap_or_default(),
-            "aria-atomic": aria_attributes.get("aria-atomic").cloned().unwrap_or_default(),
-            tabindex: tab_index_clone.unwrap_or(-1),
-            "data-testid": data_testid_clone.clone().unwrap_or_default(),
-            onmounted: move |event| {
-                if let Some(element) = event.data.downcast::<web_sys::Element>() {
-                    alert_ref.set(Some(element.clone()));
-                }
-            },
-            onclick: handle_click,
+            class: "{class_name}",
+            style: "{inline_style}",
+            // id: {props.id},
+            "aria-live": {aria_attributes.get("aria-live").cloned().unwrap_or_default()},
+            "aria-atomic": {aria_attributes.get("aria-atomic").cloned().unwrap_or_default()},
+            // r#ref: move |el| {
+            //     // 保存元素引用
+            //     alert_ref.set(Some(el));
+
+            //     // 处理动画
+            //     if let Some(element) = alert_ref.read().as_ref() {
+            //         if props.enable_animation {
+            //             AlertAnimationManager::handle_transition(
+            //                 element,
+            //                 alert_state.read().animation_state,
+            //                 props.animation_duration,
+            //                 props.alert_type,
+            //             );
+            //         }
+            //     }
+            // },
             onmouseenter: handle_mouse_enter,
             onmouseleave: handle_mouse_leave,
+            onclick: handle_click,
             onkeydown: handle_keydown,
 
+            // 渲染图标
             {render_icon()}
-            {render_content()}
+
+            // 渲染内容
+            div {
+                class: "ant-alert-content",
+
+                // 渲染消息
+                div {
+                    class: "ant-alert-message",
+                    {message_clone}
+                }
+
+                // 渲染描述
+                if let Some(description) = description_clone {
+                    div {
+                        class: "ant-alert-description",
+                        {description}
+                    }
+                }
+            }
+
+            // 渲染操作项
             {render_action()}
+
+            // 渲染关闭按钮
             {render_close_button()}
         }
     }
@@ -458,13 +583,16 @@ pub fn AlertGroup(
 pub fn AlertProvider(children: Element, #[props(optional)] config: Option<AlertConfig>) -> Element {
     // 设置全局配置
     if let Some(cfg) = config {
-        use_effect(move || {
-            crate::components::alert::types::set_global_alert_config(cfg.clone());
-        });
+        // 设置全局配置
+        crate::components::alert::types::set_global_alert_config(cfg);
     }
 
+    // 渲染子元素
     rsx! {
-        div { class: "ant-alert-provider", {children} }
+        div {
+            class: "ant-alert-provider",
+            {children}
+        }
     }
 }
 

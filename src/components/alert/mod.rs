@@ -198,12 +198,11 @@
 //!                 message: "Alert Message Text",
 //!                 alert_type: AlertType::Success,
 //!                 closable: true,
-//!                 after_close: move |_| {
+//!                 on_close: move |_| {
 //!                     visible.set(false);
 //!                 },
 //!             }
 //!         }
-//!         p { "placeholder text here" }
 //!     }
 //! }
 //! ```
@@ -213,16 +212,20 @@ pub mod styles;
 pub mod types;
 pub mod utils;
 
-// 重新导出主要类型和组件
-pub use component::*;
-pub use types::*;
-pub use utils::*;
+// 重新导出组件
+pub use component::{
+    action_alert, banner_alert, closable_alert, error_alert, icon_alert, info_alert, success_alert,
+    use_alert, warning_alert, Alert, AlertBanner, AlertClosable, AlertController, AlertError,
+    AlertGroup, AlertInfo, AlertItem, AlertProvider, AlertSuccess, AlertWarning,
+};
+
+// 重新导出类型
+pub use types::{
+    AlertConfig, AlertProps, AlertSize, AlertState, AlertTheme, AlertType, AnimationState,
+};
+
+// 重新导出样式
+pub use styles::AlertStyleGenerator;
 
 #[cfg(test)]
 mod tests;
-
-// 便捷构造函数
-pub use component::{
-    action_alert, banner_alert, closable_alert, error_alert, icon_alert, info_alert, success_alert,
-    warning_alert,
-};
