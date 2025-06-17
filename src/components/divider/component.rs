@@ -57,102 +57,79 @@ pub fn Divider(props: DividerProps) -> Element {
         log::warn!("Divider props validation failed: {}", error);
     }
 
-    // 创建配置
+    // 创建样式生成器
     let has_text = props.children.is_some();
-    let config = DividerConfig::from_props(&props, has_text);
-
-    // 获取主题
-    let theme = use_divider_theme();
+    let size = props.size.clone().unwrap_or_default();
+    let style_generator = DividerStyleGenerator::new()
+        .with_type(props.r#type.clone())
+        .with_orientation(props.orientation.clone())
+        .with_size(size)
+        .with_variant(props.variant.clone())
+        .with_plain(props.plain)
+        .with_text(has_text)
+        .with_class(props.class.clone());
 
     // 生成样式
-    let container_style = generate_divider_container_style(&config, &theme);
-    let class_name = generate_divider_class_name(&config);
+    let generated_style = style_generator.generate();
+    let class_name = generate_divider_class_name(
+        &props.r#type,
+        &props.orientation,
+        &props.size.clone().unwrap_or_default(),
+        &props.variant,
+        props.plain,
+        has_text,
+        props.class.as_deref(),
+    );
 
     // 合并自定义样式
-    let final_style = if let Some(ref custom_style) = config.style {
-        format!("{};{}", container_style, custom_style)
+    let final_style = if let Some(ref custom_style) = props.style {
+        format!("{};{}", generated_style, custom_style)
     } else {
-        container_style
+        generated_style
     };
 
-    if config.is_vertical() {
+    if props.r#type == DividerType::Vertical {
         // 垂直分割线
-        render_vertical_divider(&config, &theme, &class_name, &final_style)
-    } else if config.has_text {
+        render_vertical_divider(&class_name, &final_style)
+    } else if has_text {
         // 带文本的水平分割线
-        render_horizontal_divider_with_text(
-            &config,
-            &theme,
-            &class_name,
-            &final_style,
-            props.children,
-        )
+        render_horizontal_divider_with_text(&class_name, &final_style, props.children)
     } else {
         // 纯水平分割线
-        render_horizontal_divider(&config, &theme, &class_name, &final_style)
+        render_horizontal_divider(&class_name, &final_style)
     }
 }
 
 /// 渲染垂直分割线
-fn render_vertical_divider(
-    config: &DividerConfig,
-    theme: &DividerTheme,
-    class_name: &str,
-    style: &str,
-) -> Element {
-    let line_style = generate_divider_line_style(config, theme, None);
-
+fn render_vertical_divider(class_name: &str, style: &str) -> Element {
     rsx! {
         span {
             class: "{class_name}",
             style: "{style}",
             role: "separator",
             "aria-orientation": "vertical",
-            span {
-                class: "ant-divider-line",
-                style: "{line_style}",
-            }
         }
     }
 }
 
 /// 渲染水平分割线
-fn render_horizontal_divider(
-    config: &DividerConfig,
-    theme: &DividerTheme,
-    class_name: &str,
-    style: &str,
-) -> Element {
-    let line_style = generate_divider_line_style(config, theme, None);
-
+fn render_horizontal_divider(class_name: &str, style: &str) -> Element {
     rsx! {
         div {
             class: "{class_name}",
             style: "{style}",
             role: "separator",
             "aria-orientation": "horizontal",
-            hr {
-                class: "ant-divider-line",
-                style: "{line_style}",
-            }
         }
     }
 }
 
 /// 渲染带文本的水平分割线
 fn render_horizontal_divider_with_text(
-    config: &DividerConfig,
-    theme: &DividerTheme,
     class_name: &str,
     style: &str,
     children: Option<Element>,
 ) -> Element {
-    let before_line_style = generate_divider_line_style(config, theme, Some("before"));
-    let after_line_style = generate_divider_line_style(config, theme, Some("after"));
-    let text_style = generate_divider_text_style(config, theme);
-
-    let actual_orientation = get_actual_orientation(&config.orientation);
-
     rsx! {
         div {
             class: "{class_name}",
@@ -161,27 +138,10 @@ fn render_horizontal_divider_with_text(
             "aria-orientation": "horizontal",
             "aria-label": "分割线",
 
-            // 前置分割线
-            if !matches!(actual_orientation, DividerOrientation::Left) {
-                hr {
-                    class: "ant-divider-line ant-divider-line-before",
-                    style: "{before_line_style}",
-                }
-            }
-
             // 文本内容
             span {
                 class: "ant-divider-inner-text",
-                style: "{text_style}",
                 {children}
-            }
-
-            // 后置分割线
-            if !matches!(actual_orientation, DividerOrientation::Right) {
-                hr {
-                    class: "ant-divider-line ant-divider-line-after",
-                    style: "{after_line_style}",
-                }
             }
         }
     }
@@ -205,7 +165,7 @@ pub fn DividerThemeProvider(
     use_context_provider(|| context);
 
     // 注入全局样式
-    let stylesheet = generate_divider_stylesheet(&theme);
+    let stylesheet = generate_divider_style(&theme);
 
     rsx! {
         style { "{stylesheet}" }
@@ -339,7 +299,7 @@ pub fn use_optimized_divider(config: DividerConfig) -> (DividerConfig, String) {
 
     // 使用 memo 缓存样式计算
     let config_clone = config.clone();
-    let style = use_memo(move || generate_divider_container_style(&config_clone, &theme));
+    let style = use_memo(move || generate_divider_style(&theme));
 
     let res = style.read().clone();
     (config, res)
@@ -569,5 +529,59 @@ pub fn ConditionalDivider(
         }
     } else {
         fallback.unwrap_or_else(|| rsx! { span {} })
+    }
+}
+
+/// 水平分割线组件
+#[component]
+pub fn HorizontalDivider(props: DividerProps) -> Element {
+    // 获取主题
+    let theme = use_divider_theme();
+
+    // 验证 Props
+    if let Err(error) = validate_divider_props(&props) {
+        log::warn!("Divider props validation failed: {}", error);
+    }
+
+    // 创建样式生成器
+    let has_text = props.children.is_some();
+    let size = props.size.unwrap_or_default();
+    let style_generator = DividerStyleGenerator::new()
+        .with_type(props.r#type.clone())
+        .with_orientation(props.orientation.clone())
+        .with_size(size.clone())
+        .with_variant(props.variant.clone())
+        .with_plain(props.plain)
+        .with_text(has_text)
+        .with_class(props.class.clone());
+
+    // 生成样式
+    let generated_style = style_generator.generate();
+    let class_name = generate_divider_class_name(
+        &props.r#type,
+        &props.orientation,
+        &size,
+        &props.variant,
+        props.plain,
+        has_text,
+        props.class.as_deref(),
+    );
+
+    // 合并自定义样式
+    let final_style = if let Some(ref custom_style) = props.style {
+        format!("{};{}", generated_style, custom_style)
+    } else {
+        generated_style
+    };
+
+    if props.r#type == DividerType::Vertical {
+        // 垂直分割线
+        render_vertical_divider(&class_name, &final_style)
+    } else if has_text {
+        // 带文本的水平分割线
+        render_horizontal_divider_with_text(&class_name, &final_style, props.children)
+    } else {
+        // 纯水平分割线
+        render_horizontal_divider(&class_name, &final_style)
     }
 }

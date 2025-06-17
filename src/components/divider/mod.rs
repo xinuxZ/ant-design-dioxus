@@ -115,7 +115,7 @@ pub use types::*;
 // };
 
 // 样式相关
-pub use styles::{generate_divider_stylesheet, DividerStyleGenerator};
+pub use styles::{DividerStyleGenerator, generate_divider_class_name};
 
 // 主题和配置
 pub use types::{
