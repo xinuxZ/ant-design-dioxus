@@ -68,10 +68,12 @@ pub fn Space(props: SpaceProps) -> Element {
 
     // 验证配置
     if let Err(error) = validate_space_config(
-        direction.unwrap(),
-        &size.clone().unwrap(),
-        wrap.unwrap(),
-        align.unwrap(),
+        direction.unwrap_or(SpaceDirection::Horizontal),
+        &size
+            .clone()
+            .unwrap_or(SpaceSizeConfig::Single(SpaceSize::Small)),
+        wrap.unwrap_or(false),
+        align.unwrap_or(SpaceAlign::Start),
     ) {
         log::warn!("Space 配置验证失败: {}", error);
     }
@@ -79,7 +81,10 @@ pub fn Space(props: SpaceProps) -> Element {
     // 使用样式生成器生成样式
     let style_generator = SpaceStyleGenerator::new()
         .with_direction(direction.unwrap_or(SpaceDirection::Horizontal))
-        .with_size(size.clone().unwrap_or(SpaceSizeConfig::Single(SpaceSize::Small)))
+        .with_size(
+            size.clone()
+                .unwrap_or(SpaceSizeConfig::Single(SpaceSize::Small)),
+        )
         .with_align(align)
         .with_wrap(wrap.unwrap_or(false))
         .with_split(split.is_some());
@@ -100,7 +105,7 @@ pub fn Space(props: SpaceProps) -> Element {
 
     // 渲染子元素
     let children_elements =
-        render_space_children(children, direction.unwrap(), &split, &merged_theme);
+        render_space_children(children, direction.unwrap_or(SpaceDirection::Horizontal), &split, &merged_theme);
 
     rsx! {
         div {
