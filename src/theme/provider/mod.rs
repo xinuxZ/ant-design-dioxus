@@ -4,15 +4,12 @@
 //!
 //! 基于 DioxusAdapter 构建的统一主题架构，提供完整的主题管理功能。
 
-use crate::{
-    theme::{
-        adapter::{
-            frameworks::dioxus::DioxusAdapter,
-            provider::{ThemeProviderAdapter, ThemeSwitchResult},
-        },
-        ThemeVariant,
+use crate::theme::{
+    adapter::{
+        frameworks::dioxus::DioxusAdapter,
+        provider::{ThemeProviderAdapter, ThemeSwitchResult},
     },
-    ThemeConfig,
+    ThemeConfig, ThemeVariant,
 };
 use css_in_rust::theme::theme_types::Theme;
 use dioxus::prelude::*;
