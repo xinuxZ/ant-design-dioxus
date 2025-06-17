@@ -115,11 +115,11 @@ pub use types::*;
 // };
 
 // 样式相关
-pub use styles::{DividerStyleGenerator, generate_divider_class_name};
+pub use styles::{generate_divider_class_name, DividerStyleGenerator};
 
 // 主题和配置
 pub use types::{
-    get_default_divider_theme, set_default_divider_theme, DividerConfig, DividerTheme,
+    get_default_divider_theme, set_default_divider_theme, DividerConfig, DividerTheme, DividerType,
 };
 
 // Hooks
