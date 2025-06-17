@@ -2,11 +2,11 @@ use dioxus::prelude::*;
 
 use css_in_rust::css;
 
-use crate::config_provider::hooks::use_component_config;
-use super::style_generator::{SkeletonStyleGenerator, SkeletonSize};
+use super::style_generator::{SkeletonSize, SkeletonStyleGenerator};
 use super::styles::*;
 use super::types::*;
 use super::utils::*;
+use crate::config_provider::hooks::use_component_config;
 
 /// Skeleton 主组件
 /// 在内容加载时显示占位符，提供更好的用户体验
@@ -39,9 +39,12 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
     let has_paragraph = should_show_paragraph(props.paragraph.as_ref());
 
     // 计算各部分属性
-    let avatar_props = if has_avatar {
+    let avatar_props = if has_avatar && props.avatar.is_some() {
         Some(calculate_avatar_props(
-            props.avatar.as_ref().unwrap(),
+            props
+                .avatar
+                .as_ref()
+                .unwrap_or(&SkeletonAvatarConfig::Boolean(false)),
             has_title,
             has_paragraph,
         ))
@@ -49,9 +52,12 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
         None
     };
 
-    let title_props = if has_title {
+    let title_props = if has_title && props.title.is_some() {
         Some(calculate_title_props(
-            props.title.as_ref().unwrap(),
+            props
+                .title
+                .as_ref()
+                .unwrap_or(&SkeletonTitleConfig::Boolean(false)),
             has_avatar,
             has_paragraph,
         ))
@@ -59,9 +65,12 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
         None
     };
 
-    let paragraph_props = if has_paragraph {
+    let paragraph_props = if has_paragraph && props.paragraph.is_some() {
         Some(calculate_paragraph_props(
-            props.paragraph.as_ref().unwrap(),
+            props
+                .paragraph
+                .as_ref()
+                .unwrap_or(&SkeletonParagraphConfig::Boolean(false)),
             has_avatar,
             has_title,
         ))
@@ -92,11 +101,22 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
         Some(style) => style.clone(),
         None => String::new(),
     };
-    let title_props = title_props.unwrap();
-    let paragraph_props = paragraph_props.unwrap();
+    let title_props = title_props.unwrap_or(SkeletonTitleProps {
+        width: None,
+        active: false,
+        round: false,
+        theme: SkeletonTheme::default(),
+    });
+    let paragraph_props = paragraph_props.unwrap_or(SkeletonParagraphProps::default());
 
-    let avatar_shape = avatar_props.clone().unwrap().shape;
-    let avatar_size = avatar_props.clone().unwrap().size;
+    let avatar_shape = avatar_props
+        .clone()
+        .unwrap_or(SkeletonAvatarProps::default())
+        .shape;
+    let avatar_size = avatar_props
+        .clone()
+        .unwrap_or(SkeletonAvatarProps::default())
+        .size;
 
     let props_style = props.style.clone();
 
@@ -148,18 +168,12 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
 
 /// Skeleton Avatar 子组件
 #[component]
-// fn SkeletonAvatar(props: SkeletonAvatarProps, active: bool, theme: SkeletonTheme) -> Element {
-fn SkeletonAvatar(
-    shape: Option<AvatarShape>,
-    size: Option<AvatarSize>,
-    active: Option<bool>,
-    theme: SkeletonTheme,
-) -> Element {
-    let shape = shape.unwrap_or(AvatarShape::Circle);
-    let size = size.unwrap_or(AvatarSize::Large);
-    let is_active = active.unwrap_or(false);
+fn SkeletonAvatar(props: SkeletonAvatarProps) -> Element {
+    let shape = props.shape.unwrap_or(AvatarShape::Circle);
+    let size = props.size.unwrap_or(AvatarSize::Large);
+    let is_active = props.active.unwrap_or(false);
 
-    let style = generate_skeleton_avatar_style(&shape, &size, is_active, &theme);
+    let style = generate_skeleton_avatar_style(&shape, &size, is_active, &props.theme);
     let class_name = get_skeleton_avatar_class_name(&shape, &size, is_active, None);
 
     rsx! {
@@ -172,13 +186,13 @@ fn SkeletonAvatar(
 
 /// Skeleton Title 子组件
 #[component]
-fn SkeletonTitle(
-    width: Option<SkeletonWidth>,
-    active: bool,
-    round: bool,
-    theme: SkeletonTheme,
-) -> Element {
-    let style = generate_skeleton_title_style(width.as_ref(), active, round, &theme);
+fn SkeletonTitle(props: SkeletonTitleProps) -> Element {
+    let style = generate_skeleton_title_style(
+        props.width.as_ref(),
+        props.active,
+        props.round,
+        &props.theme,
+    );
 
     rsx! {
         h3 {
@@ -190,17 +204,12 @@ fn SkeletonTitle(
 
 /// Skeleton Paragraph 子组件
 #[component]
-fn SkeletonParagraph(
-    rows: Option<u32>,
-    width: Option<SkeletonWidthConfig>,
-    active: bool,
-    round: bool,
-    theme: SkeletonTheme,
-) -> Element {
-    let rows = rows.unwrap_or(2);
-    let widths = generate_paragraph_widths(rows, width.as_ref());
+fn SkeletonParagraph(props: SkeletonParagraphProps) -> Element {
+    let rows = props.rows.unwrap_or(2);
+    let widths = generate_paragraph_widths(rows, props.width.as_ref());
 
-    let container_style = generate_skeleton_paragraph_style(rows, &widths, active, round, &theme);
+    let container_style =
+        generate_skeleton_paragraph_style(rows, &widths, props.active, props.round, &props.theme);
 
     rsx! {
         ul {
@@ -235,7 +244,7 @@ pub fn SkeletonButton(props: SkeletonButtonProps) -> Element {
     rsx! {
         span {
             class: "{class_name}",
-            style: "{style} {style_clone.as_ref().unwrap()}",
+            style: "{style} {style_clone.as_ref().unwrap_or(&String::new())}",
         }
     }
 }
@@ -250,11 +259,15 @@ pub fn SkeletonInput(props: SkeletonInputProps) -> Element {
     let style = generate_skeleton_input_style(&size, active, &theme);
     let class_name = get_skeleton_input_class_name(&size, active, props.class_name.as_deref());
 
-    let style_clone = props.style.clone();
+    let final_style = if let Some(ref custom_style) = props.style {
+        format!("{} {}", style, custom_style)
+    } else {
+        style
+    };
     rsx! {
         span {
             class: "{class_name}",
-            style: "{style} {style_clone.as_ref().unwrap()}",
+            style: "{final_style}",
         }
     }
 }
@@ -270,11 +283,15 @@ pub fn SkeletonImage(props: SkeletonImageProps) -> Element {
     let class_name = get_skeleton_image_class_name(active, props.class_name.as_deref());
 
     let style_clone = props.style.clone();
+    let combined_style = match style_clone.as_ref() {
+        Some(custom_style) => format!("{} {}", style, custom_style),
+        None => style,
+    };
 
     rsx! {
         div {
             class: "{class_name}",
-            style: "{style} {style_clone.as_ref().unwrap()}",
+            style: "{combined_style}",
 
             // 图片占位符图标
             svg {

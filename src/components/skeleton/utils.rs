@@ -8,11 +8,7 @@ pub fn calculate_avatar_props(
     has_paragraph: bool,
 ) -> SkeletonAvatarProps {
     let base_props = match avatar_config {
-        SkeletonAvatarConfig::Boolean(_) => SkeletonAvatarProps {
-            active: None,
-            shape: None,
-            size: None,
-        },
+        SkeletonAvatarConfig::Boolean(_) => SkeletonAvatarProps::default(),
         SkeletonAvatarConfig::Config(props) => props.clone(),
     };
 
@@ -31,6 +27,7 @@ pub fn calculate_avatar_props(
         active: base_props.active,
         shape: base_props.shape.or(auto_shape),
         size: base_props.size.or(auto_size),
+        theme: SkeletonTheme::default(),
     }
 }
 
@@ -44,6 +41,9 @@ pub fn calculate_title_props(
     let base_props = match title_config {
         SkeletonTitleConfig::Boolean(_) => SkeletonTitleProps {
             width: None,
+            active: false,
+            round: false,
+            theme: SkeletonTheme::default(),
         },
         SkeletonTitleConfig::Config(props) => props.clone(),
     };
@@ -62,6 +62,9 @@ pub fn calculate_title_props(
 
     SkeletonTitleProps {
         width: base_props.width.or(auto_width),
+        active: true,
+        round: false,
+        theme: SkeletonTheme::default(),
     }
 }
 
@@ -73,10 +76,7 @@ pub fn calculate_paragraph_props(
     has_title: bool,
 ) -> SkeletonParagraphProps {
     let base_props = match paragraph_config {
-        SkeletonParagraphConfig::Boolean(_) => SkeletonParagraphProps {
-            rows: None,
-            width: None,
-        },
+        SkeletonParagraphConfig::Boolean(_) => SkeletonParagraphProps::default(),
         SkeletonParagraphConfig::Config(props) => props.clone(),
     };
 
@@ -99,6 +99,9 @@ pub fn calculate_paragraph_props(
     SkeletonParagraphProps {
         rows: base_props.rows.or(auto_rows),
         width: base_props.width.or(auto_width),
+        active: true,
+        round: false,
+        theme: SkeletonTheme::default(),
     }
 }
 
@@ -120,7 +123,7 @@ pub fn generate_paragraph_widths(
                     widths.push(SkeletonWidth::Percentage(100));
                 }
             }
-        },
+        }
         Some(SkeletonWidthConfig::Multiple(width_array)) => {
             // 多宽度配置：使用数组中的宽度，不足的用 100% 填充
             for i in 0..rows {
@@ -130,13 +133,13 @@ pub fn generate_paragraph_widths(
                     widths.push(SkeletonWidth::Percentage(100));
                 }
             }
-        },
+        }
         None => {
             // 默认配置：所有行都使用 100%
             for _ in 0..rows {
                 widths.push(SkeletonWidth::Percentage(100));
             }
-        },
+        }
     }
 
     widths
@@ -176,7 +179,7 @@ pub fn validate_skeleton_config(props: &SkeletonProps) -> Result<(), String> {
                 match width_config {
                     SkeletonWidthConfig::Single(width) => {
                         validate_skeleton_width(width)?;
-                    },
+                    }
                     SkeletonWidthConfig::Multiple(widths) => {
                         if widths.is_empty() {
                             return Err("Width array cannot be empty".to_string());
@@ -184,7 +187,7 @@ pub fn validate_skeleton_config(props: &SkeletonProps) -> Result<(), String> {
                         for width in widths {
                             validate_skeleton_width(width)?;
                         }
-                    },
+                    }
                 }
             }
         }
@@ -230,7 +233,7 @@ fn validate_skeleton_width(width: &SkeletonWidth) -> Result<(), String> {
             if *px > 10000 {
                 return Err("Width too large (max: 10000px)".to_string());
             }
-        },
+        }
         SkeletonWidth::Percentage(pct) => {
             if *pct == 0 {
                 return Err("Width cannot be zero percent".to_string());
@@ -238,12 +241,12 @@ fn validate_skeleton_width(width: &SkeletonWidth) -> Result<(), String> {
             if *pct > 100 {
                 return Err("Percentage width cannot exceed 100%".to_string());
             }
-        },
+        }
         SkeletonWidth::String(s) => {
             if s.is_empty() {
                 return Err("Width string cannot be empty".to_string());
             }
-        },
+        }
     }
     Ok(())
 }
@@ -301,14 +304,14 @@ pub fn calculate_theme_hash(theme: &SkeletonTheme) -> u64 {
     use std::hash::{Hash, Hasher};
 
     let mut hasher = DefaultHasher::new();
-    
+
     theme.block_radius.hash(&mut hasher);
     theme.gradient_from_color.hash(&mut hasher);
     theme.gradient_to_color.hash(&mut hasher);
     theme.paragraph_line_height.hash(&mut hasher);
     theme.paragraph_margin_top.hash(&mut hasher);
     theme.title_height.hash(&mut hasher);
-    
+
     hasher.finish()
 }
 
@@ -316,17 +319,23 @@ pub fn calculate_theme_hash(theme: &SkeletonTheme) -> u64 {
 /// 将用户主题与默认主题合并
 pub fn merge_theme(user_theme: Option<&SkeletonTheme>) -> SkeletonTheme {
     let default_theme = SkeletonTheme::default();
-    
+
     match user_theme {
         Some(theme) => SkeletonTheme {
             block_radius: theme.block_radius.or(default_theme.block_radius),
-            gradient_from_color: theme.gradient_from_color.clone()
+            gradient_from_color: theme
+                .gradient_from_color
+                .clone()
                 .or(default_theme.gradient_from_color),
-            gradient_to_color: theme.gradient_to_color.clone()
+            gradient_to_color: theme
+                .gradient_to_color
+                .clone()
                 .or(default_theme.gradient_to_color),
-            paragraph_line_height: theme.paragraph_line_height
+            paragraph_line_height: theme
+                .paragraph_line_height
                 .or(default_theme.paragraph_line_height),
-            paragraph_margin_top: theme.paragraph_margin_top
+            paragraph_margin_top: theme
+                .paragraph_margin_top
                 .or(default_theme.paragraph_margin_top),
             title_height: theme.title_height.or(default_theme.title_height),
         },
@@ -348,7 +357,7 @@ pub fn optimize_paragraph_rows(content_length: Option<usize>) -> u32 {
             } else {
                 4
             }
-        },
+        }
         None => 2, // 默认 2 行
     }
 }

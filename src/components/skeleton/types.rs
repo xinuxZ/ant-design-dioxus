@@ -82,6 +82,18 @@ pub struct SkeletonAvatarProps {
     pub shape: Option<AvatarShape>,
     /// 头像大小
     pub size: Option<AvatarSize>,
+    pub theme: SkeletonTheme,
+}
+
+impl Default for SkeletonAvatarProps {
+    fn default() -> Self {
+        Self {
+            active: None,
+            shape: None,
+            size: None,
+            theme: SkeletonTheme::default(),
+        }
+    }
 }
 
 /// Skeleton Title 组件属性
@@ -89,6 +101,9 @@ pub struct SkeletonAvatarProps {
 pub struct SkeletonTitleProps {
     /// 标题宽度
     pub width: Option<SkeletonWidth>,
+    pub active: bool,
+    pub round: bool,
+    pub theme: SkeletonTheme,
 }
 
 /// Skeleton Paragraph 组件属性
@@ -98,6 +113,23 @@ pub struct SkeletonParagraphProps {
     pub rows: Option<u32>,
     /// 段落宽度配置
     pub width: Option<SkeletonWidthConfig>,
+
+    pub active: bool,
+    pub round: bool,
+    pub theme: SkeletonTheme,
+}
+
+/// impl Default for SkeletonParagraphProps
+impl Default for SkeletonParagraphProps {
+    fn default() -> Self {
+        Self {
+            rows: None,
+            width: None,
+            active: false,
+            round: false,
+            theme: SkeletonTheme::default(),
+        }
+    }
 }
 
 /// 头像配置枚举
