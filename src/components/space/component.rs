@@ -2,8 +2,10 @@
 //!
 //! 提供 Space 和 Space.Compact 组件的完整实现，包括间距控制、对齐方式、换行支持等功能。
 
+use crate::components::space::style_generator::SpaceStyleGenerator;
 use crate::components::space::types::*;
 use crate::components::space::utils::*;
+use crate::config_provider::hooks::use_component_config;
 use dioxus::prelude::*;
 
 /// Space 组件 - 设置组件之间的间距
@@ -39,6 +41,15 @@ use dioxus::prelude::*;
 /// ```
 #[component]
 pub fn Space(props: SpaceProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    // space组件暂时没有专门的配置，使用通用配置
+    let space_config = None::<()>;
+
+    // space组件暂时没有专门的配置，直接使用原始props
+    let props = props;
+
     let SpaceProps {
         direction,
         size,
@@ -65,33 +76,26 @@ pub fn Space(props: SpaceProps) -> Element {
         log::warn!("Space 配置验证失败: {}", error);
     }
 
-    // 计算样式
-    let container_class = get_space_container_class(
-        direction.unwrap(),
-        align.unwrap(),
-        wrap.unwrap(),
-        &merged_theme,
-    );
+    // 使用样式生成器生成样式
+    let style_generator = SpaceStyleGenerator::new()
+        .with_direction(direction.unwrap_or(SpaceDirection::Horizontal))
+        .with_size(size.clone().unwrap_or(SpaceSizeConfig::Single(SpaceSize::Small)))
+        .with_align(align)
+        .with_wrap(wrap.unwrap_or(false))
+        .with_split(split.is_some());
 
-    // 生成间距值
-    let gap_value = get_space_gap_value(&size.unwrap(), direction.unwrap(), &merged_theme);
+    let generated_class = style_generator.generate();
 
-    // 合并类名
-    let final_class = match class {
-        Some(custom_class) => format!("{} {}", container_class, custom_class),
-        None => container_class,
+    // 组合自定义类名
+    let class_name = match &class {
+        Some(custom_class) => format!("{} {}", generated_class, custom_class),
+        None => generated_class,
     };
 
-    // 合并样式
-    let gap_style = match direction {
-        Some(SpaceDirection::Horizontal) => format!("gap: {} 0;", gap_value),
-        Some(SpaceDirection::Vertical) => format!("gap: 0 {};", gap_value),
-        None => format!(""),
-    };
-
-    let final_style = match style {
-        Some(custom_style) => format!("{} {}", gap_style, custom_style),
-        None => gap_style,
+    // 组合自定义样式
+    let inline_style = match &style {
+        Some(custom_style) => custom_style.clone(),
+        None => String::new(),
     };
 
     // 渲染子元素
@@ -100,8 +104,8 @@ pub fn Space(props: SpaceProps) -> Element {
 
     rsx! {
         div {
-            class: "{final_class}",
-            style: "{final_style}",
+            class: "{class_name}",
+            style: "{inline_style}",
             {children_elements}
         }
     }

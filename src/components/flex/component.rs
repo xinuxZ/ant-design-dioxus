@@ -2,9 +2,14 @@
 //!
 //! 提供 Flex 组件及相关高阶组件的实现。
 
-use crate::components::flex::styles::*;
+use crate::components::flex::style_generator::FlexStyleGenerator;
+use crate::components::flex::styles::{
+    generate_flex_container_styles, generate_flex_item_styles, generate_grid_styles,
+    generate_layout_styles, get_flex_container_class, get_flex_item_class,
+};
 use crate::components::flex::types::*;
 use crate::components::flex::utils::*;
+use crate::config_provider::hooks::use_component_config;
 use dioxus::prelude::*;
 use std::collections::HashMap;
 
@@ -13,97 +18,107 @@ use std::collections::HashMap;
 /// 基于 CSS Flexbox 的现代布局容器，提供强大的对齐和分布能力。
 #[component]
 pub fn Flex(props: FlexProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    // flex组件暂时没有专门的配置，使用通用配置
+    let flex_config = None::<()>;
+
+    // flex组件暂时没有专门的配置，直接使用原始props
+    let props = props;
+
     // 验证 Props
     if let Err(error) = validate_flex_props(&props) {
         log::warn!("Flex component validation error: {}", error);
     }
 
-    // 创建配置
-    let config = create_flex_config(&props);
+    // 使用样式生成器生成样式
+    let props_clone = props.clone();
+    let class_name = use_memo(move || {
+        // 使用样式生成器
+        let flex_class = FlexStyleGenerator::new()
+            .with_vertical(props_clone.vertical)
+            .with_wrap(props_clone.wrap.clone())
+            .with_justify(props_clone.justify.clone())
+            .with_align(props_clone.align.clone())
+            .with_gap(props_clone.gap.clone())
+            .with_flex(props_clone.flex.clone())
+            .generate();
 
-    // 获取主题
-    let theme = use_flex_theme();
+        // 添加自定义类名
+        let mut classes = vec![flex_class];
+        if let Some(custom_class) = &props_clone.class {
+            classes.push(custom_class.clone());
+        }
 
-    // 生成样式
-    let container_styles = generate_flex_container_styles(&config, &theme);
-    let css_class = get_flex_container_class(&config);
+        classes.join(" ")
+    });
 
-    // 合并自定义类名
-    let final_class = if let Some(ref custom_class) = props.class {
-        format!("{} {}", css_class, custom_class)
-    } else {
-        css_class
-    };
-
-    // 合并自定义样式
-    let final_style = if let Some(ref custom_style) = props.style {
-        format!("{} {}", container_styles, custom_style)
-    } else {
-        container_styles
-    };
+    // 生成内联样式
+    let inline_style = props.style.clone().unwrap_or_default();
 
     // 渲染组件
     match props.component {
         "div" => rsx! {
             div {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "section" => rsx! {
             section {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "article" => rsx! {
             article {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "aside" => rsx! {
             aside {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "header" => rsx! {
             header {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "footer" => rsx! {
             footer {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "main" => rsx! {
             main {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         "nav" => rsx! {
             nav {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },
         _ => rsx! {
             div {
-                class: "{final_class}",
-                style: "{final_style}",
+                class: "{class_name}",
+                style: "{inline_style}",
                 {props.children}
             }
         },

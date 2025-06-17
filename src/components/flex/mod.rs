@@ -104,6 +104,7 @@
 //! ```
 
 pub mod component;
+pub mod style_generator;
 pub mod styles;
 pub mod types;
 pub mod utils;

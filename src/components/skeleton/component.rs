@@ -2,6 +2,8 @@ use dioxus::prelude::*;
 
 use css_in_rust::css;
 
+use crate::config_provider::hooks::use_component_config;
+use super::style_generator::{SkeletonStyleGenerator, SkeletonSize};
 use super::styles::*;
 use super::types::*;
 use super::utils::*;
@@ -10,6 +12,15 @@ use super::utils::*;
 /// 在内容加载时显示占位符，提供更好的用户体验
 #[component]
 pub fn Skeleton(props: SkeletonProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    // skeleton组件暂时没有专门的配置，使用通用配置
+    let skeleton_config = None::<()>;
+
+    // skeleton组件暂时没有专门的配置，直接使用原始props
+    let props = props;
+
     let loading = props.loading.unwrap_or(true);
     let active = props.active.unwrap_or(false);
     let round = props.round.unwrap_or(false);
@@ -58,11 +69,29 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
         None
     };
 
-    // 生成样式
-    let container_style =
-        generate_skeleton_style(active, round, &theme, props.class_name.as_deref());
+    // 使用样式生成器生成样式
+    let style_generator = SkeletonStyleGenerator::new()
+        .with_active(active)
+        .with_loading(loading)
+        .with_avatar(has_avatar)
+        .with_title(has_title)
+        .with_paragraph(has_paragraph)
+        .with_round(round)
+        .with_size(SkeletonSize::Default);
 
-    let class_name = get_skeleton_class_name(loading, active, round, props.class_name.as_deref());
+    let generated_class = style_generator.generate();
+
+    // 组合自定义类名
+    let class_name = match &props.class_name {
+        Some(class) => format!("{} {}", generated_class, class),
+        None => generated_class,
+    };
+
+    // 组合自定义样式
+    let inline_style = match &props.style {
+        Some(style) => style.clone(),
+        None => String::new(),
+    };
     let title_props = title_props.unwrap();
     let paragraph_props = paragraph_props.unwrap();
 
@@ -74,7 +103,7 @@ pub fn Skeleton(props: SkeletonProps) -> Element {
     rsx! {
         div {
             class: "{class_name}",
-            style: "{container_style} {props_style.as_ref().unwrap()}",
+            style: "{inline_style}",
 
             // 头像和内容区域
             if has_avatar {

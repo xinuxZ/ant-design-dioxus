@@ -3,20 +3,33 @@ use wasm_bindgen::JsCast;
 use web_sys::{HtmlCanvasElement, HtmlImageElement};
 
 use crate::components::icon::{Icon, IconType};
+use crate::config_provider::hooks::use_component_config;
 
 use super::{
+    style_generator::QRCodeStyleGenerator,
     styles::{
-        generate_bordered_style, generate_container_style, generate_icon_style,
         generate_refresh_button_style, generate_status_mask_style, generate_status_text_style,
         get_status_icon_style, get_status_text,
     },
-    types::{QRCodeIconSettings, QRCodeProps, QRCodeStatus, QRCodeType, StatusRenderInfo},
+    types::{
+        QRCodeErrorLevel, QRCodeIconSettings, QRCodeProps, QRCodeStatus, QRCodeType,
+        StatusRenderInfo,
+    },
     utils::{generate_qrcode_data_url, generate_qrcode_svg},
 };
 
 /// QRCode 二维码组件
 #[component]
 pub fn QRCode(props: QRCodeProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    // qr_code组件暂时没有专门的配置，使用通用配置
+    let qr_config = None::<()>;
+
+    // qr_code组件暂时没有专门的配置，直接使用原始props
+    let props = props;
+
     let mut container_ref = use_signal(|| None::<web_sys::Element>);
     let mut qr_code_ref = use_signal(|| None::<web_sys::Element>);
     let mut error = use_signal(|| None::<String>);
@@ -70,24 +83,32 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         ..Default::default()
     });
 
-    // 容器样式
-    let container_class = generate_container_style();
-    let bordered_class = if props.clone().bordered.unwrap_or(true) {
-        generate_bordered_style()
-    } else {
-        String::new()
+    // 使用样式生成器生成样式
+    let size_value = match props.clone().size {
+        crate::components::qr_code::types::QRCodeSize::Small => 120,
+        crate::components::qr_code::types::QRCodeSize::Medium => 160,
+        crate::components::qr_code::types::QRCodeSize::Large => 200,
+        crate::components::qr_code::types::QRCodeSize::Custom(size) => size,
+    };
+
+    let style_generator = QRCodeStyleGenerator::new()
+        .with_size(size_value)
+        .with_error_level(props.clone().error_level)
+        .with_bordered(props.clone().bordered.unwrap_or(true))
+        .with_status(props.clone().status);
+
+    let generated_class = style_generator.generate();
+
+    // 组合自定义类名
+    let class_name = match &props.clone().class {
+        Some(class) => format!("{} {}", generated_class, class),
+        None => generated_class,
     };
 
     // 组合自定义样式
-    let combined_style = match &props.clone().style {
-        Some(style) => format!("{}; {}", style, ""),
+    let inline_style = match &props.clone().style {
+        Some(style) => style.clone(),
         None => String::new(),
-    };
-
-    // 组合自定义类名
-    let combined_class = match &props.clone().class {
-        Some(class) => format!("{} {} {}", container_class, bordered_class, class),
-        None => format!("{} {}", container_class, bordered_class),
     };
 
     // 渲染状态遮罩
@@ -115,13 +136,13 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     let icon_element = if let Some(icon_src) = props_icon {
         rsx! {
             img {
-                class: generate_icon_style(),
-                src: "{icon_src}",
-                width: "{props_icon_size}",
-                height: "{props_icon_size}",
-                onload: handle_icon_load,
-                alt: "QR Code Icon"
-            }
+            src: "{icon_src}",
+            width: "{props_icon_size}",
+            height: "{props_icon_size}",
+            onload: handle_icon_load,
+            alt: "QR Code Icon",
+            style: "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;"
+        }
         }
     } else {
         rsx!()
@@ -145,8 +166,8 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     // 渲染二维码组件
     rsx! {
         div {
-            class: "{combined_class}",
-            style: "{combined_style}",
+            class: "{class_name}",
+            style: "{inline_style}",
             onmounted: move |el| container_ref.set(Some(el.data().downcast::<web_sys::Element>().unwrap().clone())),
 
             // 二维码容器

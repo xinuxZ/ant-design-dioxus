@@ -2,6 +2,7 @@
 
 use super::types::{SpinProps, SpinSize, SpinTheme};
 use super::utils::*;
+use crate::config_provider::hooks::use_component_config;
 use dioxus::prelude::*;
 use gloo_timers::callback::Timeout;
 use std::rc::Rc;
@@ -65,6 +66,15 @@ use super::{
 /// ```
 #[component]
 pub fn Spin(props: SpinProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    // spin组件暂时没有专门的配置，使用通用配置
+    let spin_config = None::<()>;
+
+    // spin组件暂时没有专门的配置，直接使用原始props
+    let props = props;
+
     // 验证 Props
     if let Err(error) = validate_spin_props(&props) {
         return rsx! {

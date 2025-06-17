@@ -73,7 +73,7 @@ impl Default for IconProps {
 }
 
 /// 图标主题类型
-#[derive(Clone, PartialEq, Default, Debug)]
+#[derive(Clone, Copy, PartialEq, Default, Debug)]
 pub enum IconTheme {
     /// 线性图标（默认）
     #[default]
@@ -130,7 +130,7 @@ impl IconTheme {
 }
 
 /// Icon尺寸枚举
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum IconSize {
     /// 小尺寸 (12px)
     Small,

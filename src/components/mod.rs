@@ -86,12 +86,25 @@ pub mod button; // 按钮 - 依赖 icon, spin
 // pub mod tour;
 
 // 重新导出组件
-pub use alert::{Alert, AlertProps};
+pub use alert::{Alert, AlertProps, AlertType};
 pub use button::{Button, ButtonShape, ButtonSize, ButtonType, LoadingConfig};
 pub use divider::{Divider, DividerProps};
-pub use flex::{Flex, FlexProps};
+pub use flex::{
+    Flex, FlexProps,
+    // 样式生成函数
+    generate_flex_container_styles, generate_flex_item_styles, 
+    generate_grid_styles, generate_layout_styles,
+    get_flex_container_class, get_flex_item_class,
+    // 其他工具函数
+    generate_compact_theme_styles, generate_dark_theme_styles,
+    generate_responsive_styles, get_cross_axis_property,
+    get_main_axis_property, get_performance_optimized_styles,
+};
 pub use icon::{Icon, IconProps, IconType};
 pub use qr_code::{QRCode, QRCodeProps};
 pub use skeleton::{Skeleton, SkeletonProps};
-pub use space::{Space, SpaceProps};
+pub use space::{
+    Space, SpaceCompact, SpaceProps, SpaceCompactProps, SpaceSize, SpaceSizeConfig,
+    SpaceDirection, SpaceAlign, CompactSize, SpaceTheme, SpaceState,
+};
 pub use spin::{Spin, SpinProps};

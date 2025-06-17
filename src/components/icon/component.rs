@@ -1,8 +1,9 @@
 //! Icon 组件的核心实现
 
-use super::styles::*;
+use super::style_generator::IconStyleGenerator;
 use super::types::*;
 use super::utils::*;
+use crate::config_provider::hooks::use_component_config;
 use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 
@@ -29,6 +30,18 @@ use wasm_bindgen::JsCast;
 /// ```
 #[component]
 pub fn Icon(props: IconProps) -> Element {
+    // 获取全局配置
+    let component_config = use_component_config();
+    let read_config = component_config.read();
+    // icon组件暂时没有专门的配置，使用通用配置
+    let icon_config = None::<()>;
+
+    // icon组件暂时没有专门的配置，直接使用原始props
+    let props = props;
+
+    // 先克隆props避免所有权问题
+    let props_clone = props.clone();
+    
     let IconProps {
         icon_type,
         theme,
@@ -49,28 +62,45 @@ pub fn Icon(props: IconProps) -> Element {
     let spin = spin;
     let disabled = disabled;
     let clickable = on_click.is_some();
+    let class_name_memo = use_memo(move || {
+        // 使用样式生成器
+        let icon_class = IconStyleGenerator::new()
+            .with_size(props_clone.size.clone().unwrap_or(IconSize::Default))
+            .with_color(None) // 颜色通过CSS变量或主题控制
+            .with_spin(props_clone.spin)
+            .with_rotate(props_clone.rotate)
+            .generate();
 
-    // 生成样式
-    let icon_style = generate_icon_style(
-        &theme,
-        size.as_ref(),
-        rotate,
-        spin,
-        disabled,
-        clickable,
-        two_tone_color.as_deref(),
-    );
+        // 添加主题相关类名
+        let mut classes = vec![icon_class];
+        
+        // 添加主题类名
+        let theme_class = match props_clone.theme.clone().unwrap_or(IconTheme::Outlined) {
+            IconTheme::Outlined => "anticon-outlined",
+            IconTheme::Filled => "anticon-filled",
+            IconTheme::TwoTone => "anticon-twotone",
+        };
+        classes.push(theme_class.to_string());
+        
+        // 添加状态类名
+        if props_clone.disabled {
+            classes.push("anticon-disabled".to_string());
+        }
+        
+        if props_clone.on_click.is_some() {
+            classes.push("anticon-clickable".to_string());
+        }
+        
+        // 添加自定义类名
+        if let Some(custom_class) = &props_clone.class_name {
+            classes.push(custom_class.clone());
+        }
 
-    // 生成CSS类名
-    let css_classes =
-        generate_class_names(&theme, spin, disabled, clickable, class_name.as_deref());
+        classes.join(" ")
+    });
 
-    // 合并自定义样式
-    let final_style = if let Some(custom_style) = style {
-        format!("{} {}", icon_style, custom_style)
-    } else {
-        icon_style
-    };
+    // 生成内联样式
+    let inline_style = style.clone().unwrap_or_default();
 
     // 处理点击事件
     let handle_click = move |event: MouseEvent| {
@@ -114,8 +144,8 @@ pub fn Icon(props: IconProps) -> Element {
 
     rsx! {
         span {
-            class: "{css_classes}",
-            style: "{final_style}",
+            class: "{class_name_memo}",
+            style: "{inline_style}",
             onclick: handle_click,
             role: if clickable { "button" } else { "img" },
             tabindex: if clickable && !disabled { "0" } else { "-1" },

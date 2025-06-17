@@ -55,6 +55,7 @@
 // 子模块声明
 mod component;
 mod styles;
+mod style_generator;
 mod types;
 mod utils;
 

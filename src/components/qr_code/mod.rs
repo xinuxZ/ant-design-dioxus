@@ -45,6 +45,7 @@
 //! ```
 
 mod component;
+mod style_generator;
 mod styles;
 mod types;
 mod utils;
