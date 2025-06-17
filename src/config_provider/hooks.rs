@@ -2,7 +2,7 @@
 //!
 //! 提供Dioxus特有的配置钩子函数，用于在组件中访问和管理配置
 
-use crate::config_provider::{
+use super::{
     config_utils::{ConfigError, ConfigManager, MergeStrategy},
     ComponentConfig, PopupConfig, SecurityConfig, VirtualScrollConfig,
 };
@@ -46,7 +46,6 @@ impl std::fmt::Debug for GlobalConfigContext {
             .finish()
     }
 }
-
 /// 配置提供者属性
 #[derive(Props, Clone)]
 pub struct ConfigProviderProps {
@@ -109,6 +108,8 @@ impl std::fmt::Debug for ConfigProviderProps {
 }
 
 /// 配置提供者组件
+///
+/// 为子组件提供全局配置上下文
 #[component]
 pub fn ConfigProvider(props: ConfigProviderProps) -> Element {
     let theme_config = use_signal(|| props.theme_config.clone());
@@ -482,19 +483,28 @@ pub fn use_config_sync() -> impl Fn() -> Result<(), ConfigError> {
             #[cfg(target_arch = "wasm32")]
             {
                 use web_sys::window;
-                
+
                 if let Some(window) = window() {
                     if let Ok(Some(storage)) = window.local_storage() {
-                        storage.set_item("ant_design_config", &config_str)
-                            .map_err(|_| ConfigError::SerializationError("无法保存到localStorage".to_string()))?;
+                        storage
+                            .set_item("ant_design_config", &config_str)
+                            .map_err(|_| {
+                                ConfigError::SerializationError(
+                                    "无法保存到localStorage".to_string(),
+                                )
+                            })?;
                     } else {
-                        return Err(ConfigError::SerializationError("localStorage不可用".to_string()));
+                        return Err(ConfigError::SerializationError(
+                            "localStorage不可用".to_string(),
+                        ));
                     }
                 } else {
-                    return Err(ConfigError::SerializationError("window对象不可用".to_string()));
+                    return Err(ConfigError::SerializationError(
+                        "window对象不可用".to_string(),
+                    ));
                 }
             }
-            
+
             #[cfg(not(target_arch = "wasm32"))]
             {
                 // 非WASM环境下的处理
@@ -512,24 +522,29 @@ pub fn use_config_load() -> impl Fn() -> Result<Option<serde_json::Value>, Confi
         #[cfg(target_arch = "wasm32")]
         {
             use web_sys::window;
-            
+
             if let Some(window) = window() {
                 if let Ok(Some(storage)) = window.local_storage() {
                     if let Ok(Some(config_json)) = storage.get_item("ant_design_config") {
                         match serde_json::from_str::<serde_json::Value>(&config_json) {
                             Ok(config) => return Ok(Some(config)),
-                            Err(e) => return Err(ConfigError::TransformError(format!("解析localStorage配置失败: {}", e))),
+                            Err(e) => {
+                                return Err(ConfigError::TransformError(format!(
+                                    "解析localStorage配置失败: {}",
+                                    e
+                                )))
+                            }
                         }
                     }
                 }
             }
         }
-        
+
         #[cfg(not(target_arch = "wasm32"))]
         {
             // 非WASM环境下返回None
         }
-        
+
         Ok(None)
     }
 }
@@ -540,15 +555,16 @@ pub fn use_config_clear() -> impl Fn() -> Result<(), ConfigError> {
         #[cfg(target_arch = "wasm32")]
         {
             use web_sys::window;
-            
+
             if let Some(window) = window() {
                 if let Ok(Some(storage)) = window.local_storage() {
-                    storage.remove_item("ant_design_config")
-                        .map_err(|_| ConfigError::SerializationError("清除localStorage配置失败".to_string()))?;
+                    storage.remove_item("ant_design_config").map_err(|_| {
+                        ConfigError::SerializationError("清除localStorage配置失败".to_string())
+                    })?;
                 }
             }
         }
-        
+
         Ok(())
     }
 }
@@ -625,7 +641,7 @@ fn validate_virtual_scroll_config(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use dioxus::prelude::*;
+    // use dioxus::prelude::*;
 
     #[test]
     fn test_config_validation() {

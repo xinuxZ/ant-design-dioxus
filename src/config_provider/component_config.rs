@@ -8,6 +8,8 @@ use std::collections::HashMap;
 /// 组件配置集合
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ComponentConfig {
+    /// 警告提示组件配置
+    pub alert: Option<AlertConfig>,
     /// 按钮组件配置
     pub button: Option<ButtonConfig>,
     /// 输入框组件配置
@@ -28,6 +30,45 @@ pub struct ComponentConfig {
     pub date_picker: Option<DatePickerConfig>,
     /// 上传组件配置
     pub upload: Option<UploadConfig>,
+}
+
+/// 警告提示组件配置
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AlertConfig {
+    /// 默认类型
+    pub default_type: Option<AlertType>,
+    /// 默认尺寸
+    pub default_size: Option<AlertSize>,
+    /// 是否可关闭
+    pub closable: Option<bool>,
+    /// 是否显示图标
+    pub show_icon: Option<bool>,
+    /// 是否为横幅模式
+    pub banner: Option<bool>,
+    /// 是否启用动画
+    pub enable_animation: Option<bool>,
+    /// 动画持续时间（毫秒）
+    pub animation_duration: Option<u32>,
+    /// 自定义类名
+    pub class_name: Option<String>,
+    /// 自定义样式
+    pub style: Option<HashMap<String, String>>,
+}
+
+impl Default for AlertConfig {
+    fn default() -> Self {
+        Self {
+            default_type: Some(AlertType::Info),
+            default_size: Some(AlertSize::Default),
+            closable: Some(false),
+            show_icon: Some(false),
+            banner: Some(false),
+            enable_animation: Some(true),
+            animation_duration: Some(300),
+            class_name: None,
+            style: None,
+        }
+    }
 }
 
 /// 按钮组件配置
@@ -434,11 +475,29 @@ pub enum UploadType {
     Drag,
 }
 
+/// 警告提示类型
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum AlertType {
+    Success,
+    Info,
+    Warning,
+    Error,
+}
+
+/// 警告提示尺寸
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum AlertSize {
+    Small,
+    Default,
+    Large,
+}
+
 /// 组件配置合并工具
 impl ComponentConfig {
     /// 合并两个组件配置
     pub fn merge(base: Self, override_config: Self) -> Self {
         Self {
+            alert: override_config.alert.or(base.alert),
             button: override_config.button.or(base.button),
             input: override_config.input.or(base.input),
             table: override_config.table.or(base.table),
@@ -491,5 +550,10 @@ impl ComponentConfig {
 
     pub fn get_upload_config(&self) -> Option<&UploadConfig> {
         self.upload.as_ref()
+    }
+
+    /// 获取警告提示组件配置
+    pub fn get_alert_config(&self) -> Option<&AlertConfig> {
+        self.alert.as_ref()
     }
 }
