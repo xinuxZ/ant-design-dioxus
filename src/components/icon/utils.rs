@@ -264,7 +264,12 @@ pub fn get_common_icon_svg(icon_type: &IconType) -> Option<SvgIcon> {
             width: None,
             height: None,
         }),
-        _ => todo!()
+        _ => Some(SvgIcon {
+            view_box: "0 0 1024 1024".to_string(),
+            path: "M456 231a56 56 0 1 0 112 0 56 56 0 1 0-112 0zm0 280a56 56 0 1 0 112 0 56 56 0 1 0-112 0zm0 280a56 56 0 1 0 112 0 56 56 0 1 0-112 0z".to_string(),
+            width: None,
+            height: None,
+        })
 
     }
 }

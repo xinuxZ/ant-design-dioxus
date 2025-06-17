@@ -106,21 +106,26 @@ pub fn Alert(props: AlertProps) -> Element {
     // 动画定时器
     let mut animation_timer = use_signal(|| None::<Timeout>);
 
-    // 组件挂载效果
+    // 组件挂载效果 - 修复 hooks 规则违规
     use_effect(move || {
-        if !alert_state.read().mounted {
-            alert_state.write().mounted = true;
-            if props.visible && props.enable_animation {
-                alert_state.write().animation_state = AnimationState::Entering;
-
-                // 设置进入动画完成定时器
-                let timer = Timeout::new(props.animation_duration, move || {
+        let current_state = alert_state.read();
+        if !current_state.mounted {
+            // 在下一个 tick 中更新状态，避免在同一个 effect 中读写
+            spawn(async move {
+                alert_state.write().mounted = true;
+                
+                if props.visible && props.enable_animation {
+                    alert_state.write().animation_state = AnimationState::Entering;
+                    
+                    // 设置进入动画完成定时器
+                    let timer = Timeout::new(props.animation_duration, move || {
+                        alert_state.write().animation_state = AnimationState::Entered;
+                    });
+                    animation_timer.set(Some(timer));
+                } else if props.visible {
                     alert_state.write().animation_state = AnimationState::Entered;
-                });
-                animation_timer.set(Some(timer));
-            } else if props.visible {
-                alert_state.write().animation_state = AnimationState::Entered;
-            }
+                }
+            });
         }
     });
 
@@ -130,13 +135,18 @@ pub fn Alert(props: AlertProps) -> Element {
     let animation_duration = props.animation_duration;
     let after_close = props.after_close.clone();
 
-    let current_visible_clone = internal_visible.clone();
-    // 监听visible属性变化
-    use_effect(move || {
-        // let current_visible = internal_visible.read();
-        if visible != *current_visible_clone.read() {
+    // 监听visible属性变化 - 分离读取和写入操作
+    let current_visible = *internal_visible.read();
+    
+    // 只在 visible 状态真正改变时更新
+    if visible != current_visible {
+        // 在独立的作用域中更新 internal_visible
+        use_effect(move || {
             internal_visible.set(visible);
-
+        });
+        
+        // 在另一个独立的作用域中处理状态变化
+        use_effect(move || {
             if visible {
                 // 显示Alert
                 alert_state.write().visible = true;
@@ -160,8 +170,8 @@ pub fn Alert(props: AlertProps) -> Element {
                     &mut animation_timer,
                 );
             }
-        }
-    });
+        });
+    }
 
     // 自动聚焦
     let mut alert_ref = use_signal(|| None::<web_sys::Element>);
