@@ -74,20 +74,12 @@ pub fn generate_qrcode_data_url(
 
     // 创建SVG字符串
     let mut svg = String::new();
-    writeln!(
+    use std::fmt::Write;
+    write!(
         svg,
-        r#"<svg width="{}" height="{}" viewBox="0 0 {} {}" xmlns="http://www.w3.org/2000/svg">"#,
-        size, size, size, size
-    )
-    .unwrap();
-
-    // 背景
-    writeln!(
-        svg,
-        r#"<rect width="{}" height="{}" fill="{}"/>"#,
-        size, size, bg_color
-    )
-    .unwrap();
+        "<svg width=\"{}\" height=\"{}\" viewBox=\"0 0 {} {}\" xmlns=\"http://www.w3.org/2000/svg\">\n<rect width=\"{}\" height=\"{}\" fill=\"{}\"/>\n",
+        size, size, size, size, size, size, bg_color
+    ).map_err(|e| format!("Failed to write SVG header: {}", e))?;
 
     // 绘制二维码模块
     for y in 0..width {
@@ -95,17 +87,16 @@ pub fn generate_qrcode_data_url(
             if qr.is_functional(x as usize, y as usize) {
                 let x_pos = x * module_size;
                 let y_pos = y * module_size;
-                writeln!(
+                write!(
                     svg,
-                    r#"<rect x="{}" y="{}" width="{}" height="{}" fill="{}"/>"#,
+                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\"/>\n",
                     x_pos, y_pos, module_size, module_size, color
-                )
-                .unwrap();
+                ).map_err(|e| format!("Failed to write SVG rect: {}", e))?;
             }
         }
     }
 
-    writeln!(svg, "</svg>").unwrap();
+    write!(svg, "</svg>").map_err(|e| format!("Failed to write SVG footer: {}", e))?;
 
     // 转换为Data URL
     let svg_base64 = base64::encode(&svg);

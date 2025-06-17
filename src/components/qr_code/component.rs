@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlCanvasElement, HtmlImageElement};
+use web_sys::{window, CanvasRenderingContext2d, HtmlCanvasElement, HtmlImageElement};
 
 use crate::components::icon::{Icon, IconType};
 use crate::config_provider::hooks::use_component_config;
@@ -44,13 +45,11 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         }
 
         let qr_element = qr_code_ref.read().as_ref().cloned();
-        if qr_element.is_none() {
-            return;
-        }
-
-        match props_type {
-            QRCodeType::Svg => render_svg_qrcode(&props_clone, qr_element.unwrap(), error),
-            QRCodeType::Canvas => render_canvas_qrcode(&props_clone, qr_element.unwrap(), error),
+        if let Some(element) = qr_element {
+            match props_type {
+                QRCodeType::Svg => render_svg_qrcode(&props_clone, element.clone(), error),
+                QRCodeType::Canvas => render_canvas_qrcode(&props_clone, element, error),
+            }
         }
     };
 
@@ -70,8 +69,12 @@ pub fn QRCode(props: QRCodeProps) -> Element {
     };
 
     // 当内容、大小、颜色等属性变化时重新渲染二维码
+    let value = render_qrcode.clone();
     use_effect(move || {
-        render_qrcode();
+        let value = value.clone();
+        spawn(async move {
+            value();
+        });
     });
 
     // 创建图标设置
@@ -168,11 +171,19 @@ pub fn QRCode(props: QRCodeProps) -> Element {
         div {
             class: "{class_name}",
             style: "{inline_style}",
-            onmounted: move |el| container_ref.set(Some(el.data().downcast::<web_sys::Element>().unwrap().clone())),
+            onmounted: move |el| {
+                if let Some(element) = el.data().downcast::<web_sys::Element>() {
+                    container_ref.set(Some(element.clone()));
+                }
+            },
 
             // 二维码容器
             div {
-                onmounted: move |el| qr_code_ref.set(Some(el.data().downcast::<web_sys::Element>().unwrap().clone())),
+                onmounted: move |el| {
+                    if let Some(element) = el.data().downcast::<web_sys::Element>() {
+                        qr_code_ref.set(Some(element.clone()));
+                    }
+                },
                 style: "width: {props_size}px; height: {props_size}px;"
             }
 
@@ -245,9 +256,34 @@ fn render_canvas_qrcode(
     element.set_inner_html("");
 
     // 创建Canvas元素
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.create_element("canvas").unwrap();
-    let canvas = canvas.dyn_into::<HtmlCanvasElement>().unwrap();
+    let window = match web_sys::window() {
+        Some(w) => w,
+        None => {
+            error.set(Some("Failed to get window object".to_string()));
+            return;
+        }
+    };
+    let document = match window.document() {
+        Some(d) => d,
+        None => {
+            error.set(Some("Failed to get document object".to_string()));
+            return;
+        }
+    };
+    let canvas_element = match document.create_element("canvas") {
+        Ok(e) => e,
+        Err(_) => {
+            error.set(Some("Failed to create canvas element".to_string()));
+            return;
+        }
+    };
+    let canvas = match canvas_element.dyn_into::<HtmlCanvasElement>() {
+        Ok(c) => c,
+        Err(_) => {
+            error.set(Some("Failed to cast to HtmlCanvasElement".to_string()));
+            return;
+        }
+    };
 
     // 获取尺寸和颜色
     let size = match props.size {
@@ -263,16 +299,38 @@ fn render_canvas_qrcode(
     canvas.set_width(size);
     canvas.set_height(size);
 
+    let rest = element.append_child(&canvas);
+
+    // 设置Canvas大小
     // 添加Canvas到容器
-    element.append_child(&canvas).unwrap();
+    if let Err(_) = element.append_child(&canvas) {
+        error.set(Some("Failed to append canvas to container".to_string()));
+        return;
+    }
 
     // 获取绘图上下文
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
+    let context_result = canvas.get_context("2d");
+    let context_obj = match context_result {
+        Ok(Some(ctx)) => ctx,
+        Ok(None) => {
+            error.set(Some("Failed to get 2d context".to_string()));
+            return;
+        }
+        Err(_) => {
+            error.set(Some("Failed to get canvas context".to_string()));
+            return;
+        }
+    };
+    dioxus::logger::tracing::debug!("22222222222222");
+    let context = match context_obj.dyn_into::<web_sys::CanvasRenderingContext2d>() {
+        Ok(ctx) => ctx,
+        Err(_) => {
+            error.set(Some(
+                "Failed to cast to CanvasRenderingContext2d".to_string(),
+            ));
+            return;
+        }
+    };
 
     // 绘制背景
     context.set_fill_style(&wasm_bindgen::JsValue::from_str(bg_color));
@@ -282,22 +340,43 @@ fn render_canvas_qrcode(
     match generate_qrcode_data_url(&props.value, size, color, bg_color, props.error_level) {
         Ok(data_url) => {
             // 创建图片元素
-            let img = HtmlImageElement::new().unwrap();
+            let img = match document
+                .create_element("img")
+                .map_err(|e| format!("Failed to create img element: {:?}", e))
+                .and_then(|element| {
+                    element
+                        .dyn_into::<HtmlImageElement>()
+                        .map_err(|_| "Failed to cast to HtmlImageElement".to_string())
+                }) {
+                Ok(img) => img,
+                Err(e) => {
+                    error.set(Some(format!("Failed to create image element: {}", e)));
+                    return;
+                }
+            };
 
             // 设置图片加载完成后的回调
             let context_clone = context.clone();
             let canvas_width = size as f64;
             let canvas_height = size as f64;
-            let mut error_clone = error.clone();
+            let error_clone = error.clone();
 
             let img_clone = img.clone();
             let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move || {
                 // 绘制二维码图片
-                context_clone
-                    .draw_image_with_html_image_element(&img_clone, canvas_width, canvas_height)
-                    .unwrap();
+                let mut error_for_draw = error_clone.clone();
+                let context_for_draw = context_clone.clone();
+                let img_for_draw = img_clone.clone();
 
-                error_clone.set(None);
+                if let Err(err) =
+                    context_for_draw.draw_image_with_html_image_element(&img_for_draw, 0.0, 0.0)
+                {
+                    dioxus::logger::tracing::error!("5-444444444: {:?}", err);
+                    error_for_draw.set(Some(format!("Failed to draw image: {:?}", err)));
+                } else {
+                    dioxus::logger::tracing::error!("6-444444444: Image drawn successfully");
+                    error_for_draw.set(None);
+                }
             }) as Box<dyn FnMut()>);
 
             img.set_onload(Some(closure.as_ref().unchecked_ref()));
