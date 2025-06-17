@@ -368,6 +368,7 @@ fn render_canvas_qrcode(
                 let context_for_draw = context_clone.clone();
                 let img_for_draw = img_clone.clone();
 
+                // 此处不可使用 spawn
                 if let Err(err) =
                     context_for_draw.draw_image_with_html_image_element(&img_for_draw, 0.0, 0.0)
                 {
