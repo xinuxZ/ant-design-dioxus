@@ -4,7 +4,7 @@
 //! for convenient importing.
 
 pub use crate::components::*;
-pub use crate::config_provider::ConfigProvider;
+pub use crate::config_provider::{ConfigProvider, ConfigProviderProps};
 pub use crate::hooks::*;
 pub use crate::theme::{ThemeConfig, ThemeProvider};
 pub use crate::utils::*;
